@@ -8,8 +8,6 @@ package DropboxGrader;
  *
  * @author 141lyonsm
  */
-public class Main {
-    public static void main(String[] args) {
-        DbxSession session=new DbxSession();
-    }
+public class Config {
+    
 }

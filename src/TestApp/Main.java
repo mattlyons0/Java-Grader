@@ -1,0 +1,64 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package TestApp;
+
+import com.dropbox.core.DbxAppInfo;
+import com.dropbox.core.DbxAuthFinish;
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.DbxWebAuthNoRedirect;
+import java.awt.Desktop;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Locale;
+
+/**
+ *https://www.dropbox.com/developers/core/start/java
+ * @author 141lyonsm
+ */
+public class Main {
+    public final static String appName="Matt Lyons Assignment Grader";
+    public final static double appVersion=0.1;
+    public static void main(String[] args) throws IOException, DbxException {
+        final String APP_KEY = "681xzhh2nqu3hjc";
+        final String APP_SECRET = "k7e1pkfljgg1jdb";
+
+        DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
+
+        DbxRequestConfig config = new DbxRequestConfig(
+            appName+" "+appVersion, Locale.getDefault().toString());
+        DbxWebAuthNoRedirect webAuth = new DbxWebAuthNoRedirect(config, appInfo);
+        openWebsite(webAuth.start());
+        String code = new BufferedReader(new InputStreamReader(System.in)).readLine().trim();
+        DbxAuthFinish authFinish = webAuth.finish(code);
+        
+        DbxClient client = new DbxClient(config, authFinish.accessToken);
+        System.out.println("Linked account: " + client.getAccountInfo().displayName);
+        DbxEntry.WithChildren listing = client.getMetadataWithChildren("/DROPitTOme");
+        System.out.println("Files in the root path:");
+        for (DbxEntry child : listing.children) {
+            System.out.println("	" + child.name + ": " + child.toString());
+        }
+    }
+    private static void openWebsite(String url){
+        Desktop desktop=Desktop.getDesktop();
+        if(desktop!=null&&desktop.isSupported(Desktop.Action.BROWSE)){
+            try{
+                desktop.browse(new URL(url).toURI());
+            }
+            catch(URISyntaxException | IOException e){
+                System.out.println("Error opening url. "+e);
+            }
+        }
+        else{
+            System.out.println("Opening urls is not supported.");
+        }
+    }
+}
