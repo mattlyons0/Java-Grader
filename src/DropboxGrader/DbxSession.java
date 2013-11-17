@@ -37,6 +37,7 @@ public class DbxSession {
     private final String APP_KEY = "681xzhh2nqu3hjc";
     private final String APP_SECRET = "k7e1pkfljgg1jdb";
     private final File appKey;
+    private boolean invalidToken=false;
     private DbxClient client;
     
     public DbxSession(){
@@ -52,36 +53,36 @@ public class DbxSession {
         DbxRequestConfig config = new DbxRequestConfig(
             appName+" "+appVersion, Locale.getDefault().toString());
         DbxWebAuthNoRedirect webAuth = new DbxWebAuthNoRedirect(config, appInfo);
-        DbxAuthFinish authFinish;
-        if(!appKey.exists()){
-            authFinish=getKey(true,webAuth);
+        if(!appKey.exists()||invalidToken){
+            client=new DbxClient(config,getToken(true,webAuth));
         }
         else{
-            authFinish=getKey(false,webAuth);
+            client=new DbxClient(config,getToken(false,webAuth));
         }
-        
-        client = new DbxClient(config, authFinish.accessToken);
         try {
             System.out.println("Linked account: " + client.getAccountInfo().displayName);
         } catch (DbxException ex) {
-            GuiHelper.alertDialog("Error accessing dropbox account: "+ex);
+            invalidToken=true;
+            createSession();
         }
     }
-    private DbxAuthFinish getKey(boolean newKey,DbxWebAuthNoRedirect webAuth){
+    private String getToken(boolean newKey,DbxWebAuthNoRedirect webAuth){
         String key;
+        DbxAuthFinish val;
         if(newKey){
             openWebsite(webAuth.start());
             key=GuiHelper.inputDialog("Please login and paste the code here:");
-            writeToFile(appKey,key);
+            try {
+                val=webAuth.finish(key);
+            } catch (DbxException ex) {
+                Logger.getLogger(DbxSession.class.getName()).log(Level.SEVERE, null, ex);
+                val=null;
+            }
+            writeToFile(appKey,val.accessToken);
+            return val.accessToken;
         }
         else{
-            key=readFromFile(appKey);
-        }
-        try {
-            return webAuth.finish(key);
-        } catch (DbxException ex) {
-            System.out.println("Dropbox session error: "+ex+"\nRetrying with new appkey.");
-            return getKey(true,webAuth);
+            return readFromFile(appKey);
         }
     }
     private void writeToFile(File f,String s){
