@@ -67,4 +67,7 @@ public class FileManager {
     public String getUnzipFolder(){
         return downloadFolder+"/"+unzipedFolder;
     }
+    public ArrayList<DbxFile> getFiles(){
+        return files;
+    }
 }
