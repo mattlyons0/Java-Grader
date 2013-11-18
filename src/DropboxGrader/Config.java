@@ -9,5 +9,8 @@ package DropboxGrader;
  * @author 141lyonsm
  */
 public class Config {
+    public Config(){
+        
+    }
     
 }

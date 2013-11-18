@@ -39,9 +39,11 @@ public class DbxSession {
     private final File appKey;
     private boolean invalidToken=false;
     private DbxClient client;
+    private Gui gui;
     
-    public DbxSession(){
+    public DbxSession(Gui gui){
         appKey=new File("app.key");
+        this.gui=gui;
         
         createSession();
     }
@@ -70,7 +72,9 @@ public class DbxSession {
         String key;
         DbxAuthFinish val;
         if(newKey){
+            gui.promptKey();
             openWebsite(webAuth.start());
+            
             key=GuiHelper.inputDialog("Please login and paste the code here:");
             try {
                 val=webAuth.finish(key);

@@ -10,8 +10,6 @@ package DropboxGrader;
  */
 public class Main {
     public static void main(String[] args) {
-        DbxSession session=new DbxSession();
-        FileManager man=new FileManager("DROPitTOme","P2",session.getClient());
-        man.downloadAll();
+        Gui gui=new Gui();
     }
 }
