@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.params=geometry
+comment0.target=Builder(java.awt.Graphics2D)
+comment0.text=I\ put\ in\ the\ offset\ so\ I\ could\ make\ it\ scroll\ down\ the\ street\r\n\ \ \ although\ with\ all\ the\ random\ perameters\ that\ would\ be\ hard\ to\ \r\n\ \ \ replicate\ since\ theres\ no\ way\ to\ change\ the\ position\ of\ 2d\r\n\ \ \ geometry\ without\ re-creating\ it.\ Originally\ I\ planned\ maybe\r\n\ \ \ 1\ or\ 2\ random\ parameters\ but\ it\ turned\ out\ to\ be\ a\ huge\ \r\n\ \ \ ammount.\ I\ thought\ it\ would\ be\ maybe\ 10\ lines\ max\ to\ draw\r\n\ \ \ each\ house\ but\ if\ I\ knew\ it\ would\ have\ been\ this\ big\ I\ \r\n\ \ \ would\ have\ made\ a\ house\ object\ for\ each\ house,\ and\ seperate\r\n\ \ \ it\ into\ steps\ such\ as\ floors\ at\ a\ time\ (and\ even\ seperating\r\n\ \ \ making\ rectangles\ so\ I\ could\ fill\ them\ ahead\ of\ time)\ Also\ I\ \r\n\ \ \ have\ to\ fill\ the\ rectangles\ in\ order\ so\ the\ windows\ dont\ get\r\n\ \ \ covered,\ so\ that\ made\ the\ code\ messy\ fast.\ Had\ a\ blast\ writing\r\n\ \ \ it\ though.\ I\ may\ animate\ it\ in\ the\ future\ and\ refactor\ the\ code.\r\n
+comment1.params=offset
+comment1.target=void\ setOffset(int)
+comment2.params=x\ y
+comment2.target=void\ house(int,\ int)
+comment3.params=x\ y\ width
+comment3.target=void\ street(int,\ int,\ int)
+comment4.params=max
+comment4.target=int\ random(int)
+comment5.params=
+comment5.target=java.awt.Color\ randColor()
+comment6.params=height\ width\ houses
+comment6.target=void\ makeBlock(int,\ int,\ int)
+comment7.params=
+comment7.target=java.lang.String\ toString()
+numComments=8

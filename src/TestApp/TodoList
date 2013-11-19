@@ -1,0 +1,10 @@
+Catch wrongly formatted assignments (less than expected underscores)
+Catch and sort 2nd year students
+Drive integration
+Config
+Use Progress Bar/Multithread
+Store .java file locations in DbxFile
+Run files and handle user input somehow.
+GUI for grading.
+Maybe encrypt key
+Handle resubmits.

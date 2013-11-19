@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -14,8 +15,6 @@ import javax.tools.ToolProvider;
  */
 public class RunJava {
     public static void main(String[] args) throws IOException {
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-
         // creating a file, but you could load an existing one
         FileOutputStream javaFile = new FileOutputStream("Test.java");
         javaFile.write("public class Test { public static void main(String[] args) { javax.swing.JOptionPane.showMessageDialog(null, \"I'm here!\",\"Test\", 1);}}"

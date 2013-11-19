@@ -39,6 +39,7 @@ public class DbxSession {
     private final File appKey;
     private boolean invalidToken=false;
     private DbxClient client;
+    private DbxWebAuthNoRedirect webAuth;
     private Gui gui;
     
     public DbxSession(Gui gui){
@@ -54,40 +55,48 @@ public class DbxSession {
         DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
         DbxRequestConfig config = new DbxRequestConfig(
             appName+" "+appVersion, Locale.getDefault().toString());
-        DbxWebAuthNoRedirect webAuth = new DbxWebAuthNoRedirect(config, appInfo);
+        webAuth = new DbxWebAuthNoRedirect(config, appInfo);
         if(!appKey.exists()||invalidToken){
-            client=new DbxClient(config,getToken(true,webAuth));
+            String token=getToken(true);
+            if(token!=null)
+            client=new DbxClient(config,token);
+            else
+                return; //return if there no key specified yet.
         }
         else{
-            client=new DbxClient(config,getToken(false,webAuth));
+            client=new DbxClient(config,getToken(false));
         }
         try {
-            System.out.println("Linked account: " + client.getAccountInfo().displayName);
+            gui.goodKey(client.getAccountInfo().displayName,client);
         } catch (DbxException ex) {
             invalidToken=true;
             createSession();
         }
     }
-    private String getToken(boolean newKey,DbxWebAuthNoRedirect webAuth){
-        String key;
-        DbxAuthFinish val;
+    private String getToken(boolean newKey){
         if(newKey){
             gui.promptKey();
             openWebsite(webAuth.start());
-            
-            key=GuiHelper.inputDialog("Please login and paste the code here:");
-            try {
-                val=webAuth.finish(key);
-            } catch (DbxException ex) {
-                Logger.getLogger(DbxSession.class.getName()).log(Level.SEVERE, null, ex);
-                val=null;
-            }
-            writeToFile(appKey,val.accessToken);
-            return val.accessToken;
+
+            return null;
         }
         else{
             return readFromFile(appKey);
         }
+    }
+    public void setKey(String key){
+        String val;
+        try {
+                val=webAuth.finish(key).accessToken;
+            } catch (DbxException ex) {
+                if(ex instanceof DbxException.BadRequest){
+                    gui.badKey();
+                    return;
+                }
+                val=null;
+            }
+            writeToFile(appKey,val);
+            createSession();
     }
     private void writeToFile(File f,String s){
         try{
