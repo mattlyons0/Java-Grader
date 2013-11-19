@@ -10,10 +10,14 @@ import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
 import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -30,10 +34,14 @@ public class DbxFile {
     private DbxClient client;
     private File downloadedFile;
     private File[] javaFiles;
+    private final String errorMsg;
     public DbxFile(DbxEntry.File entry,FileManager fileMan,DbxClient client){
         this.entry=entry;
         fileManager=fileMan;
         this.client=client;
+        
+        errorMsg="File Naming Error: "+entry.name;
+        
         checkExists();
     }
     private void checkExists(){ //ties reference if it is already downloaded
@@ -64,14 +72,25 @@ public class DbxFile {
             return null;
         }
     }
-    public int getAssignmentNumber(){
+    public String getAssignmentNumber(){
         String s=entry.name;
-        return Integer.parseInt(s.split("_")[2]);//assignment number is the 3rd underscore
+        
+        int num=stringToInt(s.split("_")[2]);
+        if(num==-1){
+            return errorMsg;
+        }
+        return num+"";//assignment number is the 3rd underscore
     }
     public String getAssignmentName(){
         String s=entry.name;
-        s=s.split("_")[3];
-        return s.substring(0, s.length()-4);//assignment name is 4th underscore, .zip is the last 4 characters
+        String[] splits=s.split("_");
+        if(splits.length<4){
+            return errorMsg;
+        }
+        if(splits[3].length()<4){
+            return errorMsg;
+        }
+        return splits[3].substring(0, splits[3].length()-4);//assignment name is 4th underscore, .zip is the last 4 characters
     }
     /**
      * The submission time on the dropbox server. This is the the most recent revision date.
@@ -100,6 +119,19 @@ public class DbxFile {
             return "Downloaded";
         }
         return "Unknown"; //downloaded but file doesnt exist.
+    }
+    private int stringToInt(String s){
+        char[] chars=s.toCharArray();
+        String num="";
+        for(int x=0;x<s.length();x++){
+            if(Character.isDigit(chars[x])){
+                num+=chars[x];
+            }
+        }
+        if(num.length()==0){
+            return -1;
+        }
+        return Integer.parseInt(num);
     }
     private void setFile(File f){
         downloadedFile=f;
@@ -148,12 +180,14 @@ public class DbxFile {
     private String readFile(File f){
         try {
             Scanner reader=new Scanner(f);
+            reader.useDelimiter("\n");
             String read="";
             while(reader.hasNext()){
                 read+=reader.next()+"\n";
             }
+            
             return read;
-        } catch (FileNotFoundException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             return null;
         }

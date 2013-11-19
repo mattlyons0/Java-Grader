@@ -7,6 +7,9 @@ package DropboxGrader;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.util.Arrays;
 import javax.swing.JComponent;
@@ -40,14 +43,18 @@ public class JavaCodeBrowser extends Container{
         browserArea=new JTextArea[numFiles];
         fileWindows=new JPanel[numFiles];
         scrolls=new JScrollPane [numFiles];
-        
+        GridBagConstraints constraints=new GridBagConstraints();
+        constraints.fill=GridBagConstraints.BOTH;
+        constraints.weightx=1;
+        constraints.weighty=1;
         for(int x=0;x<numFiles;x++){
             fileWindows[x]=new JPanel();
+            fileWindows[x].setLayout(new GridBagLayout());
             browserArea[x]=new JTextArea();
             browserArea[x].setText(javaCode[x]);
             browserArea[x].setEditable(false);
             scrolls[x]=new JScrollPane (browserArea[x]);
-            fileWindows[x].add(scrolls[x]);
+            fileWindows[x].add(scrolls[x],constraints);
             add(fileWindows[x],files[x].getName());
             
             tabPane.addTab(files[x].getName(), fileWindows[x]);
