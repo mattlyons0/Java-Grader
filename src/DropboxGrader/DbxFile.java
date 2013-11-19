@@ -26,6 +26,7 @@ public class DbxFile {
     private DbxEntry.File entry;
     private DbxClient client;
     private File downloadedFile;
+    private File[] javaFiles;
     public DbxFile(DbxEntry.File entry,FileManager fileMan,DbxClient client){
         this.entry=entry;
         fileManager=fileMan;
@@ -37,7 +38,7 @@ public class DbxFile {
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
         File file=new File(zipPath);
         if(file.exists()){ //could lead to different copy locally than remotely, but files arent supposed to be overwritten anyway.
-            downloadedFile=file;
+            setFile(file);
         }
     }
     public File download(){
@@ -53,7 +54,7 @@ public class DbxFile {
             f.close();
             Unzip.unzip(file.getPath()+".zip", fileManager.getUnzipFolder());
             new File(fileManager.getDownloadFolder()+"/"+entry.name).delete();
-            this.downloadedFile=file;
+            setFile(file);
             return file;
         } catch (DbxException | IOException ex) {
             Logger.getLogger(DbxFile.class.getName()).log(Level.SEVERE, null, ex);
@@ -96,6 +97,15 @@ public class DbxFile {
             return "Downloaded";
         }
         return "Unknown"; //downloaded but file doesnt exist.
+    }
+    private void setFile(File f){
+        downloadedFile=f;
+    }
+    private void searchJavaFiles(){
+        
+    }
+    public File[] getJavaFiles(){
+        return javaFiles;
     }
     
 }

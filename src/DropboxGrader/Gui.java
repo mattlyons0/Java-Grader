@@ -56,11 +56,14 @@ public class Gui extends JFrame implements ActionListener{
     private JProgressBar progressBar;
     private JButton gradeButton;
     private JLabel statusText;
+    
+    //Third Stage (Grader) Instance Vars
+    private JavaCodeBrowser javaCode;
     public Gui(){
         super("Dropbox Grader");
         config=new Config(); //TODO: make config
         
-        UIManager.put("ProgressBar.foreground", new Color(120,200,55));
+        UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
         
         init();
     }
@@ -154,6 +157,15 @@ public class Gui extends JFrame implements ActionListener{
         add(gradeButton,constraints);
         revalidate();
     }
+    public void setupGraderGui(int fileNum){
+        refreshButton.setEnabled(false);
+        downloadAllButton.setEnabled(false);
+        remove(fileBrowserScroll);
+        remove(progressBar);
+        remove(gradeButton);
+        javaCode=new JavaCodeBrowser(fileManager.getFile(fileNum));
+        add(javaCode);
+    }
     public void promptKey(){
         status.setText("Please login and paste the code here: ");
         keyField=new JTextField(30);
@@ -216,6 +228,7 @@ public class Gui extends JFrame implements ActionListener{
             }
             fileManager.download(selected);
             fileBrowserTable.repaint();
+            setupGraderGui(selected);
         }
     }
 }

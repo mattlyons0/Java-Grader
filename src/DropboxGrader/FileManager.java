@@ -119,4 +119,7 @@ public class FileManager {
         init();
         tableData.refresh();
     }
+    public DbxFile getFile(int x){
+        return files.get(x);
+    }
 }
