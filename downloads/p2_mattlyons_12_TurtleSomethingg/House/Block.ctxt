@@ -1,8 +1,0 @@
-#BlueJ class context
-comment0.params=h\ w\ house\ builder
-comment0.target=Block(int,\ int,\ int,\ Builder)
-comment1.params=distance
-comment1.target=void\ move(int)
-comment2.params=
-comment2.target=void\ create()
-numComments=3
