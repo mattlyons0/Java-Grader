@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -100,12 +103,70 @@ public class DbxFile {
     }
     private void setFile(File f){
         downloadedFile=f;
+        searchJavaFiles();
     }
     private void searchJavaFiles(){
+        javaFiles=searchForFiles(downloadedFile.getPath(),".java",null);
+    }
+    /**
+     * Recursive file search
+     * @param directory directory to search in
+     * @param fileType files which end in this will be returned.
+     * @return an array of files with specified ending characters.
+     */
+    private File[] searchForFiles(String directory,String fileType,ArrayList<File> currentFilesWithType){
+        //System.out.println("Searching in "+directory);
+        ArrayList<File> files=new ArrayList();
+        ArrayList<File> filesWithType;
+        if(currentFilesWithType==null){
+            filesWithType=new ArrayList();
+        }
+        else{
+            filesWithType=currentFilesWithType;
+        }
+        File folder=new File(directory);
+        files.addAll(Arrays.asList(folder.listFiles()));
         
+        for(int x=0;x<files.size();x++){
+            File f=files.get(x);
+            if(f.isFile()){
+                if(f.getName().endsWith(fileType.toLowerCase())||f.getName().endsWith(fileType.toUpperCase())){
+                    //if file is .Java it wont get added, but that is stupid capitalization that nothing would do anyway.
+                    filesWithType.add(f);
+                    //System.out.println("Adding "+f);
+                }
+            }
+            else if(f.isDirectory()){
+                files.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName(),fileType,filesWithType)));
+                break;
+            }
+        }
+        
+        File[] fileArr=new File[filesWithType.size()];
+        return filesWithType.toArray(fileArr);
+    }
+    private String readFile(File f){
+        try {
+            Scanner reader=new Scanner(f);
+            String read="";
+            while(reader.hasNext()){
+                read+=reader.next()+"\n";
+            }
+            return read;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
     public File[] getJavaFiles(){
         return javaFiles;
+    }
+    public String[] getJavaCode(){
+        String[] code=new String[javaFiles.length];
+        for(int x=0;x<javaFiles.length;x++){
+            code[x]=readFile(javaFiles[x]);
+        }
+        return code;
     }
     
 }

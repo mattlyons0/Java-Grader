@@ -163,8 +163,21 @@ public class Gui extends JFrame implements ActionListener{
         remove(fileBrowserScroll);
         remove(progressBar);
         remove(gradeButton);
+        
         javaCode=new JavaCodeBrowser(fileManager.getFile(fileNum));
-        add(javaCode);
+        
+        constraints.anchor=GridBagConstraints.CENTER;
+        constraints.fill=GridBagConstraints.BOTH;
+        constraints.gridheight=1;
+        constraints.gridwidth=5;
+        constraints.gridx=0;
+        constraints.gridy=1;
+        constraints.weightx=50;
+        constraints.weighty=0.9;
+        
+        add(javaCode,constraints);
+        
+        revalidate();
     }
     public void promptKey(){
         status.setText("Please login and paste the code here: ");
