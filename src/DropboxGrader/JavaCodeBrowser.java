@@ -13,11 +13,13 @@ import java.awt.GridBagLayout;
 import java.io.File;
 import java.util.Arrays;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import jsyntaxpane.DefaultSyntaxKit;
 
 /**
  *
@@ -25,7 +27,7 @@ import javax.swing.JTextArea;
  */
 public class JavaCodeBrowser extends Container{
     private JScrollPane [] scrolls;
-    private JTextArea[] browserArea;
+    private JEditorPane[] browserArea;
     private JPanel[] fileWindows;
     private JTabbedPane tabPane;
     private DbxFile file;
@@ -34,13 +36,14 @@ public class JavaCodeBrowser extends Container{
         
         init();
     }
-    public void init(){
+    public void init(){  
+        DefaultSyntaxKit.initKit();
         setLayout(new CardLayout(10,5));
         tabPane=new JTabbedPane();
         int numFiles=file.getJavaFiles().length;
         File[] files=file.getJavaFiles();
         String[] javaCode=file.getJavaCode();
-        browserArea=new JTextArea[numFiles];
+        browserArea=new JEditorPane[numFiles];
         fileWindows=new JPanel[numFiles];
         scrolls=new JScrollPane [numFiles];
         GridBagConstraints constraints=new GridBagConstraints();
@@ -50,10 +53,12 @@ public class JavaCodeBrowser extends Container{
         for(int x=0;x<numFiles;x++){
             fileWindows[x]=new JPanel();
             fileWindows[x].setLayout(new GridBagLayout());
-            browserArea[x]=new JTextArea();
-            browserArea[x].setText(javaCode[x]);
+            
+            browserArea[x]=new JEditorPane();
             browserArea[x].setEditable(false);
             scrolls[x]=new JScrollPane (browserArea[x]);
+            browserArea[x].setContentType("text/java");
+            browserArea[x].setText(javaCode[x]);
             fileWindows[x].add(scrolls[x],constraints);
             add(fileWindows[x],files[x].getName());
             

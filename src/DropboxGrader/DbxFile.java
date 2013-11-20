@@ -11,15 +11,18 @@ import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +36,7 @@ public class DbxFile {
     private DbxEntry.File entry;
     private DbxClient client;
     private File downloadedFile;
-    private File[] javaFiles;
+    private JavaFile[] javaFiles;
     private final String errorMsg;
     public DbxFile(DbxEntry.File entry,FileManager fileMan,DbxClient client){
         this.entry=entry;
@@ -101,7 +104,7 @@ public class DbxFile {
      * return the date or if it has been modified both dates.
      */
     public String getSubmitDate(boolean checkRevisions,int row,int col){
-        if(checkRevisions&&entry.lastModified.after(entry.clientMtime)){
+        if(checkRevisions&&entry.lastModified.after(entry.clientMtime)&&row>-1&&col>-1){
             fileManager.getTableData().setColorAt(new Color(230,120,120), row, col);
             return "Modified "+entry.lastModified+" Originally "+entry.clientMtime;
         }
@@ -134,11 +137,13 @@ public class DbxFile {
         return Integer.parseInt(num);
     }
     private void setFile(File f){
-        downloadedFile=f;
-        searchJavaFiles();
+        if(downloadedFile==null){
+            downloadedFile=f;
+            searchJavaFiles();
+        }
     }
     private void searchJavaFiles(){
-        javaFiles=searchForFiles(downloadedFile.getPath(),".java",null);
+        javaFiles=searchForFiles(downloadedFile.getPath(),".java");
     }
     /**
      * Recursive file search
@@ -146,45 +151,92 @@ public class DbxFile {
      * @param fileType files which end in this will be returned.
      * @return an array of files with specified ending characters.
      */
-    private File[] searchForFiles(String directory,String fileType,ArrayList<File> currentFilesWithType){
+    private JavaFile[] searchForFiles(String directory,String fileType){
         //System.out.println("Searching in "+directory);
         ArrayList<File> files=new ArrayList();
         ArrayList<File> filesWithType;
-        if(currentFilesWithType==null){
-            filesWithType=new ArrayList();
-        }
-        else{
-            filesWithType=currentFilesWithType;
-        }
+        filesWithType=new ArrayList();
         File folder=new File(directory);
         files.addAll(Arrays.asList(folder.listFiles()));
         
         for(int x=0;x<files.size();x++){
-            File f=files.get(x);
+            JavaFile f=new JavaFile(files.get(x));
             if(f.isFile()){
                 if(f.getName().endsWith(fileType.toLowerCase())||f.getName().endsWith(fileType.toUpperCase())){
-                    //if file is .Java it wont get added, but that is stupid capitalization that nothing would do anyway.
+                    //if file is .Java it wont get added, but that is stupid capitalization that nothing would save as anyway.
                     filesWithType.add(f);
                     //System.out.println("Adding "+f);
                 }
             }
             else if(f.isDirectory()){
-                files.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName(),fileType,filesWithType)));
-                break;
+                if(!f.getName().endsWith(".git")){ //skip git folder for performance
+                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName(),fileType)));
+                }
             }
         }
         
-        File[] fileArr=new File[filesWithType.size()];
+        JavaFile[] fileArr=new JavaFile[filesWithType.size()];
         return filesWithType.toArray(fileArr);
     }
-    private String readFile(File f){
+    private String readFile(JavaFile f){
         try {
             Scanner reader=new Scanner(f);
             reader.useDelimiter("\n");
+            String packageDir=null;
             String read="";
             while(reader.hasNext()){
-                read+=reader.next()+"\n";
+                String line=reader.next();
+                read+=line+"\n";
+                if(line.contains("package")){ //if it contains packages we need to make sure its in the right folder
+                    packageDir=line.substring(line.indexOf("e")+2,line.length()-1); //-1 to get rid of \n
+                    packageDir=packageDir.replace(";", "");
+                    f.setPackage(packageDir);
+                    //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
+                    //System.out.println("Line "+line+" contained a package declaration.");
+                }
+                else if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.contains("main(String[]")){ //if it contains a main method
+                    f.setMainMethod(true);
+                }
             }
+//            if(packageDir!=null){
+//                System.out.println("Package at "+packageDir);
+//                if(packageFolder==null){
+//                    packageFolder=packageDir;
+//                }
+//                else{
+//                    //determine which is higher level
+//                    if(!packageFolder.equals(packageDir)){
+//                        String path=f.getPath();
+//                        path=path.replace("\\", "="); //cant split a \ for whatever reason
+//                        String[] pathFolders= path.split("=");
+//                        for(int x=0;x<pathFolders.length;x++){
+//                            pathFolders[x]=pathFolders[x].replace("=", "");
+//
+//                            if(pathFolders[x].equals(packageFolder)){
+//                                return read;
+//                            }
+//                            if(pathFolders[x].equals(packageDir)){
+//                                packageFolder=packageDir;
+//                                return read;
+//                            }
+//                        }
+//                    }
+//                    else{
+//                        return read;
+//                    }
+//                }
+//                if(!f.getParent().endsWith(packageDir)){
+//                    //need to move file into directory with packageName
+//                    File f2=new File(f.getParent()+"\\"+packageDir);
+//                    f2.mkdir();
+//                    
+//                    File movedF=new File(f2.getPath()+f.getName());
+//                    BufferedWriter writer=new BufferedWriter(new FileWriter(f));
+//                    writer.write(read);
+//                    writer.close();
+//                    f.delete();
+//                }
+//            }
             
             return read;
         } catch (IOException ex) {
@@ -201,6 +253,68 @@ public class DbxFile {
             code[x]=readFile(javaFiles[x]);
         }
         return code;
+    }
+    public void run(JavaRunner runner){
+        ArrayList<JavaFile> mainMethods=new ArrayList();
+        for(JavaFile f:javaFiles){
+            if(f.containsMain()){
+                mainMethods.add(f);
+            }
+        }
+        if(mainMethods.isEmpty()){
+            GuiHelper.alertDialog("No classes contain main methods.");
+            return;
+        }
+        int choice=0;
+        if(mainMethods.size()>1){
+            String[] choices=new String[mainMethods.size()];
+            for(int x=0;x<mainMethods.size();x++){
+                String path=mainMethods.get(x).packageFolder()+"."+mainMethods.get(x).getName();
+                choices[x]=path;
+            }
+            choice=GuiHelper.multiOptionPane("There are multiple main methods, which one do you want to run?", choices);
+        }
+        if(choice==-1){
+            return;
+        }
+        
+        runner.runFile(javaFiles,mainMethods.get(choice));
+    }
+    @Override
+    public String toString(){
+        String zipPath=entry.name;
+        zipPath=zipPath.substring(0,zipPath.indexOf('.'));
+        return zipPath+" submitted on "+getSubmitDate(true,-1,-1);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + Objects.hashCode(this.entry);
+        hash = 29 * hash + Objects.hashCode(this.downloadedFile);
+        hash = 29 * hash + Arrays.deepHashCode(this.javaFiles);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DbxFile other = (DbxFile) obj;
+        if (!Objects.equals(this.entry, other.entry)) {
+            return false;
+        }
+        if (!Objects.equals(this.downloadedFile, other.downloadedFile)) {
+            return false;
+        }
+        if (!Arrays.deepEquals(this.javaFiles, other.javaFiles)) {
+            return false;
+        }
+        return true;
     }
     
 }

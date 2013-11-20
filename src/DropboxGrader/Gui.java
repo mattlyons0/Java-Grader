@@ -16,14 +16,19 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PipedInputStream;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -46,6 +51,7 @@ public class Gui extends JFrame implements ActionListener{
     private JButton submitButton;
     
     //Second Stage (File Browser) Instance Vars
+    private JPanel fileBrowserPanel; 
     private FileBrowserData fileBrowserData;
     private JTable fileBrowserTable;
     private JScrollPane fileBrowserScroll;
@@ -56,9 +62,19 @@ public class Gui extends JFrame implements ActionListener{
     private JProgressBar progressBar;
     private JButton gradeButton;
     private JLabel statusText;
+    private int selectedFile;
     
     //Third Stage (Grader) Instance Vars
+    private JPanel gradingPanel;
     private JavaCodeBrowser javaCode;
+    private JButton backButton;
+    private JButton runButton;
+    private JLabel fileInfoLabel;
+    private TextOutputStream outStream;
+    private PipedInputStream inStream;
+    private JavaRunner runner;
+    private JTerminal codeOutputArea;
+    private JScrollPane codeOutputScroll;
     public Gui(){
         super("Dropbox Grader");
         config=new Config(); //TODO: make config
@@ -91,10 +107,17 @@ public class Gui extends JFrame implements ActionListener{
     }
     
     public void setupFileBrowserGui(){
+        if(gradingPanel!=null){
+            remove(gradingPanel);
+            gradingPanel=null;
+        }
         if(status!=null){
             remove(status);
             status=null;
         }
+        
+        fileBrowserPanel=new JPanel();
+        fileBrowserPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
         constraints=new GridBagConstraints();
         setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
@@ -124,16 +147,16 @@ public class Gui extends JFrame implements ActionListener{
         constraints.gridy=0;
         //constraints.weightx=0.05;
         constraints.weighty=0.01;
-        add(refreshButton,constraints);
+        fileBrowserPanel.add(refreshButton,constraints);
         constraints.gridx=1;
-        add(downloadAllButton,constraints);
+        fileBrowserPanel.add(downloadAllButton,constraints);
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.gridx=3;
-        add(statusText,constraints);
+        fileBrowserPanel.add(statusText,constraints);
         constraints.anchor=GridBagConstraints.EAST;
         constraints.gridx=4;
         //constraints.weightx=0.9;
-        add(configButton,constraints);
+        fileBrowserPanel.add(configButton,constraints);
         constraints.fill=GridBagConstraints.BOTH;
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.gridx=0;
@@ -141,41 +164,98 @@ public class Gui extends JFrame implements ActionListener{
         constraints.gridwidth=5;
         constraints.weightx=100;
         constraints.weighty=0.9;
-        add(fileBrowserScroll,constraints);
+        fileBrowserPanel.add(fileBrowserScroll,constraints);
         constraints.gridwidth=4;
         constraints.gridy=2;
         constraints.fill=GridBagConstraints.HORIZONTAL;
         constraints.weighty=0.01;
         constraints.weightx=1;
-        add(progressBar,constraints);
+        fileBrowserPanel.add(progressBar,constraints);
         constraints.weightx=0.01;
         constraints.gridwidth=1;
         constraints.gridx=4;
         constraints.gridwidth=1;
         constraints.anchor=GridBagConstraints.EAST;
         constraints.fill=GridBagConstraints.NONE;
-        add(gradeButton,constraints);
+        fileBrowserPanel.add(gradeButton,constraints);
+        
+        constraints=new GridBagConstraints();
+        constraints.fill=GridBagConstraints.BOTH;
+        constraints.weightx=1;
+        constraints.weighty=1;
+        add(fileBrowserPanel,constraints);
         revalidate();
     }
-    public void setupGraderGui(int fileNum){
-        refreshButton.setEnabled(false);
-        downloadAllButton.setEnabled(false);
-        remove(fileBrowserScroll);
-        remove(progressBar);
-        remove(gradeButton);
+    public void setupGraderGui(){
+        if(fileBrowserPanel!=null){
+            remove(fileBrowserPanel);
+            fileBrowserPanel=null;
+        }
+        if(runner!=null){
+            runner.stopProcess();
+        }
+        gradingPanel=new JPanel();
+        gradingPanel.setLayout(new GridBagLayout());
+        setLayout(new GridBagLayout());
         
-        javaCode=new JavaCodeBrowser(fileManager.getFile(fileNum));
+        javaCode=new JavaCodeBrowser(fileManager.getFile(selectedFile));
+        backButton=new JButton("Back to Browser");
+        backButton.addActionListener(this);
+        fileInfoLabel=new JLabel(fileManager.getFile(selectedFile).toString());
+        runButton=new JButton("Run");
+        runButton.addActionListener(this);
+        if(inStream==null)
+            inStream=new PipedInputStream();
+        if(codeOutputArea==null)
+            codeOutputArea=new JTerminal(this);
+        else
+            codeOutputArea.setText("");
+        if(codeOutputScroll==null)
+            codeOutputScroll=new JScrollPane(codeOutputArea);
+        if(outStream==null)
+            outStream=new TextOutputStream(codeOutputArea);
+        if(runner==null)
+            runner=new JavaRunner(codeOutputArea,outStream,inStream);
         
+        constraints.anchor=GridBagConstraints.WEST;
+        constraints.fill=GridBagConstraints.NONE;
+        constraints.gridheight=1;
+        constraints.gridwidth=1;
+        constraints.weightx=0.33;
+        constraints.weighty=0.01;
+        gradingPanel.add(backButton,constraints);
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.fill=GridBagConstraints.BOTH;
+        constraints.gridx=1;
+        constraints.gridwidth=1;
+        constraints.weightx=0.33;
+        gradingPanel.add(fileInfoLabel,constraints);
+        constraints.gridwidth=1;
+        constraints.weightx=0.33;
+        constraints.gridx=2;
+        constraints.anchor=GridBagConstraints.EAST;
+        constraints.fill=GridBagConstraints.NONE;
+        gradingPanel.add(runButton,constraints);
+        
+        constraints.fill=GridBagConstraints.BOTH;
         constraints.gridheight=1;
-        constraints.gridwidth=5;
+        constraints.gridwidth=2;
         constraints.gridx=0;
         constraints.gridy=1;
-        constraints.weightx=50;
-        constraints.weighty=0.9;
+        constraints.weightx=0.66;
+        constraints.weighty=0.98;
+        gradingPanel.add(javaCode,constraints);
         
-        add(javaCode,constraints);
+        constraints.gridx=2;
+        constraints.weightx=0.33;
+        constraints.gridwidth=1;
+        gradingPanel.add(codeOutputScroll,constraints);
+        
+        constraints=new GridBagConstraints();
+        constraints.fill=GridBagConstraints.BOTH;
+        constraints.weightx=1;
+        constraints.weighty=1;
+        add(gradingPanel,constraints);
         
         revalidate();
     }
@@ -204,6 +284,9 @@ public class Gui extends JFrame implements ActionListener{
             remove(submitButton);
         repaint();
         createSession();
+    }
+    public JavaRunner getRunner(){
+        return runner;
     }
     public void updateProgress(double val){
         progressBar.setValue((int)val*100);
@@ -239,9 +322,24 @@ public class Gui extends JFrame implements ActionListener{
                 statusText.setText("You must select an assignment to grade.");
                 return;
             }
-            fileManager.download(selected);
+            selectedFile=selected;
+            fileManager.download(selectedFile);
             fileBrowserTable.repaint();
-            setupGraderGui(selected);
+            setupGraderGui();
+        }
+        else if(e.getSource().equals(runButton)){
+            if(runButton.getText().equals("Run")){
+                fileManager.getFile(selectedFile).run(runner);
+                runButton.setText("Stop Running");
+            }
+            else{
+                runner.stopProcess();
+                runButton.setText("Run");
+            }
+        }
+        else if(e.getSource().equals(backButton)){
+            runner.stopProcess();
+            setupFileBrowserGui();
         }
     }
 }

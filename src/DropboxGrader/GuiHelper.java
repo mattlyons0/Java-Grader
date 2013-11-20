@@ -14,7 +14,7 @@ public class GuiHelper{
     public static int multiOptionPane(String question,String[] choices){
         return JOptionPane.showOptionDialog(null,""+question,"",
                 JOptionPane.OK_OPTION,JOptionPane.QUESTION_MESSAGE,null,
-                choices,choices[choices.length-1]);
+                choices,-1);
     }
     /**
      * Creates input dialog
