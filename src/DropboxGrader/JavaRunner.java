@@ -7,6 +7,8 @@ package DropboxGrader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,6 +35,7 @@ public class JavaRunner implements Runnable{
     private OutputStream stream;
     private InputStream inStream;
     private Scanner s1,s2;
+    private PrintStream printStream;
     private Thread thread;
     public JavaRunner(JTextArea a,OutputStream stream,PipedInputStream inStream){
         area=a;
@@ -124,7 +127,8 @@ public class JavaRunner implements Runnable{
             s1.useDelimiter("\n");
             s2=new Scanner(new InputStreamReader(running.getErrorStream()));
             s2.useDelimiter("\n");
-            
+            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
+            printStream=new PrintStream(filterStream);
             //System.out.println(call);
             //}
         } catch (IOException ex) {
@@ -133,11 +137,7 @@ public class JavaRunner implements Runnable{
     }
     public void sendProccess(String msg){
         if(running!=null){
-            try {
-                running.getOutputStream().write(msg.getBytes());
-            } catch (IOException ex) {
-                Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            printStream.append("Hello");
         }
     }
 }
