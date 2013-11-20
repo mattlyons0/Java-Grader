@@ -94,7 +94,7 @@ public class JavaRunner implements Runnable{
                 path=path.substring(0, path.length()-pathPart[pathPart.length-2].length()-1);
             }
             if(pathPart.length==1){
-                path="\\";
+                path="";
             }
         }
         filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
@@ -105,7 +105,7 @@ public class JavaRunner implements Runnable{
         }
         System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
-            area.append("Compiling.\n");
+            area.append("Compiling.");
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             int result=compiler.run(inStream, stream, stream, filePaths);
             if(result!=0){
@@ -125,25 +125,28 @@ public class JavaRunner implements Runnable{
                 return;
             }
             //for(int x=0;x<files.length;x++){
-            String call=" -cp "+filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+            String call="";
+            call="-cp "+filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
             if(!runChoice.hasPackage())
                 call=call+" "+files[index].getName();
             else
                 call=call+" "+runChoice.packageFolder()+"/"+files[index].getName();
             call=call.substring(0, call.length()-5); //removes .java
-            ProcessBuilder builder=new ProcessBuilder("java.exe",call);
+            String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
+            ProcessBuilder builder=new ProcessBuilder(javaExe,call);
+            builder.directory(new File(runChoice.getPath()));
             builder.redirectError(ProcessBuilder.Redirect.INHERIT);
             builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             builder.redirectInput(ProcessBuilder.Redirect.INHERIT);
             running=builder.start();
-            //running=Runtime.getRuntime().exec(call);
+            //running=Runtime.getRuntime().exec("java "+call);
 //            s1=new Scanner(new InputStreamReader(running.getInputStream()));
 //            s1.useDelimiter("\n");
 //            s2=new Scanner(new InputStreamReader(running.getErrorStream()));
 //            s2.useDelimiter("\n");
 //            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
 //            printStream=new PrintStream(filterStream);
-            System.out.println(call);
+            System.out.println(javaExe+" "+call);
             //}
         } catch (IOException ex) {
             Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
