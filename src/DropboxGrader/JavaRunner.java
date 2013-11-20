@@ -83,8 +83,8 @@ public class JavaRunner implements Runnable{
         int manualArgNum=4;
         String[] filePaths=new String[files.length+manualArgNum];
         
-        filePaths[0]="-classpath";
-        String path=files[0].getPath();
+        filePaths[0]="-cp";
+        String path=files[0].getAbsolutePath();
         if(path.length()!=0){
             path=path.replace("\\", "=");
             String[] pathPart=path.split("="); //cant split \ for whatever reason
@@ -101,7 +101,7 @@ public class JavaRunner implements Runnable{
         filePaths[2]="-sourcepath";
         filePaths[3]=filePaths[1];
         for(int x=manualArgNum;x<files.length+manualArgNum;x++){
-            filePaths[x]=files[x-manualArgNum].getPath();
+            filePaths[x]=files[x-manualArgNum].getAbsolutePath();
         }
         System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
@@ -125,19 +125,17 @@ public class JavaRunner implements Runnable{
                 return;
             }
             //for(int x=0;x<files.length;x++){
-            String call="";
-            call="-cp "+filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
-            if(!runChoice.hasPackage())
-                call=call+" "+files[index].getName();
-            else
-                call=call+" "+runChoice.packageFolder()+"/"+files[index].getName();
-            call=call.substring(0, call.length()-5); //removes .java
+            String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+            String className=files[index].getName();
+            className=className.substring(0,className.length()-5); //removes .java
             String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
-            ProcessBuilder builder=new ProcessBuilder(javaExe,call);
-            builder.directory(new File(runChoice.getPath()));
-            builder.redirectError(ProcessBuilder.Redirect.INHERIT);
-            builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            builder.redirectInput(ProcessBuilder.Redirect.INHERIT);
+            javaExe="java";
+            String directory=System.getProperty("java.home")+"\\bin\\";
+            //directory=directory.substring(0, directory.length()-runChoice.getName().length());
+            ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
+            //builder.directory(new File(directory));
+            //System.out.println("Running from: "+directory);
+            builder.inheritIO();
             running=builder.start();
             //running=Runtime.getRuntime().exec("java "+call);
 //            s1=new Scanner(new InputStreamReader(running.getInputStream()));
@@ -146,7 +144,7 @@ public class JavaRunner implements Runnable{
 //            s2.useDelimiter("\n");
 //            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
 //            printStream=new PrintStream(filterStream);
-            System.out.println(javaExe+" "+call);
+            System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
             //}
         } catch (IOException ex) {
             Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
