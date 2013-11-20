@@ -80,21 +80,26 @@ public class JavaRunner implements Runnable{
         String[] filePaths=new String[files.length+manualArgNum];
         
         filePaths[0]="-classpath";
-        String path=files[0].getAbsolutePath();
-        path=path.replace("\\", "=");
-        String[] pathPart=path.split("="); //cant split \ for whatever reason
-        path=path.replace("=", "\\");
-        path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
-        if(containsPackages){
-            path=path.substring(0, path.length()-pathPart[pathPart.length-2].length()-1);
+        String path=files[0].getPath();
+        if(path.length()!=0){
+            path=path.replace("\\", "=");
+            String[] pathPart=path.split("="); //cant split \ for whatever reason
+            path=path.replace("=", "\\");
+            path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
+            if(containsPackages){
+                path=path.substring(0, path.length()-pathPart[pathPart.length-2].length()-1);
+            }
+            if(pathPart.length==1){
+                path="\\";
+            }
         }
         filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
         filePaths[2]="-sourcepath";
         filePaths[3]=filePaths[1];
         for(int x=manualArgNum;x<files.length+manualArgNum;x++){
-            filePaths[x]=files[x-manualArgNum].getAbsolutePath();
+            filePaths[x]=files[x-manualArgNum].getPath();
         }
-        //System.out.println("Compiling "+Arrays.toString(filePaths));
+        System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
             area.append("Compiling.\n");
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -129,7 +134,7 @@ public class JavaRunner implements Runnable{
             s2.useDelimiter("\n");
             FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
             printStream=new PrintStream(filterStream);
-            //System.out.println(call);
+            System.out.println(call);
             //}
         } catch (IOException ex) {
             Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
@@ -139,5 +144,12 @@ public class JavaRunner implements Runnable{
         if(running!=null){
             printStream.append("Hello");
         }
+    }
+    public static void main(String[] args){
+        JavaRunner runner=new JavaRunner(new JTextArea(),null,null);
+        JavaFile[] testFiles=new JavaFile[1];
+        JavaFile j1=new JavaFile(new File("Test.java"));
+        testFiles[0]=j1;
+        runner.runFile(testFiles, j1);
     }
 }
