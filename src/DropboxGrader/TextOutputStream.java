@@ -28,6 +28,7 @@ public class TextOutputStream extends OutputStream{
     public void write(byte[] buffer,int offset,int length){
         String text=new String(buffer,offset,length);
         area.append(text);
+        System.out.println("Writing");
     }
     @Override
     public void write(int b) throws IOException {

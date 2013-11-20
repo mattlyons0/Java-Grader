@@ -43,16 +43,20 @@ public class JavaRunner implements Runnable{
         this.inStream=inStream;
 
         thread=new Thread(this);
-        thread.start();
+        thread.setName("OutputReadThread");
+        //thread.start();
     }
     @Override
     public void run(){
         while(true){
-            if(running!=null&&s1!=null&&s2!=null){
-                if(s1.hasNext())
+            //System.out.println(); //why the hell doesnt it work without this
+            if(running!=null){
+                if(s1.hasNext()){
                     area.append(s1.next());
-                if(s2.hasNext())
+                }
+                if(s2.hasNext()){
                     area.append(s2.next());
+                }
             }
         }
     }
@@ -121,19 +125,24 @@ public class JavaRunner implements Runnable{
                 return;
             }
             //for(int x=0;x<files.length;x++){
-            String call="java -cp "+filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+            String call=" -cp "+filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
             if(!runChoice.hasPackage())
                 call=call+" "+files[index].getName();
             else
                 call=call+" "+runChoice.packageFolder()+"/"+files[index].getName();
             call=call.substring(0, call.length()-5); //removes .java
-            running=Runtime.getRuntime().exec(call);
-            s1=new Scanner(new InputStreamReader(running.getInputStream()));
-            s1.useDelimiter("\n");
-            s2=new Scanner(new InputStreamReader(running.getErrorStream()));
-            s2.useDelimiter("\n");
-            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
-            printStream=new PrintStream(filterStream);
+            ProcessBuilder builder=new ProcessBuilder("java.exe",call);
+            builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            builder.redirectInput(ProcessBuilder.Redirect.INHERIT);
+            running=builder.start();
+            //running=Runtime.getRuntime().exec(call);
+//            s1=new Scanner(new InputStreamReader(running.getInputStream()));
+//            s1.useDelimiter("\n");
+//            s2=new Scanner(new InputStreamReader(running.getErrorStream()));
+//            s2.useDelimiter("\n");
+//            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
+//            printStream=new PrintStream(filterStream);
             System.out.println(call);
             //}
         } catch (IOException ex) {
@@ -142,7 +151,7 @@ public class JavaRunner implements Runnable{
     }
     public void sendProccess(String msg){
         if(running!=null){
-            printStream.append("Hello");
+            
         }
     }
     public static void main(String[] args){
