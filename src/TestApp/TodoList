@@ -14,5 +14,4 @@ Wordwrap output
 Crash Process after close button is pressed.
 Clear files after run ends
 Inject code into main method.
-
-Things that will break the grader:
+Log Compile Errors.
