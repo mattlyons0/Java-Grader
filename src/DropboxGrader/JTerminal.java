@@ -24,6 +24,7 @@ import javax.swing.JTextArea;
 public class JTerminal extends JTextArea implements KeyListener{
     private String lineTyped;
     private Gui gui;
+    private InputStream inStream;
     public JTerminal(Gui gui){
         super();
         lineTyped="";
@@ -32,17 +33,21 @@ public class JTerminal extends JTextArea implements KeyListener{
     }
     @Override
     public void append(String s){
-        super.append(s+"\n");
+        super.append(s);
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
         char c=e.getKeyChar();
         if(c==KeyEvent.VK_ENTER){
-            if(gui.getRunner()!=null){
-                gui.getRunner().sendProccess(lineTyped);
-                lineTyped="";
+            if(inStream!=null){
+                try {
+                    inStream.read(lineTyped.getBytes());
+                } catch (IOException ex) {
+                    Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+            lineTyped="";
         }
         else if(c==KeyEvent.VK_BACK_SPACE){
             lineTyped=lineTyped.substring(0, lineTyped.length()-1);
@@ -58,5 +63,8 @@ public class JTerminal extends JTextArea implements KeyListener{
 
     @Override
     public void keyReleased(KeyEvent e) {
+    }
+    public void setInputStream(InputStream i){
+        inStream=i;
     }
 }

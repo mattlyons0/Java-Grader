@@ -16,6 +16,10 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -73,7 +77,7 @@ public class Gui extends JFrame implements ActionListener{
     private TextOutputStream outStream;
     private PipedInputStream inStream;
     private JavaRunner runner;
-    private JTerminal codeOutputArea;
+    private static JTerminal codeOutputArea;
     private JScrollPane codeOutputScroll;
     public Gui(){
         super("Dropbox Grader");
@@ -204,19 +208,24 @@ public class Gui extends JFrame implements ActionListener{
         fileInfoLabel=new JLabel(fileManager.getFile(selectedFile).toString());
         runButton=new JButton("Run");
         runButton.addActionListener(this);
-        if(inStream==null)
-            inStream=new PipedInputStream();
         if(codeOutputArea==null)
             codeOutputArea=new JTerminal(this);
         else
             codeOutputArea.setText("");
         if(codeOutputScroll==null)
             codeOutputScroll=new JScrollPane(codeOutputArea);
-        if(outStream==null)
-            outStream=new TextOutputStream(codeOutputArea);
+        //Console.redirectOutput(codeOutputArea);
         if(runner==null)
-            runner=new JavaRunner(codeOutputArea,outStream,inStream);
-        
+            runner=new JavaRunner(codeOutputArea,System.out, System.in);
+        if(outStream==null){
+            try {
+                File f=new File("output.log");
+                f.createNewFile();
+                outStream=new TextOutputStream(codeOutputArea,new FileOutputStream(f));
+            } catch (IOException ex) {
+                Logger.getLogger(Gui.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }        
         constraints.anchor=GridBagConstraints.WEST;
         constraints.fill=GridBagConstraints.NONE;
         constraints.gridheight=1;
@@ -341,5 +350,8 @@ public class Gui extends JFrame implements ActionListener{
             runner.stopProcess();
             setupFileBrowserGui();
         }
+    }
+    public static JTextArea getTerminal(){
+        return codeOutputArea;
     }
 }

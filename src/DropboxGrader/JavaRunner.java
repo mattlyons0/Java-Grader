@@ -31,13 +31,13 @@ import javax.tools.ToolProvider;
  */
 public class JavaRunner implements Runnable{
     private Process running;
-    private JTextArea area;
+    private JTerminal area;
     private OutputStream stream;
     private InputStream inStream;
     private Scanner s1,s2;
     private PrintStream printStream;
     private Thread thread;
-    public JavaRunner(JTextArea a,OutputStream stream,PipedInputStream inStream){
+    public JavaRunner(JTerminal a,OutputStream stream,InputStream inStream){
         area=a;
         this.stream=stream;
         this.inStream=inStream;
@@ -110,6 +110,7 @@ public class JavaRunner implements Runnable{
             int result=compiler.run(inStream, stream, stream, filePaths);
             if(result!=0){
                 area.append("Compile Failed.");
+                return;
             }
             else{
                 area.append("Compile Successful.");
@@ -133,10 +134,11 @@ public class JavaRunner implements Runnable{
             String directory=System.getProperty("java.home")+"\\bin\\";
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
+            builder.inheritIO();
             //builder.directory(new File(directory));
             //System.out.println("Running from: "+directory);
-            builder.inheritIO();
             running=builder.start();
+            //System.setOut(s);
             //running=Runtime.getRuntime().exec("java "+call);
 //            s1=new Scanner(new InputStreamReader(running.getInputStream()));
 //            s1.useDelimiter("\n");
@@ -149,17 +151,5 @@ public class JavaRunner implements Runnable{
         } catch (IOException ex) {
             Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    public void sendProccess(String msg){
-        if(running!=null){
-            
-        }
-    }
-    public static void main(String[] args){
-        JavaRunner runner=new JavaRunner(new JTextArea(),null,null);
-        JavaFile[] testFiles=new JavaFile[1];
-        JavaFile j1=new JavaFile(new File("Test.java"));
-        testFiles[0]=j1;
-        runner.runFile(testFiles, j1);
     }
 }

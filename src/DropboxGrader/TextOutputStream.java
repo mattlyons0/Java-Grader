@@ -7,12 +7,16 @@
 package DropboxGrader;
 
 import java.io.BufferedReader;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -20,19 +24,41 @@ import javax.swing.JTextArea;
  */
 public class TextOutputStream extends OutputStream{
     private final JTerminal area;
-    public TextOutputStream(JTerminal a){
+    private final OutputStream stream;
+    public TextOutputStream(JTerminal a,OutputStream s){
         area=a;
+        stream=s;
+    }
+
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        write(b);
     }
 
     @Override
-    public void write(byte[] buffer,int offset,int length){
-        String text=new String(buffer,offset,length);
-        area.append(text);
-        System.out.println("Writing");
+    public void write(byte[] b) throws IOException {
+        for(byte by:b){
+            write((char)by);
+        }
     }
     @Override
     public void write(int b) throws IOException {
-        write(new byte[] {(byte)b}, 0,1);
+        stream.write(b);
+        stream.flush();
+        
+        area.append((char)b+"");
+        System.out.println("Test");
     }
-    
+    @Override
+    public void close() throws IOException{
+        flush();
+        
+        stream.close();
+    }
+    @Override
+    public void flush() throws IOException{
+        stream.flush();
+    }
+
 }
