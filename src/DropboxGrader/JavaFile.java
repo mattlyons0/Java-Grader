@@ -8,6 +8,8 @@ package DropboxGrader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -27,7 +29,7 @@ public class JavaFile extends File{
     }
     public JavaFile(File f){
         super(f.getPath());
-        mainMethod=false;
+        setMainMethod(false);
     }
     public boolean containsMain(){
         return mainMethod;
@@ -46,6 +48,7 @@ public class JavaFile extends File{
     }
     public void setMainMethod(boolean hasMain){
         mainMethod=hasMain;
+        
         if(hasMain){
             PrintWriter writer=null;
             try {
@@ -60,7 +63,7 @@ public class JavaFile extends File{
     "            System.setIn(new java.io.FileInputStream(f){\n" +
     "                private int runNum=0;\n" +
     "                @Override\n" +
-    "                public int read(byte[] b, int off, int len) throws IOException {\n" +
+    "                public int read(byte[] b, int off, int len) throws java.io.IOException {\n" +
     "                    int read=super.read(b, off, len);\n" +
     "                    while(runNum%2==0&&read==-1){ //every 2nd call is for caching and doesnt matter\n" +
     "                        read=super.read(b, off, len);\n" +
@@ -79,7 +82,10 @@ public class JavaFile extends File{
                 while(s.hasNext()){
                     String line=s.next()+"\n";
                     if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){
-                        
+                        String lineAfter=s.next();
+                        if(lineAfter.contains("//DROPBOXGRADERCODESTART")){
+                            return;
+                        }
                         int index=line.indexOf("{")+1; 
                         //if someone is an idiot and puts a sout on the same line as the main method header it will catch it.
                         currentFile+=line.substring(0, index)+"\n";
@@ -91,17 +97,12 @@ public class JavaFile extends File{
                         currentFile+=line;
                     }
                 }
-                writer = new PrintWriter(this);
-                //writer.write("");
-                writer.close();
-                PrintWriter writer2=new PrintWriter(this);
+                writer = new PrintWriter(new FileWriter(this,false));
                 writer.write(currentFile);
                 writer.close();
                 
-            } catch (FileNotFoundException ex) {
+            } catch (IOException ex) {
                 Logger.getLogger(JavaFile.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                writer.close();
             }
         }
     }

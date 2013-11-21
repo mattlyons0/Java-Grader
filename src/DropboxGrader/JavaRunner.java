@@ -62,6 +62,12 @@ public class JavaRunner implements Runnable{
                 catch(IllegalThreadStateException e){
                 }
             }
+            try {
+                Thread.sleep(1000); //saves resources on slow computers (like the ones in the library)
+                //also fixes printing output after saying run finished on slow computers.
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
         }
     }
     public void stopProcess(){
