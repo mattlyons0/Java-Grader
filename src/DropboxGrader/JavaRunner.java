@@ -51,6 +51,7 @@ public class JavaRunner implements Runnable{
     @Override
     public void run(){
         while(true){
+            System.out.flush(); //doesnt update state of running unless flush is called, oddly enough. Only at school too.
             if(running!=null){
                 try{
                     int code=running.exitValue();

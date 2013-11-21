@@ -194,7 +194,7 @@ public class DbxFile {
                     //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
                     //System.out.println("Line "+line+" contained a package declaration.");
                 }
-                else if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.contains("main(String[]")){ //if it contains a main method
+                else if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){ //if it contains a main method
                     f.setMainMethod(true);
                 }
             }
