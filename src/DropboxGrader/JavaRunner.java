@@ -32,30 +32,33 @@ import javax.tools.ToolProvider;
 public class JavaRunner implements Runnable{
     private Process running;
     private JTerminal area;
+    private Gui gui;
     private OutputStream stream;
     private InputStream inStream;
     private Scanner s1,s2;
     private PrintStream printStream;
     private Thread thread;
-    public JavaRunner(JTerminal a,OutputStream stream,InputStream inStream){
+    public JavaRunner(JTerminal a,Gui gui,OutputStream stream,InputStream inStream){
         area=a;
+        this.gui=gui;
         this.stream=stream;
         this.inStream=inStream;
 
         thread=new Thread(this);
-        thread.setName("OutputReadThread");
-        //thread.start();
+        thread.setName("CheckProccessStateThread");
+        thread.start();
     }
     @Override
     public void run(){
         while(true){
-            //System.out.println(); //why the hell doesnt it work without this
             if(running!=null){
-                if(s1.hasNext()){
-                    area.append(s1.next());
+                try{
+                    int code=running.exitValue();
+                    //if it gets this far it has ended
+                    area.append("\nRun Finished: "+code+"\n");
+                    gui.proccessEnded();
                 }
-                if(s2.hasNext()){
-                    area.append(s2.next());
+                catch(IllegalThreadStateException e){
                 }
             }
         }
@@ -105,15 +108,15 @@ public class JavaRunner implements Runnable{
         }
         System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
-            area.append("Compiling.");
+            area.append("Compile Started\n");
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             int result=compiler.run(inStream, stream, stream, filePaths);
             if(result!=0){
-                area.append("Compile Failed.");
+                area.append("Compile Failed\n\n");
                 return;
             }
             else{
-                area.append("Compile Successful.");
+                area.append("Compile Finished\n\n");
             }
             int index=-1;
             for(int x=0;x<files.length;x++){
@@ -137,6 +140,7 @@ public class JavaRunner implements Runnable{
             builder.inheritIO();
             //builder.directory(new File(directory));
             //System.out.println("Running from: "+directory);
+            area.append("Run Started: \n\n");
             running=builder.start();
             //System.setOut(s);
             //running=Runtime.getRuntime().exec("java "+call);
@@ -146,7 +150,7 @@ public class JavaRunner implements Runnable{
 //            s2.useDelimiter("\n");
 //            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
 //            printStream=new PrintStream(filterStream);
-            System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
+//            System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
             //}
         } catch (IOException ex) {
             Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);

@@ -74,8 +74,7 @@ public class Gui extends JFrame implements ActionListener{
     private JButton backButton;
     private JButton runButton;
     private JLabel fileInfoLabel;
-    private TextOutputStream outStream;
-    private PipedInputStream inStream;
+    private InputRelayer outputRelay;
     private JavaRunner runner;
     private static JTerminal codeOutputArea;
     private JScrollPane codeOutputScroll;
@@ -214,18 +213,9 @@ public class Gui extends JFrame implements ActionListener{
             codeOutputArea.setText("");
         if(codeOutputScroll==null)
             codeOutputScroll=new JScrollPane(codeOutputArea);
-        //Console.redirectOutput(codeOutputArea);
+        outputRelay=new InputRelayer(codeOutputArea);
         if(runner==null)
-            runner=new JavaRunner(codeOutputArea,System.out, System.in);
-        if(outStream==null){
-            try {
-                File f=new File("output.log");
-                f.createNewFile();
-                outStream=new TextOutputStream(codeOutputArea,new FileOutputStream(f));
-            } catch (IOException ex) {
-                Logger.getLogger(Gui.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }        
+            runner=new JavaRunner(codeOutputArea,this,System.out, System.in);   
         constraints.anchor=GridBagConstraints.WEST;
         constraints.fill=GridBagConstraints.NONE;
         constraints.gridheight=1;
@@ -348,10 +338,11 @@ public class Gui extends JFrame implements ActionListener{
         }
         else if(e.getSource().equals(backButton)){
             runner.stopProcess();
+            outputRelay.stop();
             setupFileBrowserGui();
         }
     }
-    public static JTextArea getTerminal(){
-        return codeOutputArea;
+    public void proccessEnded(){
+        actionPerformed(new ActionEvent(runButton,0,""));
     }
 }

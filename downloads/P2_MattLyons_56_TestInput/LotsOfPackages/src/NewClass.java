@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.util.Arrays;
 import javax.swing.JOptionPane;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -17,7 +19,23 @@ public class NewClass {
     public static void main(String[] args) {
         try {
             //DROPBOXGRADERCODESTART
-            System.setOut(new java.io.PrintStream(new java.io.FileOutputStream("output.log")));
+            java.io.PrintStream printStream=new java.io.PrintStream(new java.io.FileOutputStream("output.log"));
+            System.setOut(printStream);
+            System.setErr(printStream);
+            java.io.File f=new java.io.File("input.log");
+            int runNum=0;
+            System.setIn(new java.io.FileInputStream(f){
+                private int runNum=0;
+                @Override
+                public int read(byte[] b, int off, int len) throws IOException {
+                    int read=super.read(b, off, len);
+                    while(runNum%2==0&&read==-1){ //every 2nd call is for caching and doesnt matter
+                        read=super.read(b, off, len);
+                    }
+                    runNum++;
+                    return read;
+                }
+            });
             //DROPBOXGRADERCODEEND
             JOptionPane.showMessageDialog(null,"Test");
             Scanner s=new Scanner(System.in);

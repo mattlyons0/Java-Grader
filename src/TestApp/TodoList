@@ -12,3 +12,5 @@ Auto mark late.
 Disable dragging (or rework it) in browser.
 Wordwrap output
 Crash Process after close button is pressed.
+Clear files after run ends
+Inject code into main method.
