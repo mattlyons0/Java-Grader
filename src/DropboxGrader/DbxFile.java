@@ -178,29 +178,25 @@ public class DbxFile {
         JavaFile[] fileArr=new JavaFile[filesWithType.size()];
         return filesWithType.toArray(fileArr);
     }
-    private String readFile(JavaFile f){
+    private String readCode(JavaFile f){
         try {
             Scanner reader=new Scanner(f);
             reader.useDelimiter("\n");
-            String packageDir=null;
+            boolean inDropboxInjected=false;
             String read="";
             while(reader.hasNext()){
                 String line=reader.next();
-                read+=line+"\n";
-                if(line.contains("package ")){ //if it contains packages we need to make sure its in the right folder
-                    packageDir=line.substring(0,line.length()-1); //-1 to get rid of \n
-                    packageDir=packageDir.replace("package ", "");
-                    packageDir=packageDir.replace(" ", "");
-                    packageDir=packageDir.replace(";", "");
-                    packageDir=packageDir.replace(".", "/");
-                    f.setPackage(packageDir);
-                    //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
-                    //System.out.println("Line "+line+" contained a package declaration.");
+                if(!inDropboxInjected&&line.contains("//DROPBOXGRADERCODESTART")){
+                    inDropboxInjected=true;
                 }
-                else if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){ //if it contains a main method
-                    f.setMainMethod(true);
+                else if(inDropboxInjected&&line.contains("//DROPBOXGRADERCODEEND")){
+                    inDropboxInjected=false;
+                }
+                else{
+                    read+=line+"\n";
                 }
             }
+            reader.close();
 //            if(packageDir!=null){
 //                System.out.println("Package at "+packageDir);
 //                if(packageFolder==null){
@@ -253,7 +249,7 @@ public class DbxFile {
     public String[] getJavaCode(){
         String[] code=new String[javaFiles.length];
         for(int x=0;x<javaFiles.length;x++){
-            code[x]=readFile(javaFiles[x]);
+            code[x]=readCode(javaFiles[x]);
         }
         return code;
     }

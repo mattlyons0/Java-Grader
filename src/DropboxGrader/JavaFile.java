@@ -30,6 +30,7 @@ public class JavaFile extends File{
     public JavaFile(File f){
         super(f.getPath());
         setMainMethod(false);
+        validateFile(f);
     }
     public boolean containsMain(){
         return mainMethod;
@@ -93,7 +94,7 @@ public class JavaFile extends File{
                         int index=line.indexOf("{")+1; 
                         //if someone is an idiot and puts a sout on the same line as the main method header it will catch it.
                         currentFile+=line.substring(0, index)+"\n";
-                        System.out.println("Injecting after "+line.substring(0, index));
+                        //System.out.println("Injecting after "+line.substring(0, index));
                         currentFile+=inject;
                         currentFile+=line.substring(index);
                         currentFile+=lineAfter+"\n";
@@ -109,6 +110,32 @@ public class JavaFile extends File{
             } catch (IOException ex) {
                 Logger.getLogger(JavaFile.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+    }
+    private void validateFile(File f){
+        try {
+            Scanner reader=new Scanner(f);
+            reader.useDelimiter("\n");
+            while(reader.hasNext()){
+                String packageDir=null;
+                String line=reader.next();
+                if(line.contains("package ")){ //if it contains packages we need to make sure its in the right folder
+                    packageDir=line.substring(0,line.length()-1); //-1 to get rid of \n
+                    packageDir=packageDir.replace("package ", "");
+                    packageDir=packageDir.replace(" ", "");
+                    packageDir=packageDir.replace(";", "");
+                    packageDir=packageDir.replace(".", "/");
+                    setPackage(packageDir);
+                    //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
+                    //System.out.println("Line "+line+" contained a package declaration.");
+                }
+                if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){ //if it contains a main method
+                    setMainMethod(true);
+                }
+            }
+            reader.close();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
         }
     }
 }

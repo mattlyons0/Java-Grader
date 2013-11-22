@@ -12,6 +12,3 @@ Disable dragging (or rework it) in browser.
 Color run panel
 Config to auto run
 Refactor JavaRunner
-Hide dropboxgrader code in viewer.
-Fix grader gui moving upon run and stop.
-    Add textfield next to run button to determine how many times to run.

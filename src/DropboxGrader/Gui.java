@@ -73,6 +73,8 @@ public class Gui extends JFrame implements ActionListener{
     private JavaCodeBrowser javaCode;
     private JButton backButton;
     private JButton runButton;
+    private JTextField iterationsField;
+    private JPanel runPanel;
     private JLabel fileInfoLabel;
     private InputRelayer outputRelay;
     private JavaRunner runner;
@@ -207,6 +209,13 @@ public class Gui extends JFrame implements ActionListener{
         fileInfoLabel=new JLabel(fileManager.getFile(selectedFile).toString());
         runButton=new JButton("Run");
         runButton.addActionListener(this);
+        iterationsField=new JTextField(2);
+        iterationsField.setText("1");
+        iterationsField.setToolTipText("Times to run.");
+        runPanel=new JPanel();
+        runPanel.setLayout(new FlowLayout());
+        runPanel.add(runButton);
+        runPanel.add(iterationsField);
         if(codeOutputArea==null)
             codeOutputArea=new JTerminal(this);
         else
@@ -221,21 +230,21 @@ public class Gui extends JFrame implements ActionListener{
         constraints.fill=GridBagConstraints.NONE;
         constraints.gridheight=1;
         constraints.gridwidth=1;
-        constraints.weightx=0.33;
+        //constraints.weightx=0.33;
         constraints.weighty=0.01;
         gradingPanel.add(backButton,constraints);
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.fill=GridBagConstraints.BOTH;
         constraints.gridx=1;
         constraints.gridwidth=1;
-        constraints.weightx=0.33;
+        //constraints.weightx=0.33;
         gradingPanel.add(fileInfoLabel,constraints);
         constraints.gridwidth=1;
-        constraints.weightx=0.33;
+        //constraints.weightx=0.33;
         constraints.gridx=2;
         constraints.anchor=GridBagConstraints.EAST;
         constraints.fill=GridBagConstraints.NONE;
-        gradingPanel.add(runButton,constraints);
+        gradingPanel.add(runPanel,constraints);
         
         constraints.fill=GridBagConstraints.BOTH;
         constraints.gridheight=1;
@@ -329,8 +338,19 @@ public class Gui extends JFrame implements ActionListener{
         }
         else if(e.getSource().equals(runButton)){
             if(runButton.getText().equals("Run")&&!e.getActionCommand().equals("Ended")){
-                runButton.setText("Stop Running");
-                fileManager.getFile(selectedFile).run(runner,1);
+                try{
+                    int times=Integer.parseInt(iterationsField.getText().trim());
+                    if(times>0){
+                        fileManager.getFile(selectedFile).run(runner,times);
+                        runButton.setText("Stop Running");
+                    }
+                    else{
+                        codeOutputArea.append("Cannot run less than 1 time.\n");
+                    }
+                }
+                catch(NumberFormatException ex){
+                    codeOutputArea.append("Times to run must be a number.\n");
+                }
             }
             else{
                 runner.stopProcess();
