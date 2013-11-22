@@ -254,7 +254,7 @@ public class DbxFile {
         return code;
     }
     
-    public void run(JavaRunner runner, int times){
+    public boolean run(JavaRunner runner, int times){
         ArrayList<JavaFile> mainMethods=new ArrayList();
         for(JavaFile f:javaFiles){
             if(f.containsMain()){
@@ -263,7 +263,7 @@ public class DbxFile {
         }
         if(mainMethods.isEmpty()){
             GuiHelper.alertDialog("No classes contain main methods.");
-            return;
+            return false;
         }
         int choice=0;
         if(mainMethods.size()>1){
@@ -275,10 +275,11 @@ public class DbxFile {
             choice=GuiHelper.multiOptionPane("There are multiple main methods, which would you like to run?", choices);
         }
         if(choice==-1){
-            return;
+            return false;
         }
         
         runner.runFile(javaFiles,mainMethods.get(choice),times);
+        return true;
     }
     @Override
     public String toString(){

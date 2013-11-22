@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,8 +60,8 @@ public class JavaRunner implements Runnable{
                 try{
                     int code=running.exitValue();
                     //if it gets this far it has ended
-                    if(code!=0)
-                        terminal.append("\nRun Finished: "+code+"\n");
+                    if(code!=0||numRunsLeft==0)
+                        terminal.append("\nRun Finished: "+code+"\n",Color.GRAY);
                     if(numRunsLeft>0){
                         clearInOutFiles();
                         runClass();
@@ -76,7 +77,14 @@ public class JavaRunner implements Runnable{
                 }
             }
             try {
-                Thread.sleep(1000); //saves resources on slow computers (like the ones in the library)
+                if(numRunsLeft>0){
+                    Thread.sleep(1000); //basically if the number is smaller than 1000 multiple writes happen before a read
+                    //figure out why later...
+                }
+                else{
+                    Thread.sleep(1000);
+                }
+                //saves resources on slow computers (like the ones in the library)
                 //also fixes printing output after saying run finished on slow computers.
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
@@ -115,9 +123,7 @@ public class JavaRunner implements Runnable{
         currentFiles=files;
         mainFile=runChoice;
         
-        if(numRunsLeft==0){
-            terminal.setText("");
-        }
+        terminal.setText("");
         stopProcess();
         
         boolean containsPackages=false;
@@ -152,18 +158,16 @@ public class JavaRunner implements Runnable{
         }
         //System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
-            if(numRunsLeft==0)
-                terminal.append("Compile Started\n\n");
+                terminal.append("Compile Started\n",Color.GRAY);
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             int result=compiler.run(null, System.out, errorRelay, filePaths);
             if(result!=0){
-                terminal.append("Compile Failed\n\n");
+                terminal.append("Compile Failed\n\n",Color.GRAY);
                 gui.proccessEnded();
                 return;
             }
             else{
-                if(numRunsLeft==0)
-                    terminal.append("Compile Finished\n\n");
+                terminal.append("Compile Finished\n\n",Color.GRAY);
             }
             int index=-1;
             for(int x=0;x<files.length;x++){
@@ -191,7 +195,7 @@ public class JavaRunner implements Runnable{
             builder.inheritIO();
             //builder.directory(new File(directory));
             //System.out.println("Running from: "+directory);
-                    terminal.append("Run Started: \n\n");
+                    terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();
             relay.start();
             numRunsLeft--;

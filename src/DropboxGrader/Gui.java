@@ -341,8 +341,9 @@ public class Gui extends JFrame implements ActionListener{
                 try{
                     int times=Integer.parseInt(iterationsField.getText().trim());
                     if(times>0){
-                        fileManager.getFile(selectedFile).run(runner,times);
-                        runButton.setText("Stop Running");
+                        boolean running=fileManager.getFile(selectedFile).run(runner,times);
+                        if(running)
+                            runButton.setText("Stop Running");
                     }
                     else{
                         codeOutputArea.append("Cannot run less than 1 time.\n");
