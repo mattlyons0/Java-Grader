@@ -7,6 +7,7 @@ package DropboxGrader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -31,19 +32,21 @@ import javax.tools.ToolProvider;
  */
 public class JavaRunner implements Runnable{
     private Process running;
-    private JTerminal area;
+    private JTerminal terminal;
     private Gui gui;
-    private OutputStream stream;
-    private InputStream inStream;
-    private Scanner s1,s2;
-    private PrintStream printStream;
     private Thread thread;
-    public JavaRunner(JTerminal a,Gui gui,OutputStream stream,InputStream inStream){
-        area=a;
+    private InputRelayer relay;
+    private RelayStream errorRelay;
+    private int numRunsLeft;
+    private JavaFile[] currentFiles;
+    private JavaFile mainFile;
+    public JavaRunner(JTerminal t,Gui gui,InputRelayer relay){
+        terminal=t;
         this.gui=gui;
-        this.stream=stream;
-        this.inStream=inStream;
-
+        this.relay=relay;
+        
+        errorRelay=new RelayStream(System.out,terminal);
+        
         thread=new Thread(this);
         thread.setName("CheckProccessStateThread");
         thread.start();
@@ -56,8 +59,18 @@ public class JavaRunner implements Runnable{
                 try{
                     int code=running.exitValue();
                     //if it gets this far it has ended
-                    area.append("\nRun Finished: "+code+"\n");
-                    gui.proccessEnded();
+                    if(code!=0)
+                        terminal.append("\nRun Finished: "+code+"\n");
+                    if(numRunsLeft>0){
+                        clearInOutFiles();
+                        runClass();
+                    }
+                    else{
+                        gui.proccessEnded();
+                        currentFiles=null;
+                        mainFile=null;
+                    }
+                    
                 }
                 catch(IllegalThreadStateException e){
                 }
@@ -69,18 +82,42 @@ public class JavaRunner implements Runnable{
                 ex.printStackTrace();
             }
         }
+        
+    }
+    public void clearInOutFiles(){
+        relay.stop();
+        try {
+            File output=new File("output.log");
+            File input=new File("input.log");
+            FileWriter outputWriter=new FileWriter(output);
+            FileWriter inputWriter = new FileWriter(input);
+            outputWriter.write("");
+            inputWriter.write("");
+            outputWriter.close();
+            inputWriter.close();
+        } catch (IOException ex) {
+            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     public void stopProcess(){
         if(running!=null){
             running.destroy();
+            clearInOutFiles();
         }
         running=null;
     }
-    public void runFile(JavaFile[] files,JavaFile runChoice){
+    public void runFile(JavaFile[] files,JavaFile runChoice, int numTimes){
         if(files.length==0){
             return;
         }
-        area.setText("");
+        numRunsLeft=numTimes;
+        currentFiles=files;
+        mainFile=runChoice;
+        
+        if(numRunsLeft==0){
+            terminal.setText("");
+        }
         stopProcess();
         
         boolean containsPackages=false;
@@ -113,17 +150,20 @@ public class JavaRunner implements Runnable{
         for(int x=manualArgNum;x<files.length+manualArgNum;x++){
             filePaths[x]=files[x-manualArgNum].getAbsolutePath();
         }
-        System.out.println("Compiling "+Arrays.toString(filePaths));
+        //System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
-            area.append("Compile Started\n");
+            if(numRunsLeft==0)
+                terminal.append("Compile Started\n\n");
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            int result=compiler.run(inStream, stream, stream, filePaths);
+            int result=compiler.run(null, System.out, errorRelay, filePaths);
             if(result!=0){
-                area.append("Compile Failed\n\n");
+                terminal.append("Compile Failed\n\n");
+                gui.proccessEnded();
                 return;
             }
             else{
-                area.append("Compile Finished\n\n");
+                if(numRunsLeft==0)
+                    terminal.append("Compile Finished\n\n");
             }
             int index=-1;
             for(int x=0;x<files.length;x++){
@@ -137,7 +177,11 @@ public class JavaRunner implements Runnable{
             }
             //for(int x=0;x<files.length;x++){
             String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
-            String className=files[index].getName();
+            String className="";
+            if(files[index].hasPackage()){
+                className+=files[index].packageFolder()+"/";
+            }
+            className+=files[index].getName();
             className=className.substring(0,className.length()-5); //removes .java
             String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
             javaExe="java";
@@ -147,8 +191,10 @@ public class JavaRunner implements Runnable{
             builder.inheritIO();
             //builder.directory(new File(directory));
             //System.out.println("Running from: "+directory);
-            area.append("Run Started: \n\n");
+                    terminal.append("Run Started: \n\n");
             running=builder.start();
+            relay.start();
+            numRunsLeft--;
             //System.setOut(s);
             //running=Runtime.getRuntime().exec("java "+call);
 //            s1=new Scanner(new InputStreamReader(running.getInputStream()));
@@ -157,10 +203,73 @@ public class JavaRunner implements Runnable{
 //            s2.useDelimiter("\n");
 //            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
 //            printStream=new PrintStream(filterStream);
-//            System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
+              System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
             //}
+        } catch (IOException ex) {
+           Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    private void runClass(){
+        boolean containsPackages=false;
+        for(JavaFile f: currentFiles){
+            if(f.hasPackage()){
+                containsPackages=true;
+                break;
+            }
+        }
+        int manualArgNum=4;
+        String[] filePaths=new String[currentFiles.length+manualArgNum];
+        
+        filePaths[0]="-cp";
+        String path=currentFiles[0].getAbsolutePath();
+        if(path.length()!=0){
+            path=path.replace("\\", "=");
+            String[] pathPart=path.split("="); //cant split \ for whatever reason
+            path=path.replace("=", "\\");
+            path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
+            if(containsPackages){
+                path=path.substring(0, path.length()-pathPart[pathPart.length-2].length()-1);
+            }
+            if(pathPart.length==1){
+                path="";
+            }
+        }
+        filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
+        filePaths[2]="-sourcepath";
+        filePaths[3]=filePaths[1];
+        for(int x=manualArgNum;x<currentFiles.length+manualArgNum;x++){
+            filePaths[x]=currentFiles[x-manualArgNum].getAbsolutePath();
+        }
+        int index=-1;
+        for(int x=0;x<currentFiles.length;x++){
+            if(currentFiles[x].equals(mainFile)){
+                index=x;
+            }
+        }
+        if(index==-1){
+            System.out.println("Main File doesnt exist!");
+            return;
+        }
+        String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+        String className="";
+        if(currentFiles[index].hasPackage()){
+            className+=currentFiles[index].packageFolder()+"/";
+        }
+        className+=currentFiles[index].getName();
+        className=className.substring(0,className.length()-5); //removes .java
+        String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
+        javaExe="java";
+        ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
+        builder.inheritIO();
+        try {
+            running=builder.start();
         } catch (IOException ex) {
             Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
         }
+        relay.start();
+            numRunsLeft--;
+    }
+    public InputRelayer getRelay(){
+        return relay;
     }
 }

@@ -187,9 +187,12 @@ public class DbxFile {
             while(reader.hasNext()){
                 String line=reader.next();
                 read+=line+"\n";
-                if(line.contains("package")){ //if it contains packages we need to make sure its in the right folder
-                    packageDir=line.substring(line.indexOf("e")+2,line.length()-1); //-1 to get rid of \n
+                if(line.contains("package ")){ //if it contains packages we need to make sure its in the right folder
+                    packageDir=line.substring(0,line.length()-1); //-1 to get rid of \n
+                    packageDir=packageDir.replace("package ", "");
+                    packageDir=packageDir.replace(" ", "");
                     packageDir=packageDir.replace(";", "");
+                    packageDir=packageDir.replace(".", "/");
                     f.setPackage(packageDir);
                     //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
                     //System.out.println("Line "+line+" contained a package declaration.");
@@ -254,7 +257,8 @@ public class DbxFile {
         }
         return code;
     }
-    public void run(JavaRunner runner){
+    
+    public void run(JavaRunner runner, int times){
         ArrayList<JavaFile> mainMethods=new ArrayList();
         for(JavaFile f:javaFiles){
             if(f.containsMain()){
@@ -272,13 +276,13 @@ public class DbxFile {
                 String path=mainMethods.get(x).packageFolder()+"."+mainMethods.get(x).getName();
                 choices[x]=path;
             }
-            choice=GuiHelper.multiOptionPane("There are multiple main methods, which one do you want to run?", choices);
+            choice=GuiHelper.multiOptionPane("There are multiple main methods, which would you like to run?", choices);
         }
         if(choice==-1){
             return;
         }
         
-        runner.runFile(javaFiles,mainMethods.get(choice));
+        runner.runFile(javaFiles,mainMethods.get(choice),times);
     }
     @Override
     public String toString(){

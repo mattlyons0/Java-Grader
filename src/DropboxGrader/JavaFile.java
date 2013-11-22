@@ -83,6 +83,10 @@ public class JavaFile extends File{
                     String line=s.next()+"\n";
                     if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){
                         String lineAfter=s.next();
+                        if(!line.contains("{")){
+                            line+=lineAfter;
+                            lineAfter=s.next();
+                        }
                         if(lineAfter.contains("//DROPBOXGRADERCODESTART")){
                             return;
                         }
@@ -92,6 +96,7 @@ public class JavaFile extends File{
                         System.out.println("Injecting after "+line.substring(0, index));
                         currentFile+=inject;
                         currentFile+=line.substring(index);
+                        currentFile+=lineAfter+"\n";
                     }
                     else{
                         currentFile+=line;

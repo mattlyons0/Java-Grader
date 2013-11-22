@@ -2,7 +2,6 @@ Catch and sort 2nd year students
 Drive integration
 Config
 Use Progress Bar/Multithread
-handle user input somehow.
 Maybe encrypt key
 Handle resubmits.
 Draggable Tabs in grader
@@ -10,8 +9,9 @@ Doubleclick/rightclick in browser
 Ctrl tab in grader.
 Auto mark late.
 Disable dragging (or rework it) in browser.
-Wordwrap output
-Crash Process after close button is pressed.
-Clear files after run ends
-Inject code into main method.
-Log Compile Errors.
+Color run panel
+Config to auto run
+Refactor JavaRunner
+Hide dropboxgrader code in viewer.
+Fix grader gui
+    Add textfield next to run button to determine how many times to run.

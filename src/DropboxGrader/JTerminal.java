@@ -27,16 +27,19 @@ public class JTerminal extends JTextArea implements KeyListener{
     private String lineTyped;
     private Gui gui;
     private PrintWriter writer;
+    private File file;
     public JTerminal(Gui gui){
         super();
+        this.setLineWrap(true);
         lineTyped="";
         this.gui=gui;
         addKeyListener(this);
         try {
-            File f=new File("input.log");
-            f.delete();
-            f.createNewFile();
-            writer=new PrintWriter(f);
+            file=new File("input.log");
+            file.delete();
+            file.createNewFile();
+
+            writer=new PrintWriter(file);
         } catch (IOException ex) {
             Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -49,25 +52,31 @@ public class JTerminal extends JTextArea implements KeyListener{
 
     @Override
     public void keyTyped(KeyEvent e) {
-        char c=e.getKeyChar();
-        if(c==KeyEvent.VK_ENTER){
-            writer.append(lineTyped);
-            writer.flush();
-            lineTyped="";
-        }
-        else if(c==KeyEvent.VK_BACK_SPACE){
-            lineTyped=lineTyped.substring(0, lineTyped.length()-1);
-        }
-        else if(!Character.isISOControl(c)){
-            lineTyped+=e.getKeyChar();
-        }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
+        
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+       char c=e.getKeyChar();
+       if(c==KeyEvent.VK_ENTER){
+           String[] lines=getText().split("\n");
+           String call=lines[lines.length-1].trim();
+           try {
+                writer=new PrintWriter(file);
+                writer.append(call);
+                writer.flush();
+                writer.close();
+           } catch (FileNotFoundException ex) {
+               Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
+           }
+           
+       }
+    }
+    public void stop(){
+        writer.close();
     }
 }

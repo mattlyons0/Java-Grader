@@ -215,7 +215,8 @@ public class Gui extends JFrame implements ActionListener{
             codeOutputScroll=new JScrollPane(codeOutputArea);
         outputRelay=new InputRelayer(codeOutputArea);
         if(runner==null)
-            runner=new JavaRunner(codeOutputArea,this,System.out, System.in);   
+            runner=new JavaRunner(codeOutputArea,this,outputRelay);   
+        addWindowListener(new GuiListener(this,runner));
         constraints.anchor=GridBagConstraints.WEST;
         constraints.fill=GridBagConstraints.NONE;
         constraints.gridheight=1;
@@ -327,9 +328,9 @@ public class Gui extends JFrame implements ActionListener{
             setupGraderGui();
         }
         else if(e.getSource().equals(runButton)){
-            if(runButton.getText().equals("Run")){
-                fileManager.getFile(selectedFile).run(runner);
+            if(runButton.getText().equals("Run")&&!e.getActionCommand().equals("Ended")){
                 runButton.setText("Stop Running");
+                fileManager.getFile(selectedFile).run(runner,1);
             }
             else{
                 runner.stopProcess();
@@ -338,11 +339,13 @@ public class Gui extends JFrame implements ActionListener{
         }
         else if(e.getSource().equals(backButton)){
             runner.stopProcess();
-            outputRelay.stop();
             setupFileBrowserGui();
         }
     }
     public void proccessEnded(){
-        actionPerformed(new ActionEvent(runButton,0,""));
+        actionPerformed(new ActionEvent(runButton,0,"Ended"));
+    }
+    public JTerminal getTerminal(){
+        return codeOutputArea;
     }
 }
