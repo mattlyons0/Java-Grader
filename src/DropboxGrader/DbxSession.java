@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  * @author 141lyonsm
  */
 public class DbxSession {
-    private final String appName="Matt Lyons Assignment Grader";
+    public static final String appName="Matt Lyons Assignment Grader";
     private final double appVersion=0.1;
     private final String APP_KEY = "681xzhh2nqu3hjc";
     private final String APP_SECRET = "k7e1pkfljgg1jdb";
@@ -43,7 +43,7 @@ public class DbxSession {
     private Gui gui;
     
     public DbxSession(Gui gui){
-        appKey=new File("app.key");
+        appKey=new File("dbx.key");
         this.gui=gui;
         
         createSession();
@@ -98,7 +98,7 @@ public class DbxSession {
             writeToFile(appKey,val);
             createSession();
     }
-    private void writeToFile(File f,String s){
+    public static void writeToFile(File f,String s){
         try{
             if(!f.exists()){
                 f.createNewFile();
@@ -112,7 +112,7 @@ public class DbxSession {
             System.exit(1);
         }
     }
-    private String readFromFile(File f){
+    public static String readFromFile(File f){
         String read="";
         try {
             Scanner reader=new Scanner(f);
@@ -124,7 +124,7 @@ public class DbxSession {
         }
         return read;
     }
-    private void openWebsite(String url){
+    public static void openWebsite(String url){
         Desktop desktop=Desktop.getDesktop();
         if(desktop!=null&&desktop.isSupported(Desktop.Action.BROWSE)){
             try{

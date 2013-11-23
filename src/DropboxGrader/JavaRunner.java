@@ -162,7 +162,7 @@ public class JavaRunner implements Runnable{
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             int result=compiler.run(null, System.out, errorRelay, filePaths);
             if(result!=0){
-                terminal.append("Compile Failed\n\n",Color.GRAY);
+                terminal.append("Compile Failed\n\n",Color.RED);
                 gui.proccessEnded();
                 return;
             }

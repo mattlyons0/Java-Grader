@@ -6,6 +6,7 @@
 
 package DropboxGrader;
 
+import java.awt.Color;
 import java.io.PrintStream;
 
 /**
@@ -28,7 +29,7 @@ public class RelayStream extends PrintStream{
     }
     @Override
     public void write(byte[] buff,int off,int len){
-        terminal.append(new String(buff,off,len));
+        terminal.append(new String(buff,off,len),Color.RED);
         super.write(buff, off, len);
     }
 
