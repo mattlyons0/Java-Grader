@@ -35,6 +35,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.table.TableModel;
 
@@ -49,7 +50,6 @@ public class Gui extends JFrame implements ActionListener{
     private DbxClient client;
     private GoogSession googSession;
     private SpreadsheetGrader gradeWriter;
-    private Config config;
     
     //First Stage (Authentication) Instance Vars
     private JLabel status;
@@ -89,7 +89,6 @@ public class Gui extends JFrame implements ActionListener{
     private JLabel gradeStatus;
     public Gui(){
         super("Dropbox Grader");
-        config=new Config(); //TODO: make config
         
         UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
         
@@ -112,11 +111,11 @@ public class Gui extends JFrame implements ActionListener{
         dbxSession=new DbxSession(this);
         
         googSession=new GoogSession();
-        gradeWriter=new SpreadsheetGrader("APCS PERIOD 4 ASSIGNMENTS",googSession.getService());
+        gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService());
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
-            fileManager=new FileManager("DROPitTOme","P2",client,this);
+            fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
             setupFileBrowserGui();
         }
     }
@@ -220,7 +219,7 @@ public class Gui extends JFrame implements ActionListener{
         runButton=new JButton("Run");
         runButton.addActionListener(this);
         iterationsField=new JTextField(2);
-        iterationsField.setText("1");
+        iterationsField.setText(Config.runTimes+"");
         iterationsField.setToolTipText("Times to run.");
         runPanel=new JPanel();
         runPanel.setLayout(new FlowLayout());
@@ -313,6 +312,11 @@ public class Gui extends JFrame implements ActionListener{
         add(gradingPanel,constraints);
         
         revalidate();
+        
+        if(Config.autoRun){
+            //put this on the new thread
+            actionPerformed(new ActionEvent(runButton,0,null));
+        }
     }
     public void promptKey(){
         status.setText("Please login and paste the code here: ");

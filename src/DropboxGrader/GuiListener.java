@@ -47,6 +47,7 @@ public class GuiListener implements WindowListener{
                 System.out.println("output.log is not being cleaned up properly.");
             }
         }
+        Config.writeConfig();
     }
 
     @Override

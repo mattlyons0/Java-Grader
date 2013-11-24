@@ -22,6 +22,7 @@ public class Main {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        Config.readConfig();
         Gui gui=new Gui();
     }
 }
