@@ -105,7 +105,7 @@ public class DbxFile {
      */
     public String getSubmitDate(boolean checkRevisions,int row,int col){
         if(checkRevisions&&entry.lastModified.after(entry.clientMtime)&&row>-1&&col>-1){
-            fileManager.getTableData().setColorAt(new Color(230,120,120), row, col);
+            fileManager.getTableData().setColorAt(new Color(230,120,120), new CellLocation(fileManager.getAttributes()[col],row));
             return "Modified "+entry.lastModified+" Originally "+entry.clientMtime;
         }
         return entry.clientMtime.toString();
@@ -160,11 +160,12 @@ public class DbxFile {
         files.addAll(Arrays.asList(folder.listFiles()));
         
         for(int x=0;x<files.size();x++){
-            JavaFile f=new JavaFile(files.get(x));
+            File f=files.get(x);
             if(f.isFile()){
                 if(f.getName().endsWith(fileType.toLowerCase())||f.getName().endsWith(fileType.toUpperCase())){
                     //if file is .Java it wont get added, but that is stupid capitalization that nothing would save as anyway.
-                    filesWithType.add(f);
+                    JavaFile jf=new JavaFile(f);
+                    filesWithType.add(jf);
                     //System.out.println("Adding "+f);
                 }
             }
@@ -192,7 +193,7 @@ public class DbxFile {
                 else if(inDropboxInjected&&line.contains("//DROPBOXGRADERCODEEND")){
                     inDropboxInjected=false;
                 }
-                else{
+                else if(!inDropboxInjected){
                     read+=line+"\n";
                 }
             }

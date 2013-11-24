@@ -7,6 +7,7 @@
 package DropboxGrader;
 
 import java.awt.Color;
+import java.util.HashMap;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
@@ -16,12 +17,12 @@ import javax.swing.table.AbstractTableModel;
  */
 public class FileBrowserData extends AbstractTableModel{
     private FileManager manager;
-    private Color[][] cellColors;
+    private HashMap<CellLocation,Color> cellColors;
     public FileBrowserData(FileManager f){
         super();
         manager=f;
         
-        cellColors=new Color[getRowCount()][getColumnCount()];
+        cellColors=new HashMap();
     }
     @Override
     public int getRowCount() {
@@ -41,14 +42,22 @@ public class FileBrowserData extends AbstractTableModel{
     public String getColumnName(int col){
         return manager.getAttributes()[col];
     }
-    public void setColorAt(Color c,int row,int col){
-        cellColors[row][col]=c;
+    public void setColorAt(Color c,CellLocation cell){
+        cellColors.put(cell, c);
     }
-    public Color getColorAt(int row,int col){
-        return cellColors[row][col];
+    public Color getColorAt(CellLocation cell){
+        return cellColors.get(cell);
+    }
+    public FileManager getManager(){
+        return manager;
     }
     public void refresh(){
-        cellColors=new Color[getRowCount()][getColumnCount()];
+        cellColors.clear();
     }
-    
+
+    @Override
+    public void fireTableRowsUpdated(int firstRow, int lastRow) {
+        super.fireTableRowsUpdated(firstRow, lastRow);
+        System.out.println("Rows updated "+firstRow+"-"+lastRow);
+    }    
 }

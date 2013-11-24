@@ -103,6 +103,8 @@ public class JavaFile extends File{
                         currentFile+=line;
                     }
                 }
+                s.close();
+                
                 writer = new PrintWriter(new FileWriter(this,false));
                 writer.write(currentFile);
                 writer.close();

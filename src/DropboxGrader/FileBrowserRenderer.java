@@ -20,8 +20,10 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
     @Override
     public Component getTableCellRendererComponent(JTable table,Object value,boolean isSelected,boolean hasFocus,int row,int col){
         JLabel l=(JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+        col=table.convertColumnIndexToModel(col);
         FileBrowserData data=(FileBrowserData)table.getModel();
-        Color c=data.getColorAt(row, col);
+        String colName=data.getColumnName(col);
+        Color c=data.getColorAt(new CellLocation(colName,row));
         if(c!=null){
             l.setBackground(c);
             if(isSelected){

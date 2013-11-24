@@ -14,9 +14,9 @@ import javax.swing.table.TableCellRenderer;
  * @author Matt
  */
 public class FileBrowser extends JTable{
-    private FileBrowserData data;
     public FileBrowser(FileBrowserData data){
         super(data);
+        setDragEnabled(true);
     }    
     @Override
     public TableCellRenderer getDefaultRenderer(Class<?> columnClass){
