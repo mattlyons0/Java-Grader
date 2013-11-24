@@ -1,8 +1,7 @@
 Catch and sort 2nd year students
-Drive integration
 Config
 Use Progress Bar/Multithread
-Maybe encrypt key
+Maybe encrypt keys
 Handle resubmits.
 Draggable Tabs in grader
 Doubleclick/rightclick in browser
@@ -13,3 +12,5 @@ Color run panel
 Config to auto run
 Refactor JavaRunner
 Sort Filebrowser by clicked
+Autocreate spreadsheet
+Fix access denied errors

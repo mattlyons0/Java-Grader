@@ -10,12 +10,14 @@ import com.google.gdata.client.authn.oauth.GoogleOAuthHelper;
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
 import com.google.gdata.client.authn.oauth.OAuthException;
 import com.google.gdata.client.authn.oauth.OAuthHmacSha1Signer;
+import com.google.gdata.client.authn.oauth.OAuthParameters;
 import com.google.gdata.client.authn.oauth.OAuthRsaSha1Signer;
 import com.google.gdata.client.authn.oauth.OAuthSigner;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sun.security.krb5.Credentials;
 
 
 
@@ -30,6 +32,7 @@ public class GoogSession {
     private final String redirectUrl="urn:ietf:wg:oauth:2.0:oob";
     private final boolean useRSA=false;
     private final File tokenFile=new File("goog.key");
+    private OAuthSigner signer;
     private GoogleOAuthHelper oauthHelper;
     private GoogleOAuthParameters oauthParams;
     private SpreadsheetService service;
@@ -41,7 +44,6 @@ public class GoogSession {
         try{
             oauthParams=new GoogleOAuthParameters();
             oauthParams.setOAuthConsumerKey(ClientID);
-            OAuthSigner signer;
             if (useRSA){
                 signer=new OAuthRsaSha1Signer(ClientSecret);
             }
@@ -51,9 +53,8 @@ public class GoogSession {
             }
             oauthHelper=new GoogleOAuthHelper(signer);
             oauthParams.setScope(scope);
-            oauthHelper.getUnauthorizedRequestToken(oauthParams);
-            String token;
             if(!tokenFile.exists()){
+                oauthHelper.getUnauthorizedRequestToken(oauthParams);
                 String requestURL=oauthHelper.createUserAuthorizationUrl(oauthParams);
                 DbxSession.openWebsite(requestURL);
                 GuiHelper.alertDialog("Please authenticate this program.");
@@ -71,17 +72,38 @@ public class GoogSession {
         if(newToken){
             try {
                 token=oauthHelper.getAccessToken(oauthParams);
-                DbxSession.writeToFile(tokenFile, token);
+                DbxSession.writeToFile(tokenFile, token+","+oauthParams.getOAuthTokenSecret());
             } catch (OAuthException ex) {
                 createSession();
             }
         }
+        else{
+            String read=DbxSession.readFromFile(tokenFile);
+            token=read.split(",")[0];
+            String tokenSecret=read.split(",")[1];
+            oauthParams.setOAuthToken(token);
+            oauthParams.setOAuthTokenSecret(tokenSecret);
+        }
         service=new SpreadsheetService(DbxSession.appName);
+        try {
+            service.setOAuthCredentials(oauthParams, signer);
+            //service.setUserToken(DbxSession.readFromFile(tokenFile));
+            //service.setAuthSubToken(DbxSession.readFromFile(tokenFile));
+        } catch (OAuthException ex) {
+            System.err.println("Error seting credentials: "+ex);
+        }
     }
     public void newTokenAuthenticated(){
         setToken(true);
     }
     public SpreadsheetService getService(){
         return service;
+    }
+    public void revokeToken(){
+        try {
+            oauthHelper.revokeToken(oauthParams);
+        } catch (OAuthException ex) {
+            System.err.println("Error revoking token "+ex.toString());
+        }
     }
 }

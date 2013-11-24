@@ -45,8 +45,10 @@ import javax.swing.table.TableModel;
 public class Gui extends JFrame implements ActionListener{
     //Raw Data Instance Vars
     private FileManager fileManager;
-    private DbxSession session;
+    private DbxSession dbxSession;
     private DbxClient client;
+    private GoogSession googSession;
+    private SpreadsheetGrader gradeWriter;
     private Config config;
     
     //First Stage (Authentication) Instance Vars
@@ -69,6 +71,7 @@ public class Gui extends JFrame implements ActionListener{
     private int selectedFile;
     
     //Third Stage (Grader) Instance Vars
+    private DbxFile currentFile;
     private JPanel gradingPanel;
     private JavaCodeBrowser javaCode;
     private JButton backButton;
@@ -80,6 +83,10 @@ public class Gui extends JFrame implements ActionListener{
     private JavaRunner runner;
     private static JTerminal codeOutputArea;
     private JScrollPane codeOutputScroll;
+    private JTextField gradeNumber;
+    private JTextField gradeComment;
+    private JButton recordGradeButton;
+    private JLabel gradeStatus;
     public Gui(){
         super("Dropbox Grader");
         config=new Config(); //TODO: make config
@@ -102,10 +109,13 @@ public class Gui extends JFrame implements ActionListener{
         
         setVisible(true);
         
-        session=new DbxSession(this);
+        dbxSession=new DbxSession(this);
+        
+        googSession=new GoogSession();
+        gradeWriter=new SpreadsheetGrader("APCS PERIOD 4 ASSIGNMENTS",googSession.getService());
     }
     private void createSession(){
-        if(client!=null||session!=null){
+        if(client!=null||dbxSession!=null){
             fileManager=new FileManager("DROPitTOme","P2",client,this);
             setupFileBrowserGui();
         }
@@ -216,6 +226,29 @@ public class Gui extends JFrame implements ActionListener{
         runPanel.setLayout(new FlowLayout());
         runPanel.add(runButton);
         runPanel.add(iterationsField);
+        JPanel gradePanel=new JPanel();
+        gradePanel.setLayout(new FlowLayout());
+        JLabel gradeLabel1=new JLabel("Grade: ");
+        gradeNumber=new JTextField(3);
+        gradeNumber.setHorizontalAlignment(JTextField.CENTER);
+        gradeNumber.addActionListener(this);
+        gradePanel.add(gradeLabel1);
+        gradePanel.add(gradeNumber);
+        JLabel gradeLabel2=new JLabel(" Comment: ");
+        gradeComment=new JTextField(25);
+        gradeComment.setHorizontalAlignment(JTextField.CENTER);
+        gradeComment.addActionListener(this);
+        gradePanel.add(gradeLabel2);
+        gradePanel.add(gradeComment);
+        JPanel gradeButtonPanel=new JPanel();
+        gradeButtonPanel.setLayout(new FlowLayout());
+        gradeStatus=new JLabel("");
+        gradeStatus.setHorizontalAlignment(JLabel.CENTER);
+        recordGradeButton=new JButton("Grade");
+        recordGradeButton.addActionListener(this);
+        gradeButtonPanel.add(gradeStatus);
+        gradeButtonPanel.add(recordGradeButton);
+        
         if(codeOutputArea==null)
             codeOutputArea=new JTerminal(this);
         else
@@ -226,6 +259,7 @@ public class Gui extends JFrame implements ActionListener{
         if(runner==null)
             runner=new JavaRunner(codeOutputArea,this,outputRelay);   
         addWindowListener(new GuiListener(this,runner));
+        
         constraints.anchor=GridBagConstraints.WEST;
         constraints.fill=GridBagConstraints.NONE;
         constraints.gridheight=1;
@@ -259,6 +293,18 @@ public class Gui extends JFrame implements ActionListener{
         constraints.weightx=0.33;
         constraints.gridwidth=1;
         gradingPanel.add(codeOutputScroll,constraints);
+        
+        constraints.fill=GridBagConstraints.NONE;
+        constraints.anchor=GridBagConstraints.WEST;
+        constraints.gridx=0;
+        constraints.gridy=2;
+        constraints.weighty=0.01;
+        constraints.gridwidth=1;
+        gradingPanel.add(gradePanel,constraints);
+        
+        constraints.anchor=GridBagConstraints.EAST;
+        constraints.gridx=1;
+        gradingPanel.add(gradeButtonPanel,constraints);
         
         constraints=new GridBagConstraints();
         constraints.fill=GridBagConstraints.BOTH;
@@ -308,7 +354,7 @@ public class Gui extends JFrame implements ActionListener{
         
         if(e.getSource().equals(submitButton)){
             if(fileManager==null){
-                session.setKey(keyField.getText());
+                dbxSession.setKey(keyField.getText());
             }
         }
         else if(e.getSource().equals(keyField)){ //return throws the action event
@@ -333,6 +379,7 @@ public class Gui extends JFrame implements ActionListener{
             }
             selectedFile=selected;
             fileManager.download(selectedFile);
+            currentFile=fileManager.getFile(selectedFile);
             fileBrowserTable.repaint();
             setupGraderGui();
         }
@@ -361,6 +408,17 @@ public class Gui extends JFrame implements ActionListener{
         else if(e.getSource().equals(backButton)){
             runner.stopProcess();
             setupFileBrowserGui();
+        }
+        else if(e.getSource().equals(recordGradeButton)){
+            try{
+                int assign=Integer.parseInt(currentFile.getAssignmentNumber());
+                boolean success=gradeWriter.setGrade(currentFile.getFirstLastName(), assign, gradeNumber.getText(),gradeComment.getText(),gradeStatus);
+            } catch(NumberFormatException ex){
+                gradeStatus.setText("Error reading assignment number: "+currentFile.getAssignmentNumber());
+            }
+        }
+        else if(e.getSource().equals(gradeComment)||e.getSource().equals(gradeNumber)){ //return was pressed in the text field.
+            actionPerformed(new ActionEvent(recordGradeButton,0,null));
         }
     }
     public void proccessEnded(){
