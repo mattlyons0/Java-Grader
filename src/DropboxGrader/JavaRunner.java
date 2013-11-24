@@ -67,6 +67,7 @@ public class JavaRunner implements Runnable{
                         runClass();
                     }
                     else{
+                        running=null;
                         gui.proccessEnded();
                         currentFiles=null;
                         mainFile=null;
@@ -109,11 +110,16 @@ public class JavaRunner implements Runnable{
         
     }
     public void stopProcess(){
+        stopProcess(false);
+    }
+    private void stopProcess(boolean normalExit){
         if(running!=null){
             running.destroy();
             clearInOutFiles();
+            if(!normalExit)
+                terminal.append("Run Canceled", Color.GRAY);
         }
-        running=null;
+        running=null;        
     }
     public void runFile(JavaFile[] files,JavaFile runChoice, int numTimes){
         if(files.length==0){
@@ -124,7 +130,7 @@ public class JavaRunner implements Runnable{
         mainFile=runChoice;
         
         terminal.setText("");
-        stopProcess();
+        stopProcess(true);
         
         boolean containsPackages=false;
         for(JavaFile f: files){
