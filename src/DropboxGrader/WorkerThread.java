@@ -68,5 +68,10 @@ public class WorkerThread implements Runnable{
         fileToRun=manager.getFile(file);
         timesToRun=times;
     }
+    public void delete(ArrayList<Integer> files){
+        for(int x=0;x<files.size();x++){
+            manager.getFile(files.get(x)).delete();
+        }
+    }
     
 }

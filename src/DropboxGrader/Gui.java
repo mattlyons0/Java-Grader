@@ -68,7 +68,7 @@ public class Gui extends JFrame implements ActionListener{
     private JScrollPane fileBrowserScroll;
     private GridBagConstraints constraints;
     private JButton refreshButton;
-    private JButton downloadAllButton;
+    private JButton deleteButton;
     private JButton configButton;
     private JProgressBar progressBar;
     private JButton gradeButton;
@@ -126,7 +126,7 @@ public class Gui extends JFrame implements ActionListener{
         dbxSession=new DbxSession(this);
         
         googSession=new GoogSession();
-        gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService());
+        gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
         fileQueue=new ArrayList();
     }
     private void createSession(){
@@ -168,8 +168,8 @@ public class Gui extends JFrame implements ActionListener{
         
         refreshButton=new JButton("Refresh");
         refreshButton.addActionListener(this);
-        downloadAllButton=new JButton("Download All");
-        downloadAllButton.addActionListener(this);
+        deleteButton=new JButton("Delete");
+        deleteButton.addActionListener(this);
         statusText=new JLabel("");
         configButton=new JButton("Settings");
         configButton.addActionListener(this);
@@ -186,7 +186,7 @@ public class Gui extends JFrame implements ActionListener{
         constraints.weighty=0.01;
         fileBrowserPanel.add(refreshButton,constraints);
         constraints.gridx=1;
-        fileBrowserPanel.add(downloadAllButton,constraints);
+        fileBrowserPanel.add(deleteButton,constraints);
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.gridx=3;
         fileBrowserPanel.add(statusText,constraints);
@@ -451,6 +451,9 @@ public class Gui extends JFrame implements ActionListener{
         repaint();
         createSession();
     }
+    public SpreadsheetGrader getGrader(){
+        return gradeWriter;
+    }
     public JavaRunner getRunner(){
         return runner;
     }
@@ -487,8 +490,24 @@ public class Gui extends JFrame implements ActionListener{
             fileBrowserTable.revalidate();
             repaintTable();
         }
-        else if(e.getSource().equals(downloadAllButton)){
-            workerThread.downloadAll();
+        else if(e.getSource().equals(deleteButton)){
+            int[] selected=fileBrowserTable.getSelectedRows();
+            if(selected.length==0){
+                statusText.setText("You must select at least one assignment to delete.");
+            }
+            ArrayList<Integer> select=new ArrayList();
+            for(int x=0;x<selected.length;x++){
+                select.add(selected[x]);
+            }
+            for(Integer i:select){
+                DbxFile f=fileManager.getFile(i);
+                int assignment=Integer.parseInt(f.getAssignmentNumber());
+                boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment);
+                if(!written){
+                    select.remove(i);
+                }
+            }
+            workerThread.delete(select);
         }
         else if(e.getSource().equals(configButton)){
             setupConfigGui();

@@ -36,9 +36,11 @@ public class SpreadsheetGrader {
     private ListFeed feed;
     private URL feedURL;
     private String sheetName;
-    public SpreadsheetGrader(String sheetName,SpreadsheetService service){
+    private Gui gui;
+    public SpreadsheetGrader(String sheetName,SpreadsheetService service,Gui gui){
         this.sheetName=sheetName;
         this.service=service;
+        this.gui=gui;
         init();
     }
     private void init(){
@@ -138,6 +140,31 @@ public class SpreadsheetGrader {
             }
         }
         
+        return false;
+    }
+    public boolean gradeWritten(String name,int assignment){
+        if(name==null||name.equals("")){
+            gui.setStatus("Name not set to delete.");
+            return false;
+        }
+        
+        String columnName=assignmentMap.get(assignment);
+        String columnComment=commentsMap.get(assignment);
+        if(columnName==null){
+            gui.setStatus("Assignment "+assignment+" is not declared in the spreadsheet.");
+        }
+        else{
+            List<ListEntry> entries=feed.getEntries();
+            for(ListEntry row:entries){
+                if(nameEquals(name,row.getTitle().getPlainText(),null)){
+                    String currentVal=row.getCustomElements().getValue(columnName);
+                    String currentComment=row.getCustomElements().getValue(columnComment);
+                    if(currentVal!=null){
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
     private boolean nameEquals(String name,String rowTitle,JLabel statusLabel){

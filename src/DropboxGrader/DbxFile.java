@@ -285,6 +285,25 @@ public class DbxFile {
     public String getFileName(){
         return entry.name;
     }
+    public void delete(){
+        searchForFilesToDelete(downloadedFile.getPath());
+        //Todo delete from dropbox too.
+    }
+    private void searchForFilesToDelete(String directory){
+        ArrayList<File> files=new ArrayList();
+        File folder=new File(directory);
+        files.addAll(Arrays.asList(folder.listFiles()));
+        
+        for(int x=0;x<files.size();x++){
+            File f=files.get(x);
+            if(f.isFile()){
+                f.delete();
+            }
+            else if(f.isDirectory()){
+                    searchForFilesToDelete(directory+"\\"+f.getName());
+            }
+        }
+    }
     @Override
     public String toString(){
         String zipPath=entry.name;
