@@ -103,7 +103,7 @@ public class FileManager {
         String attrib=attributes[attribute];
         switch(attrib){
             case "Assignment": return file.getAssignmentNumber()+"";
-            case "Assignment Name": return file.getAssignmentName();
+            case "Assignment Name": return file.getAssignmentName(fileNum,attribute);
             case "Submit Date": return file.getSubmitDate(true,fileNum,attribute);
             case "Name": return file.getFirstLastName();
             case "Status": return file.getStatus(fileNum,attribute);

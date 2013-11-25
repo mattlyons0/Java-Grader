@@ -1,7 +1,4 @@
-Catch and sort 2nd year students
 Maybe encrypt keys
-Handle resubmits.
-Doubleclick/rightclick in browser
 Ctrl tab in grader.
 Auto mark late.
 Refactor JavaRunner
@@ -9,5 +6,4 @@ Sort Filebrowser by clicked
 Autocreate spreadsheet
     Autocreate new assignments in spreadsheet.
 Edit code and run edited version
-Rename improperly named files.
 Nicer way of asking for google and dropbox token. Queue them up.

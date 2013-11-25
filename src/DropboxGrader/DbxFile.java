@@ -84,16 +84,33 @@ public class DbxFile {
         }
         return num+"";//assignment number is the 3rd underscore
     }
-    public String getAssignmentName(){
+    public String getAssignmentName(int row,int col){
         String s=entry.name;
         String[] splits=s.split("_");
         if(splits.length<4){
             return errorMsg;
         }
         if(splits[3].length()<4){
-            return errorMsg;
+            if(!isNotFirstYear(splits[2])&&splits.length==5){
+                fileManager.getTableData().setColorAt(Color.YELLOW, new CellLocation(fileManager.getAttributes()[col],row));
+                return splits[3]+" (Resubmit)";
+            }
+            else if(splits.length==5){
+                fileManager.getTableData().setColorAt(Color.CYAN.darker(), new CellLocation(fileManager.getAttributes()[col],row));
+                int year=stringToInt(splits[2]);
+                return splits[4].substring(0, splits[4].length()-4)+" (Year "+year+")";
+            }
+            else{
+                return errorMsg;
+            }
         }
         return splits[3].substring(0, splits[3].length()-4);//assignment name is 4th underscore, .zip is the last 4 characters
+    }
+    private boolean isNotFirstYear(String s){
+        if(s.contains("Yr")||s.contains("yr")||s.contains("YR")||s.contains("Year")||s.contains("year")||s.contains("YEAR")){
+            return true;
+        }
+        return false;
     }
     /**
      * The submission time on the dropbox server. This is the the most recent revision date.
