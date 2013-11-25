@@ -86,6 +86,9 @@ public class DbxFile {
     }
     public String getAssignmentName(int row,int col){
         String s=entry.name;
+        if(!s.endsWith(".zip")){
+            return "Error file doesn't end with .zip!";
+        }
         String[] splits=s.split("_");
         if(splits.length<4){
             return errorMsg;

@@ -54,7 +54,6 @@ public class Gui extends JFrame implements ActionListener{
     private GoogSession googSession;
     private SpreadsheetGrader gradeWriter;
     private WorkerThread workerThread;
-    private ArrayList<DbxFile> fileQueue;
     private GuiListener listener;
     
     //First Stage (Authentication) Instance Vars
@@ -128,11 +127,14 @@ public class Gui extends JFrame implements ActionListener{
         setVisible(true);
         
         dbxSession=new DbxSession(this);
-        
+        if(dbxSession.getClient()!=null){
+            initGoogSession();
+        }
+    }
+    private void initGoogSession(){
         googSession=new GoogSession();
         gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
         fileManager.setGrader(gradeWriter);
-        fileQueue=new ArrayList();
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
@@ -458,6 +460,7 @@ public class Gui extends JFrame implements ActionListener{
             remove(submitButton);
         repaint();
         createSession();
+        initGoogSession();
     }
     public SpreadsheetGrader getGrader(){
         return gradeWriter;

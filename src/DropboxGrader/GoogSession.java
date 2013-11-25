@@ -37,7 +37,6 @@ public class GoogSession {
     private GoogleOAuthParameters oauthParams;
     private SpreadsheetService service;
     public GoogSession(){
-        
         createSession();
     }
     private void createSession(){
@@ -57,7 +56,7 @@ public class GoogSession {
                 oauthHelper.getUnauthorizedRequestToken(oauthParams);
                 String requestURL=oauthHelper.createUserAuthorizationUrl(oauthParams);
                 DbxSession.openWebsite(requestURL);
-                GuiHelper.alertDialog("Please authenticate this program.");
+                GuiHelper.alertDialog("Please login to your google account and allow this program access.\nOnce you have done that, hit OK.");
                 setToken(true);
             }
             else{
