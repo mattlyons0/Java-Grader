@@ -166,6 +166,10 @@ public class JavaRunner implements Runnable{
         try {
                 terminal.append("Compile Started\n",Color.GRAY);
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            if(compiler==null){
+                terminal.append("No compiler found. Download a 32bit Java JDK in order to compile.", Color.red);
+                return;
+            }
             int result=compiler.run(null, System.out, errorRelay, filePaths);
             if(result!=0){
                 terminal.append("Compile Failed\n\n",Color.RED);
