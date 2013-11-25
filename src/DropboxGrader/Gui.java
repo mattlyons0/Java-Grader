@@ -22,10 +22,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -50,6 +53,8 @@ public class Gui extends JFrame implements ActionListener{
     private DbxClient client;
     private GoogSession googSession;
     private SpreadsheetGrader gradeWriter;
+    private WorkerThread workerThread;
+    private ArrayList<DbxFile> fileQueue;
     
     //First Stage (Authentication) Instance Vars
     private JLabel status;
@@ -68,7 +73,7 @@ public class Gui extends JFrame implements ActionListener{
     private JProgressBar progressBar;
     private JButton gradeButton;
     private JLabel statusText;
-    private int selectedFile;
+    private ArrayList<Integer> selectedFiles;
     
     //Third Stage (Grader) Instance Vars
     private DbxFile currentFile;
@@ -87,6 +92,16 @@ public class Gui extends JFrame implements ActionListener{
     private JTextField gradeComment;
     private JButton recordGradeButton;
     private JLabel gradeStatus;
+    
+    //Config Instance Vars
+    private JPanel configPanel;
+    private JTextField spreadsheetName;
+    private JTextField dropboxFolder;
+    private JTextField dropboxPeriod;
+    private JTextField runTimes;
+    private JCheckBox autoRun;
+    private JButton backToBrowser;
+    
     public Gui(){
         super("Dropbox Grader");
         
@@ -112,10 +127,14 @@ public class Gui extends JFrame implements ActionListener{
         
         googSession=new GoogSession();
         gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService());
+        fileQueue=new ArrayList();
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
             fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
+            workerThread=new WorkerThread(fileManager,this);
+            new Thread(workerThread).start();
+            
             setupFileBrowserGui();
         }
     }
@@ -128,6 +147,10 @@ public class Gui extends JFrame implements ActionListener{
         if(status!=null){
             remove(status);
             status=null;
+        }
+        if(configPanel!=null){
+            remove(configPanel);
+            configPanel=null;
         }
         
         fileBrowserPanel=new JPanel();
@@ -208,37 +231,57 @@ public class Gui extends JFrame implements ActionListener{
         if(runner!=null){
             runner.stopProcess();
         }
+        if(gradingPanel!=null){
+            remove(gradingPanel);
+            gradingPanel=null;
+        }
         gradingPanel=new JPanel();
         gradingPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
         
-        javaCode=new JavaCodeBrowser(fileManager.getFile(selectedFile));
+        javaCode=new JavaCodeBrowser(fileManager.getFile(selectedFiles.get(0)));
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);
-        fileInfoLabel=new JLabel(fileManager.getFile(selectedFile).toString());
+        fileInfoLabel=new JLabel(fileManager.getFile(selectedFiles.get(0)).toString());
         runButton=new JButton("Run");
+        if(Config.autoRun)
+            runButton.setText("Stop Running");
         runButton.addActionListener(this);
         iterationsField=new JTextField(2);
         iterationsField.setText(Config.runTimes+"");
         iterationsField.setToolTipText("Times to run.");
+        iterationsField.setMaximumSize(new Dimension(15,10));
+        iterationsField.setHorizontalAlignment(JTextField.CENTER);
         runPanel=new JPanel();
-        runPanel.setLayout(new FlowLayout());
-        runPanel.add(runButton);
-        runPanel.add(iterationsField);
+        runPanel.setLayout(new GridBagLayout());
+        GridBagConstraints cons=new GridBagConstraints();
+        cons.weightx=1;
+        runPanel.add(runButton,cons);
+        cons.gridx=1;
+        cons.ipadx=10;
+        runPanel.add(iterationsField,cons);
         JPanel gradePanel=new JPanel();
-        gradePanel.setLayout(new FlowLayout());
+        gradePanel.setLayout(new GridBagLayout());
         JLabel gradeLabel1=new JLabel("Grade: ");
         gradeNumber=new JTextField(3);
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
+        gradeNumber.setMinimumSize(new Dimension(30,15));
         gradeNumber.addActionListener(this);
-        gradePanel.add(gradeLabel1);
-        gradePanel.add(gradeNumber);
         JLabel gradeLabel2=new JLabel(" Comment: ");
         gradeComment=new JTextField(25);
         gradeComment.setHorizontalAlignment(JTextField.CENTER);
+        gradeComment.setMinimumSize(new Dimension(250,15));
         gradeComment.addActionListener(this);
-        gradePanel.add(gradeLabel2);
-        gradePanel.add(gradeComment);
+        cons=new GridBagConstraints();
+        cons.fill=GridBagConstraints.BOTH;
+        cons.weightx=1;
+        gradePanel.add(gradeLabel1,cons);
+        cons.gridx=1;
+        gradePanel.add(gradeNumber,cons);
+        cons.gridx=2;
+        gradePanel.add(gradeLabel2,cons);
+        cons.gridx=3;
+        gradePanel.add(gradeComment,cons);
         JPanel gradeButtonPanel=new JPanel();
         gradeButtonPanel.setLayout(new FlowLayout());
         gradeStatus=new JLabel("");
@@ -315,8 +358,72 @@ public class Gui extends JFrame implements ActionListener{
         
         if(Config.autoRun){
             //put this on the new thread
-            actionPerformed(new ActionEvent(runButton,0,null));
+            workerThread.runFile(selectedFiles.get(0),Config.runTimes);
         }
+    }
+    public void setupConfigGui(){
+        if(fileBrowserPanel!=null){
+            remove(fileBrowserPanel);
+            fileBrowserPanel=null;
+        }
+        setLayout(new GridBagLayout());
+        configPanel=new JPanel();
+        configPanel.setLayout(new GridBagLayout());
+        spreadsheetName=new JTextField(25);
+        spreadsheetName.setText(Config.spreadsheetName);
+        dropboxFolder=new JTextField(25);
+        dropboxFolder.setText(Config.dropboxFolder);
+        dropboxPeriod=new JTextField(3);
+        dropboxPeriod.setText(Config.dropboxPeriod);
+        runTimes=new JTextField(3);
+        runTimes.setText(Config.runTimes+"");
+        autoRun=new JCheckBox("AutoRun");
+        autoRun.setSelected(Config.autoRun);     
+        backToBrowser=new JButton("Back");
+        backToBrowser.addActionListener(this);
+        
+        GridBagConstraints cons=new GridBagConstraints();
+        cons.fill=GridBagConstraints.NONE;
+        cons.anchor=GridBagConstraints.NORTHWEST;
+        cons.weighty=1;
+        cons.weightx=1;
+        cons.gridx=0;
+        cons.gridy=0;
+        configPanel.add(backToBrowser,cons);
+        cons.anchor=GridBagConstraints.CENTER;
+        cons.fill=GridBagConstraints.BOTH;
+        cons.gridy=1;
+        configPanel.add(new JLabel("Spreadsheet Name: "),cons);
+        cons.gridx=1;
+        configPanel.add(spreadsheetName,cons);
+        cons.gridx=0;
+        cons.gridy=2;
+        configPanel.add(new JLabel("Dropbox Folder: "),cons);
+        cons.gridx=1;
+        configPanel.add(dropboxFolder,cons);
+        cons.gridx=2;
+        configPanel.add(new JLabel("Class Period: "),cons);
+        cons.gridx=3;
+        configPanel.add(dropboxPeriod,cons);
+        cons.gridy=3;
+        cons.gridx=0;
+        configPanel.add(new JLabel("Default Output Runs: "),cons);
+        cons.gridx=1;
+        configPanel.add(runTimes,cons);
+        cons.gridx=3;
+        configPanel.add(autoRun,cons);
+        cons=new GridBagConstraints();
+        cons.fill=GridBagConstraints.BOTH;
+        cons.weightx=1;
+        constraints.weighty=1;
+        add(configPanel,cons);
+        
+        setSize(620,140);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation(screenSize.width/2-this.getSize().width/2, screenSize.height/2-this.getSize().height/2);
+        
+        revalidate();
+        repaint();
     }
     public void promptKey(){
         status.setText("Please login and paste the code here: ");
@@ -347,8 +454,19 @@ public class Gui extends JFrame implements ActionListener{
     public JavaRunner getRunner(){
         return runner;
     }
-    public void updateProgress(double val){
-        progressBar.setValue((int)val*100);
+    public void updateProgress(int val){
+        progressBar.setValue(val);
+    }
+    public void repaintTable(){
+        fileBrowserTable.repaint();
+    }
+    public void setStatus(String status){
+        if(this.status!=null){
+            this.status.setText(status);
+        }
+        else if(statusText!=null){
+            statusText.setText(status);
+        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -367,32 +485,35 @@ public class Gui extends JFrame implements ActionListener{
         else if(e.getSource().equals(refreshButton)){
             fileManager.refresh();
             fileBrowserTable.revalidate();
+            repaintTable();
         }
         else if(e.getSource().equals(downloadAllButton)){
-            fileManager.downloadAll();
-            fileBrowserTable.repaint();
+            workerThread.downloadAll();
         }
         else if(e.getSource().equals(configButton)){
-            //do config code soon
+            setupConfigGui();
         }
         else if(e.getSource().equals(gradeButton)){
-            int selected=fileBrowserTable.getSelectedRow();
-            if(selected==-1){
-                statusText.setText("You must select an assignment to grade.");
+            int[] selected=fileBrowserTable.getSelectedRows();
+            if(selected.length==0){
+                statusText.setText("You must select at least one assignment to grade.");
                 return;
             }
-            selectedFile=selected;
-            fileManager.download(selectedFile);
-            currentFile=fileManager.getFile(selectedFile);
-            fileBrowserTable.repaint();
-            setupGraderGui();
+            selectedFiles=new ArrayList();
+            for(int x=0;x<selected.length;x++){
+                selectedFiles.add(selected[x]);
+            }
+            
+            workerThread.download(selectedFiles.get(0),true);
+            
+            currentFile=fileManager.getFile(selectedFiles.get(0));
         }
         else if(e.getSource().equals(runButton)){
             if(runButton.getText().equals("Run")&&!e.getActionCommand().equals("Ended")){
                 try{
                     int times=Integer.parseInt(iterationsField.getText().trim());
                     if(times>0){
-                        boolean running=fileManager.getFile(selectedFile).run(runner,times);
+                        boolean running=fileManager.getFile(selectedFiles.get(0)).run(runner,times);
                         if(running)
                             runButton.setText("Stop Running");
                     }
@@ -411,18 +532,42 @@ public class Gui extends JFrame implements ActionListener{
         }
         else if(e.getSource().equals(backButton)){
             runner.stopProcess();
+            selectedFiles.clear();
             setupFileBrowserGui();
         }
         else if(e.getSource().equals(recordGradeButton)){
             try{
                 int assign=Integer.parseInt(currentFile.getAssignmentNumber());
+                System.out.println(assign);
                 boolean success=gradeWriter.setGrade(currentFile.getFirstLastName(), assign, gradeNumber.getText(),gradeComment.getText(),gradeStatus);
+                if(success){
+                    if(selectedFiles.size()>1){
+                        selectedFiles.remove(0);
+                        currentFile=fileManager.getFile(selectedFiles.get(0));
+                        setupGraderGui();
+                    }
+                    else if(selectedFiles.size()==1){
+                        selectedFiles.clear();
+                    }
+                }
             } catch(NumberFormatException ex){
                 gradeStatus.setText("Error reading assignment number: "+currentFile.getAssignmentNumber());
             }
         }
         else if(e.getSource().equals(gradeComment)||e.getSource().equals(gradeNumber)){ //return was pressed in the text field.
             actionPerformed(new ActionEvent(recordGradeButton,0,null));
+        }
+        else if(e.getSource().equals(backToBrowser)){
+            setupFileBrowserGui();
+            Config.spreadsheetName=spreadsheetName.getText();
+            Config.dropboxFolder=dropboxFolder.getText();
+            Config.dropboxPeriod=dropboxPeriod.getText();
+            try{
+                Config.runTimes=Integer.parseInt(runTimes.getText());
+            } catch(NumberFormatException ex){
+                statusText.setText("Default Output Runs was set to a invalid number.");
+            }
+            Config.autoRun=autoRun.isSelected();
         }
     }
     public void proccessEnded(){

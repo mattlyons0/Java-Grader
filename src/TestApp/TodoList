@@ -1,15 +1,9 @@
 Catch and sort 2nd year students
-Config
-Use Progress Bar/Multithread
 Maybe encrypt keys
 Handle resubmits.
 Doubleclick/rightclick in browser
 Ctrl tab in grader.
 Auto mark late.
-Disable dragging (or rework it) in browser.
-Color run panel
-Config to auto run
-    Put it on a new thread
 Refactor JavaRunner
 Sort Filebrowser by clicked
 Autocreate spreadsheet

@@ -69,7 +69,7 @@ public class FileManager {
         for(int x=0;x<files.size();x++){
             DbxFile f=files.get(x);
             f.download();
-            gui.updateProgress(x+1/(double)files.size());
+            gui.updateProgress((int)(x+1.0/files.size()));
         }
     }
     public String getDownloadFolder(){

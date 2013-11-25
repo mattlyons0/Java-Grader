@@ -282,6 +282,9 @@ public class DbxFile {
         runner.runFile(javaFiles,mainMethods.get(choice),times);
         return true;
     }
+    public String getFileName(){
+        return entry.name;
+    }
     @Override
     public String toString(){
         String zipPath=entry.name;

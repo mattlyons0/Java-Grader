@@ -25,9 +25,33 @@ public class Config {
     public static int runTimes=1;
     
     public static void readConfig(){
-        
+        if(!configFile.exists()){
+            return;
+        }
+        String[] vars=splitVars(DbxSession.readFromFile(configFile));
+        spreadsheetName=vars[0];
+        dropboxFolder=vars[1];
+        dropboxPeriod=vars[2];
+        columnOrder=vars[3];
+        columnWidth=vars[4];
+        autoRun=Boolean.parseBoolean(vars[5]);
+        runTimes=Integer.parseInt(vars[6]);
     } 
     public static void writeConfig(){
-        
-    }    
+        String config=spreadsheetName;
+        config=append(config,dropboxFolder);
+        config=append(config,dropboxPeriod);
+        config=append(config,columnOrder);
+        config=append(config,columnWidth);
+        config=append(config,autoRun+"");
+        config=append(config,runTimes+"");
+        DbxSession.writeToFile(configFile, config);
+    }
+    private static String append(String s,String append){
+        s+="\n"+append;
+        return s;
+    }
+    private static String[] splitVars(String s){
+        return s.split("\n");
+    }
 }

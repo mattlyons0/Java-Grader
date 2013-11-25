@@ -35,10 +35,15 @@ public class SpreadsheetGrader {
     private WorksheetEntry sheet;
     private ListFeed feed;
     private URL feedURL;
+    private String sheetName;
     public SpreadsheetGrader(String sheetName,SpreadsheetService service){
+        this.sheetName=sheetName;
+        this.service=service;
+        init();
+    }
+    private void init(){
         try {
             feedURL=new URL("https://spreadsheets.google.com/feeds/spreadsheets/private/full");
-            this.service=service;
             
             SpreadsheetFeed spreadsheets=service.getFeed(feedURL, SpreadsheetFeed.class);
             List<SpreadsheetEntry> sheets=spreadsheets.getEntries();
@@ -70,13 +75,16 @@ public class SpreadsheetGrader {
         int lastAssignment=-1;
         for (String tag : row.getCustomElements().getTags()) {
             String columnTitle=row.getCustomElements().getValue(tag);
-            if(columnTitle!=null){
+            if(columnTitle!=null&&!columnTitle.equals("")){
                 int index=columnTitle.indexOf("#")+1;
                 if(index!=0){ 
                     String num="";
                     while(Character.isDigit(columnTitle.charAt(index))){
                         num+=columnTitle.charAt(index);
                         index++;
+                        if(index>=columnTitle.length()){
+                            break;
+                        }
                     }
                     int number=Integer.parseInt(num);
                     assignmentMap.put(number, tag);
@@ -91,16 +99,32 @@ public class SpreadsheetGrader {
         }
     }
     public boolean setGrade(String name,int assignment,String grade,String comment,JLabel statusLabel){
+        init();
+        
+        if(grade==null||grade.equals("")){
+            statusLabel.setText("Grade is not set.");
+            return false;
+        }
+        
         String columnName=assignmentMap.get(assignment);
         String columnComment=commentsMap.get(assignment);
         if(columnName==null){
             statusLabel.setText("Assignment "+assignment+" is not declared in the spreadsheet.");
         }
-        List<ListEntry> entries=feed.getEntries();
-        for(ListEntry row:entries){
-            if(nameEquals(name,row.getTitle().getPlainText())){
-                String currentVal=row.getCustomElements().getValue(columnName);
-                if(currentVal==null){
+        else{
+            List<ListEntry> entries=feed.getEntries();
+            for(ListEntry row:entries){
+                if(nameEquals(name,row.getTitle().getPlainText(),statusLabel)){
+                    String currentVal=row.getCustomElements().getValue(columnName);
+                    String currentComment=row.getCustomElements().getValue(columnComment);
+                    if(currentComment==null)
+                        currentComment="";
+                    if(currentVal!=null){
+                        statusLabel.setText("Grade of "+currentVal+", "+currentComment+" has been overwritten.");
+                    }
+                    else{
+                        statusLabel.setText("Graded");
+                    }
                     //System.out.println("Found match with "+name+" at "+row.getTitle().getPlainText());
                     row.getCustomElements().setValueLocal(columnName, grade);
                     row.getCustomElements().setValueLocal(columnComment, comment);
@@ -111,15 +135,12 @@ public class SpreadsheetGrader {
                         Logger.getLogger(SpreadsheetGrader.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                else{
-                    statusLabel.setText("A grade has already been set for this.");
-                }
             }
         }
         
         return false;
     }
-    private boolean nameEquals(String name,String rowTitle){
+    private boolean nameEquals(String name,String rowTitle,JLabel statusLabel){
         String firstName,lastName;
         int upercaseIndex=-1;
         char c;
@@ -131,6 +152,10 @@ public class SpreadsheetGrader {
                     break;
                 }
             }
+        }
+        if(upercaseIndex==-1){
+            statusLabel.setText("Name "+name+" does not follow proper capitilization. Cannot find on spreadsheet because of that.");
+            return false;
         }
         firstName=name.substring(0, upercaseIndex);
         lastName=name.substring(upercaseIndex, name.length());

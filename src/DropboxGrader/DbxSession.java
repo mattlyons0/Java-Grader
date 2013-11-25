@@ -116,8 +116,12 @@ public class DbxSession {
         String read="";
         try {
             Scanner reader=new Scanner(f);
+            reader.useDelimiter("\n");
             while(reader.hasNext()){
                 read+=reader.next();
+                if(reader.hasNext()){
+                    read+="\n";
+                }
             }
         } catch (FileNotFoundException ex) {
             GuiHelper.alertDialog("Cannot read/write files. "+ex);
