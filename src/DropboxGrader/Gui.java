@@ -55,6 +55,7 @@ public class Gui extends JFrame implements ActionListener{
     private SpreadsheetGrader gradeWriter;
     private WorkerThread workerThread;
     private ArrayList<DbxFile> fileQueue;
+    private GuiListener listener;
     
     //First Stage (Authentication) Instance Vars
     private JLabel status;
@@ -106,6 +107,8 @@ public class Gui extends JFrame implements ActionListener{
         super("Dropbox Grader");
         
         UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
+        listener=new GuiListener(this);
+        addWindowListener(listener);
         
         init();
     }
@@ -127,6 +130,7 @@ public class Gui extends JFrame implements ActionListener{
         
         googSession=new GoogSession();
         gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
+        fileManager.setGrader(gradeWriter);
         fileQueue=new ArrayList();
     }
     private void createSession(){
@@ -158,7 +162,6 @@ public class Gui extends JFrame implements ActionListener{
         setLayout(new GridBagLayout());
         constraints=new GridBagConstraints();
         setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        
         fileBrowserData=new FileBrowserData(fileManager);
         fileManager.setTableData(fileBrowserData);
         fileBrowserTable=new FileBrowser(fileBrowserData);
@@ -300,7 +303,7 @@ public class Gui extends JFrame implements ActionListener{
         outputRelay=new InputRelayer(codeOutputArea);
         if(runner==null)
             runner=new JavaRunner(codeOutputArea,this,outputRelay);   
-        addWindowListener(new GuiListener(this,runner));
+        listener.setRunner(runner);
         
         constraints.anchor=GridBagConstraints.WEST;
         constraints.fill=GridBagConstraints.NONE;
@@ -463,6 +466,9 @@ public class Gui extends JFrame implements ActionListener{
     public void repaintTable(){
         fileBrowserTable.repaint();
     }
+    public void refreshTable(){
+        actionPerformed(new ActionEvent(refreshButton,0,null));
+    }
     public void setStatus(String status){
         if(this.status!=null){
             this.status.setText(status);
@@ -499,12 +505,18 @@ public class Gui extends JFrame implements ActionListener{
             for(int x=0;x<selected.length;x++){
                 select.add(selected[x]);
             }
-            for(Integer i:select){
+            for(int x=0;x<select.size();x++){ //check if there is a grade for assignment
+                int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
                 int assignment=Integer.parseInt(f.getAssignmentNumber());
                 boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment);
                 if(!written){
-                    select.remove(i);
+                    statusText.setText("No grade recorded for "+fileManager.getFile(i)+", it will not be deleted.");
+                    select.remove(x);
+                    x--;
+                }
+                else{
+                    statusText.setText("Deleted.");
                 }
             }
             workerThread.delete(select);
@@ -523,7 +535,7 @@ public class Gui extends JFrame implements ActionListener{
                 selectedFiles.add(selected[x]);
             }
             
-            workerThread.download(selectedFiles.get(0),true);
+            workerThread.download(selectedFiles,true);
             
             currentFile=fileManager.getFile(selectedFiles.get(0));
         }
@@ -587,6 +599,9 @@ public class Gui extends JFrame implements ActionListener{
                 statusText.setText("Default Output Runs was set to a invalid number.");
             }
             Config.autoRun=autoRun.isSelected();
+            Config.writeConfig();
+            
+            actionPerformed(new ActionEvent(refreshButton,0,null));
         }
     }
     public void proccessEnded(){

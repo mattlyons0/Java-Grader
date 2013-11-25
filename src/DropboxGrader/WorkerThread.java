@@ -18,6 +18,7 @@ public class WorkerThread implements Runnable{
     private Gui gui;
     private FileManager manager;
     private ArrayList<DbxFile> fileQueue;
+    private ArrayList<DbxFile> deleteQueue;
     private boolean graderAfter;
     private DbxFile fileToRun;
     private int timesToRun;
@@ -25,6 +26,7 @@ public class WorkerThread implements Runnable{
         manager=man;
         this.gui=gui;
         fileQueue=new ArrayList();
+        deleteQueue=new ArrayList();
     }
     @Override
     public void run() {
@@ -36,10 +38,17 @@ public class WorkerThread implements Runnable{
                 f.download();
                 int progress=(int)((double)(x+1)/size*100);
                 gui.updateProgress(progress);
-                if(graderAfter){
+                if(size==1){
                     gui.updateProgress(50);
                 }
                 gui.repaintTable();
+            }
+            for(DbxFile f:deleteQueue){
+                f.delete();
+            }
+            if(!deleteQueue.isEmpty()){
+                deleteQueue.clear();
+                gui.refreshTable();
             }
             if(graderAfter){
                 gui.setupGraderGui();
@@ -62,7 +71,18 @@ public class WorkerThread implements Runnable{
     }
     public void download(int index,boolean graderAfter){
         fileQueue.add(manager.getFile(index));
-        this.graderAfter=graderAfter;
+        setGradeAfter(graderAfter);
+    }
+    public void download(ArrayList<Integer> fileIndexes,boolean gradeAfter){
+        for(Integer i:fileIndexes){
+            fileQueue.add(manager.getFile(i));
+        }
+        setGradeAfter(gradeAfter);
+    }
+    private void setGradeAfter(boolean g){
+        if(g){
+            graderAfter=true;
+        }
     }
     public void runFile(int file,int times){
         fileToRun=manager.getFile(file);
@@ -70,7 +90,7 @@ public class WorkerThread implements Runnable{
     }
     public void delete(ArrayList<Integer> files){
         for(int x=0;x<files.size();x++){
-            manager.getFile(files.get(x)).delete();
+            deleteQueue.add(manager.getFile(files.get(x)));
         }
     }
     

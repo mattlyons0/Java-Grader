@@ -18,6 +18,7 @@ import java.util.logging.Logger;
  * @author 141lyonsm
  */
 public class FileManager {
+    private SpreadsheetGrader grader;
     private String dropboxFolder;
     private DbxClient client;
     private Gui gui;
@@ -116,10 +117,20 @@ public class FileManager {
     }
     public void refresh(){
         files.clear();
+        
+        dropboxFolder=Config.dropboxFolder;
+        fileStartDelim=Config.dropboxPeriod;
+        
         init();
         tableData.refresh();
     }
     public DbxFile getFile(int x){
         return files.get(x);
+    }
+    public SpreadsheetGrader getGrader(){
+        return grader;
+    }
+    public void setGrader(SpreadsheetGrader g){
+        grader=g;
     }
 }

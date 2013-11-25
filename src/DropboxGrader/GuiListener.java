@@ -19,9 +19,11 @@ import java.util.logging.Logger;
 public class GuiListener implements WindowListener{
     private Gui gui;
     private JavaRunner runner;
-    public GuiListener(Gui gui,JavaRunner runner){
+    public GuiListener(Gui gui){
         this.gui=gui;
-        this.runner=runner;
+    }
+    public void setRunner(JavaRunner r){
+        runner=r;
     }
     @Override
     public void windowOpened(WindowEvent e) {
@@ -29,10 +31,14 @@ public class GuiListener implements WindowListener{
 
     @Override
     public void windowClosing(WindowEvent e) {
-        runner.stopProcess();
-        runner.getRelay().stop();
-        runner.getRelay().invalidate();
-        gui.getTerminal().stop();
+        if(runner!=null){
+            runner.stopProcess();
+            runner.getRelay().stop();
+            runner.getRelay().invalidate();
+        }
+        if(gui.getTerminal()!=null){
+            gui.getTerminal().stop();
+        }
         gui.setVisible(false);
 
         File f1=new File("input.log");

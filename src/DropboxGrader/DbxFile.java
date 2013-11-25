@@ -115,6 +115,16 @@ public class DbxFile {
         return s.split("_")[1];
     }
     public String getStatus(){
+//        try{
+//            int num=Integer.parseInt(getAssignmentNumber());
+//            if(fileManager.getGrader()!=null){
+//                if(fileManager.getGrader().gradeWritten(getFirstLastName(), num)){
+//                    return "Graded";
+//                }
+//            }
+//        } catch(NumberFormatException ex){
+//            
+//        }
         if(downloadedFile==null){
             return "On Server";
         }
@@ -287,7 +297,11 @@ public class DbxFile {
     }
     public void delete(){
         searchForFilesToDelete(downloadedFile.getPath());
-        //Todo delete from dropbox too.
+        try {
+            client.delete(entry.path);
+        } catch (DbxException ex) {
+            System.err.println("Error occured deleting "+entry.name+" from dropbox.");
+        }
     }
     private void searchForFilesToDelete(String directory){
         ArrayList<File> files=new ArrayList();
@@ -300,9 +314,11 @@ public class DbxFile {
                 f.delete();
             }
             else if(f.isDirectory()){
-                    searchForFilesToDelete(directory+"\\"+f.getName());
+                searchForFilesToDelete(directory+"\\"+f.getName());
+                f.delete();
             }
         }
+        new File(directory).delete();
     }
     @Override
     public String toString(){
