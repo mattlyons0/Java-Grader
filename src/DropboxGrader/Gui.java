@@ -67,6 +67,7 @@ public class Gui extends JFrame implements ActionListener{
     private FileBrowserData fileBrowserData;
     private JTable fileBrowserTable;
     private JScrollPane fileBrowserScroll;
+    private FileBrowserMouseListener fileBrowserListener;
     private GridBagConstraints constraints;
     private JButton refreshButton;
     private JButton deleteButton;
@@ -166,6 +167,8 @@ public class Gui extends JFrame implements ActionListener{
         fileManager.setTableData(fileBrowserData);
         fileBrowserTable=new FileBrowser(fileBrowserData);
         fileBrowserScroll=new JScrollPane(fileBrowserTable);
+        fileBrowserListener=new FileBrowserMouseListener(fileBrowserTable);
+        fileBrowserTable.addMouseListener(fileBrowserListener);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         fileBrowserScroll.setBounds(0, 0, screenSize.width,screenSize.height);
         
@@ -609,5 +612,8 @@ public class Gui extends JFrame implements ActionListener{
     }
     public JTerminal getTerminal(){
         return codeOutputArea;
+    }
+    public FileManager getManager(){
+        return fileManager;
     }
 }
