@@ -44,6 +44,10 @@ public class FileManager {
         init();
     }
     private void init(){
+        SpreadsheetGrader g=gui.getGrader();
+        if(grader!=null){
+            grader.refresh();
+        }
         try {
             DbxEntry.WithChildren folderList=client.getMetadataWithChildren("/"+dropboxFolder);
             DbxFile file;
@@ -55,7 +59,7 @@ public class FileManager {
                         //System.out.println("Adding "+child.toString());
                     }
                     else{
-                        System.out.println("There are folders and I was not written recursively so I can't pickup files from there.");
+                        System.err.println("There are folders and I was not written recursively so I can't pickup files from there.");
                     }
                 }
             }
@@ -102,7 +106,7 @@ public class FileManager {
             case "Assignment Name": return file.getAssignmentName();
             case "Submit Date": return file.getSubmitDate(true,fileNum,attribute);
             case "Name": return file.getFirstLastName();
-            case "Status": return file.getStatus();
+            case "Status": return file.getStatus(fileNum,attribute);
         }
         return null;
     }

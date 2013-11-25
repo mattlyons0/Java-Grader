@@ -114,17 +114,18 @@ public class DbxFile {
         String s=entry.name;
         return s.split("_")[1];
     }
-    public String getStatus(){
-//        try{
-//            int num=Integer.parseInt(getAssignmentNumber());
-//            if(fileManager.getGrader()!=null){
-//                if(fileManager.getGrader().gradeWritten(getFirstLastName(), num)){
-//                    return "Graded";
-//                }
-//            }
-//        } catch(NumberFormatException ex){
-//            
-//        }
+    public String getStatus(int row,int col){
+        try{
+            int num=Integer.parseInt(getAssignmentNumber());
+            if(fileManager.getGrader()!=null){
+                if(fileManager.getGrader().gradeWritten(getFirstLastName(), num)){
+                    fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
+                    return "Graded";
+                }
+            }
+        } catch(NumberFormatException ex){
+            
+        }
         if(downloadedFile==null){
             return "On Server";
         }
@@ -319,6 +320,18 @@ public class DbxFile {
             }
         }
         new File(directory).delete();
+    }
+    public void rename(String newName){
+        System.out.println(entry.path);
+        String directory=entry.path;
+        String[] split=directory.split("/");
+        int len=split[split.length-1].length();
+        directory=directory.substring(0, directory.length()-len);
+        try {
+            client.move(entry.path, directory+newName);
+        } catch (DbxException ex) {
+            Logger.getLogger(DbxFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     @Override
     public String toString(){

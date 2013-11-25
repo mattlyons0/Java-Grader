@@ -167,7 +167,7 @@ public class Gui extends JFrame implements ActionListener{
         fileManager.setTableData(fileBrowserData);
         fileBrowserTable=new FileBrowser(fileBrowserData);
         fileBrowserScroll=new JScrollPane(fileBrowserTable);
-        fileBrowserListener=new FileBrowserMouseListener(fileBrowserTable);
+        fileBrowserListener=new FileBrowserMouseListener(fileBrowserTable,this);
         fileBrowserTable.addMouseListener(fileBrowserListener);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         fileBrowserScroll.setBounds(0, 0, screenSize.width,screenSize.height);
@@ -227,6 +227,8 @@ public class Gui extends JFrame implements ActionListener{
         constraints.weightx=1;
         constraints.weighty=1;
         add(fileBrowserPanel,constraints);
+        
+        refreshTable();
         revalidate();
     }
     public void setupGraderGui(){
@@ -479,6 +481,9 @@ public class Gui extends JFrame implements ActionListener{
         else if(statusText!=null){
             statusText.setText(status);
         }
+    }
+    public void gradeRows(){
+        actionPerformed(new ActionEvent(gradeButton,0,null));
     }
     @Override
     public void actionPerformed(ActionEvent e) {

@@ -100,6 +100,9 @@ public class SpreadsheetGrader {
             }
         }
     }
+    public void refresh(){
+        init();
+    }
     public boolean setGrade(String name,int assignment,String grade,String comment,JLabel statusLabel){
         init();
         
@@ -144,7 +147,7 @@ public class SpreadsheetGrader {
     }
     public boolean gradeWritten(String name,int assignment){
         if(name==null||name.equals("")){
-            gui.setStatus("Name not set to delete.");
+            gui.setStatus("Name not set.");
             return false;
         }
         
@@ -181,7 +184,9 @@ public class SpreadsheetGrader {
             }
         }
         if(upercaseIndex==-1){
-            statusLabel.setText("Name "+name+" does not follow proper capitilization. Cannot find on spreadsheet because of that.");
+            if(statusLabel!=null){
+                statusLabel.setText("Name "+name+" does not follow proper capitilization. Cannot find on spreadsheet because of that.");
+            }
             return false;
         }
         firstName=name.substring(0, upercaseIndex);
