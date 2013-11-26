@@ -1,0 +1,9 @@
+First purse (enter "next" to proceed)
+Second purse (enter "quit" to finish)
+Contents of purse1: Purse[,Quarter,]
+Contents of purse2: Purse[]
+pusre1 and purse2 have the same contents: false
+Transferring from 2 to 1
+Contents of purse1: Purse[,Quarter,,]
+Contents of purse2: Purse[]
+That final purse flipped is [, , Quarter, ]

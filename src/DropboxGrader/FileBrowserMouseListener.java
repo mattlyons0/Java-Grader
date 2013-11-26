@@ -93,8 +93,10 @@ public class FileBrowserMouseListener implements ActionListener,MouseListener{
             int f=Integer.parseInt(e.getActionCommand().replace("Rename", ""));
             DbxFile file=gui.getManager().getFile(f);
             String choice=JOptionPane.showInputDialog("What would you like to name the file?",file.getFileName());
-            file.rename(choice);
-            gui.refreshTable();
+            if(choice!=null){
+                file.rename(choice);
+                gui.refreshTable();
+            }
         }
     }
     

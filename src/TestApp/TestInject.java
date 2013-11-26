@@ -6,6 +6,7 @@ package TestApp;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -117,7 +118,7 @@ public class TestInject {
         java.io.PrintStream printStream;	
         try {
             printStream=new java.io.PrintStream(new java.io.FileOutputStream("output.log"));
-            System.setOut(printStream);
+            //System.setOut(printStream);
             System.setErr(printStream);
             java.io.File f=new java.io.File("input.log");
             System.setIn(new java.io.FileInputStream(f){
@@ -128,9 +129,6 @@ public class TestInject {
                     while(read==-1){ //every 2nd call is for caching and doesnt matter
                         read=super.read(b, off, len);
                     }
-                    
-                    System.out.println("Made read "+runNum);
-                    runNum++;
                     return read;
                 }
             });

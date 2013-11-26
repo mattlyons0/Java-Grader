@@ -76,10 +76,7 @@ public class JavaFile extends File{
     "            });\n" +
     "	} catch (java.io.FileNotFoundException ex) {\n" +
     "            System.out.println(\"The DropboxGrader output logger has failed.\"+ex);\n" +
-    "        } finally{\n"+
-    "        if(printStream!=null)\n"+
-    "            printStream.close();\n"+
-    "    }\n"+
+    "        }\n"+
     "            //DROPBOXGRADERCODEEND\n";
                 Scanner s=new Scanner(this);
                 s.useDelimiter("\n");

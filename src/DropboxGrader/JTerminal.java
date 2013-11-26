@@ -32,13 +32,11 @@ import javax.swing.text.StyleContext;
  * @author Matt
  */
 public class JTerminal extends JTextPane implements KeyListener{
-    private String lineTyped;
     private Gui gui;
     private PrintWriter writer;
     private File file;
     public JTerminal(Gui gui){
         super();
-        lineTyped="";
         this.gui=gui;
         addKeyListener(this);
         EmptyBorder border=new EmptyBorder(new Insets(10,10,10,10));
@@ -86,14 +84,11 @@ public class JTerminal extends JTextPane implements KeyListener{
        if(c==KeyEvent.VK_ENTER){
            String[] lines=getText().split("\n");
            String call=lines[lines.length-1].trim();
-           try {
-                writer=new PrintWriter(file);
-                writer.append(call);
-                writer.flush();
-                writer.close();
-           } catch (FileNotFoundException ex) {
-               Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
-           }
+            writer.append("\n");
+            writer.flush();
+
+            writer.append(call+"\n");
+            writer.flush();
            
        }
     }
