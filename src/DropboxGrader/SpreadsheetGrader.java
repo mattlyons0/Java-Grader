@@ -7,6 +7,10 @@
 package DropboxGrader;
 
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
+import com.google.gdata.data.Link;
+import com.google.gdata.data.batch.BatchOperationType;
+import com.google.gdata.data.batch.BatchUtils;
+import com.google.gdata.data.spreadsheet.CellEntry;
 import com.google.gdata.data.spreadsheet.CellFeed;
 import com.google.gdata.data.spreadsheet.ListEntry;
 import com.google.gdata.data.spreadsheet.ListFeed;
@@ -18,6 +22,7 @@ import com.google.gdata.util.ServiceException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -115,6 +120,8 @@ public class SpreadsheetGrader {
         String columnComment=commentsMap.get(assignment);
         if(columnName==null){
             statusLabel.setText("Assignment "+assignment+" is not declared in the spreadsheet.");
+            //createColumnsForAssignment(assignment);
+            //return setGrade(name,assignment,grade,comment,statusLabel);
         }
         else{
             List<ListEntry> entries=feed.getEntries();
@@ -145,6 +152,23 @@ public class SpreadsheetGrader {
         
         return false;
     }
+//    private void createColumnsForAssignment(int assignment){
+//        if(assignmentMap.containsKey(assignment)){
+//            return;
+//        }
+//        init(); //just to be sure its not removing any columns
+//        sheet.setColCount(sheet.getColCount()+2);
+//        try {
+//            sheet.update();
+//        } catch (IOException | ServiceException ex) {
+//            Logger.getLogger(SpreadsheetGrader.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        init();
+//        
+//
+//
+//        initAssignmentNums();
+//    }
     public boolean gradeWritten(String name,int assignment){
         if(name==null||name.equals("")){
             gui.setStatus("Name not set.");
@@ -197,4 +221,19 @@ public class SpreadsheetGrader {
         }
         return false;
     }
+    private static class CellAddress {
+    public final int row;
+    public final int col;
+    public final String idString;
+
+    /**
+     * Constructs a CellAddress representing the specified {@code row} and
+     * {@code col}.  The idString will be set in 'RnCn' notation.
+     */
+    public CellAddress(int row, int col) {
+      this.row = row;
+      this.col = col;
+      this.idString = String.format("R%sC%s", row, col);
+    }
+  }
 }
