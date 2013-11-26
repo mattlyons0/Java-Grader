@@ -520,7 +520,7 @@ public class Gui extends JFrame implements ActionListener{
                 int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
                 int assignment=Integer.parseInt(f.getAssignmentNumber());
-                boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment);
+                boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment,new JLabel());
                 if(!written){
                     statusText.setText("No grade recorded for "+fileManager.getFile(i)+", it will not be deleted.");
                     select.remove(x);

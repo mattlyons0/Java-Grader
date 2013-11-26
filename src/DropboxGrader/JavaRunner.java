@@ -47,7 +47,6 @@ public class JavaRunner implements Runnable{
         this.relay=relay;
         
         errorRelay=new RelayStream(System.out,terminal);
-        
         thread=new Thread(this);
         thread.setName("CheckProccessStateThread");
         thread.start();
@@ -164,12 +163,15 @@ public class JavaRunner implements Runnable{
         }
         //System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
+            System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_25\\jre");
                 terminal.append("Compile Started\n",Color.GRAY);
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             if(compiler==null){
                 terminal.append("No compiler found. Download a 32bit Java JDK in order to compile.", Color.red);
-                return;
+                terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.RED);
+                //return;
             }
+            terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.RED);
             int result=compiler.run(null, System.out, errorRelay, filePaths);
             if(result!=0){
                 terminal.append("Compile Failed\n\n",Color.RED);

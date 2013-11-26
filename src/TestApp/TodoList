@@ -6,4 +6,5 @@ Sort Filebrowser by clicked
 Autocreate spreadsheet
     Autocreate new assignments in spreadsheet.
 Edit code and run edited version
-Nicer way of asking for google and dropbox token. Queue them up.
+Spreadsheets in folders
+Release input file if proccess crashes

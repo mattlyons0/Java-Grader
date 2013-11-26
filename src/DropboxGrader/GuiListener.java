@@ -44,8 +44,8 @@ public class GuiListener implements WindowListener{
         File f1=new File("input.log");
         File f2=new File("output.log");
         if(f1.exists()||f2.exists()){
-            f1.delete();
-            f2.delete();
+            //f1.delete();
+            //f2.delete();
             if(f1.exists()){
                 System.out.println("input.log is not being cleaned up properly.");
             }

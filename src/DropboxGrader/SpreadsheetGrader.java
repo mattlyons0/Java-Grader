@@ -44,6 +44,7 @@ public class SpreadsheetGrader {
         init();
     }
     private void init(){
+        sheetName=Config.spreadsheetName;
         try {
             feedURL=new URL("https://spreadsheets.google.com/feeds/spreadsheets/private/full");
             
@@ -57,7 +58,7 @@ public class SpreadsheetGrader {
                 }
             }
             if(sSheet==null){
-                System.out.println("No spreadsheet with the name "+sheetName);
+                System.err.println("No spreadsheet with the name "+sheetName);
             }
             else{
                 sheet=sSheet.getWorksheets().get(0); //if there is more than 1 worksheet it will always use the first.
@@ -118,6 +119,9 @@ public class SpreadsheetGrader {
         }
         else{
             List<ListEntry> entries=feed.getEntries();
+            if(entries.isEmpty()){
+                statusLabel.setText("No rows were found on the spreadsheet.");
+            }
             for(ListEntry row:entries){
                 if(nameEquals(name,row.getTitle().getPlainText(),statusLabel)){
                     String currentVal=row.getCustomElements().getValue(columnName);
@@ -141,20 +145,20 @@ public class SpreadsheetGrader {
                     }
                 }
             }
+            statusLabel.setText(name+" was not found in the spreadsheet.");
         }
-        
         return false;
     }
-    public boolean gradeWritten(String name,int assignment){
+    public boolean gradeWritten(String name,int assignment,JLabel statusLabel){
         if(name==null||name.equals("")){
-            gui.setStatus("Name not set.");
+            statusLabel.setText("Name not set.");
             return false;
         }
         
         String columnName=assignmentMap.get(assignment);
         String columnComment=commentsMap.get(assignment);
         if(columnName==null){
-            gui.setStatus("Assignment "+assignment+" is not declared in the spreadsheet.");
+            statusLabel.setText("Assignment "+assignment+" is not declared in the spreadsheet.");
         }
         else{
             List<ListEntry> entries=feed.getEntries();

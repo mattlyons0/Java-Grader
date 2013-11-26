@@ -55,8 +55,9 @@ public class JavaFile extends File{
             try {
                 //inject code
                 String inject="	//DROPBOXGRADERCODESTART\n" +
+    "   java.io.PrintStream printStream=null;"+
     "	try {\n" +
-    "            java.io.PrintStream printStream=new java.io.PrintStream(new java.io.FileOutputStream(\"output.log\"));\n" +
+    "            printStream=new java.io.PrintStream(new java.io.FileOutputStream(\"output.log\"));\n" +
     "            System.setOut(printStream);\n" +
     "            System.setErr(printStream);\n" +
     "            java.io.File f=new java.io.File(\"input.log\");\n" +
@@ -75,7 +76,10 @@ public class JavaFile extends File{
     "            });\n" +
     "	} catch (java.io.FileNotFoundException ex) {\n" +
     "            System.out.println(\"The DropboxGrader output logger has failed.\"+ex);\n" +
-    "        }\n" +
+    "        } finally{\n"+
+    "        if(printStream!=null)\n"+
+    "            printStream.close();\n"+
+    "    }\n"+
     "            //DROPBOXGRADERCODEEND\n";
                 Scanner s=new Scanner(this);
                 s.useDelimiter("\n");

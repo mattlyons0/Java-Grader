@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
 
 /**
  *
@@ -138,7 +139,7 @@ public class DbxFile {
         try{
             int num=Integer.parseInt(getAssignmentNumber());
             if(fileManager.getGrader()!=null){
-                if(fileManager.getGrader().gradeWritten(getFirstLastName(), num)){
+                if(fileManager.getGrader().gradeWritten(getFirstLastName(), num,new JLabel())){
                     fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
                     return "Graded";
                 }
