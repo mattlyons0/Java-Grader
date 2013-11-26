@@ -5,6 +5,7 @@
 package DropboxGrader;
 
 import java.awt.Color;
+import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,6 +42,7 @@ public class JavaRunner implements Runnable{
     private int numRunsLeft;
     private JavaFile[] currentFiles;
     private JavaFile mainFile;
+    private boolean fixedPath=false;
     public JavaRunner(JTerminal t,Gui gui,InputRelayer relay){
         terminal=t;
         this.gui=gui;
@@ -163,15 +165,19 @@ public class JavaRunner implements Runnable{
         }
         //System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
-            System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_25\\jre");
+            //System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_25\\jre");
                 terminal.append("Compile Started\n",Color.GRAY);
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             if(compiler==null){
-                terminal.append("No compiler found. Download a 32bit Java JDK in order to compile.", Color.red);
+                terminal.append("No compiler found. Either the java.home path is set wrong, or a jdk needs to be downloaded.\n", Color.red);
                 terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.RED);
-                //return;
+                if(!fixedPath){
+                    fixJavaPath();
+                    runFile(files,runChoice,numTimes);
+                    return;
+                }
             }
-            terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.RED);
+            terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.GRAY);
             int result=compiler.run(null, System.out, errorRelay, filePaths);
             if(result!=0){
                 terminal.append("Compile Failed\n\n",Color.RED);
@@ -224,6 +230,21 @@ public class JavaRunner implements Runnable{
         } catch (IOException ex) {
            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    private void fixJavaPath(){
+        String path=System.getProperty("java.home");
+        System.out.println("Current path is "+path);
+        if(!path.endsWith("jre")){
+            String version=System.getProperty("java.version");
+            path="C:\\Program Files\\Java\\jdk"+version+"\\jre";
+        }
+        System.setProperty("java.home", path);
+        if(ToolProvider.getSystemJavaCompiler()==null){
+            String version=System.getProperty("java.version");
+            path="C:\\Program Files (x86)\\Java\\jdk"+version+"\\jre";
+            System.setProperty("java.home", path);
+        }
+        fixedPath=true;
     }
     private void runClass(){
         boolean containsPackages=false;

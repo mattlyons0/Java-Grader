@@ -67,7 +67,7 @@ public class JavaFile extends File{
     "                @Override\n" +
     "                public int read(byte[] b, int off, int len) throws java.io.IOException {\n" +
     "                    int read=super.read(b, off, len);\n" +
-    "                    while(runNum%2==0&&read==-1){ //every 2nd call is for caching and doesnt matter\n" +
+    "                    while(read==-1){ //every 2nd call is for caching and doesnt matter\n" +
     "                        read=super.read(b, off, len);\n" +
     "                    }\n" +
     "                    runNum++;\n" +

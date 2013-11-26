@@ -114,20 +114,21 @@ public class TestInject {
      */
     public static void main(String[] args) {
 	//DROPBOXGRADERCODESTART
-        java.io.PrintStream printStream=null;	
+        java.io.PrintStream printStream;	
         try {
             printStream=new java.io.PrintStream(new java.io.FileOutputStream("output.log"));
-            //System.setOut(printStream);
-            //System.setErr(printStream);
+            System.setOut(printStream);
+            System.setErr(printStream);
             java.io.File f=new java.io.File("input.log");
             System.setIn(new java.io.FileInputStream(f){
-            int runNum=0;
+            //int runNum=0; //requires everything to be written twice, for stupid reasons.
                 @Override
                 public int read(byte[] b, int off, int len) throws java.io.IOException {
                     int read=super.read(b, off, len);
                     while(read==-1){ //every 2nd call is for caching and doesnt matter
                         read=super.read(b, off, len);
                     }
+                    
                     System.out.println("Made read "+runNum);
                     runNum++;
                     return read;
@@ -146,6 +147,7 @@ public class TestInject {
         while(!nextCoin.equalsIgnoreCase("next")) {
             purse1.addCoin(nextCoin);
             nextCoin = reader.nextLine();
+            System.out.println("You put in "+nextCoin);
         }
         TestInject purse2 = new TestInject();
         System.out.println("Second purse (enter \"quit\" to finish)");
@@ -154,6 +156,7 @@ public class TestInject {
         while(!nextCoin.equalsIgnoreCase("Quit")) {
             purse2.addCoin(nextCoin);
             nextCoin = reader.nextLine();
+            System.out.println("You put in "+nextCoin);
         }
         System.out.println("Contents of purse1: " + purse1);
         System.out.println("Contents of purse2: " + purse2);
