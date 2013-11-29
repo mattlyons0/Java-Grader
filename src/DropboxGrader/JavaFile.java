@@ -52,37 +52,59 @@ public class JavaFile extends File{
         
         if(hasMain){
             PrintWriter writer=null;
+            int braces=0;
+            boolean didFirstInject=false;
+            boolean didLastInject=false;
             try {
                 //inject code
                 String inject="	//DROPBOXGRADERCODESTART\n" +
-    "   java.io.PrintStream printStream=null;"+
-    "	try {\n" +
-    "            printStream=new java.io.PrintStream(new java.io.FileOutputStream(\"output.log\"));\n" +
-    "            System.setOut(printStream);\n" +
-    "            System.setErr(printStream);\n" +
-    "            java.io.File f=new java.io.File(\"input.log\");\n" +
-    "            int runNum=0;\n" +
-    "            System.setIn(new java.io.FileInputStream(f){\n" +
-    "                private int runNum=0;\n" +
-    "                @Override\n" +
-    "                public int read(byte[] b, int off, int len) throws java.io.IOException {\n" +
-    "                    int read=super.read(b, off, len);\n" +
-    "                    while(read==-1){ //every 2nd call is for caching and doesnt matter\n" +
-    "                        read=super.read(b, off, len);\n" +
-    "                    }\n" +
-    "                    runNum++;\n" +
-    "                    return read;\n" +
-    "                }\n" +
-    "            });\n" +
-    "	} catch (java.io.FileNotFoundException ex) {\n" +
-    "            System.out.println(\"The DropboxGrader output logger has failed.\"+ex);\n" +
-    "        }\n"+
-    "            //DROPBOXGRADERCODEEND\n";
+"        java.io.FileInputStream iDropbox=null;\n" +
+"        java.io.PrintStream printDropbox=null;\n" +
+"        try{	\n" +
+"            printDropbox=new java.io.PrintStream(new java.io.FileOutputStream(\"output.log\"));\n" +
+"            System.setOut(printDropbox);\n" +
+"            System.setErr(printDropbox);\n" +
+"            int x=0;\n" +
+"            java.io.File f=new java.io.File(\"inputFiles\\\\input\"+x+\".log\");\n" +
+"            while(f.exists()){\n" +
+"                f=new java.io.File(\"inputFiles\\\\input\"+x+\".log\");\n" +
+"                x++;\n" +
+"            }\n" +
+"            x-=2;\n" +
+"            f=new java.io.File(\"inputFiles\\\\input\"+x+\".log\");\n" +
+"            iDropbox=new java.io.FileInputStream(f){\n" +
+"            //int runNum=0; //requires everything to be written twice, for stupid reasons.\n" +
+"                @Override\n" +
+"                public int read(byte[] b, int off, int len) throws java.io.IOException {\n" +
+"                    int read=super.read(b, off, len);\n" +
+"                    while(read==-1){ //every 2nd call is for caching and doesnt matter\n" +
+"                        read=super.read(b, off, len);\n" +
+"                    }\n" +
+"                    return read;\n" +
+"                }\n" +
+"            };\n" +
+"        System.setIn(iDropbox);\n" +
+"        } catch(java.io.IOException e){\n" +
+"            System.out.println(\"Injection code has failed. \"+e);\n" +
+"        }\n" +
+"        //DROPBOXGRADERCODEEND\n";
+                String inject2="";
                 Scanner s=new Scanner(this);
                 s.useDelimiter("\n");
                 String currentFile="";
                 while(s.hasNext()){
                     String line=s.next()+"\n";
+                    if(line.contains("{")||line.contains("}")){
+                        char[] chars=line.toCharArray();
+                        for(char c:chars){
+                            if(c=='{'){
+                                braces++;
+                            }
+                            else if(c=='}'){
+                                braces--;
+                            }
+                        }
+                    }
                     if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){
                         String lineAfter=s.next();
                         if(!line.contains("{")){
@@ -99,6 +121,12 @@ public class JavaFile extends File{
                         currentFile+=inject;
                         currentFile+=line.substring(index);
                         currentFile+=lineAfter+"\n";
+                        didFirstInject=true;
+                    }
+                    else if(braces==0&&didFirstInject&&!didLastInject){
+                        currentFile+=inject2;
+                        currentFile+=line;
+                        didLastInject=true;
                     }
                     else{
                         currentFile+=line;

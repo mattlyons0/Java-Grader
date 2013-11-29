@@ -47,7 +47,7 @@ public class JavaRunner implements Runnable{
         terminal=t;
         this.gui=gui;
         this.relay=relay;
-        
+        new File("inputFiles\\").mkdir();
         errorRelay=new RelayStream(System.out,terminal);
         thread=new Thread(this);
         thread.setName("CheckProccessStateThread");
@@ -140,6 +140,10 @@ public class JavaRunner implements Runnable{
                 break;
             }
         }
+        File[] filess=new File("inputFiles\\").listFiles();
+        int highest=filess.length;
+        terminal.setInputFile(new File("inputFiles\\input"+highest+".log"));
+        
         int manualArgNum=4;
         String[] filePaths=new String[files.length+manualArgNum];
         
@@ -169,16 +173,13 @@ public class JavaRunner implements Runnable{
                 terminal.append("Compile Started\n",Color.GRAY);
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             if(compiler==null){
-                terminal.append("No compiler found. Either the java.home path is set wrong, or a jdk needs to be downloaded.\n", Color.red);
-                terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.RED);
                 if(!fixedPath){
                     fixJavaPath();
-                    runFile(files,runChoice,numTimes);
-                    return;
+                    compiler=ToolProvider.getSystemJavaCompiler();
                 }
             }
             terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.GRAY);
-            int result=compiler.run(null, System.out, errorRelay, filePaths);
+            int result=compiler.run(null, System.out, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
             if(result!=0){
                 terminal.append("Compile Failed\n\n",Color.RED);
                 gui.proccessEnded();
@@ -232,17 +233,45 @@ public class JavaRunner implements Runnable{
         }
     }
     private void fixJavaPath(){
-        String path=System.getProperty("java.home");
-        System.out.println("Current path is "+path);
-        if(!path.endsWith("jre")){
-            String version=System.getProperty("java.version");
-            path="C:\\Program Files\\Java\\jdk"+version+"\\jre";
-        }
-        System.setProperty("java.home", path);
+        String path="";
+//        String path=System.getProperty("java.home");
+//        if(!path.endsWith("jre")){
+//            String version=System.getProperty("java.version");
+//            path="C:\\Program Files\\Java\\jdk"+version+"\\jre";
+//        }
+//        System.setProperty("java.home", path);
+//        if(ToolProvider.getSystemJavaCompiler()==null){
+//            String version=System.getProperty("java.version");
+//            path="C:\\Program Files (x86)\\Java\\jdk"+version+"\\jre";
+//            System.setProperty("java.home", path);
+//        }
         if(ToolProvider.getSystemJavaCompiler()==null){
-            String version=System.getProperty("java.version");
-            path="C:\\Program Files (x86)\\Java\\jdk"+version+"\\jre";
+            File dir=new File("C:\\Program Files (x86)\\Java\\");
+            File[] files=dir.listFiles();
+            for(File f:files){
+                if(f.getName().contains("jdk")){
+                    path=f.getAbsolutePath()+"\\jre";
+                    fixedPath=true;
+                }
+            }
+            if(!fixedPath){
+                dir=new File("C:\\Program Files\\Java\\");
+                files=dir.listFiles();
+                for(File f:files){
+                    if(f.getName().contains("jdk")){
+                        path=f.getAbsolutePath()+"\\jre";
+                        fixedPath=true;
+                    }
+                }
+            }
             System.setProperty("java.home", path);
+        }
+        if(ToolProvider.getSystemJavaCompiler()==null){
+            if(System.getProperty("os.name").contains("Windows"))
+                terminal.append("No JDK found, please install any version of the java JDK.",Color.RED);
+            else
+                terminal.append("This program must be run using a JDK, on windows it will automatically detect a"
+                        + " JDK but on other operating systems it must be manually set.\nThe best bet is to try running this on windows.");
         }
         fixedPath=true;
     }

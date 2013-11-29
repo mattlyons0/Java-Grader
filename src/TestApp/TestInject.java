@@ -4,8 +4,12 @@
  */
 package TestApp;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -115,13 +119,21 @@ public class TestInject {
      */
     public static void main(String[] args) {
 	//DROPBOXGRADERCODESTART
-        java.io.PrintStream printStream;	
-        try {
-            printStream=new java.io.PrintStream(new java.io.FileOutputStream("output.log"));
-            //System.setOut(printStream);
-            System.setErr(printStream);
-            java.io.File f=new java.io.File("input.log");
-            System.setIn(new java.io.FileInputStream(f){
+        java.io.FileInputStream iDropbox=null;
+        java.io.PrintStream printDropbox=null;
+        try{	
+            printDropbox=new java.io.PrintStream(new java.io.FileOutputStream("output.log"));
+            System.setOut(printDropbox);
+            System.setErr(printDropbox);
+            int x=0;
+            java.io.File f=new java.io.File("inputFiles\\input"+x+".log");
+            while(f.exists()){
+                f=new java.io.File("inputFiles\\input"+x+".log");
+                x++;
+            }
+            x-=2;
+            f=new java.io.File("inputFiles\\input"+x+".log");
+            iDropbox=new java.io.FileInputStream(f){
             //int runNum=0; //requires everything to be written twice, for stupid reasons.
                 @Override
                 public int read(byte[] b, int off, int len) throws java.io.IOException {
@@ -131,11 +143,12 @@ public class TestInject {
                     }
                     return read;
                 }
-            });
-	} catch (java.io.FileNotFoundException ex) {
-            System.out.println("The DropboxGrader output logger has failed."+ex);
-        } 
-            //DROPBOXGRADERCODEEND
+            };
+        System.setIn(iDropbox);
+        } catch(java.io.IOException e){
+            System.out.println("Injection code has failed. "+e);
+        }
+        //DROPBOXGRADERCODEEND
 
         Scanner reader = new Scanner(System.in);
         TestInject purse1 = new TestInject();

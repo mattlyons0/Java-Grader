@@ -51,6 +51,15 @@ public class JTerminal extends JTextPane implements KeyListener{
             Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void setInputFile(File f){
+        writer.close();
+        try {
+            file=f;
+            writer=new PrintWriter(f);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     public void append(String s){
         append(s,Color.BLACK);
     }

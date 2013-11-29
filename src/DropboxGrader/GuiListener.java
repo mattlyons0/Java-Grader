@@ -41,18 +41,14 @@ public class GuiListener implements WindowListener{
         }
         gui.setVisible(false);
 
-        File f1=new File("input.log");
-        File f2=new File("output.log");
-        if(f1.exists()||f2.exists()){
-            //f1.delete();
-            //f2.delete();
-            if(f1.exists()){
-                System.out.println("input.log is not being cleaned up properly.");
-            }
-            if(f2.exists()){
-                System.out.println("output.log is not being cleaned up properly.");
-            }
+        new File("input.log").delete();
+        new File("output.log").delete();
+        File inputFolder=new File("inputFiles\\");
+        File[] inputFiles=inputFolder.listFiles();
+        for(File f:inputFiles){
+            f.delete();
         }
+        inputFolder.delete();
         Config.writeConfig();
     }
 
