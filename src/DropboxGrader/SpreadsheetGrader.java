@@ -145,7 +145,7 @@ public class SpreadsheetGrader {
                         Logger.getLogger(SpreadsheetGrader.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                }
+            }
             statusLabel.setText(name+" was not found in the spreadsheet.");
         }
         return false;
