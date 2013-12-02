@@ -114,8 +114,8 @@ public class SpreadsheetGrader {
         
         String columnName=assignmentMap.get(assignment);
         String columnComment=commentsMap.get(assignment);
-        if(columnName==null){
-            statusLabel.setText("Assignment "+assignment+" is not declared in the spreadsheet.");
+        if(columnName==null||columnComment==null){
+            statusLabel.setText("Assignment "+assignment+" is not declared in the spreadsheet with a cell for the grade and a cell for the comments.");
         }
         else{
             List<ListEntry> entries=feed.getEntries();
@@ -137,6 +137,7 @@ public class SpreadsheetGrader {
                     //System.out.println("Found match with "+name+" at "+row.getTitle().getPlainText());
                     row.getCustomElements().setValueLocal(columnName, grade);
                     row.getCustomElements().setValueLocal(columnComment, comment);
+                    //change color: http://stackoverflow.com/questions/3703676/google-spreadsheet-script-to-change-row-color-when-a-cell-changes-text
                     try {
                         row.update();
                         return true;
