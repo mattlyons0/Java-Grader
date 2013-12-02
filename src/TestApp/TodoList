@@ -7,3 +7,7 @@ Autocreate spreadsheet
     Autocreate new assignments in spreadsheet.
 Edit code and run edited version
 Change cell color in spreadsheet.
+Bug with domash name
+Bug with text duplication
+Bug with throwing numberformat
+bug with not working for nextLine();

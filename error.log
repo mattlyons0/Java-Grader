@@ -1,8 +1,0 @@
-net.lingala.zip4j.exception.ZipException: zip file does not exist
-	at net.lingala.zip4j.core.ZipFile.readZipInfo(ZipFile.java:407)
-	at net.lingala.zip4j.core.ZipFile.extractAll(ZipFile.java:475)
-	at net.lingala.zip4j.core.ZipFile.extractAll(ZipFile.java:451)
-	at DropboxGrader.Unzip.unzip(Unzip.java:23)
-	at DropboxGrader.DbxFile.download(DbxFile.java:70)
-	at DropboxGrader.WorkerThread.run(WorkerThread.java:38)
-	at java.lang.Thread.run(Thread.java:724)
