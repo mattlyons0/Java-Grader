@@ -10,3 +10,4 @@ Change cell color in spreadsheet.
 Bug with text duplication
 Bug with throwing numberformat
 bug with not working for nextLine();
+Make order of values configureable

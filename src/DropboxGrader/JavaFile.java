@@ -32,6 +32,16 @@ public class JavaFile extends File{
         setMainMethod(false);
         validateFile(f);
     }
+    public void changeCode(String newCode){
+        try {
+            PrintWriter writer=new PrintWriter(new FileWriter(this));
+            writer.write(newCode);
+            writer.close();
+            validateFile(this);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
     public boolean containsMain(){
         return mainMethod;
     }

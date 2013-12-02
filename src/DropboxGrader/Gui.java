@@ -309,7 +309,7 @@ public class Gui extends JFrame implements ActionListener{
             codeOutputScroll=new JScrollPane(codeOutputArea);
         outputRelay=new InputRelayer(codeOutputArea);
         if(runner==null)
-            runner=new JavaRunner(codeOutputArea,this,outputRelay);   
+            runner=new JavaRunner(codeOutputArea,this,outputRelay,javaCode);   
         listener.setRunner(runner);
         
         constraints.anchor=GridBagConstraints.WEST;

@@ -55,7 +55,7 @@ public class JavaCodeBrowser extends Container{
             fileWindows[x].setLayout(new GridBagLayout());
             
             browserArea[x]=new JEditorPane();
-            browserArea[x].setEditable(false);
+            browserArea[x].setEditable(true);
             scrolls[x]=new JScrollPane (browserArea[x]);
             browserArea[x].setContentType("text/java");
             browserArea[x].setText(javaCode[x]);
@@ -65,5 +65,12 @@ public class JavaCodeBrowser extends Container{
             tabPane.addTab(files[x].getName(), fileWindows[x]);
         }
         add(tabPane,BorderLayout.CENTER);
+    }
+    public void saveFile(){
+        JavaFile[] files=file.getJavaFiles();
+        for(int x=0;x<files.length;x++){
+            String code=browserArea[x].getText();
+            files[x].changeCode(code);
+        }
     }
 }

@@ -43,10 +43,12 @@ public class JavaRunner implements Runnable{
     private JavaFile[] currentFiles;
     private JavaFile mainFile;
     private boolean fixedPath=false;
-    public JavaRunner(JTerminal t,Gui gui,InputRelayer relay){
+    private JavaCodeBrowser browser;
+    public JavaRunner(JTerminal t,Gui gui,InputRelayer relay,JavaCodeBrowser browser){
         terminal=t;
         this.gui=gui;
         this.relay=relay;
+        this.browser=browser;
         new File("inputFiles\\").mkdir();
         errorRelay=new RelayStream(System.out,terminal);
         thread=new Thread(this);
@@ -126,6 +128,8 @@ public class JavaRunner implements Runnable{
         if(files.length==0){
             return;
         }
+        browser.saveFile();
+        
         numRunsLeft=numTimes;
         currentFiles=files;
         mainFile=runChoice;

@@ -276,7 +276,7 @@ public class DbxFile {
             return null;
         }
     }
-    public File[] getJavaFiles(){
+    public JavaFile[] getJavaFiles(){
         return javaFiles;
     }
     public String[] getJavaCode(){
