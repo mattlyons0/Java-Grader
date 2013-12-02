@@ -122,9 +122,6 @@ public class TestInject {
         java.io.FileInputStream iDropbox=null;
         java.io.PrintStream printDropbox=null;
         try{	
-            printDropbox=new java.io.PrintStream(new java.io.FileOutputStream("output.log"));
-            System.setOut(printDropbox);
-            System.setErr(printDropbox);
             int x=0;
             java.io.File f=new java.io.File("inputFiles\\input"+x+".log");
             while(f.exists()){
@@ -145,6 +142,9 @@ public class TestInject {
                 }
             };
         System.setIn(iDropbox);
+        printDropbox=new java.io.PrintStream(new java.io.FileOutputStream("inputFiles\\output"+x+".log"));
+        System.setOut(printDropbox);
+        System.setErr(printDropbox);
         } catch(java.io.IOException e){
             System.out.println("Injection code has failed. "+e);
         }

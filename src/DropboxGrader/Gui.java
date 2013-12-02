@@ -85,7 +85,6 @@ public class Gui extends JFrame implements ActionListener{
     private JTextField iterationsField;
     private JPanel runPanel;
     private JLabel fileInfoLabel;
-    private InputRelayer outputRelay;
     private JavaRunner runner;
     private static JTerminal codeOutputArea;
     private JScrollPane codeOutputScroll;
@@ -135,6 +134,7 @@ public class Gui extends JFrame implements ActionListener{
         googSession=new GoogSession();
         gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
         fileManager.setGrader(gradeWriter);
+        refreshTable();
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
@@ -257,10 +257,10 @@ public class Gui extends JFrame implements ActionListener{
         if(Config.autoRun)
             runButton.setText("Stop Running");
         runButton.addActionListener(this);
-        iterationsField=new JTextField(2);
+        iterationsField=new JTextField(3);
         iterationsField.setText(Config.runTimes+"");
         iterationsField.setToolTipText("Times to run.");
-        iterationsField.setMaximumSize(new Dimension(15,10));
+        iterationsField.setMaximumSize(new Dimension(300,10));
         iterationsField.setHorizontalAlignment(JTextField.CENTER);
         runPanel=new JPanel();
         runPanel.setLayout(new GridBagLayout());
@@ -307,9 +307,8 @@ public class Gui extends JFrame implements ActionListener{
             codeOutputArea.setText("");
         if(codeOutputScroll==null)
             codeOutputScroll=new JScrollPane(codeOutputArea);
-        outputRelay=new InputRelayer(codeOutputArea);
         if(runner==null)
-            runner=new JavaRunner(codeOutputArea,this,outputRelay,javaCode);   
+            runner=new JavaRunner(codeOutputArea,this,javaCode);   
         listener.setRunner(runner);
         
         constraints.anchor=GridBagConstraints.WEST;

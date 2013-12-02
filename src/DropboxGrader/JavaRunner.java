@@ -44,12 +44,12 @@ public class JavaRunner implements Runnable{
     private JavaFile mainFile;
     private boolean fixedPath=false;
     private JavaCodeBrowser browser;
-    public JavaRunner(JTerminal t,Gui gui,InputRelayer relay,JavaCodeBrowser browser){
+    public JavaRunner(JTerminal t,Gui gui,JavaCodeBrowser browser){
         terminal=t;
         this.gui=gui;
-        this.relay=relay;
+        this.relay=new InputRelayer(t);
         this.browser=browser;
-        new File("inputFiles\\").mkdir();
+        new File("runtimeFiles\\").mkdir();
         errorRelay=new RelayStream(System.out,terminal);
         thread=new Thread(this);
         thread.setName("CheckProccessStateThread");
@@ -66,8 +66,7 @@ public class JavaRunner implements Runnable{
                     if(code!=0||numRunsLeft==0)
                         terminal.append("\nRun Finished: "+code+"\n",Color.GRAY);
                     if(numRunsLeft>0){
-                        clearInOutFiles();
-                        runClass();
+                        runFile(currentFiles,mainFile,numRunsLeft,false);
                     }
                     else{
                         running=null;
@@ -82,11 +81,12 @@ public class JavaRunner implements Runnable{
             }
             try {
                 if(numRunsLeft>0){
-                    Thread.sleep(1000); //basically if the number is smaller than 1000 multiple writes happen before a read
+                    Thread.sleep(100); //basically if the number is smaller than 1000 multiple writes happen before a read
                     //figure out why later...
+                    //now is later, this is causing issues, why...
                 }
                 else{
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 }
                 //saves resources on slow computers (like the ones in the library)
                 //also fixes printing output after saying run finished on slow computers.
@@ -96,35 +96,21 @@ public class JavaRunner implements Runnable{
         }
         
     }
-    public void clearInOutFiles(){
-        relay.stop();
-        try {
-            File output=new File("output.log");
-            File input=new File("input.log");
-            FileWriter outputWriter=new FileWriter(output);
-            FileWriter inputWriter = new FileWriter(input);
-            outputWriter.write("");
-            inputWriter.write("");
-            outputWriter.close();
-            inputWriter.close();
-        } catch (IOException ex) {
-            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
     public void stopProcess(){
         stopProcess(false);
     }
     private void stopProcess(boolean normalExit){
         if(running!=null){
             running.destroy();
-            clearInOutFiles();
             if(!normalExit)
                 terminal.append("Run Canceled", Color.GRAY);
         }
         running=null;        
     }
-    public void runFile(JavaFile[] files,JavaFile runChoice, int numTimes){
+    public void runFile(JavaFile[] files,JavaFile runChoice,int numTimes){
+        runFile(files,runChoice,numTimes,true);
+    }
+    private void runFile(JavaFile[] files,JavaFile runChoice, int numTimes,boolean compile){
         if(files.length==0){
             return;
         }
@@ -134,9 +120,9 @@ public class JavaRunner implements Runnable{
         currentFiles=files;
         mainFile=runChoice;
         
-        terminal.setText("");
+        if(compile)
+            terminal.setText("");
         stopProcess(true);
-        
         boolean containsPackages=false;
         for(JavaFile f: files){
             if(f.hasPackage()){
@@ -144,13 +130,14 @@ public class JavaRunner implements Runnable{
                 break;
             }
         }
-        File[] filess=new File("inputFiles\\").listFiles();
-        int highest=filess.length;
-        terminal.setInputFile(new File("inputFiles\\input"+highest+".log"));
+        File[] filess=new File("runtimeFiles\\").listFiles();
+        int highest=filess.length/2;
+        terminal.setInputFile(new File("runtimeFiles\\input"+highest+".log"));
+        relay.changeReadFile(new File("runtimeFiles\\output"+highest+".log"));
         
         int manualArgNum=4;
         String[] filePaths=new String[files.length+manualArgNum];
-        
+
         filePaths[0]="-cp";
         String path=files[0].getAbsolutePath();
         if(path.length()!=0){
@@ -171,27 +158,34 @@ public class JavaRunner implements Runnable{
         for(int x=manualArgNum;x<files.length+manualArgNum;x++){
             filePaths[x]=files[x-manualArgNum].getAbsolutePath();
         }
-        //System.out.println("Compiling "+Arrays.toString(filePaths));
-        try {
-            //System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_25\\jre");
-                terminal.append("Compile Started\n",Color.GRAY);
-            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            if(compiler==null){
-                if(!fixedPath){
-                    fixJavaPath();
-                    compiler=ToolProvider.getSystemJavaCompiler();
+        if(compile){
+            //System.out.println("Compiling "+Arrays.toString(filePaths));
+            try {
+                //System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_25\\jre");
+                    terminal.append("Compile Started\n",Color.GRAY);
+                JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+                if(compiler==null){
+                    if(!fixedPath){
+                        fixJavaPath();
+                        compiler=ToolProvider.getSystemJavaCompiler();
+                    }
                 }
+                terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.GRAY);
+                int result=compiler.run(null, System.out, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
+                if(result!=0){
+                    terminal.append("Compile Failed\n\n",Color.RED);
+                    gui.proccessEnded();
+                    return;
+                }
+                else{
+                    terminal.append("Compile Finished\n\n",Color.GRAY);
+                }
+                
+            } catch(Exception e){
+                System.err.println("Error logged when compiling "+e);
             }
-            terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.GRAY);
-            int result=compiler.run(null, System.out, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
-            if(result!=0){
-                terminal.append("Compile Failed\n\n",Color.RED);
-                gui.proccessEnded();
-                return;
-            }
-            else{
-                terminal.append("Compile Finished\n\n",Color.GRAY);
-            }
+        }
+        try{
             int index=-1;
             for(int x=0;x<files.length;x++){
                 if(files[x].equals(runChoice)){
@@ -278,66 +272,6 @@ public class JavaRunner implements Runnable{
                         + " JDK but on other operating systems it must be manually set.\nThe best bet is to try running this on windows.");
         }
         fixedPath=true;
-    }
-    private void runClass(){
-        boolean containsPackages=false;
-        for(JavaFile f: currentFiles){
-            if(f.hasPackage()){
-                containsPackages=true;
-                break;
-            }
-        }
-        int manualArgNum=4;
-        String[] filePaths=new String[currentFiles.length+manualArgNum];
-        
-        filePaths[0]="-cp";
-        String path=currentFiles[0].getAbsolutePath();
-        if(path.length()!=0){
-            path=path.replace("\\", "=");
-            String[] pathPart=path.split("="); //cant split \ for whatever reason
-            path=path.replace("=", "\\");
-            path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
-            if(containsPackages){
-                path=path.substring(0, path.length()-pathPart[pathPart.length-2].length()-1);
-            }
-            if(pathPart.length==1){
-                path="";
-            }
-        }
-        filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
-        filePaths[2]="-sourcepath";
-        filePaths[3]=filePaths[1];
-        for(int x=manualArgNum;x<currentFiles.length+manualArgNum;x++){
-            filePaths[x]=currentFiles[x-manualArgNum].getAbsolutePath();
-        }
-        int index=-1;
-        for(int x=0;x<currentFiles.length;x++){
-            if(currentFiles[x].equals(mainFile)){
-                index=x;
-            }
-        }
-        if(index==-1){
-            System.out.println("Main File doesnt exist!");
-            return;
-        }
-        String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
-        String className="";
-        if(currentFiles[index].hasPackage()){
-            className+=currentFiles[index].packageFolder()+"/";
-        }
-        className+=currentFiles[index].getName();
-        className=className.substring(0,className.length()-5); //removes .java
-        String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
-        javaExe="java";
-        ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
-        builder.inheritIO();
-        try {
-            running=builder.start();
-        } catch (IOException ex) {
-            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        relay.start();
-            numRunsLeft--;
     }
     public InputRelayer getRelay(){
         return relay;

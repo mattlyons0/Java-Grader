@@ -28,17 +28,8 @@ public class InputRelayer implements Runnable{
     private boolean looping;
     public InputRelayer(JTerminal t){
         terminal=t;
-        looping=true;
-        try {
-            file=new File("output.log");
-            file.delete();
-            file.createNewFile();
-
-            stream=new BufferedReader(new FileReader(file));
-            new Thread(this).start();
-        } catch (IOException ex) {
-            System.out.println(ex);
-        }
+        looping=false;
+        new Thread(this).start();
     }
     public void stop(){
         looping=false;
@@ -47,6 +38,18 @@ public class InputRelayer implements Runnable{
         try {
             if(stream!=null)
                 stream.close();
+            stream=null;
+        } catch (IOException ex) {
+            Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void changeReadFile(File f){
+        stop();
+        invalidate();
+        file=f;
+        try {
+            file.createNewFile();
+            stream=new BufferedReader(new FileReader(file));
         } catch (IOException ex) {
             Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -62,7 +65,7 @@ public class InputRelayer implements Runnable{
     @Override
     public void run() {
         while(true){
-            while(looping){
+            while(looping&&stream!=null){
                 try {
                     String line=stream.readLine();
                     if(line!=null){

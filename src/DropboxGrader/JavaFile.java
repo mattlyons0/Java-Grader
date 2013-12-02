@@ -71,17 +71,14 @@ public class JavaFile extends File{
 "        java.io.FileInputStream iDropbox=null;\n" +
 "        java.io.PrintStream printDropbox=null;\n" +
 "        try{	\n" +
-"            printDropbox=new java.io.PrintStream(new java.io.FileOutputStream(\"output.log\"));\n" +
-"            System.setOut(printDropbox);\n" +
-"            System.setErr(printDropbox);\n" +
 "            int x=0;\n" +
-"            java.io.File f=new java.io.File(\"inputFiles\\\\input\"+x+\".log\");\n" +
+"            java.io.File f=new java.io.File(\"runtimeFiles\\\\input\"+x+\".log\");\n" +
 "            while(f.exists()){\n" +
-"                f=new java.io.File(\"inputFiles\\\\input\"+x+\".log\");\n" +
+"                f=new java.io.File(\"runtimeFiles\\\\input\"+x+\".log\");\n" +
 "                x++;\n" +
 "            }\n" +
 "            x-=2;\n" +
-"            f=new java.io.File(\"inputFiles\\\\input\"+x+\".log\");\n" +
+"            f=new java.io.File(\"runtimeFiles\\\\input\"+x+\".log\");\n" +
 "            iDropbox=new java.io.FileInputStream(f){\n" +
 "            //int runNum=0; //requires everything to be written twice, for stupid reasons.\n" +
 "                @Override\n" +
@@ -94,6 +91,9 @@ public class JavaFile extends File{
 "                }\n" +
 "            };\n" +
 "        System.setIn(iDropbox);\n" +
+"        printDropbox=new java.io.PrintStream(new java.io.FileOutputStream(\"runtimeFiles\\\\output\"+x+\".log\"));\n" +
+"        System.setOut(printDropbox);\n" +
+"        System.setErr(printDropbox);\n" +
 "        } catch(java.io.IOException e){\n" +
 "            System.out.println(\"Injection code has failed. \"+e);\n" +
 "        }\n" +

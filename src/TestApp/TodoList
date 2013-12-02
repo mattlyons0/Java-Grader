@@ -1,13 +1,13 @@
 Maybe encrypt keys
 Ctrl tab in grader.
 Auto mark late.
-Refactor JavaRunner
 Sort Filebrowser by clicked
 Autocreate spreadsheet
     Autocreate new assignments in spreadsheet.
 Edit code and run edited version
 Change cell color in spreadsheet.
-Bug with text duplication
+
 Bug with throwing numberformat
 bug with not working for nextLine();
 Make order of values configureable
+Make grade fields fill up with existing grade.

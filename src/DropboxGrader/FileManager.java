@@ -44,7 +44,6 @@ public class FileManager {
         init();
     }
     private void init(){
-        SpreadsheetGrader g=gui.getGrader();
         if(grader!=null){
             grader.refresh();
         }

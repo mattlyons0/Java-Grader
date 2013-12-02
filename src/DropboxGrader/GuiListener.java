@@ -27,6 +27,13 @@ public class GuiListener implements WindowListener{
     }
     @Override
     public void windowOpened(WindowEvent e) {
+        File inputFolder=new File("runtimeFiles\\");
+        File[] inputFiles=inputFolder.listFiles();
+        if(inputFiles!=null){
+            for(File f:inputFiles){
+                f.delete();
+            }
+        }
     }
 
     @Override
@@ -41,12 +48,12 @@ public class GuiListener implements WindowListener{
         }
         gui.setVisible(false);
 
-        new File("input.log").delete();
-        new File("output.log").delete();
-        File inputFolder=new File("inputFiles\\");
+        File inputFolder=new File("runtimeFiles\\");
         File[] inputFiles=inputFolder.listFiles();
-        for(File f:inputFiles){
-            f.delete();
+        if(inputFiles!=null){
+            for(File f:inputFiles){
+                f.delete();
+            }
         }
         inputFolder.delete();
         Config.writeConfig();
