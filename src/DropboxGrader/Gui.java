@@ -242,10 +242,6 @@ public class Gui extends JFrame implements ActionListener{
         revalidate();
     }
     public void setupGraderGui(){
-        if(gradeWriter==null){
-            statusText.setText("Grader not yet initialized, try again in a few seconds.");
-            return;
-        }
         if(fileBrowserPanel!=null){
             remove(fileBrowserPanel);
             fileBrowserPanel=null;
@@ -260,7 +256,10 @@ public class Gui extends JFrame implements ActionListener{
         DbxFile file=fileManager.getFile(selectedFiles.get(0));
         gradeStatus=new JLabel("");
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
-        String[] grade=gradeWriter.getEntryAt(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
+        String[] grade=null;
+        if(gradeWriter!=null){
+            grade=gradeWriter.getEntryAt(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
+        }
         if(grade==null){
             grade=new String[2];
             grade[0]="";
@@ -611,6 +610,10 @@ public class Gui extends JFrame implements ActionListener{
             setupFileBrowserGui();
         }
         else if(e.getSource().equals(recordGradeButton)){
+            if(gradeWriter==null){
+                gradeStatus.setText("You have not authenticated your google account with this grader yet.");
+                return;
+            }
             try{
                 int assign=Integer.parseInt(currentFile.getAssignmentNumber());
                 System.out.println(assign);
