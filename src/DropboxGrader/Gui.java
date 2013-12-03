@@ -75,6 +75,7 @@ public class Gui extends JFrame implements ActionListener{
     private JButton gradeButton;
     private JLabel statusText;
     private ArrayList<Integer> selectedFiles;
+    private ArrayList<Integer> previousSelection;
     
     //Third Stage (Grader) Instance Vars
     private DbxFile currentFile;
@@ -106,6 +107,8 @@ public class Gui extends JFrame implements ActionListener{
         super("Dropbox Grader");
         
         UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
+        previousSelection=new ArrayList();
+        
         listener=new GuiListener(this);
         addWindowListener(listener);
         
@@ -227,6 +230,11 @@ public class Gui extends JFrame implements ActionListener{
         constraints.weighty=1;
         add(fileBrowserPanel,constraints);
         
+        if(!previousSelection.isEmpty()){
+            fileBrowserTable.setRowSelectionInterval(previousSelection.get(0),previousSelection.get(previousSelection.size()-1));
+            previousSelection.clear();
+        }
+        
         refreshTable();
         revalidate();
     }
@@ -246,6 +254,11 @@ public class Gui extends JFrame implements ActionListener{
         gradeStatus=new JLabel("");
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
         String[] grade=gradeWriter.getEntryAt(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
+        if(grade==null){
+            grade=new String[2];
+            grade[0]="";
+            grade[1]="";
+        }
         gradingPanel=new JPanel();
         gradingPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
@@ -549,6 +562,7 @@ public class Gui extends JFrame implements ActionListener{
             for(int x=0;x<selected.length;x++){
                 selectedFiles.add(selected[x]);
             }
+            previousSelection.addAll(selectedFiles);
             
             workerThread.download(selectedFiles,true);
             

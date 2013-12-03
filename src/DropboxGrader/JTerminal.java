@@ -98,6 +98,7 @@ public class JTerminal extends JTextPane implements KeyListener{
        }
     }
     public void stop(){
-        writer.close();
+        if(writer!=null)
+            writer.close();
     }
 }
