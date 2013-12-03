@@ -7,7 +7,4 @@ Autocreate spreadsheet
 Edit code and run edited version
 Change cell color in spreadsheet.
 
-Bug with throwing numberformat
-bug with not working for nextLine();
 Make order of values configureable
-Make grade fields fill up with existing grade.

@@ -89,12 +89,10 @@ public class JTerminal extends JTextPane implements KeyListener{
            if(writer==null){
                return;
            }
-           writer.append("\n");
-           writer.flush();
-
            writer.append(call+"\n");
            writer.flush();
-           
+           writer.write("");
+           writer.flush();
        }
     }
     public void stop(){
