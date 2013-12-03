@@ -126,14 +126,12 @@ public class Gui extends JFrame implements ActionListener{
         setVisible(true);
         
         dbxSession=new DbxSession(this);
-        if(dbxSession.getClient()!=null){
-            initGoogSession();
-        }
     }
     private void initGoogSession(){
         googSession=new GoogSession();
         gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
         fileManager.setGrader(gradeWriter);
+        System.out.println("Session init");
         refreshTable();
     }
     private void createSession(){
@@ -478,7 +476,7 @@ public class Gui extends JFrame implements ActionListener{
         fileBrowserTable.repaint();
     }
     public void refreshTable(){
-        statusText.setText("Refreshing Files");
+        statusText.setText("Refreshing File Listing...");
         
         fileManager.refresh();
         fileBrowserTable.revalidate();
@@ -618,8 +616,6 @@ public class Gui extends JFrame implements ActionListener{
             }
             Config.autoRun=autoRun.isSelected();
             Config.writeConfig();
-            
-            actionPerformed(new ActionEvent(refreshButton,0,null));
         }
     }
     public void proccessEnded(){

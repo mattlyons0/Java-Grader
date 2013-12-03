@@ -142,7 +142,7 @@ public class DbxFile {
                 String grade=fileManager.getGrader().gradeAt(getFirstLastName(), num,new JLabel());
                 if(grade!=null){
                     fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
-                    return "Graded "+grade;
+                    return "Grade: "+grade;
                 }
             }
         } catch(NumberFormatException ex){
@@ -154,7 +154,8 @@ public class DbxFile {
         if(downloadedFile.exists()){
             return "Downloaded";
         }
-        return "Unknown"; //downloaded but file doesnt exist.
+        download();
+        return "Downloaded"; //downloaded but file doesnt exist. Usually when a local copy is invalid.
     }
     public static int safeStringToInt(String s){
         char[] chars=s.toCharArray();

@@ -44,7 +44,8 @@ public class JTerminal extends JTextPane implements KeyListener{
         setMargin(new Insets(5,5,5,5));
     }
     public void setInputFile(File f){
-        writer.close();
+        if(writer!=null)
+            writer.close();
         try {
             file=f;
             writer=new PrintWriter(f);
