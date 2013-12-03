@@ -99,7 +99,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             String choice=JOptionPane.showInputDialog("What would you like to name the file?",file.getFileName());
             if(choice!=null){
                 file.rename(choice);
-                gui.refreshTable();
+                gui.setupFileBrowserGui();
             }
         }
     }

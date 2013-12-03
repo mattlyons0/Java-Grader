@@ -3,7 +3,7 @@ Ctrl tab in grader.
 Auto mark late.
 Autocreate spreadsheet
     Autocreate new assignments in spreadsheet.
+    Not possible with current api
 
 Make order of values configureable
-Put my name in the settings
-Fix opening .zip.zip
+Move rename to another thread

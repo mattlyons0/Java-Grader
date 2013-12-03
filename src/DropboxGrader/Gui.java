@@ -410,6 +410,8 @@ public class Gui extends JFrame implements ActionListener{
         autoRun.setSelected(Config.autoRun);     
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
+        JLabel creditsLabel=new JLabel("Created by Matt Lyons, Class of 2014");
+        creditsLabel.setHorizontalAlignment(JLabel.CENTER);
         
         GridBagConstraints cons=new GridBagConstraints();
         cons.fill=GridBagConstraints.NONE;
@@ -441,13 +443,17 @@ public class Gui extends JFrame implements ActionListener{
         configPanel.add(runTimes,cons);
         cons.gridx=3;
         configPanel.add(autoRun,cons);
+        cons.gridy=4;
+        cons.gridx=0;
+        cons.gridwidth=4;
+        configPanel.add(creditsLabel,cons);
         cons=new GridBagConstraints();
         cons.fill=GridBagConstraints.BOTH;
         cons.weightx=1;
         constraints.weighty=1;
         add(configPanel,cons);
         
-        setSize(620,140);
+        setSize(620,150);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation(screenSize.width/2-this.getSize().width/2, screenSize.height/2-this.getSize().height/2);
         
