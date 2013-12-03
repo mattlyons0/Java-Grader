@@ -549,21 +549,20 @@ public class Gui extends JFrame implements ActionListener{
             for(int x=0;x<select.size();x++){ //check if there is a grade for assignment
                 int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
-                if(f==null){
-                    return;
-                }
-                int assignment=Integer.parseInt(f.getAssignmentNumber());
-                boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment,new JLabel());
-                if(!written){
-                    statusText.setText("No grade recorded for "+fileManager.getFile(i)+", it will not be deleted.");
-                    select.remove(x);
-                    x--;
-                }
-                else{
-                    deleted=true;
-                    statusText.setText("Deleted.");
-                    workerThread.delete(select);
-                    fileManager.delete(fileManager.getFile(select.get(x)));
+                if(f!=null){
+                    int assignment=Integer.parseInt(f.getAssignmentNumber());
+                    boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment,new JLabel());
+                    if(!written){
+                        statusText.setText("No grade recorded for "+fileManager.getFile(i)+", it will not be deleted.");
+                        select.remove(x);
+                        x--;
+                    }
+                    else{
+                        deleted=true;
+                        statusText.setText("Deleted.");
+                        workerThread.delete(select.get(x));
+                        fileManager.delete(fileManager.getFile(select.get(x)));
+                    }
                 }
             }
             if(deleted)

@@ -95,5 +95,11 @@ public class WorkerThread implements Runnable{
             deleteQueue.add(manager.getFile(files.get(x)));
         }
     }
+    public void delete(Integer file){
+        if(file==null){
+            return;
+        }
+        deleteQueue.add(manager.getFile(file));
+    }
     
 }
