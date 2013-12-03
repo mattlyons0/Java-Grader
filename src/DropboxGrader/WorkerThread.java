@@ -34,14 +34,16 @@ public class WorkerThread implements Runnable{
             int size=fileQueue.size();
             for(int x=0;x<size;x++){
                 DbxFile f=fileQueue.remove(0);
-                gui.setStatus("Downloading "+f.getFileName());
-                f.download();
-                int progress=(int)((double)(x+1)/size*100);
-                gui.updateProgress(progress);
-                if(size==1){
-                    gui.updateProgress(50);
+                if(f!=null){
+                    gui.setStatus("Downloading "+f.getFileName());
+                    f.download();
+                    int progress=(int)((double)(x+1)/size*100);
+                    gui.updateProgress(progress);
+                    if(size==1){
+                        gui.updateProgress(50);
+                    }
+                    gui.repaintTable();
                 }
-                gui.repaintTable();
             }
             for(DbxFile f:deleteQueue){
                 f.delete();

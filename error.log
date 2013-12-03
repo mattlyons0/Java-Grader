@@ -1,6 +1,0 @@
-Exception in thread "Thread-2" java.lang.NullPointerException
-	at DropboxGrader.JavaCodeBrowser.init(JavaCodeBrowser.java:43)
-	at DropboxGrader.JavaCodeBrowser.<init>(JavaCodeBrowser.java:37)
-	at DropboxGrader.Gui.setupGraderGui(Gui.java:273)
-	at DropboxGrader.WorkerThread.run(WorkerThread.java:54)
-	at java.lang.Thread.run(Thread.java:724)

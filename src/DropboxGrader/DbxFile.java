@@ -46,6 +46,10 @@ public class DbxFile {
         
         errorMsg="File Naming Error: "+entry.name;
         
+        if(entry.name.contains(".zip.zip")){
+            rename(entry.name.substring(0,entry.name.length()-4)); //get rid of second zip
+        }
+        
         checkExists();
     }
     private void checkExists(){ //ties reference if it is already downloaded
@@ -355,6 +359,10 @@ public class DbxFile {
             client.move(entry.path, directory+newName);
         } catch (DbxException ex) {
             Logger.getLogger(DbxFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if(downloadedFile!=null){
+            searchForFilesToDelete(downloadedFile.getPath());
+            downloadedFile=null;
         }
     }
     @Override
