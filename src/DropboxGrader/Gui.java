@@ -544,6 +544,9 @@ public class Gui extends JFrame implements ActionListener{
             for(int x=0;x<select.size();x++){ //check if there is a grade for assignment
                 int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
+                if(f==null){
+                    return;
+                }
                 int assignment=Integer.parseInt(f.getAssignmentNumber());
                 boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment,new JLabel());
                 if(!written){
