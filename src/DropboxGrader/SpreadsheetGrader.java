@@ -175,6 +175,52 @@ public class SpreadsheetGrader {
         }
         return false;
     }
+    public String gradeAt(String name,int assignment,JLabel statusLabel){
+        String[] entries=getEntryAt(name,assignment,statusLabel);
+        if(entries==null)
+            return null;
+        return entries[0];
+    }
+    public String[] getEntryAt(String name,String assignment,JLabel statusLabel){
+        int assign=DbxFile.safeStringToInt(assignment);
+        return getEntryAt(name,assign,statusLabel);
+    }
+    /**
+     * 
+     * @param name
+     * @param assignment
+     * @param statusLabel
+     * @return [0]=grade [1]=comment
+     */
+    public String[] getEntryAt(String name,int assignment,JLabel statusLabel){
+        String[] entries=new String[2];
+        
+        if(name==null||name.equals("")){
+            statusLabel.setText("Name not set.");
+            return null;
+        }
+        
+        String columnName=assignmentMap.get(assignment);
+        String columnComment=commentsMap.get(assignment);
+        if(columnName==null){
+            statusLabel.setText("Assignment "+assignment+" is not declared in the spreadsheet.");
+        }
+        else{
+            List<ListEntry> feedEntries=feed.getEntries();
+            for(ListEntry row:feedEntries){
+                if(nameEquals(name,row.getTitle().getPlainText(),null)){
+                    String currentVal=row.getCustomElements().getValue(columnName);
+                    String currentComment=row.getCustomElements().getValue(columnComment);
+                    if(currentVal!=null){
+                        entries[0]=currentVal;
+                        entries[1]=currentComment;
+                        return entries;
+                    }
+                }
+            }
+        }
+        return null;
+    }
     private boolean nameEquals(String name,String rowTitle,JLabel statusLabel){
         String firstName,lastName;
         int upercaseIndex=-1;

@@ -245,14 +245,18 @@ public class Gui extends JFrame implements ActionListener{
             remove(gradingPanel);
             gradingPanel=null;
         }
+        DbxFile file=fileManager.getFile(selectedFiles.get(0));
+        gradeStatus=new JLabel("");
+        gradeStatus.setHorizontalAlignment(JLabel.CENTER);
+        String[] grade=gradeWriter.getEntryAt(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
         gradingPanel=new JPanel();
         gradingPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
         
-        javaCode=new JavaCodeBrowser(fileManager.getFile(selectedFiles.get(0)));
+        javaCode=new JavaCodeBrowser(file);
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);
-        fileInfoLabel=new JLabel(fileManager.getFile(selectedFiles.get(0)).toString());
+        fileInfoLabel=new JLabel(file.toString());
         runButton=new JButton("Run");
         if(Config.autoRun)
             runButton.setText("Stop Running");
@@ -274,11 +278,13 @@ public class Gui extends JFrame implements ActionListener{
         gradePanel.setLayout(new GridBagLayout());
         JLabel gradeLabel1=new JLabel("Grade: ");
         gradeNumber=new JTextField(3);
+        gradeNumber.setText(grade[0]);
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
         gradeNumber.setMinimumSize(new Dimension(30,15));
         gradeNumber.addActionListener(this);
         JLabel gradeLabel2=new JLabel(" Comment: ");
         gradeComment=new JTextField(25);
+        gradeComment.setText(grade[1]);
         gradeComment.setHorizontalAlignment(JTextField.CENTER);
         gradeComment.setMinimumSize(new Dimension(250,15));
         gradeComment.addActionListener(this);
@@ -294,8 +300,6 @@ public class Gui extends JFrame implements ActionListener{
         gradePanel.add(gradeComment,cons);
         JPanel gradeButtonPanel=new JPanel();
         gradeButtonPanel.setLayout(new FlowLayout());
-        gradeStatus=new JLabel("");
-        gradeStatus.setHorizontalAlignment(JLabel.CENTER);
         recordGradeButton=new JButton("Grade");
         recordGradeButton.addActionListener(this);
         gradeButtonPanel.add(gradeStatus);
@@ -474,7 +478,13 @@ public class Gui extends JFrame implements ActionListener{
         fileBrowserTable.repaint();
     }
     public void refreshTable(){
-        actionPerformed(new ActionEvent(refreshButton,0,null));
+        statusText.setText("Refreshing Files");
+        
+        fileManager.refresh();
+        fileBrowserTable.revalidate();
+        repaintTable();
+        
+        statusText.setText("");
     }
     public void setStatus(String status){
         if(this.status!=null){
@@ -502,9 +512,7 @@ public class Gui extends JFrame implements ActionListener{
             actionPerformed(new ActionEvent(submitButton,0,""));
         }
         else if(e.getSource().equals(refreshButton)){
-            fileManager.refresh();
-            fileBrowserTable.revalidate();
-            repaintTable();
+            refreshTable();
         }
         else if(e.getSource().equals(deleteButton)){
             int[] selected=fileBrowserTable.getSelectedRows();

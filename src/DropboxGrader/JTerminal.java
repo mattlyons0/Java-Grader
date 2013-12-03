@@ -42,14 +42,6 @@ public class JTerminal extends JTextPane implements KeyListener{
         EmptyBorder border=new EmptyBorder(new Insets(10,10,10,10));
         setBorder(border);
         setMargin(new Insets(5,5,5,5));
-        try {
-            file=new File("input.log");
-            file.createNewFile();
-
-            writer=new PrintWriter(file);
-        } catch (IOException ex) {
-            Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     public void setInputFile(File f){
         writer.close();
@@ -93,11 +85,14 @@ public class JTerminal extends JTextPane implements KeyListener{
        if(c==KeyEvent.VK_ENTER){
            String[] lines=getText().split("\n");
            String call=lines[lines.length-1].trim();
-            writer.append("\n");
-            writer.flush();
+           if(writer==null){
+               return;
+           }
+           writer.append("\n");
+           writer.flush();
 
-            writer.append(call+"\n");
-            writer.flush();
+           writer.append(call+"\n");
+           writer.flush();
            
        }
     }

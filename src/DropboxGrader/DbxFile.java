@@ -79,7 +79,7 @@ public class DbxFile {
     public String getAssignmentNumber(){
         String s=entry.name;
         
-        int num=stringToInt(s.split("_")[2]);
+        int num=safeStringToInt(s.split("_")[2]);
         if(num==-1){
             return errorMsg;
         }
@@ -101,7 +101,7 @@ public class DbxFile {
             }
             else if(splits.length==5){
                 fileManager.getTableData().setColorAt(Color.CYAN.darker(), new CellLocation(fileManager.getAttributes()[col],row));
-                int year=stringToInt(splits[2]);
+                int year=safeStringToInt(splits[2]);
                 return splits[4].substring(0, splits[4].length()-4)+" (Year "+year+")";
             }
             else{
@@ -139,9 +139,10 @@ public class DbxFile {
         try{
             int num=Integer.parseInt(getAssignmentNumber());
             if(fileManager.getGrader()!=null){
-                if(fileManager.getGrader().gradeWritten(getFirstLastName(), num,new JLabel())){
+                String grade=fileManager.getGrader().gradeAt(getFirstLastName(), num,new JLabel());
+                if(grade!=null){
                     fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
-                    return "Graded";
+                    return "Graded "+grade;
                 }
             }
         } catch(NumberFormatException ex){
@@ -155,7 +156,7 @@ public class DbxFile {
         }
         return "Unknown"; //downloaded but file doesnt exist.
     }
-    private int stringToInt(String s){
+    public static int safeStringToInt(String s){
         char[] chars=s.toCharArray();
         String num="";
         for(int x=0;x<s.length();x++){
