@@ -131,7 +131,6 @@ public class Gui extends JFrame implements ActionListener{
         googSession=new GoogSession();
         gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
         fileManager.setGrader(gradeWriter);
-        System.out.println("Session init");
         refreshTable();
     }
     private void createSession(){
