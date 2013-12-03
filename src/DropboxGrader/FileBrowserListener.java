@@ -13,22 +13,26 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
 
 /**
  *
  * @author 141lyonsm
  */
-public class FileBrowserMouseListener implements ActionListener,MouseListener{
+public class FileBrowserListener implements ActionListener,MouseListener,RowSorterListener{
     private JTable table;
     private Gui gui;
     private long lastClick;
     private int lastRow;
     private final long DOUBLECLICKDELAY=250;
-    public FileBrowserMouseListener(JTable browser,Gui gui){
-        table=browser;
+    public FileBrowserListener(Gui gui){
         this.gui=gui;
         lastClick=DOUBLECLICKDELAY*-1;
         lastRow=-1;
+    }
+    public void setTable(JTable t){
+        table=t;
     }
     private JPopupMenu createRightClickMenu(int row){
         JPopupMenu m=new JPopupMenu();
@@ -43,14 +47,14 @@ public class FileBrowserMouseListener implements ActionListener,MouseListener{
     public void mouseClicked(MouseEvent e) {
         if(e.getButton()==MouseEvent.BUTTON1){
             long currentClick=System.currentTimeMillis();
-            if(currentClick-lastClick<=DOUBLECLICKDELAY&&lastRow==table.getSelectedRow()){
+            if(currentClick-lastClick<=DOUBLECLICKDELAY&&lastRow==table.convertRowIndexToModel(table.getSelectedRow())){
                 gui.gradeRows();
                 lastClick=DOUBLECLICKDELAY*-1;
                 lastRow=-1;
             }
             else{
                 lastClick=currentClick;
-                lastRow=table.getSelectedRow();
+                lastRow=table.convertRowIndexToModel(table.getSelectedRow());
             }
         }
     }
@@ -69,7 +73,7 @@ public class FileBrowserMouseListener implements ActionListener,MouseListener{
                 table.clearSelection();
             }
 
-            int rowindex = table.getSelectedRow();
+            int rowindex = table.convertRowIndexToModel(table.getSelectedRow());
             if (rowindex < 0)
                 return;
             if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
@@ -98,6 +102,12 @@ public class FileBrowserMouseListener implements ActionListener,MouseListener{
                 gui.refreshTable();
             }
         }
+    }
+
+    @Override
+    public void sorterChanged(RowSorterEvent e) {
+        Config.sortOrder=table.getRowSorter().getSortKeys().get(0).getSortOrder().toString();
+        Config.sortColumn=table.getRowSorter().getSortKeys().get(0).getColumn()+"";
     }
     
 }

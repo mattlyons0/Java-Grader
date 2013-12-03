@@ -23,7 +23,7 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
         col=table.convertColumnIndexToModel(col);
         FileBrowserData data=(FileBrowserData)table.getModel();
         String colName=data.getColumnName(col);
-        Color c=data.getColorAt(new CellLocation(colName,row));
+        Color c=data.getColorAt(new CellLocation(colName,table.convertRowIndexToModel(row)));
         if(c!=null){
             l.setBackground(c);
             if(isSelected){

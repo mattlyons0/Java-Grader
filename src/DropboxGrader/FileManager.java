@@ -95,6 +95,8 @@ public class FileManager {
         return attributes.length;
     }
     public String getFileInfo(int fileNum,int attributeNum){
+        if(fileNum>=files.size())
+            return null; //wrong size when deleting files
         DbxFile file=files.get(fileNum);
         return getAttribute(file,fileNum,attributeNum);
     }
@@ -128,6 +130,9 @@ public class FileManager {
         tableData.refresh();
     }
     public DbxFile getFile(int x){
+        if(x>=files.size()){
+            return null; //thrown when deleting files
+        }
         return files.get(x);
     }
     public SpreadsheetGrader getGrader(){
@@ -135,5 +140,8 @@ public class FileManager {
     }
     public void setGrader(SpreadsheetGrader g){
         grader=g;
+    }
+    public void delete(DbxFile file){
+        files.remove(file);
     }
 }

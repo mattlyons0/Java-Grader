@@ -6,9 +6,14 @@
 
 package DropboxGrader;
 
+import com.google.gdata.client.sidewiki.SidewikiEntryQuery;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -20,8 +25,15 @@ import javax.swing.table.TableCellRenderer;
  * @author Matt
  */
 public class FileBrowser extends JTable{
-    public FileBrowser(FileBrowserData data){
+    public FileBrowser(FileBrowserData data,FileBrowserListener listener){
         super(data);
+        listener.setTable(this);
+        
+        setAutoCreateRowSorter(true);
+        getRowSorter().addRowSorterListener(listener);
+        initSort();
+        addMouseListener(listener);
+        
         initOrder();
         
         initColumnChangeListener();
@@ -48,5 +60,14 @@ public class FileBrowser extends JTable{
     }
     private void initColumnChangeListener(){
         getColumnModel().addColumnModelListener(new FileBrowserColumnModelListener(this));
+    }
+    private void initSort(){
+        RowSorter sorter=getRowSorter();
+        ArrayList<RowSorter.SortKey> keys=new ArrayList();
+        String order=Config.sortOrder;
+        String column=Config.sortColumn;
+        int col=DbxFile.safeStringToInt(column);
+        keys.add(new SortKey(col,SortOrder.valueOf(order)));
+        sorter.setSortKeys(keys);
     }
 }

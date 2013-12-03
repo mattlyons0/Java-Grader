@@ -320,7 +320,8 @@ public class DbxFile {
         return entry.name;
     }
     public void delete(){
-        searchForFilesToDelete(downloadedFile.getPath());
+        if(downloadedFile!=null)
+            searchForFilesToDelete(downloadedFile.getPath());
         try {
             client.delete(entry.path);
         } catch (DbxException ex) {

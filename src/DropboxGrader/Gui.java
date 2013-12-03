@@ -66,7 +66,7 @@ public class Gui extends JFrame implements ActionListener{
     private FileBrowserData fileBrowserData;
     private JTable fileBrowserTable;
     private JScrollPane fileBrowserScroll;
-    private FileBrowserMouseListener fileBrowserListener;
+    private FileBrowserListener fileBrowserListener;
     private GridBagConstraints constraints;
     private JButton refreshButton;
     private JButton deleteButton;
@@ -159,6 +159,10 @@ public class Gui extends JFrame implements ActionListener{
             remove(configPanel);
             configPanel=null;
         }
+        if(fileBrowserPanel!=null){
+            remove(fileBrowserPanel);
+            fileBrowserPanel=null;
+        }
         
         fileBrowserPanel=new JPanel();
         fileBrowserPanel.setLayout(new GridBagLayout());
@@ -167,10 +171,9 @@ public class Gui extends JFrame implements ActionListener{
         setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         fileBrowserData=new FileBrowserData(fileManager);
         fileManager.setTableData(fileBrowserData);
-        fileBrowserTable=new FileBrowser(fileBrowserData);
+        fileBrowserListener=new FileBrowserListener(this);
+        fileBrowserTable=new FileBrowser(fileBrowserData,fileBrowserListener);
         fileBrowserScroll=new JScrollPane(fileBrowserTable);
-        fileBrowserListener=new FileBrowserMouseListener(fileBrowserTable,this);
-        fileBrowserTable.addMouseListener(fileBrowserListener);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         fileBrowserScroll.setBounds(0, 0, screenSize.width,screenSize.height);
         
@@ -239,6 +242,10 @@ public class Gui extends JFrame implements ActionListener{
         revalidate();
     }
     public void setupGraderGui(){
+        if(gradeWriter==null){
+            statusText.setText("Grader not yet initialized, try again in a few seconds.");
+            return;
+        }
         if(fileBrowserPanel!=null){
             remove(fileBrowserPanel);
             fileBrowserPanel=null;
@@ -531,8 +538,9 @@ public class Gui extends JFrame implements ActionListener{
             }
             ArrayList<Integer> select=new ArrayList();
             for(int x=0;x<selected.length;x++){
-                select.add(selected[x]);
+                select.add(fileBrowserTable.convertRowIndexToModel(selected[x]));
             }
+            boolean deleted=false;
             for(int x=0;x<select.size();x++){ //check if there is a grade for assignment
                 int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
@@ -544,10 +552,14 @@ public class Gui extends JFrame implements ActionListener{
                     x--;
                 }
                 else{
+                    deleted=true;
                     statusText.setText("Deleted.");
+                    workerThread.delete(select);
+                    fileManager.delete(fileManager.getFile(select.get(x)));
                 }
             }
-            workerThread.delete(select);
+            if(deleted)
+                setupFileBrowserGui();
         }
         else if(e.getSource().equals(configButton)){
             setupConfigGui();
@@ -560,9 +572,9 @@ public class Gui extends JFrame implements ActionListener{
             }
             selectedFiles=new ArrayList();
             for(int x=0;x<selected.length;x++){
-                selectedFiles.add(selected[x]);
+                selectedFiles.add(fileBrowserTable.convertRowIndexToModel(selected[x]));
+                previousSelection.add(selected[x]);
             }
-            previousSelection.addAll(selectedFiles);
             
             workerThread.download(selectedFiles,true);
             

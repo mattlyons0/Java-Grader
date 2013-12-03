@@ -118,6 +118,7 @@ public class SpreadsheetGrader {
             statusLabel.setText("Assignment "+assignment+" is not declared in the spreadsheet with a cell for the grade and a cell for the comments.");
         }
         else{
+            boolean overwrite=false;
             List<ListEntry> entries=feed.getEntries();
             if(entries.isEmpty()){
                 statusLabel.setText("No rows were found on the spreadsheet.");
@@ -129,10 +130,14 @@ public class SpreadsheetGrader {
                     if(currentComment==null)
                         currentComment="";
                     if(currentVal!=null){
-                        statusLabel.setText("Grade of "+currentVal+", "+currentComment+" has been overwritten.");
+                        statusLabel.setText("Grade of "+currentVal+", "+currentComment+" has been changed and set as an resubmit.");
+                        overwrite=true;
                     }
                     else{
                         statusLabel.setText("Graded");
+                    }
+                    if(overwrite){
+                        comment+=" Resubmitted";
                     }
                     //System.out.println("Found match with "+name+" at "+row.getTitle().getPlainText());
                     row.getCustomElements().setValueLocal(columnName, grade);
