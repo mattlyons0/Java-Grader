@@ -630,7 +630,6 @@ public class Gui extends JFrame implements ActionListener{
             actionPerformed(new ActionEvent(recordGradeButton,0,null));
         }
         else if(e.getSource().equals(backToBrowser)){
-            setupFileBrowserGui();
             Config.spreadsheetName=spreadsheetName.getText();
             Config.dropboxFolder=dropboxFolder.getText();
             Config.dropboxPeriod=dropboxPeriod.getText();
@@ -641,6 +640,10 @@ public class Gui extends JFrame implements ActionListener{
             }
             Config.autoRun=autoRun.isSelected();
             Config.writeConfig();
+            
+            fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
+            fileManager.setGrader(gradeWriter);
+            setupFileBrowserGui();
         }
     }
     public void proccessEnded(){
