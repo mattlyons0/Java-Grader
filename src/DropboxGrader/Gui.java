@@ -275,7 +275,7 @@ public class Gui extends JFrame implements ActionListener{
         gradingPanel=new JPanel();
         gradingPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
-        JSplitPane
+        //JSplitPane
         javaCode=new JavaCodeBrowser(file);
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);

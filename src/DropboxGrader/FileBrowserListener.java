@@ -113,6 +113,9 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
                 file.rename(choice);
                 gui.setupFileBrowserGui();
             }
+            else{
+                table.setRowSelectionAllowed(true);
+            }
         }
         else if(e.getActionCommand().contains("ReDownload")){
             int f=Integer.parseInt(e.getActionCommand().replace("ReDownload", ""));
