@@ -27,6 +27,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
+import net.lingala.zip4j.exception.ZipException;
 
 /**
  *
@@ -54,7 +55,9 @@ public class DbxFile {
     }
     private void checkExists(){ //ties reference if it is already downloaded
         String zipPath=fileManager.getDownloadFolder()+"/"+entry.name;
-        zipPath=zipPath.substring(0,zipPath.indexOf('.'));
+        int dotIndex=zipPath.indexOf('.');
+        if(dotIndex!=-1)
+            zipPath=zipPath.substring(0,dotIndex);
         File file=new File(zipPath);
         if(file.exists()){ //could lead to different copy locally than remotely, but files arent supposed to be overwritten anyway.
             setFile(file);
@@ -75,8 +78,11 @@ public class DbxFile {
             new File(fileManager.getDownloadFolder()+"/"+entry.name).delete();
             setFile(file);
             return file;
-        } catch (DbxException | IOException ex) {
-            Logger.getLogger(DbxFile.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DbxException | IOException |ZipException ex) {
+            System.err.println("Exception when unzipping "+ex);
+            if(ex instanceof ZipException){
+                GuiHelper.alertDialog("File cannot be unzipped, it is either zipped incorrectly or named with the wrong extension.");
+            }
             return null;
         }
     }
@@ -92,31 +98,37 @@ public class DbxFile {
     public String getAssignmentName(int row,int col){
         String s=entry.name;
         if(!s.endsWith(".zip")){
-            return "Error file doesn't end with .zip!";
+            return "Error \""+entry.name+"\" doesn't end with .zip!";
         }
         String[] splits=s.split("_");
         if(splits.length<4){
             return errorMsg;
         }
-        if(splits[3].length()<4){
-            if(!isNotFirstYear(splits[2])&&splits.length==5){
-                fileManager.getTableData().setColorAt(Color.YELLOW, new CellLocation(fileManager.getAttributes()[col],row));
-                return splits[3]+" (Resubmit)";
-            }
-            else if(splits.length==5){
-                fileManager.getTableData().setColorAt(Color.CYAN.darker(), new CellLocation(fileManager.getAttributes()[col],row));
-                int year=safeStringToInt(splits[2]);
-                return splits[4].substring(0, splits[4].length()-4)+" (Year "+year+")";
-            }
-            else{
-                return errorMsg;
-            }
+        if(!isNotFirstYear(splits[2])&&splits.length==5||isCorrection(splits)){
+            fileManager.getTableData().setColorAt(Color.YELLOW, new CellLocation(fileManager.getAttributes()[col],row));
+            return splits[3]+" (Resubmit)";
         }
-        return splits[3].substring(0, splits[3].length()-4);//assignment name is 4th underscore, .zip is the last 4 characters
+        else if(splits.length==5){
+            fileManager.getTableData().setColorAt(Color.CYAN.darker(), new CellLocation(fileManager.getAttributes()[col],row));
+            int year=safeStringToInt(splits[2]);
+            return splits[4].substring(0, splits[4].length()-4)+" (Year "+year+")";
+        }
+        else{
+            return splits[3].substring(0, splits[3].length()-4);//assignment name is 4th underscore, .zip is the last 4 characters
+        }
     }
     private boolean isNotFirstYear(String s){
         if(s.contains("Yr")||s.contains("yr")||s.contains("YR")||s.contains("Year")||s.contains("year")||s.contains("YEAR")){
             return true;
+        }
+        return false;
+    }
+    private boolean isCorrection(String[] assignment){
+        if(assignment.length==5){
+            if(assignment[5].contains("Correction")||assignment[5].contains("CORRECTION")||assignment[5].contains("correction")||
+                    assignment[5].contains("Resubmit")||assignment[5].contains("resubmit")||assignment[5].contains("RESUBMIT")){
+                return true;
+            }
         }
         return false;
     }
@@ -131,7 +143,7 @@ public class DbxFile {
     public String getSubmitDate(boolean checkRevisions,int row,int col){
         if(checkRevisions&&entry.lastModified.after(entry.clientMtime)&&row>-1&&col>-1){
             fileManager.getTableData().setColorAt(new Color(230,120,120), new CellLocation(fileManager.getAttributes()[col],row));
-            return "Modified "+entry.lastModified+" Originally "+entry.clientMtime;
+            return "Originally "+entry.clientMtime+" Modified "+entry.lastModified;
         }
         return entry.clientMtime.toString();
     }
@@ -181,7 +193,7 @@ public class DbxFile {
         }
     }
     private void searchJavaFiles(){
-        javaFiles=searchForFiles(downloadedFile.getPath(),".java");
+        javaFiles=searchForJavaFiles(downloadedFile.getPath(),".java");
     }
     /**
      * Recursive file search
@@ -189,7 +201,7 @@ public class DbxFile {
      * @param fileType files which end in this will be returned.
      * @return an array of files with specified ending characters.
      */
-    private JavaFile[] searchForFiles(String directory,String fileType){
+    private JavaFile[] searchForJavaFiles(String directory,String fileType){
         //System.out.println("Searching in "+directory);
         ArrayList<File> files=new ArrayList();
         ArrayList<File> filesWithType;
@@ -209,12 +221,44 @@ public class DbxFile {
             }
             else if(f.isDirectory()){
                 if(!f.getName().endsWith(".git")){ //skip git folder for performance
-                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName(),fileType)));
+                    filesWithType.addAll(Arrays.asList(searchForJavaFiles(directory+"\\"+f.getName(),fileType)));
                 }
             }
         }
         
         JavaFile[] fileArr=new JavaFile[filesWithType.size()];
+        return filesWithType.toArray(fileArr);
+    }
+    public String getFilesDownloaded(){
+        String zipPath=entry.name;
+        zipPath=zipPath.substring(0,zipPath.indexOf('.'));
+        File[] files=searchForFiles(fileManager.getDownloadFolder()+"\\"+zipPath);
+        String str="";
+        for(File f:files){
+            str+=f.getName()+", ";
+        }
+        return str;
+    }
+    private File[] searchForFiles(String directory){
+        ArrayList<File> files=new ArrayList();
+        ArrayList<File> filesWithType;
+        filesWithType=new ArrayList();
+        File folder=new File(directory);
+        if(folder.listFiles()!=null)
+            files.addAll(Arrays.asList(folder.listFiles()));
+        
+        for(int x=0;x<files.size();x++){
+            File f=files.get(x);
+            if(f.isFile()){
+                filesWithType.add(f);
+            }
+            else if(f.isDirectory()){
+                if(!f.getName().endsWith(".git")){ //skip git folder for performance
+                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName())));
+                }
+            }
+        }
+        File[] fileArr=new File[(filesWithType.size())];
         return filesWithType.toArray(fileArr);
     }
     private String readCode(JavaFile f){
@@ -286,6 +330,9 @@ public class DbxFile {
         return javaFiles;
     }
     public String[] getJavaCode(){
+        if(javaFiles==null){
+            return  null;
+        }
         String[] code=new String[javaFiles.length];
         for(int x=0;x<javaFiles.length;x++){
             code[x]=readCode(javaFiles[x]);
@@ -355,15 +402,30 @@ public class DbxFile {
         String[] split=directory.split("/");
         int len=split[split.length-1].length();
         directory=directory.substring(0, directory.length()-len);
+        boolean moved=false;
         try {
             client.move(entry.path, directory+newName);
-        } catch (DbxException ex) {
-            Logger.getLogger(DbxFile.class.getName()).log(Level.SEVERE, null, ex);
+            moved=true;
+        } catch (DbxException ex) { //try again with a number after the name
+            int num=1;
+            int dotIndex=getLastIndex(newName,'.');
+            if(Character.isDigit(newName.charAt(dotIndex-1)))
+                num=newName.charAt(dotIndex-1);
+            rename(newName.substring(0, dotIndex)+num+newName.substring(dotIndex, newName.length()));
         }
         if(downloadedFile!=null){
             searchForFilesToDelete(downloadedFile.getPath());
             downloadedFile=null;
         }
+        fileManager.getGui().refreshTable();
+    }
+    public static int getLastIndex(String s,char c){
+        for(int x=s.length()-1;x>0;x--){
+            if(s.charAt(x)==c){
+                return x;
+            }
+        }
+        return -1;
     }
     @Override
     public String toString(){

@@ -127,7 +127,8 @@ public class FileManager {
         fileStartDelim=Config.dropboxPeriod;
         
         init();
-        tableData.refresh();
+        if(tableData!=null)
+            tableData.refresh();
     }
     public DbxFile getFile(int x){
         if(x>=files.size()){
@@ -143,5 +144,8 @@ public class FileManager {
     }
     public void delete(DbxFile file){
         files.remove(file);
+    }
+    public Gui getGui(){
+        return gui;
     }
 }

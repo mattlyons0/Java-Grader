@@ -45,6 +45,8 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
     }
     @Override
     public void mouseClicked(MouseEvent e) {
+        if(!table.getRowSelectionAllowed())
+            return;
         if(e.getButton()==MouseEvent.BUTTON1){
             long currentClick=System.currentTimeMillis();
             if(currentClick-lastClick<=DOUBLECLICKDELAY&&lastRow==table.convertRowIndexToModel(table.getSelectedRow())){
@@ -65,6 +67,8 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        if(!table.getRowSelectionAllowed())
+            return;
         if(e.getButton()==MouseEvent.BUTTON3){
             int r = table.rowAtPoint(e.getPoint());
             if (r >= 0 && r < table.getRowCount()) {
@@ -77,7 +81,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             if (rowindex < 0)
                 return;
             if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
-                JPopupMenu popup = createRightClickMenu(r);
+                JPopupMenu popup = createRightClickMenu(rowindex);
                 popup.show(e.getComponent(), e.getX(), e.getY());
             }
         }
@@ -93,7 +97,10 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(!table.getRowSelectionAllowed())
+            return;
         if(e.getActionCommand().contains("Rename")){
+            table.setRowSelectionAllowed(false);
             int f=Integer.parseInt(e.getActionCommand().replace("Rename", ""));
             DbxFile file=gui.getManager().getFile(f);
             String choice=JOptionPane.showInputDialog("What would you like to name the file?",file.getFileName());

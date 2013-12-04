@@ -15,14 +15,10 @@ import net.lingala.zip4j.exception.ZipException;
  * @author http://stackoverflow.com/questions/981578/how-to-unzip-files-recursively-in-java
  */
 public class Unzip {
-    public static void unzip(String source, String dest){
-        dest+=source.substring(0, source.length()-4);
-    try {
-         ZipFile zipFile = new ZipFile(source);
-         zipFile.extractAll(dest);
-    } catch (ZipException e) {
-        e.printStackTrace();
-    }
+    public static void unzip(String source, String dest) throws ZipException{
+     dest+=source.substring(0, source.length()-4);
+     ZipFile zipFile = new ZipFile(source);
+     zipFile.extractAll(dest);
 
 }
 }

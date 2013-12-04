@@ -22,11 +22,13 @@ public class WorkerThread implements Runnable{
     private boolean graderAfter;
     private DbxFile fileToRun;
     private int timesToRun;
+    private boolean refreshNeeded;
     public WorkerThread(FileManager man,Gui gui){
         manager=man;
         this.gui=gui;
         fileQueue=new ArrayList();
         deleteQueue=new ArrayList();
+        refreshNeeded=true;
     }
     @Override
     public void run() {
@@ -46,7 +48,8 @@ public class WorkerThread implements Runnable{
                 }
             }
             for(DbxFile f:deleteQueue){
-                f.delete();
+                if(f!=null)
+                    f.delete();
             }
             if(!deleteQueue.isEmpty()){
                 deleteQueue.clear();
@@ -60,6 +63,12 @@ public class WorkerThread implements Runnable{
                 fileToRun.run(gui.getRunner(), timesToRun);
                 fileToRun=null;
                 timesToRun=0;
+            }
+            if(refreshNeeded){
+                manager.refresh();
+                gui.refreshFinished();
+                
+                refreshNeeded=false;
             }
             try {
                 Thread.sleep(100);
@@ -100,6 +109,9 @@ public class WorkerThread implements Runnable{
             return;
         }
         deleteQueue.add(manager.getFile(file));
+    }
+    public void refreshData(){
+        refreshNeeded=true;
     }
     
 }

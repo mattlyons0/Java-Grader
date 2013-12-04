@@ -136,8 +136,11 @@ public class SpreadsheetGrader {
                     else{
                         statusLabel.setText("Graded");
                     }
-                    if(overwrite){
+                    if(overwrite&&!comment.contains(" Resubmitted")){
                         comment+=" Resubmitted";
+                    }
+                    if(!grade.contains("`")){
+                        grade+="`";
                     }
                     //System.out.println("Found match with "+name+" at "+row.getTitle().getPlainText());
                     row.getCustomElements().setValueLocal(columnName, grade);

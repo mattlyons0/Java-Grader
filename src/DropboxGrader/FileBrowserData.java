@@ -30,7 +30,11 @@ public class FileBrowserData extends AbstractTableModel{
     }
     @Override
     public int getRowCount() {
-        return manager.getNumFiles();
+        int count=manager.getNumFiles();
+        if(count==0){
+            count=1;
+        }
+        return count;
     }
 
     @Override
@@ -40,7 +44,10 @@ public class FileBrowserData extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return manager.getFileInfo(rowIndex, columnIndex);
+        String value=manager.getFileInfo(rowIndex, columnIndex);
+        if(value==null)
+            value="No files found.";
+        return value;
     }
     @Override
     public String getColumnName(int col){
@@ -57,11 +64,5 @@ public class FileBrowserData extends AbstractTableModel{
     }
     public void refresh(){
         cellColors.clear();
-    }
-
-    @Override
-    public void fireTableRowsUpdated(int firstRow, int lastRow) {
-        super.fireTableRowsUpdated(firstRow, lastRow);
-        System.out.println("Rows updated "+firstRow+"-"+lastRow);
     }    
 }

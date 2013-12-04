@@ -40,8 +40,10 @@ public class JavaCodeBrowser extends Container{
         DefaultSyntaxKit.initKit();
         setLayout(new CardLayout(10,5));
         tabPane=new JTabbedPane();
-        int numFiles=file.getJavaFiles().length;
         File[] files=file.getJavaFiles();
+        int numFiles=0;
+        if(files!=null)
+            numFiles=file.getJavaFiles().length;
         String[] javaCode=file.getJavaCode();
         browserArea=new JEditorPane[numFiles];
         fileWindows=new JPanel[numFiles];

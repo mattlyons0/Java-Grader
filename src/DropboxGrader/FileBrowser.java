@@ -30,6 +30,7 @@ public class FileBrowser extends JTable{
         listener.setTable(this);
         
         setAutoCreateRowSorter(true);
+        setUpdateSelectionOnSort(true);
         getRowSorter().addRowSorterListener(listener);
         initSort();
         addMouseListener(listener);

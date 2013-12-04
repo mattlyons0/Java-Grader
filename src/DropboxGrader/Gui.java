@@ -134,15 +134,13 @@ public class Gui extends JFrame implements ActionListener{
         googSession=new GoogSession();
         gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
         fileManager.setGrader(gradeWriter);
-        refreshTable();
+        setupFileBrowserGui();
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
             fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
             workerThread=new WorkerThread(fileManager,this);
             new Thread(workerThread).start();
-            
-            setupFileBrowserGui();
         }
     }
     
@@ -181,7 +179,8 @@ public class Gui extends JFrame implements ActionListener{
         refreshButton.addActionListener(this);
         deleteButton=new JButton("Delete");
         deleteButton.addActionListener(this);
-        statusText=new JLabel("");
+        if(statusText==null)
+            statusText=new JLabel("");
         configButton=new JButton("Settings");
         configButton.addActionListener(this);
         progressBar=new JProgressBar(0,0,100);
@@ -234,11 +233,13 @@ public class Gui extends JFrame implements ActionListener{
         add(fileBrowserPanel,constraints);
         
         if(!previousSelection.isEmpty()){
-            fileBrowserTable.setRowSelectionInterval(previousSelection.get(0),previousSelection.get(previousSelection.size()-1));
+            try{
+                fileBrowserTable.setRowSelectionInterval(previousSelection.get(0),previousSelection.get(previousSelection.size()-1));
+            } catch(IllegalArgumentException ex){
+                //whatever, we wont remember the row then.
+            }
             previousSelection.clear();
         }
-        
-        refreshTable();
         revalidate();
     }
     public void setupGraderGui(){
@@ -254,6 +255,11 @@ public class Gui extends JFrame implements ActionListener{
             gradingPanel=null;
         }
         DbxFile file=fileManager.getFile(selectedFiles.get(0));
+        if(file==null){
+            setupFileBrowserGui();
+            statusText.setText("Invalid File");
+            return;
+        }
         gradeStatus=new JLabel("");
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
         String[] grade=null;
@@ -273,6 +279,9 @@ public class Gui extends JFrame implements ActionListener{
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);
         fileInfoLabel=new JLabel(file.toString());
+        if(file.getJavaFiles()==null||file.getJavaFiles().length==0){
+            fileInfoLabel.setText("Zip contains no .java files. Files Found: "+file.getFilesDownloaded());
+        }
         runButton=new JButton("Run");
         if(Config.autoRun)
             runButton.setText("Stop Running");
@@ -483,7 +492,6 @@ public class Gui extends JFrame implements ActionListener{
             remove(keyField);
         if(submitButton!=null)
             remove(submitButton);
-        repaint();
         createSession();
         initGoogSession();
     }
@@ -497,16 +505,29 @@ public class Gui extends JFrame implements ActionListener{
         progressBar.setValue(val);
     }
     public void repaintTable(){
-        fileBrowserTable.repaint();
+        if(fileBrowserTable!=null){
+            fileBrowserTable.revalidate();
+            fileBrowserTable.repaint();
+        }
     }
     public void refreshTable(){
-        statusText.setText("Refreshing File Listing...");
+        if(statusText!=null)
+            statusText.setText("Refreshing File Listings...");
+        if(fileBrowserTable!=null){
+            fileBrowserTable.setRowSelectionAllowed(false);
+        }
         
-        fileManager.refresh();
-        fileBrowserTable.revalidate();
+        if(workerThread!=null)
+            workerThread.refreshData();
+    }
+    public void refreshFinished(){
+        if(fileBrowserTable!=null){
+            fileBrowserTable.setRowSelectionAllowed(true);
+        }
         repaintTable();
         
-        statusText.setText("");
+        if(statusText!=null)
+            statusText.setText("");
     }
     public void setStatus(String status){
         if(this.status!=null){
@@ -546,6 +567,7 @@ public class Gui extends JFrame implements ActionListener{
                 select.add(fileBrowserTable.convertRowIndexToModel(selected[x]));
             }
             boolean deleted=false;
+            boolean kept=false;
             for(int x=0;x<select.size();x++){ //check if there is a grade for assignment
                 int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
@@ -553,25 +575,37 @@ public class Gui extends JFrame implements ActionListener{
                     int assignment=Integer.parseInt(f.getAssignmentNumber());
                     boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment,new JLabel());
                     if(!written){
-                        statusText.setText("No grade recorded for "+fileManager.getFile(i)+", it will not be deleted.");
+                        kept=true;
                         select.remove(x);
                         x--;
                     }
                     else{
                         deleted=true;
-                        statusText.setText("Deleted.");
                         workerThread.delete(select.get(x));
-                        fileManager.delete(fileManager.getFile(select.get(x)));
                     }
                 }
             }
+            for(int x=0;x<select.size();x++){
+                fileManager.delete(fileManager.getFile(select.get(x)));
+            }
             if(deleted)
                 setupFileBrowserGui();
+            if(deleted&&kept){
+                statusText.setText("Deleted some files, kept other files becuase they weren't graded.");
+            }
+            else if(deleted){
+                statusText.setText("Deleted.");
+            }
+            else
+                statusText.setText("Kept all files becuase none of them were graded.");
         }
         else if(e.getSource().equals(configButton)){
             setupConfigGui();
         }
         else if(e.getSource().equals(gradeButton)){
+            if(!fileBrowserTable.getRowSelectionAllowed()){
+                return;
+            }
             int[] selected=fileBrowserTable.getSelectedRows();
             if(selected.length==0){
                 statusText.setText("You must select at least one assignment to grade.");
