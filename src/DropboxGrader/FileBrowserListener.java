@@ -37,10 +37,15 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
     private JPopupMenu createRightClickMenu(int row){
         JPopupMenu m=new JPopupMenu();
         JMenuItem m1=new JMenuItem("Rename");
-        gui.getManager().getFile(row);
+        JMenuItem m2=new JMenuItem("ReDownload");
         m1.setActionCommand("Rename"+row);
         m1.addActionListener(this);
+        m2.setActionCommand("ReDownload"+row);
+        m2.addActionListener(this);
         m.add(m1);
+        if(gui.getManager().getFile(row).isDownloaded()){
+            m.add(m2);
+        }
         return m;
     }
     @Override
@@ -108,6 +113,11 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
                 file.rename(choice);
                 gui.setupFileBrowserGui();
             }
+        }
+        else if(e.getActionCommand().contains("ReDownload")){
+            int f=Integer.parseInt(e.getActionCommand().replace("ReDownload", ""));
+            DbxFile file=gui.getManager().getFile(f);
+            file.forceDownload();
         }
     }
 

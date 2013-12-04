@@ -221,7 +221,11 @@ public class SpreadsheetGrader {
                     String currentComment=row.getCustomElements().getValue(columnComment);
                     if(currentVal!=null){
                         entries[0]=currentVal;
+                        if(entries[0]!=null)
+                            entries[0]=entries[0].replace("`","");
                         entries[1]=currentComment;
+                        if(entries[1]!=null)
+                            entries[1]=entries[1].replace("Resubmitted", "Resubmit");
                         return entries;
                     }
                 }

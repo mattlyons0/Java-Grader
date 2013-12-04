@@ -63,11 +63,20 @@ public class DbxFile {
             setFile(file);
         }
     }
+    public File forceDownload(){
+        return download(true);
+    }
     public File download(){
+        if(getFilesDownloaded().length()==0){
+            return download(true);
+        }
+        return download(false);
+    }
+    private File download(boolean force){
         String zipPath=fileManager.getDownloadFolder()+"/"+entry.name;
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
         File file=new File(zipPath);
-        if(file.exists()){
+        if(!force&&file.exists()){
             return file;
         }
         try {
@@ -81,7 +90,7 @@ public class DbxFile {
         } catch (DbxException | IOException |ZipException ex) {
             System.err.println("Exception when unzipping "+ex);
             if(ex instanceof ZipException){
-                GuiHelper.alertDialog("File cannot be unzipped, it is either zipped incorrectly or named with the wrong extension.");
+                GuiHelper.alertDialog("File cannot be unzipped, it is either zipped incorrectly or named with the wrong extension.\nOr dropbox is down.");
             }
             return null;
         }
@@ -433,7 +442,12 @@ public class DbxFile {
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
         return zipPath+" submitted on "+getSubmitDate(true,-1,-1);
     }
-
+    public boolean isDownloaded(){
+        if(downloadedFile!=null){
+            return true;
+        }
+        return false;
+    }
     @Override
     public int hashCode() {
         int hash = 5;
