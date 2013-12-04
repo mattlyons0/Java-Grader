@@ -34,6 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -274,7 +275,7 @@ public class Gui extends JFrame implements ActionListener{
         gradingPanel=new JPanel();
         gradingPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
-        
+        JSplitPane
         javaCode=new JavaCodeBrowser(file);
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);
