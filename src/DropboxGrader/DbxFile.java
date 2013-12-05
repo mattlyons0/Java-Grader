@@ -129,8 +129,14 @@ public class DbxFile {
             int year=safeStringToInt(splits[2]);
             return splits[4].substring(0, splits[4].length()-4)+" (Year "+year+")";
         }
-        else{
+        else if(splits.length==4&&splits[3].length()>4){
             return splits[3].substring(0, splits[3].length()-4);//assignment name is 4th underscore, .zip is the last 4 characters
+        }
+        else if(splits.length>3){
+            return splits[3];
+        }
+        else{
+            return errorMsg;
         }
     }
     private boolean isNotFirstYear(String s){
