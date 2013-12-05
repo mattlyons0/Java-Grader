@@ -50,6 +50,13 @@ public class DbxFile {
         if(entry.name.contains(".zip.zip")){
             rename(entry.name.substring(0,entry.name.length()-4)); //get rid of second zip
         }
+        if(entry.name.indexOf(".")!=entry.name.length()-4){
+            String newName=entry.name.replace(".", "");
+            if(newName.contains("zip"))
+                newName=newName.substring(0, newName.length()-3);
+            newName+=".zip";
+            rename(newName);
+        }
         
         checkExists();
     }
@@ -133,7 +140,7 @@ public class DbxFile {
         return false;
     }
     private boolean isCorrection(String[] assignment){
-        if(assignment.length==5){
+        if(assignment.length==6){
             if(assignment[5].contains("Correction")||assignment[5].contains("CORRECTION")||assignment[5].contains("correction")||
                     assignment[5].contains("Resubmit")||assignment[5].contains("resubmit")||assignment[5].contains("RESUBMIT")){
                 return true;

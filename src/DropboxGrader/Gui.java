@@ -94,6 +94,7 @@ public class Gui extends JFrame implements ActionListener{
     private JTextField gradeComment;
     private JButton recordGradeButton;
     private JLabel gradeStatus;
+    private JSplitPane graderDivider;
     
     //Config Instance Vars
     private JPanel configPanel;
@@ -112,6 +113,8 @@ public class Gui extends JFrame implements ActionListener{
         
         listener=new GuiListener(this);
         addWindowListener(listener);
+        getContentPane().addComponentListener(listener);
+        addWindowStateListener(listener);
         
         init();
     }
@@ -149,6 +152,7 @@ public class Gui extends JFrame implements ActionListener{
         if(gradingPanel!=null){
             remove(gradingPanel);
             gradingPanel=null;
+            Config.dividerLocation=graderDivider.getDividerLocation();
         }
         if(status!=null){
             remove(status);
@@ -272,17 +276,38 @@ public class Gui extends JFrame implements ActionListener{
             grade[0]="";
             grade[1]="";
         }
+        javaCode=new JavaCodeBrowser(file);
+        javaCode.setMinimumSize(new Dimension(150,150));
+        if(codeOutputArea==null)
+            codeOutputArea=new JTerminal(this);
+        else
+            codeOutputArea.setText("");
+        codeOutputArea.setMinimumSize(new Dimension(100,100));
+        if(codeOutputScroll==null)
+            codeOutputScroll=new JScrollPane(codeOutputArea);
+        if(runner==null)
+            runner=new JavaRunner(codeOutputArea,this,javaCode);   
+        listener.setRunner(runner);
+        
         gradingPanel=new JPanel();
         gradingPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
-        //JSplitPane
-        javaCode=new JavaCodeBrowser(file);
+        JPanel topBar=new JPanel();
+        topBar.setLayout(new GridBagLayout());
+        if(graderDivider==null){
+            graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,javaCode,codeOutputScroll);
+            graderDivider.setDividerLocation(Config.dividerLocation);
+        }
+        JPanel navPanel=new JPanel();
+        navPanel.setLayout(new FlowLayout());
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);
         fileInfoLabel=new JLabel(file.toString());
         if(file.getJavaFiles()==null||file.getJavaFiles().length==0){
-            fileInfoLabel.setText("Zip contains no .java files. Files Found: "+file.getFilesDownloaded());
+            fileInfoLabel.setText("Zip: "+file.getFileName()+" contains no .java files. Files Found: "+file.getFilesDownloaded());
         }
+        navPanel.add(backButton);
+        navPanel.add(fileInfoLabel);
         runButton=new JButton("Run");
         if(Config.autoRun)
             runButton.setText("Stop Running");
@@ -294,6 +319,9 @@ public class Gui extends JFrame implements ActionListener{
         iterationsField.setHorizontalAlignment(JTextField.CENTER);
         runPanel=new JPanel();
         runPanel.setLayout(new GridBagLayout());
+        runPanel.setMinimumSize(new Dimension(100,25));
+        
+        
         GridBagConstraints cons=new GridBagConstraints();
         cons.weightx=1;
         runPanel.add(runButton,cons);
@@ -331,49 +359,37 @@ public class Gui extends JFrame implements ActionListener{
         gradeButtonPanel.add(gradeStatus);
         gradeButtonPanel.add(recordGradeButton);
         
-        if(codeOutputArea==null)
-            codeOutputArea=new JTerminal(this);
-        else
-            codeOutputArea.setText("");
-        if(codeOutputScroll==null)
-            codeOutputScroll=new JScrollPane(codeOutputArea);
-        if(runner==null)
-            runner=new JavaRunner(codeOutputArea,this,javaCode);   
-        listener.setRunner(runner);
+        cons.fill=GridBagConstraints.NONE;
+        cons.anchor=GridBagConstraints.WEST;
+        cons.gridx=0;
+        cons.gridy=0;
+        cons.gridheight=1;
+        cons.gridwidth=2;
+        topBar.add(navPanel,cons);
+        cons.gridx=2;
+        cons.gridwidth=1;
+        cons.anchor=GridBagConstraints.EAST;
+        topBar.add(runPanel,cons);
         
         constraints.anchor=GridBagConstraints.WEST;
-        constraints.fill=GridBagConstraints.NONE;
+        constraints.fill=GridBagConstraints.BOTH;
+        constraints.gridx=0;
+        constraints.gridy=0;
         constraints.gridheight=1;
-        constraints.gridwidth=1;
+        constraints.gridwidth=4;
         //constraints.weightx=0.33;
         constraints.weighty=0.01;
-        gradingPanel.add(backButton,constraints);
+        gradingPanel.add(topBar,constraints);
+        
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.fill=GridBagConstraints.BOTH;
-        constraints.gridx=1;
-        constraints.gridwidth=1;
-        //constraints.weightx=0.33;
-        gradingPanel.add(fileInfoLabel,constraints);
-        constraints.gridwidth=1;
-        //constraints.weightx=0.33;
-        constraints.gridx=2;
-        constraints.anchor=GridBagConstraints.EAST;
-        constraints.fill=GridBagConstraints.NONE;
-        gradingPanel.add(runPanel,constraints);
-        
-        constraints.fill=GridBagConstraints.BOTH;
         constraints.gridheight=1;
-        constraints.gridwidth=2;
+        constraints.gridwidth=4;
         constraints.gridx=0;
         constraints.gridy=1;
-        constraints.weightx=0.66;
+        //constraints.weightx=0.66;
         constraints.weighty=0.98;
-        gradingPanel.add(javaCode,constraints);
-        
-        constraints.gridx=2;
-        constraints.weightx=0.33;
-        constraints.gridwidth=1;
-        gradingPanel.add(codeOutputScroll,constraints);
+        gradingPanel.add(graderDivider,constraints);
         
         constraints.fill=GridBagConstraints.NONE;
         constraints.anchor=GridBagConstraints.WEST;
@@ -700,5 +716,9 @@ public class Gui extends JFrame implements ActionListener{
     }
     public FileManager getManager(){
         return fileManager;
+    }
+    public void isClosing(){
+        if(graderDivider!=null)
+            Config.dividerLocation=graderDivider.getDividerLocation();
     }
 }

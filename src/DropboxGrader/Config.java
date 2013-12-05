@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import java.awt.Toolkit;
 import java.io.File;
 
 /**
@@ -13,9 +14,9 @@ import java.io.File;
 public class Config {
     public static final File configFile=new File("config.cfg");
     //Preinit
-    public static String spreadsheetName="APCS PERIOD 4 ASSIGNMENTS";
+    public static String spreadsheetName="APCS Period 1 Assignments";
     public static String dropboxFolder="DROPitTOme";
-    public static String dropboxPeriod="P2";
+    public static String dropboxPeriod="P1";
     //FileBrowser
     public static String columnOrder="0,1,2,3,4";
     public static String columnWidth="75,75,75,75,75"; //75=default
@@ -25,6 +26,7 @@ public class Config {
     //GradingPanel
     public static boolean autoRun=false;
     public static int runTimes=1;
+    public static int dividerLocation=Toolkit.getDefaultToolkit().getScreenSize().width*2/3; //2/3rds
     
     public static void readConfig(){
         if(!configFile.exists()){
@@ -41,7 +43,8 @@ public class Config {
             runTimes=Integer.parseInt(vars[6]);
             sortColumn=vars[7];
             sortOrder=vars[8];
-        } catch(ArrayIndexOutOfBoundsException ex){
+            dividerLocation=Integer.parseInt(vars[9]);
+        } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
     } 
@@ -55,6 +58,7 @@ public class Config {
         config=append(config,runTimes+"");
         config=append(config,sortColumn);
         config=append(config,sortOrder);
+        config=append(config,dividerLocation+"");
         
         DbxSession.writeToFile(configFile, config);
     }

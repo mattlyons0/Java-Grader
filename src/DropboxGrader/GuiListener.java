@@ -6,8 +6,11 @@
 
 package DropboxGrader;
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author Matt
  */
-public class GuiListener implements WindowListener{
+public class GuiListener implements WindowListener,ComponentListener,WindowStateListener{
     private Gui gui;
     private JavaRunner runner;
     public GuiListener(Gui gui){
@@ -56,6 +59,8 @@ public class GuiListener implements WindowListener{
             }
         }
         inputFolder.delete();
+        gui.isClosing();
+        
         Config.writeConfig();
     }
 
@@ -77,6 +82,30 @@ public class GuiListener implements WindowListener{
 
     @Override
     public void windowDeactivated(WindowEvent e) {
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        //gui.resized();
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void windowStateChanged(WindowEvent e) {
     }
     
 }
