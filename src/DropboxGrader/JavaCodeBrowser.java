@@ -70,6 +70,9 @@ public class JavaCodeBrowser extends Container{
     }
     public void saveFile(){
         JavaFile[] files=file.getJavaFiles();
+        if(files==null){
+            return;
+        }
         for(int x=0;x<files.length;x++){
             String code=browserArea[x].getText();
             files[x].changeCode(code);
