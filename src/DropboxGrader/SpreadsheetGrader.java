@@ -72,7 +72,9 @@ public class SpreadsheetGrader {
     private void initAssignmentNums(){
         assignmentMap=new HashMap();
         commentsMap=new HashMap();
-        
+        if(feed==null){
+            return;
+        }
         List<ListEntry> entries=feed.getEntries();
         ListEntry row=entries.get(0);
         int lastAssignment=-1;
