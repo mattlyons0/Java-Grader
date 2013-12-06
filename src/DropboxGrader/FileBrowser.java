@@ -71,4 +71,15 @@ public class FileBrowser extends JTable{
         keys.add(new SortKey(col,SortOrder.valueOf(order)));
         sorter.setSortKeys(keys);
     }
+    public void reSort(){ //tried re-sorting when it changes, it didnt work.
+        String sortOrder=Config.sortOrder;
+        String sortCol=Config.sortColumn;
+        Config.sortColumn=0+"";
+        Config.sortOrder=SortOrder.DESCENDING.toString();
+        initSort();
+        repaint();
+        Config.sortColumn=sortCol;
+        Config.sortOrder=sortOrder;
+        initSort();
+    }
 }

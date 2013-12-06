@@ -21,7 +21,7 @@ import javax.swing.event.RowSorterListener;
  * @author 141lyonsm
  */
 public class FileBrowserListener implements ActionListener,MouseListener,RowSorterListener{
-    private JTable table;
+    private FileBrowser table;
     private Gui gui;
     private long lastClick;
     private int lastRow;
@@ -31,7 +31,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
         lastClick=DOUBLECLICKDELAY*-1;
         lastRow=-1;
     }
-    public void setTable(JTable t){
+    public void setTable(FileBrowser t){
         table=t;
     }
     private JPopupMenu createRightClickMenu(int row){
@@ -54,14 +54,18 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             return;
         if(e.getButton()==MouseEvent.BUTTON1){
             long currentClick=System.currentTimeMillis();
-            if(currentClick-lastClick<=DOUBLECLICKDELAY&&lastRow==table.convertRowIndexToModel(table.getSelectedRow())){
+            int selectedRow=table.getSelectedRow();
+            if(selectedRow==-1){
+                return;
+            }
+            if(currentClick-lastClick<=DOUBLECLICKDELAY&&lastRow==table.convertRowIndexToModel(selectedRow)){
                 gui.gradeRows();
                 lastClick=DOUBLECLICKDELAY*-1;
-                lastRow=-1;
+                lastRow=-2;
             }
             else{
                 lastClick=currentClick;
-                lastRow=table.convertRowIndexToModel(table.getSelectedRow());
+                lastRow=table.convertRowIndexToModel(selectedRow);
             }
         }
     }
@@ -116,11 +120,14 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             else{
                 table.setRowSelectionAllowed(true);
             }
+            table.reSort();
         }
         else if(e.getActionCommand().contains("ReDownload")){
             int f=Integer.parseInt(e.getActionCommand().replace("ReDownload", ""));
             DbxFile file=gui.getManager().getFile(f);
             file.forceDownload();
+            
+            table.reSort();
         }
     }
 

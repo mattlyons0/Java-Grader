@@ -93,14 +93,16 @@ public class JavaCodeBrowser extends Container{
         }
         add(tabPane,BorderLayout.CENTER);
     }
-    public void saveFile(){
+    public String saveFile(){
         JavaFile[] files=file.getJavaFiles();
         if(files==null){
-            return;
+            return "";
         }
+        String result="";
         for(int x=0;x<files.length;x++){
             String code=browserArea[x].getText();
-            files[x].changeCode(code);
+            result=files[x].changeCode(code)+"\n";
         }
+        return result;
     }
 }

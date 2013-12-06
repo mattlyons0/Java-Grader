@@ -8,13 +8,12 @@ Autocreate spreadsheet
 Make order of values configureable
 Move rename to another thread
 Sort after rename.
-File not saving when used outside of netbeans
+File not saving on school computers.
 Getting stuck not being able to select anything
-not detecting certain java files - see emailed zip
 display current fileQueue
-displaying run finished before read in finished.
-running multiple times is broken
 button to change dropbox
 button to change google
-Deleting doesnt remove some cells from table.
-Refresh when number of files goes up and down.
+Change detection from .startsWith to force-getting the first numbers in the underscores
+Toggle hiding of columns by right clicking them
+Sort assignments by numbers (2 before 1000)
+Sort submitDate by actual date

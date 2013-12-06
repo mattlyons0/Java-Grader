@@ -62,10 +62,20 @@ public class JavaRunner implements Runnable{
             if(running!=null){
                 try{
                     int code=running.exitValue();
-                    //if it gets this far it has ended
-                    if(code!=0||numRunsLeft==0)
+                    
+                    try {
+                        //otherwise output goes after run finished.
+                        Thread.sleep(1000); //otherwise output goes after run finished.
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                    if(code!=0||numRunsLeft==0){
+                        
                         terminal.append("\nRun Finished: "+code+"\n",Color.GRAY);
+                    }
                     if(numRunsLeft>0){
+                        System.out.println("running new file.");
                         runFile(currentFiles,mainFile,numRunsLeft,false);
                     }
                     else{
@@ -77,6 +87,7 @@ public class JavaRunner implements Runnable{
                     
                 }
                 catch(IllegalThreadStateException e){
+                    
                 }
             }
             try {
@@ -102,10 +113,12 @@ public class JavaRunner implements Runnable{
     private void stopProcess(boolean normalExit){
         if(running!=null){
             running.destroy();
-            if(!normalExit)
-                terminal.append("Run Canceled", Color.GRAY);
+            if(!normalExit){
+                terminal.append("Run Canceled\n", Color.GRAY);
+                numRunsLeft=0;
+            }
         }
-        running=null;        
+        running=null;     
     }
     public void runFile(JavaFile[] files,JavaFile runChoice,int numTimes){
         runFile(files,runChoice,numTimes,true);
@@ -114,7 +127,7 @@ public class JavaRunner implements Runnable{
         if(files.length==0){
             return;
         }
-        browser.saveFile();
+        terminal.append(browser.saveFile());
         
         numRunsLeft=numTimes;
         currentFiles=files;
@@ -212,7 +225,8 @@ public class JavaRunner implements Runnable{
             builder.inheritIO();
             //builder.directory(new File(directory));
             //System.out.println("Running from: "+directory);
-                    terminal.append("Run Started: \n\n",Color.GRAY);
+            if(compile)
+                terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();
             relay.start();
             numRunsLeft--;

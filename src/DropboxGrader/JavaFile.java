@@ -32,7 +32,7 @@ public class JavaFile extends File{
         setMainMethod(false);
         validateFile(f);
     }
-    public void changeCode(String newCode){
+    public String changeCode(String newCode){
         try {
             PrintWriter writer=new PrintWriter(new FileWriter(this));
             writer.write(newCode);
@@ -40,7 +40,9 @@ public class JavaFile extends File{
             validateFile(this);
         } catch (IOException ex) {
             ex.printStackTrace();
+            return ex+"";
         }
+        return "";
     }
     public boolean containsMain(){
         return mainMethod;

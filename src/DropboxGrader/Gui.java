@@ -237,14 +237,8 @@ public class Gui extends JFrame implements ActionListener{
         constraints.weighty=1;
         add(fileBrowserPanel,constraints);
         
-        if(!previousSelection.isEmpty()){
-            try{
-                fileBrowserTable.setRowSelectionInterval(previousSelection.get(0),previousSelection.get(previousSelection.size()-1));
-            } catch(IllegalArgumentException ex){
-                //whatever, we wont remember the row then.
-            }
-            previousSelection.clear();
-        }
+        usePreviousSelection();
+        
         revalidate();
     }
     public void setupGraderGui(){
@@ -520,6 +514,7 @@ public class Gui extends JFrame implements ActionListener{
     }
     public void repaintTable(){
         if(fileBrowserTable!=null){
+            fileBrowserData.refresh();
             fileBrowserTable.revalidate();
             fileBrowserTable.repaint();
         }
@@ -527,18 +522,23 @@ public class Gui extends JFrame implements ActionListener{
     public void refreshTable(){
         if(statusText!=null)
             statusText.setText("Refreshing File Listings...");
+        saveSelection();
         if(fileBrowserTable!=null){
             fileBrowserTable.setRowSelectionAllowed(false);
         }
         
         if(workerThread!=null)
             workerThread.refreshData();
+        else
+            statusText.setText("Try again in a few seconds.");
     }
     public void refreshFinished(){
-        if(fileBrowserTable!=null){
-            fileBrowserTable.setRowSelectionAllowed(true);
+        if(fileBrowserData==null||fileBrowserListener==null){
+            return;
         }
-        repaintTable();
+        fileBrowserTable.setRowSelectionAllowed(true);
+        fileBrowserTable=new FileBrowser(fileBrowserData,fileBrowserListener);
+        usePreviousSelection();
         
         if(statusText!=null)
             statusText.setText("");
@@ -549,6 +549,30 @@ public class Gui extends JFrame implements ActionListener{
         }
         else if(statusText!=null){
             statusText.setText(status);
+        }
+    }
+    public void saveSelection(){
+        if(fileBrowserTable==null){
+            return;
+        }
+        int[] rows=fileBrowserTable.getSelectedRows();
+        for(int r:rows){
+            previousSelection.add(r);
+        }
+    }
+    public void usePreviousSelection(){
+        if(fileBrowserTable==null){
+            return;
+        }
+        if(!previousSelection.isEmpty()){
+            for(int s:previousSelection){
+                try{
+                    fileBrowserTable.setRowSelectionInterval(s,s);
+                } catch(IllegalArgumentException ex){
+                    //whatever, we wont remember the row then.
+                }
+            }
+            previousSelection.clear();
         }
     }
     public void gradeRows(){
