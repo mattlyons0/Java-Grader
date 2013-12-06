@@ -52,7 +52,7 @@ public class FileManager {
             DbxFile file;
             for(DbxEntry child: folderList.children){
                 if(child.name.startsWith(fileStartDelim.toLowerCase())||child.name.startsWith(fileStartDelim.toUpperCase())){
-                    if(child.asFile()!=null){
+                    if(child.isFile()&&child.asFile()!=null){
                         file=new DbxFile((DbxEntry.File)child,this,client);
                         files.add(file);
                         //System.out.println("Adding "+child.toString());
