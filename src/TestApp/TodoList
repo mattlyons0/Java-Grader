@@ -7,10 +7,8 @@ Autocreate spreadsheet
 
 Make order of values configureable
 Move rename to another thread
-Dragable terminal panel.
 Sort after rename.
 File not saving when used outside of netbeans
-Redownloading empty files
 Getting stuck not being able to select anything
 not detecting certain java files - see emailed zip
 display current fileQueue
@@ -18,3 +16,5 @@ displaying run finished before read in finished.
 running multiple times is broken
 button to change dropbox
 button to change google
+Deleting doesnt remove some cells from table.
+Refresh when number of files goes up and down.

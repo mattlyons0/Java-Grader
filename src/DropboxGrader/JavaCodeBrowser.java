@@ -41,9 +41,18 @@ public class JavaCodeBrowser extends Container{
         setLayout(new CardLayout(10,5));
         tabPane=new JTabbedPane();
         File[] files=file.getJavaFiles();
-        int numFiles=0;
-        if(files!=null)
+        int numFiles=1;
+        boolean noFiles=true;
+        if(files!=null){
             numFiles=file.getJavaFiles().length;
+            noFiles=false;
+        }
+        if(numFiles==0||file.isInvalidZip()){
+            noFiles=true;
+        }
+        if(noFiles){
+            numFiles=1;
+        }
         String[] javaCode=file.getJavaCode();
         browserArea=new JEditorPane[numFiles];
         fileWindows=new JPanel[numFiles];
@@ -59,12 +68,28 @@ public class JavaCodeBrowser extends Container{
             browserArea[x]=new JEditorPane();
             browserArea[x].setEditable(true);
             scrolls[x]=new JScrollPane (browserArea[x]);
-            browserArea[x].setContentType("text/java");
-            browserArea[x].setText(javaCode[x]);
+            if(!noFiles){
+                browserArea[x].setContentType("text/java");
+                browserArea[x].setText(javaCode[x]);
+            }
+            else{
+                String text="No .java files found in the zip file.\n";
+                text+="File Structure:\n"+file.getFileStructure();
+                if(file.isInvalidZip()){
+                    text="Zip file is invalid.";
+                }
+                browserArea[x].setText(text);
+            }
             fileWindows[x].add(scrolls[x],constraints);
-            add(fileWindows[x],files[x].getName());
-            
-            tabPane.addTab(files[x].getName(), fileWindows[x]);
+            String tabName;
+            if(!noFiles){
+                tabName=files[x].getName();
+            }
+            else{
+                tabName="Zipped File Structure";
+            }
+            add(fileWindows[x],tabName);
+            tabPane.addTab(tabName, fileWindows[x]);
         }
         add(tabPane,BorderLayout.CENTER);
     }

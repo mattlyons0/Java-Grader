@@ -130,6 +130,9 @@ public class FileManager {
         if(tableData!=null)
             tableData.refresh();
     }
+    public int getFileNum(DbxFile f){
+        return files.indexOf(f);
+    }
     public DbxFile getFile(int x){
         if(x>=files.size()){
             return null; //thrown when deleting files

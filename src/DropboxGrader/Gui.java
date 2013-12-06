@@ -277,12 +277,12 @@ public class Gui extends JFrame implements ActionListener{
             grade[1]="";
         }
         javaCode=new JavaCodeBrowser(file);
-        javaCode.setMinimumSize(new Dimension(150,150));
+        javaCode.setMinimumSize(new Dimension(300,50));
         if(codeOutputArea==null)
             codeOutputArea=new JTerminal(this);
         else
             codeOutputArea.setText("");
-        codeOutputArea.setMinimumSize(new Dimension(100,100));
+        codeOutputArea.setMinimumSize(new Dimension(100,50));
         if(codeOutputScroll==null)
             codeOutputScroll=new JScrollPane(codeOutputArea);
         if(runner==null)
@@ -294,20 +294,17 @@ public class Gui extends JFrame implements ActionListener{
         setLayout(new GridBagLayout());
         JPanel topBar=new JPanel();
         topBar.setLayout(new GridBagLayout());
-        if(graderDivider==null){
-            graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,javaCode,codeOutputScroll);
-            graderDivider.setDividerLocation(Config.dividerLocation);
-        }
+        graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,javaCode,codeOutputScroll);
+        graderDivider.setDividerLocation(Config.dividerLocation);
         JPanel navPanel=new JPanel();
         navPanel.setLayout(new FlowLayout());
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);
         fileInfoLabel=new JLabel(file.toString());
-        if(file.getJavaFiles()==null||file.getJavaFiles().length==0){
-            fileInfoLabel.setText("Zip: "+file.getFileName()+" contains no .java files. Files Found: "+file.getFilesDownloaded());
-        }
+        fileInfoLabel.setMinimumSize(new Dimension(10,10));
         navPanel.add(backButton);
         navPanel.add(fileInfoLabel);
+        navPanel.setMinimumSize(new Dimension(175,35));
         runButton=new JButton("Run");
         if(Config.autoRun)
             runButton.setText("Stop Running");
@@ -720,5 +717,8 @@ public class Gui extends JFrame implements ActionListener{
     public void isClosing(){
         if(graderDivider!=null)
             Config.dividerLocation=graderDivider.getDividerLocation();
+    }
+    public WorkerThread getBackgroundThread(){
+        return workerThread;
     }
 }

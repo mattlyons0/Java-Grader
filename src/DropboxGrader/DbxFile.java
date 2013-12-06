@@ -39,6 +39,7 @@ public class DbxFile {
     private DbxClient client;
     private File downloadedFile;
     private JavaFile[] javaFiles;
+    private boolean invalidZip;
     private final String errorMsg;
     public DbxFile(DbxEntry.File entry,FileManager fileMan,DbxClient client){
         this.entry=entry;
@@ -74,7 +75,7 @@ public class DbxFile {
         return download(true);
     }
     public File download(){
-        if(getFilesDownloaded().length()==0){
+        if(downloadedFile==null||downloadedFile.listFiles()==null||downloadedFile.listFiles().length==0){
             return download(true);
         }
         return download(false);
@@ -97,7 +98,21 @@ public class DbxFile {
         } catch (DbxException | IOException |ZipException ex) {
             System.err.println("Exception when unzipping "+ex);
             if(ex instanceof ZipException){
-                GuiHelper.alertDialog("File cannot be unzipped, it is either zipped incorrectly or named with the wrong extension.\nOr dropbox is down.");
+                setInvalidZip();
+            }
+            else if(ex instanceof DbxException){
+                if(ex instanceof DbxException.ServerError||ex instanceof DbxException.RetryLater){
+                    GuiHelper.alertDialog("Dropbox is under heavy load. File failed to download.\n"+ex);
+                }
+                else if(ex instanceof DbxException.InvalidAccessToken){
+                    GuiHelper.alertDialog("Access to dropbox has been revoked, please relaunch this program.\n"+ex);
+                }
+                else{
+                    GuiHelper.alertDialog("Error downloading from dropbox.\n"+ex);
+                }
+            }
+            else if(ex instanceof IOException){
+                GuiHelper.alertDialog("Writing file to disk failed, You probably don't have permission to download here.\n"+ex);
             }
             return null;
         }
@@ -189,11 +204,14 @@ public class DbxFile {
         if(downloadedFile==null){
             return "On Server";
         }
+        if(downloadedFile.exists()&&invalidZip){
+            return "Invalid Zip File";
+        }
         if(downloadedFile.exists()){
             return "Downloaded";
         }
-        download();
-        return "Downloaded"; //downloaded but file doesnt exist. Usually when a local copy is invalid.
+        downloadedFile=null;
+        return getStatus(row,col);
     }
     public static int safeStringToInt(String s){
         char[] chars=s.toCharArray();
@@ -251,15 +269,46 @@ public class DbxFile {
         JavaFile[] fileArr=new JavaFile[filesWithType.size()];
         return filesWithType.toArray(fileArr);
     }
-    public String getFilesDownloaded(){
+    public String getFileStructure(){
         String zipPath=entry.name;
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
-        File[] files=searchForFiles(fileManager.getDownloadFolder()+"\\"+zipPath);
-        String str="";
-        for(File f:files){
-            str+=f.getName()+", ";
+        String str=getFileStructure(fileManager.getDownloadFolder()+"\\"+zipPath,null);
+        if(str.equals("")){
+            str="No files exist in the zip.";
         }
         return str;
+    }
+    private String getFileStructure(String directory,String output){
+        if(output==null){
+            output="";
+        }
+        File dir=new File(directory);
+        File[] files=dir.listFiles();
+        if(files!=null){
+            for(File f:files){
+                String tabs="";
+                for(int x=0;x<occurancesOf('\\',f.getPath());x++){
+                    tabs+="  ";
+                }
+                if(f.isDirectory()){
+                    output=getFileStructure(directory+"/"+f.getName(),output)+output;
+                    output=tabs+f.getName()+"/\n"+output;
+                }
+                else if(f.isFile()){
+                    output+=tabs+f.getName()+"\n";
+                }
+            }
+        }
+        return output;
+    }
+    private int occurancesOf(char c,String s){
+        int occurance=0;
+        for(char ch:s.toCharArray()){
+            if(ch==c){
+                occurance++;
+            }
+        }
+        return occurance;
     }
     private File[] searchForFiles(String directory){
         ArrayList<File> files=new ArrayList();
@@ -489,6 +538,12 @@ public class DbxFile {
             return false;
         }
         return true;
+    }
+    public void setInvalidZip(){
+        invalidZip=true;
+    }
+    public boolean isInvalidZip(){
+        return invalidZip;
     }
     
 }
