@@ -15,6 +15,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -48,9 +49,19 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
         }
         return m;
     }
+    private JPopupMenu createHeaderMenu(int col){
+        JPopupMenu m=new JPopupMenu();
+        JMenuItem m1=new JMenuItem("Hide");
+        if(table.colIsHidden(col))
+            m1.setText("UnHide");
+        m1.setActionCommand("Hide"+col);
+        m1.addActionListener(this);
+        m.add(m1);
+        return m;
+    }
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(!table.getRowSelectionAllowed())
+        if(!table.getRowSelectionAllowed()&&!(e.getComponent() instanceof JTableHeader))
             return;
         if(e.getButton()==MouseEvent.BUTTON1){
             long currentClick=System.currentTimeMillis();
@@ -93,6 +104,12 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
                 JPopupMenu popup = createRightClickMenu(rowindex);
                 popup.show(e.getComponent(), e.getX(), e.getY());
             }
+            else if(e.getComponent() instanceof JTableHeader){
+                JTableHeader header=(JTableHeader)e.getComponent();
+                int col=header.columnAtPoint(e.getPoint());
+                JPopupMenu popup= createHeaderMenu(col);
+                popup.show(e.getComponent(),e.getX(),e.getY());
+            }
         }
     }
 
@@ -128,6 +145,16 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             file.forceDownload();
             
             table.reSort();
+        }
+        else if(e.getActionCommand().contains("Hide")){
+            int col=Integer.parseInt(e.getActionCommand().replace("Hide", ""));
+            if(!table.colIsHidden(col))
+                table.hideCol(col);
+            else
+                table.unhideCol(col);
+            
+            table.repaint();
+            table.revalidate();
         }
     }
 

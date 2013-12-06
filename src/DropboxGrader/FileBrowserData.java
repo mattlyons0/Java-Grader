@@ -7,6 +7,7 @@
 package DropboxGrader;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
@@ -22,11 +23,13 @@ import javax.swing.table.AbstractTableModel;
 public class FileBrowserData extends AbstractTableModel{
     private FileManager manager;
     private HashMap<CellLocation,Color> cellColors;
+    private ArrayList<Integer> hiddenCols;
     public FileBrowserData(FileManager f){
         super();
         manager=f;
         
         cellColors=new HashMap();
+        hiddenCols=new ArrayList();
     }
     @Override
     public int getRowCount() {
@@ -44,6 +47,9 @@ public class FileBrowserData extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if(hiddenCols.contains(columnIndex)){
+            return "Hiden";
+        }
         String value=manager.getFileInfo(rowIndex, columnIndex);
         if(value==null)
             value="No files found.";
@@ -64,5 +70,16 @@ public class FileBrowserData extends AbstractTableModel{
     }
     public void refresh(){
         cellColors.clear();
-    }    
+    }
+    public void hideCol(int col){
+        if(!hiddenCols.contains(col)){
+            hiddenCols.add(col);
+        }
+    }
+    public boolean isHidden(int col){
+        return hiddenCols.contains(col);
+    }
+    public void unhideCol(int col){
+        hiddenCols.remove((Integer)col);
+    }
 }

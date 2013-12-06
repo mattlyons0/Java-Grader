@@ -44,6 +44,7 @@ public class JavaRunner implements Runnable{
     private JavaFile mainFile;
     private boolean fixedPath=false;
     private JavaCodeBrowser browser;
+    private String folder;
     public JavaRunner(JTerminal t,Gui gui,JavaCodeBrowser browser){
         terminal=t;
         this.gui=gui;
@@ -76,7 +77,7 @@ public class JavaRunner implements Runnable{
                     }
                     if(numRunsLeft>0){
                         System.out.println("running new file.");
-                        runFile(currentFiles,mainFile,numRunsLeft,false);
+                        runFile(currentFiles,mainFile,numRunsLeft,folder,false);
                     }
                     else{
                         running=null;
@@ -120,10 +121,10 @@ public class JavaRunner implements Runnable{
         }
         running=null;     
     }
-    public void runFile(JavaFile[] files,JavaFile runChoice,int numTimes){
-        runFile(files,runChoice,numTimes,true);
+    public void runFile(JavaFile[] files,JavaFile runChoice,int numTimes,String folder){
+        runFile(files,runChoice,numTimes,folder,true);
     }
-    private void runFile(JavaFile[] files,JavaFile runChoice, int numTimes,boolean compile){
+    private void runFile(JavaFile[] files,JavaFile runChoice, int numTimes,String folder,boolean compile){
         if(files.length==0){
             return;
         }
@@ -132,6 +133,7 @@ public class JavaRunner implements Runnable{
         numRunsLeft=numTimes;
         currentFiles=files;
         mainFile=runChoice;
+        this.folder=folder;
         
         if(compile)
             terminal.setText("");
@@ -219,12 +221,12 @@ public class JavaRunner implements Runnable{
             className=className.substring(0,className.length()-5); //removes .java
             String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
             javaExe="java";
-            String directory=System.getProperty("java.home")+"\\bin\\";
+            String directory=folder;
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
             builder.inheritIO();
-            //builder.directory(new File(directory));
-            //System.out.println("Running from: "+directory);
+            //builder.directory(new File(directory)); //if this is uncommented it wont generate the input/output files in the right place.
+            System.out.println("Running from: "+directory);
             if(compile)
                 terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();

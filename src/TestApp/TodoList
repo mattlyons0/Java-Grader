@@ -17,3 +17,10 @@ Change detection from .startsWith to force-getting the first numbers in the unde
 Toggle hiding of columns by right clicking them
 Sort assignments by numbers (2 before 1000)
 Sort submitDate by actual date
+Fix sort/rename sync
+    Fix selection not working as a result of this.
+Fix assignment number for yr 2
+Make run from its folder.
+Find better refresh method
+    fix renaming file bug with current method
+        all the files hide after a file is renamed randomly.

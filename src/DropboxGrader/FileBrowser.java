@@ -29,11 +29,12 @@ public class FileBrowser extends JTable{
         super(data);
         listener.setTable(this);
         
-        setAutoCreateRowSorter(true);
+        setAutoCreateRowSorter(false);
         setUpdateSelectionOnSort(true);
-        getRowSorter().addRowSorterListener(listener);
-        initSort();
+        //getRowSorter().addRowSorterListener(listener);
+        //initSort();
         addMouseListener(listener);
+        getTableHeader().addMouseListener(listener);
         
         initOrder();
         
@@ -72,14 +73,27 @@ public class FileBrowser extends JTable{
         sorter.setSortKeys(keys);
     }
     public void reSort(){ //tried re-sorting when it changes, it didnt work.
-        String sortOrder=Config.sortOrder;
-        String sortCol=Config.sortColumn;
-        Config.sortColumn=0+"";
-        Config.sortOrder=SortOrder.DESCENDING.toString();
-        initSort();
-        repaint();
-        Config.sortColumn=sortCol;
-        Config.sortOrder=sortOrder;
-        initSort();
+//        String sortOrder=Config.sortOrder;
+//        String sortCol=Config.sortColumn;
+//        Config.sortColumn=0+"";
+//        Config.sortOrder=SortOrder.DESCENDING.toString();
+//        initSort();
+//        repaint();
+//        Config.sortColumn=sortCol;
+//        Config.sortOrder=sortOrder;
+//        initSort();
+    }
+    public void hideCol(int col){
+        col=convertColumnIndexToModel(col);
+        FileBrowserData model=(FileBrowserData)getModel();
+        model.hideCol(col);
+    }
+    public boolean colIsHidden(int col){
+        FileBrowserData model=(FileBrowserData)getModel();
+        return model.isHidden(col);
+    }
+    public void unhideCol(int col){
+        FileBrowserData model=(FileBrowserData)getModel();
+        model.unhideCol(col);
     }
 }

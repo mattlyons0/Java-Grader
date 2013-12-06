@@ -48,9 +48,6 @@ public class DbxFile {
         
         errorMsg="File Naming Error: "+entry.name;
         
-        if(entry.name.contains(".zip.zip")){
-            rename(entry.name.substring(0,entry.name.length()-4)); //get rid of second zip
-        }
         if(entry.name.indexOf(".")!=entry.name.length()-4){
             String newName=entry.name.replace(".", "");
             if(newName.contains("zip"))
@@ -435,7 +432,7 @@ public class DbxFile {
             return false;
         }
         
-        runner.runFile(javaFiles,mainMethods.get(choice),times);
+        runner.runFile(javaFiles,mainMethods.get(choice),times,downloadedFile.getPath());
         return true;
     }
     public String getFileName(){
@@ -481,7 +478,7 @@ public class DbxFile {
             int num=1;
             int dotIndex=getLastIndex(newName,'.');
             if(Character.isDigit(newName.charAt(dotIndex-1)))
-                num=newName.charAt(dotIndex-1);
+                num=safeStringToInt(Character.toString(newName.charAt(dotIndex-1)));
             rename(newName.substring(0, dotIndex)+num+newName.substring(dotIndex, newName.length()));
         }
         if(downloadedFile!=null){

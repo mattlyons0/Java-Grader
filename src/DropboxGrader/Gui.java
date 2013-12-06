@@ -529,14 +529,17 @@ public class Gui extends JFrame implements ActionListener{
         
         if(workerThread!=null)
             workerThread.refreshData();
-        else
+        else{
+            if(statusText!=null)
             statusText.setText("Try again in a few seconds.");
+        }
     }
     public void refreshFinished(){
         if(fileBrowserData==null||fileBrowserListener==null){
             return;
         }
         fileBrowserTable.setRowSelectionAllowed(true);
+        fileBrowserTable=null;
         fileBrowserTable=new FileBrowser(fileBrowserData,fileBrowserListener);
         usePreviousSelection();
         
