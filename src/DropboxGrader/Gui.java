@@ -65,7 +65,7 @@ public class Gui extends JFrame implements ActionListener{
     //Second Stage (File Browser) Instance Vars
     private JPanel fileBrowserPanel; 
     private FileBrowserData fileBrowserData;
-    private JTable fileBrowserTable;
+    private FileBrowser fileBrowserTable;
     private JScrollPane fileBrowserScroll;
     private FileBrowserListener fileBrowserListener;
     private GridBagConstraints constraints;
@@ -527,8 +527,9 @@ public class Gui extends JFrame implements ActionListener{
             fileBrowserTable.setRowSelectionAllowed(false);
         }
         
-        if(workerThread!=null)
+        if(workerThread!=null){
             workerThread.refreshData();
+        }
         else{
             if(statusText!=null)
             statusText.setText("Try again in a few seconds.");
@@ -539,8 +540,7 @@ public class Gui extends JFrame implements ActionListener{
             return;
         }
         fileBrowserTable.setRowSelectionAllowed(true);
-        fileBrowserTable=null;
-        fileBrowserTable=new FileBrowser(fileBrowserData,fileBrowserListener);
+        fileBrowserTable.dataChanged();
         usePreviousSelection();
         
         if(statusText!=null)

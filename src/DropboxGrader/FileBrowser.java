@@ -25,14 +25,16 @@ import javax.swing.table.TableCellRenderer;
  * @author Matt
  */
 public class FileBrowser extends JTable{
+    private FileBrowserData model;
     public FileBrowser(FileBrowserData data,FileBrowserListener listener){
         super(data);
-        listener.setTable(this);
+        model=data;
         
-        setAutoCreateRowSorter(false);
+        listener.setTable(this);
+        setAutoCreateRowSorter(true);
         setUpdateSelectionOnSort(true);
-        //getRowSorter().addRowSorterListener(listener);
-        //initSort();
+        getRowSorter().addRowSorterListener(listener);
+        initSort();
         addMouseListener(listener);
         getTableHeader().addMouseListener(listener);
         
@@ -40,7 +42,14 @@ public class FileBrowser extends JTable{
         
         initColumnChangeListener();
         initColWidth();
-    }    
+        
+        dataChanged();
+    } 
+    public void dataChanged(){
+        model.fireTableStructureChanged();
+        model.fireTableDataChanged();
+        initSort();
+    }
     @Override
     public TableCellRenderer getDefaultRenderer(Class<?> columnClass){
         return new FileBrowserRenderer();
@@ -68,6 +77,7 @@ public class FileBrowser extends JTable{
         ArrayList<RowSorter.SortKey> keys=new ArrayList();
         String order=Config.sortOrder;
         String column=Config.sortColumn;
+        System.out.println("Applying sort: "+column+","+order);
         int col=DbxFile.safeStringToInt(column);
         keys.add(new SortKey(col,SortOrder.valueOf(order)));
         sorter.setSortKeys(keys);

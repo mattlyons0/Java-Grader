@@ -7,20 +7,14 @@ Autocreate spreadsheet
 
 Make order of values configureable
 Move rename to another thread
-Sort after rename.
 File not saving on school computers.
 Getting stuck not being able to select anything
 display current fileQueue
 button to change dropbox
 button to change google
 Change detection from .startsWith to force-getting the first numbers in the underscores
-Toggle hiding of columns by right clicking them
 Sort assignments by numbers (2 before 1000)
 Sort submitDate by actual date
-Fix sort/rename sync
-    Fix selection not working as a result of this.
 Fix assignment number for yr 2
 Make run from its folder.
-Find better refresh method
-    fix renaming file bug with current method
-        all the files hide after a file is renamed randomly.
+Surpress exception when refreshing sometimes with swing repainting.

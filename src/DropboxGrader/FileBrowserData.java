@@ -42,7 +42,9 @@ public class FileBrowserData extends AbstractTableModel{
 
     @Override
     public int getColumnCount() {
-        return manager.getNumAttributes();
+        int count=manager.getNumAttributes();
+        
+        return count;
     }
 
     @Override

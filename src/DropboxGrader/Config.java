@@ -20,8 +20,8 @@ public class Config {
     //FileBrowser
     public static String columnOrder="0,1,2,3,4";
     public static String columnWidth="75,75,75,75,75"; //75=default
-    public static String sortColumn="-1";
-    public static String sortOrder="UNSORTED";
+    public static String sortColumn="0";
+    public static String sortOrder="ASCENDING";
     
     //GradingPanel
     public static boolean autoRun=false;

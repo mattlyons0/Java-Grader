@@ -9,10 +9,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.JTableHeader;
@@ -137,14 +139,14 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             else{
                 table.setRowSelectionAllowed(true);
             }
-            table.reSort();
+            table.dataChanged();
         }
         else if(e.getActionCommand().contains("ReDownload")){
             int f=Integer.parseInt(e.getActionCommand().replace("ReDownload", ""));
             DbxFile file=gui.getManager().getFile(f);
             file.forceDownload();
             
-            table.reSort();
+            table.dataChanged();
         }
         else if(e.getActionCommand().contains("Hide")){
             int col=Integer.parseInt(e.getActionCommand().replace("Hide", ""));
@@ -160,8 +162,14 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
 
     @Override
     public void sorterChanged(RowSorterEvent e) {
-        Config.sortOrder=table.getRowSorter().getSortKeys().get(0).getSortOrder().toString();
-        Config.sortColumn=table.getRowSorter().getSortKeys().get(0).getColumn()+"";
+        List<? extends SortKey> keys=table.getRowSorter().getSortKeys();
+        if(keys.isEmpty()){
+            System.out.println("Nothing is being sorted!");
+            return;
+        }
+        Config.sortOrder=keys.get(0).getSortOrder().toString();
+        Config.sortColumn=keys.get(0).getColumn()+"";
+        System.out.println("Saved sort: "+Config.sortColumn+","+Config.sortOrder);
     }
     
 }
