@@ -726,7 +726,7 @@ public class Gui extends JFrame implements ActionListener{
             }
             Config.autoRun=autoRun.isSelected();
             Config.writeConfig();
-            
+            gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
             fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
             fileManager.setGrader(gradeWriter);
             setupFileBrowserGui();

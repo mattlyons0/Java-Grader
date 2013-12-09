@@ -82,6 +82,7 @@ public class DbxFile {
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
         File file=new File(zipPath);
         if(!force&&file.exists()){
+            setFile(file);
             return file;
         }
         try {
@@ -224,10 +225,8 @@ public class DbxFile {
         return Integer.parseInt(num);
     }
     private void setFile(File f){
-        if(downloadedFile==null){
-            downloadedFile=f;
-            searchJavaFiles();
-        }
+        downloadedFile=f;
+        searchJavaFiles();
     }
     private void searchJavaFiles(){
         javaFiles=searchForJavaFiles(downloadedFile.getPath(),".java");
