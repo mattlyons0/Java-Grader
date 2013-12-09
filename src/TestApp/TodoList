@@ -21,3 +21,4 @@ Make run from its folder.
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
+Fix bug where it sometimes doesnt detect .java files. Not reproducible.
