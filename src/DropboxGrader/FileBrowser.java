@@ -77,7 +77,6 @@ public class FileBrowser extends JTable{
         ArrayList<RowSorter.SortKey> keys=new ArrayList();
         String order=Config.sortOrder;
         String column=Config.sortColumn;
-        System.out.println("Applying sort: "+column+","+order);
         int col=DbxFile.safeStringToInt(column);
         keys.add(new SortKey(col,SortOrder.valueOf(order)));
         sorter.setSortKeys(keys);

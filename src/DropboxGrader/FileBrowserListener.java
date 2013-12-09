@@ -164,12 +164,10 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
     public void sorterChanged(RowSorterEvent e) {
         List<? extends SortKey> keys=table.getRowSorter().getSortKeys();
         if(keys.isEmpty()){
-            System.out.println("Nothing is being sorted!");
             return;
         }
         Config.sortOrder=keys.get(0).getSortOrder().toString();
         Config.sortColumn=keys.get(0).getColumn()+"";
-        System.out.println("Saved sort: "+Config.sortColumn+","+Config.sortOrder);
     }
     
 }
