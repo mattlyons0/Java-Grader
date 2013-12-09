@@ -128,15 +128,15 @@ public class JavaRunner implements Runnable{
         if(files.length==0){
             return;
         }
-        terminal.append(browser.saveFile());
+        if(compile)
+            terminal.setText("");
+        terminal.append("Error saving file: "+browser.saveFile(),Color.RED);
         
         numRunsLeft=numTimes;
         currentFiles=files;
         mainFile=runChoice;
         this.folder=folder;
         
-        if(compile)
-            terminal.setText("");
         stopProcess(true);
         boolean containsPackages=false;
         for(JavaFile f: files){
