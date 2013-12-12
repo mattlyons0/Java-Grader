@@ -24,14 +24,14 @@ public class FileManager {
     private Gui gui;
     private FileBrowserData tableData;
     private ArrayList<DbxFile> files;
-    private String fileStartDelim;
+    private int classPeriod;
     private final String downloadFolder="downloads";
     private final String[] attributes={"Assignment","Assignment Name","Submit Date","Name","Status"};
     
-    public FileManager(String dropboxFolder,String fileDelim,DbxClient client,Gui gui){
+    public FileManager(String dropboxFolder,int period,DbxClient client,Gui gui){
         this.dropboxFolder=dropboxFolder;
         this.client=client;
-        this.fileStartDelim=fileDelim;
+        this.classPeriod=period;
         this.gui=gui;
         
         files=new ArrayList();
@@ -54,14 +54,16 @@ public class FileManager {
                 return;
             }
             for(DbxEntry child: folderList.children){
-                if(child.name.startsWith(fileStartDelim.toLowerCase())||child.name.startsWith(fileStartDelim.toUpperCase())){
-                    if(child.isFile()&&child.asFile()!=null){
-                        file=new DbxFile((DbxEntry.File)child,this,client);
-                        files.add(file);
-                        //System.out.println("Adding "+child.toString());
-                    }
-                    else{
-                        System.err.println("There are folders and I was not written recursively so I can't pickup files from there.");
+                if(child!=null){
+                    String[] splitChild=child.name.split("_");
+                    if(splitChild[0].contains(classPeriod+"")){
+                        if(child.isFile()&&child.asFile()!=null){
+                            file=new DbxFile((DbxEntry.File)child,this,client);
+                            files.add(file);
+                        }
+                        else{
+                            System.err.println("There are folders and I was not written recursively so I can't pickup files from "+child.name+".");
+                        }
                     }
                 }
             }
@@ -127,7 +129,7 @@ public class FileManager {
         files.clear();
         
         dropboxFolder=Config.dropboxFolder;
-        fileStartDelim=Config.dropboxPeriod;
+        classPeriod=Config.dropboxPeriod;
         
         init();
         if(tableData!=null)

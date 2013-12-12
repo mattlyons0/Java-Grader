@@ -423,7 +423,7 @@ public class Gui extends JFrame implements ActionListener{
         dropboxFolder=new JTextField(25);
         dropboxFolder.setText(Config.dropboxFolder);
         dropboxPeriod=new JTextField(3);
-        dropboxPeriod.setText(Config.dropboxPeriod);
+        dropboxPeriod.setText(Config.dropboxPeriod+"");
         runTimes=new JTextField(3);
         runTimes.setText(Config.runTimes+"");
         autoRun=new JCheckBox("AutoRun");
@@ -722,7 +722,7 @@ public class Gui extends JFrame implements ActionListener{
         else if(e.getSource().equals(backToBrowser)){
             Config.spreadsheetName=spreadsheetName.getText();
             Config.dropboxFolder=dropboxFolder.getText();
-            Config.dropboxPeriod=dropboxPeriod.getText();
+            Config.dropboxPeriod=DbxFile.safeStringToInt(dropboxPeriod.getText());
             try{
                 Config.runTimes=Integer.parseInt(runTimes.getText());
             } catch(NumberFormatException ex){

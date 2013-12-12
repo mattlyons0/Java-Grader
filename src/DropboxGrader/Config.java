@@ -16,7 +16,7 @@ public class Config {
     //Preinit
     public static String spreadsheetName;
     public static String dropboxFolder;
-    public static String dropboxPeriod;
+    public static int dropboxPeriod;
     //FileBrowser
     public static String columnOrder;
     public static String columnWidth;
@@ -31,7 +31,7 @@ public class Config {
         //Preinit
         spreadsheetName="APCS Period 1 Assignments";
         dropboxFolder="DROPitTOme";
-        dropboxPeriod="P1";
+        dropboxPeriod=1;
         //FileBrowser
         columnOrder="0,1,2,3,4";
         columnWidth="75,75,75,75,75"; //75=default
@@ -51,7 +51,7 @@ public class Config {
             String[] vars=splitVars(DbxSession.readFromFile(configFile));
             spreadsheetName=vars[0];
             dropboxFolder=vars[1];
-            dropboxPeriod=vars[2];
+            dropboxPeriod=DbxFile.safeStringToInt(vars[2]);
             columnOrder=vars[3];
             columnWidth=vars[4];
             autoRun=Boolean.parseBoolean(vars[5]);
@@ -66,7 +66,7 @@ public class Config {
     public static void writeConfig(){
         String config=spreadsheetName;
         config=append(config,dropboxFolder);
-        config=append(config,dropboxPeriod);
+        config=append(config,dropboxPeriod+"");
         config=append(config,columnOrder);
         config=append(config,columnWidth);
         config=append(config,autoRun+"");
