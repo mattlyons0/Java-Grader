@@ -93,6 +93,10 @@ public class JavaCodeBrowser extends Container{
         }
         add(tabPane,BorderLayout.CENTER);
     }
+    public void setFile(DbxFile f){
+        file=f;
+        init();
+    }
     public String saveFile(){
         JavaFile[] files=file.getJavaFiles();
         if(files==null){

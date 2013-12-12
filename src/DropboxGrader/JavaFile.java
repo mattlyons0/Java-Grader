@@ -33,6 +33,7 @@ public class JavaFile extends File{
         validateFile(f);
     }
     public String changeCode(String newCode){
+        System.out.println("Saving "+this.getName());
         try {
             PrintWriter writer=new PrintWriter(new FileWriter(this));
             writer.write(newCode);

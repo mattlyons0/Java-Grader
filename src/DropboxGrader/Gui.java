@@ -270,7 +270,10 @@ public class Gui extends JFrame implements ActionListener{
             grade[0]="";
             grade[1]="";
         }
-        javaCode=new JavaCodeBrowser(file);
+        if(javaCode==null)
+            javaCode=new JavaCodeBrowser(file);
+        else
+            javaCode.setFile(file);
         javaCode.setMinimumSize(new Dimension(300,50));
         if(codeOutputArea==null)
             codeOutputArea=new JTerminal(this);

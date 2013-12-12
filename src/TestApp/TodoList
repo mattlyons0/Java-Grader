@@ -17,8 +17,9 @@ Custom sorting
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
 Fix assignment number for yr 2
-Make run from its folder.
+Make code run from its own folder.
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
 Fix bug where it sometimes doesnt detect .java files. Not reproducible.
+Update gui when renaming impropper zip files.
