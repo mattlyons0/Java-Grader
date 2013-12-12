@@ -534,8 +534,9 @@ public class Gui extends JFrame implements ActionListener{
             workerThread.refreshData();
         }
         else{
-            if(statusText!=null)
-            statusText.setText("Try again in a few seconds.");
+            if(fileManager!=null)
+                fileManager.refresh();
+            refreshFinished();
         }
     }
     public void refreshFinished(){

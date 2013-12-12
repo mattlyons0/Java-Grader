@@ -130,7 +130,9 @@ public class JavaRunner implements Runnable{
         }
         if(compile)
             terminal.setText("");
-        terminal.append("Error saving file: "+browser.saveFile(),Color.RED);
+        String errorSaving=browser.saveFile();
+        if(errorSaving==null||errorSaving.trim().equals(""))
+            terminal.append("Error saving file: "+errorSaving,Color.RED);
         
         numRunsLeft=numTimes;
         currentFiles=files;

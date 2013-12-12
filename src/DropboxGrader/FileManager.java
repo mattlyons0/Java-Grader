@@ -50,6 +50,9 @@ public class FileManager {
         try {
             DbxEntry.WithChildren folderList=client.getMetadataWithChildren("/"+dropboxFolder);
             DbxFile file;
+            if(folderList==null){
+                return;
+            }
             for(DbxEntry child: folderList.children){
                 if(child.name.startsWith(fileStartDelim.toLowerCase())||child.name.startsWith(fileStartDelim.toUpperCase())){
                     if(child.isFile()&&child.asFile()!=null){

@@ -55,31 +55,46 @@ public class FileBrowser extends JTable{
         return new FileBrowserRenderer();
     }
     private void initOrder(){
-        String order=Config.columnOrder;
-        String[] index=order.split(",");
-        for(int x=0;x<getColumnCount()-1;x++){
-            moveColumn(x, Integer.parseInt(index[x]));
+        try{
+            String order=Config.columnOrder;
+            String[] index=order.split(",");
+            for(int x=0;x<getColumnCount()-1;x++){
+                moveColumn(x, Integer.parseInt(index[x]));
+            }
+        } catch(IllegalArgumentException ex){
+            System.err.println("Error initalizing order: "+ex+"\nConfig has been reset.");
+            Config.reset();
         }
     }
     private void initColWidth(){
-        int cols=getColumnModel().getColumnCount();
-        String[] widths=Config.columnWidth.split(",");
-        for(int x=0;x<cols;x++){
-            int w=Integer.parseInt(widths[x]);
-            getColumnModel().getColumn(x).setPreferredWidth(w);
+        try{
+            int cols=getColumnModel().getColumnCount();
+            String[] widths=Config.columnWidth.split(",");
+            for(int x=0;x<cols;x++){
+                int w=Integer.parseInt(widths[x]);
+                getColumnModel().getColumn(x).setPreferredWidth(w);
+            }
+        } catch(IllegalArgumentException ex){
+            System.err.println("Error initializing column width: "+ex+"\nConfig has been reset.");
+            Config.reset();
         }
     }
     private void initColumnChangeListener(){
         getColumnModel().addColumnModelListener(new FileBrowserColumnModelListener(this));
     }
     private void initSort(){
-        RowSorter sorter=getRowSorter();
-        ArrayList<RowSorter.SortKey> keys=new ArrayList();
-        String order=Config.sortOrder;
-        String column=Config.sortColumn;
-        int col=DbxFile.safeStringToInt(column);
-        keys.add(new SortKey(col,SortOrder.valueOf(order)));
-        sorter.setSortKeys(keys);
+        try{
+            RowSorter sorter=getRowSorter();
+            ArrayList<RowSorter.SortKey> keys=new ArrayList();
+            String order=Config.sortOrder;
+            String column=Config.sortColumn;
+            int col=DbxFile.safeStringToInt(column);
+            keys.add(new SortKey(col,SortOrder.valueOf(order)));
+            sorter.setSortKeys(keys);
+        } catch(IllegalArgumentException ex){
+            System.err.println("Error sorting: "+ex+"\nConfig has been reset.");
+            Config.reset();
+        }
     }
     public void reSort(){ //tried re-sorting when it changes, it didnt work.
 //        String sortOrder=Config.sortOrder;

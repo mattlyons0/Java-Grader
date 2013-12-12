@@ -14,20 +14,35 @@ import java.io.File;
 public class Config {
     public static final File configFile=new File("config.cfg");
     //Preinit
-    public static String spreadsheetName="APCS Period 1 Assignments";
-    public static String dropboxFolder="DROPitTOme";
-    public static String dropboxPeriod="P1";
+    public static String spreadsheetName;
+    public static String dropboxFolder;
+    public static String dropboxPeriod;
     //FileBrowser
-    public static String columnOrder="0,1,2,3,4";
-    public static String columnWidth="75,75,75,75,75"; //75=default
-    public static String sortColumn="0";
-    public static String sortOrder="ASCENDING";
+    public static String columnOrder;
+    public static String columnWidth;
+    public static String sortColumn;
+    public static String sortOrder;
     
     //GradingPanel
-    public static boolean autoRun=false;
-    public static int runTimes=1;
-    public static int dividerLocation=Toolkit.getDefaultToolkit().getScreenSize().width*2/3; //2/3rds
-    
+    public static boolean autoRun;
+    public static int runTimes;
+    public static int dividerLocation;
+    public static void init(){
+        //Preinit
+        spreadsheetName="APCS Period 1 Assignments";
+        dropboxFolder="DROPitTOme";
+        dropboxPeriod="P1";
+        //FileBrowser
+        columnOrder="0,1,2,3,4";
+        columnWidth="75,75,75,75,75"; //75=default
+        sortColumn="0";
+        sortOrder="ASCENDING";
+
+        //GradingPanel
+        autoRun=false;
+        runTimes=1;
+        dividerLocation=Toolkit.getDefaultToolkit().getScreenSize().width*2/3; //2/3rds
+    }
     public static void readConfig(){
         if(!configFile.exists()){
             return;
@@ -68,5 +83,9 @@ public class Config {
     }
     private static String[] splitVars(String s){
         return s.split("\n");
+    }
+    public static void reset(){
+        init();
+        writeConfig();
     }
 }

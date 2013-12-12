@@ -480,11 +480,13 @@ public class DbxFile {
                 num=safeStringToInt(Character.toString(newName.charAt(dotIndex-1)));
             rename(newName.substring(0, dotIndex)+num+newName.substring(dotIndex, newName.length()));
         }
-        if(downloadedFile!=null){
+        if(moved&&downloadedFile!=null){
             searchForFilesToDelete(downloadedFile.getPath());
             downloadedFile=null;
         }
-        fileManager.getGui().refreshTable();
+        if(moved){
+            fileManager.getGui().refreshTable();
+        }
     }
     public static int getLastIndex(String s,char c){
         for(int x=s.length()-1;x>0;x--){
