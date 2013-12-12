@@ -20,3 +20,4 @@ Fix bug where it sometimes doesnt detect .java files. Not reproducible.
 Update gui when renaming impropper zip files.
 Fixed test no java duplicating.
 Fix repaint issue with code tabs.
+Catch out of memory with DropboxGrader code.
