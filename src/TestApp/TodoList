@@ -1,18 +1,13 @@
 Maybe encrypt keys
 Ctrl tab in grader.
 Auto mark late.
-Autocreate spreadsheet
-    Autocreate new assignments in spreadsheet.
-    Not possible with current api
+    Involves making a php submitter
+Remove the need for the spreadsheet and google api
+    Generate and upload html page to dropbox.
 
-Make order of values configureable
 Move rename to another thread
-File not saving on school computers.
-Getting stuck not being able to select anything
 display current fileQueue
 button to change dropbox
-button to change google
-Change detection from .startsWith to force-getting the first numbers in the underscores
 Custom sorting
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
@@ -23,3 +18,4 @@ Delete local files option in settings menu.
 Count lines of code?
 Fix bug where it sometimes doesnt detect .java files. Not reproducible.
 Update gui when renaming impropper zip files.
+Read .txt files

@@ -1,1 +1,7 @@
 No spreadsheet with the name APCS Period 1 Assignments
+Exception in thread "Thread-2" java.lang.ArrayIndexOutOfBoundsException: 0
+	at DropboxGrader.JavaCodeBrowser.init(JavaCodeBrowser.java:98)
+	at DropboxGrader.JavaCodeBrowser.<init>(JavaCodeBrowser.java:37)
+	at DropboxGrader.Gui.setupGraderGui(Gui.java:274)
+	at DropboxGrader.WorkerThread.run(WorkerThread.java:59)
+	at java.lang.Thread.run(Thread.java:722)

@@ -53,6 +53,10 @@ public class JavaCodeBrowser extends Container{
         if(noFiles){
             numFiles=1;
         }
+        TextFile[] textFiles=file.getTextFiles(); //this is a bad way of handling it. but whatever
+        //i should really just add these to the files array since they are both instances of file
+        //and test if its an instance of textFile. But too late.
+        numFiles+=textFiles.length;
         String[] javaCode=file.getJavaCode();
         browserArea=new JEditorPane[numFiles];
         fileWindows=new JPanel[numFiles];
@@ -62,17 +66,22 @@ public class JavaCodeBrowser extends Container{
         constraints.weightx=1;
         constraints.weighty=1;
         for(int x=0;x<numFiles;x++){
+            int textIndex=x-files.length;
             fileWindows[x]=new JPanel();
             fileWindows[x].setLayout(new GridBagLayout());
             
             browserArea[x]=new JEditorPane();
             browserArea[x].setEditable(true);
             scrolls[x]=new JScrollPane (browserArea[x]);
-            if(!noFiles){
+            if(!noFiles&&textIndex<0){
+                System.out.println(javaCode.length+","+textIndex+","+x);
                 browserArea[x].setContentType("text/java");
                 browserArea[x].setText(javaCode[x]);
             }
-            else{
+            else if(textIndex>-1&&!noFiles){ //its a text file
+                browserArea[x].setText(textFiles[textIndex].getText());
+            }
+            else{ //theres no files
                 String text="No .java files found in the zip file.\n";
                 text+="File Structure:\n"+file.getFileStructure();
                 if(file.isInvalidZip()){
@@ -82,8 +91,11 @@ public class JavaCodeBrowser extends Container{
             }
             fileWindows[x].add(scrolls[x],constraints);
             String tabName;
-            if(!noFiles){
+            if(!noFiles&&x<=files.length-1){
                 tabName=files[x].getName();
+            }
+            else if(x>files.length-1){//its a text file
+                tabName=textFiles[textIndex].getName();
             }
             else{
                 tabName="Zipped File Structure";

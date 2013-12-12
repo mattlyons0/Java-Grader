@@ -39,6 +39,7 @@ public class DbxFile {
     private DbxClient client;
     private File downloadedFile;
     private JavaFile[] javaFiles;
+    private TextFile[] textFiles;
     private boolean invalidZip;
     private final String errorMsg;
     public DbxFile(DbxEntry.File entry,FileManager fileMan,DbxClient client){
@@ -227,17 +228,31 @@ public class DbxFile {
     private void setFile(File f){
         downloadedFile=f;
         searchJavaFiles();
+        searchTextFiles();
     }
     private void searchJavaFiles(){
-        javaFiles=searchForJavaFiles(downloadedFile.getPath(),".java");
+        File[] newArr=searchForFiles(downloadedFile.getPath(),".java");
+        javaFiles=new JavaFile[newArr.length];
+        for(int x=0;x<newArr.length;x++){
+            javaFiles[x]=(JavaFile)newArr[x];
+        }
+    }
+    private void searchTextFiles(){
+        File[] newArr=searchForFiles(downloadedFile.getPath(),".txt");
+        textFiles=new TextFile[newArr.length];
+        for(int x=0;x<newArr.length;x++){
+            textFiles[x]=(TextFile)newArr[x];
+        }
     }
     /**
      * Recursive file search
      * @param directory directory to search in
      * @param fileType files which end in this will be returned.
      * @return an array of files with specified ending characters.
+     * If type is .java it will return JavaFile[]
+     * If type is .txt it will return TextFile[]
      */
-    private JavaFile[] searchForJavaFiles(String directory,String fileType){
+    private File[] searchForFiles(String directory,String fileType){
         //System.out.println("Searching in "+directory);
         ArrayList<File> files=new ArrayList();
         ArrayList<File> filesWithType;
@@ -250,19 +265,22 @@ public class DbxFile {
             if(f.isFile()){
                 if(f.getName().endsWith(fileType.toLowerCase())||f.getName().endsWith(fileType.toUpperCase())){
                     //if file is .Java it wont get added, but that is stupid capitalization that nothing would save as anyway.
-                    JavaFile jf=new JavaFile(f);
-                    filesWithType.add(jf);
+                    if(fileType.equalsIgnoreCase(".java"))
+                        f=new JavaFile(f);
+                    else if(fileType.equalsIgnoreCase(".txt"))
+                        f=new TextFile(f);
+                    filesWithType.add(f);
                     //System.out.println("Adding "+f);
                 }
             }
             else if(f.isDirectory()){
-                if(!f.getName().endsWith(".git")){ //skip git folder for performance
-                    filesWithType.addAll(Arrays.asList(searchForJavaFiles(directory+"\\"+f.getName(),fileType)));
+                if(!f.getName().endsWith(".git")&&!f.getName().equals("__MACOSX")){ //skip git folder for performance, skip mac cache folder in zips
+                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName(),fileType)));
                 }
             }
         }
         
-        JavaFile[] fileArr=new JavaFile[filesWithType.size()];
+        File[] fileArr=new File[filesWithType.size()];
         return filesWithType.toArray(fileArr);
     }
     public String getFileStructure(){
@@ -395,6 +413,9 @@ public class DbxFile {
     }
     public JavaFile[] getJavaFiles(){
         return javaFiles;
+    }
+    public TextFile[] getTextFiles(){
+        return textFiles;
     }
     public String[] getJavaCode(){
         if(javaFiles==null){
