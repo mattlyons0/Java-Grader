@@ -18,4 +18,5 @@ Delete local files option in settings menu.
 Count lines of code?
 Fix bug where it sometimes doesnt detect .java files. Not reproducible.
 Update gui when renaming impropper zip files.
-Read .txt files
+Fixed test no java duplicating.
+Fix repaint issue with code tabs.

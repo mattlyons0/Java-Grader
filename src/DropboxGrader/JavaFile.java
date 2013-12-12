@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 public class JavaFile extends File{
     private boolean mainMethod;
     private String packageFolder;
+    private String code;
     public JavaFile(String location,boolean containsMain,String packageF){
         super(location);
         setMainMethod(containsMain);
@@ -179,6 +180,75 @@ public class JavaFile extends File{
             reader.close();
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
+        }
+        code=readCode();
+    }
+    public String getCode(){
+        return code;
+    }
+    private String readCode(){
+        try {
+            Scanner reader=new Scanner(this);
+            reader.useDelimiter("\n");
+            boolean inDropboxInjected=false;
+            String read="";
+            while(reader.hasNext()){
+                String line=reader.next();
+                if(!inDropboxInjected&&line.contains("//DROPBOXGRADERCODESTART")){
+                    inDropboxInjected=true;
+                }
+                else if(inDropboxInjected&&line.contains("//DROPBOXGRADERCODEEND")){
+                    inDropboxInjected=false;
+                }
+                else if(!inDropboxInjected){
+                    read+=line+"\n";
+                }
+            }
+            reader.close();
+//            if(packageDir!=null){
+//                System.out.println("Package at "+packageDir);
+//                if(packageFolder==null){
+//                    packageFolder=packageDir;
+//                }
+//                else{
+//                    //determine which is higher level
+//                    if(!packageFolder.equals(packageDir)){
+//                        String path=f.getPath();
+//                        path=path.replace("\\", "="); //cant split a \ for whatever reason
+//                        String[] pathFolders= path.split("=");
+//                        for(int x=0;x<pathFolders.length;x++){
+//                            pathFolders[x]=pathFolders[x].replace("=", "");
+//
+//                            if(pathFolders[x].equals(packageFolder)){
+//                                return read;
+//                            }
+//                            if(pathFolders[x].equals(packageDir)){
+//                                packageFolder=packageDir;
+//                                return read;
+//                            }
+//                        }
+//                    }
+//                    else{
+//                        return read;
+//                    }
+//                }
+//                if(!f.getParent().endsWith(packageDir)){
+//                    //need to move file into directory with packageName
+//                    File f2=new File(f.getParent()+"\\"+packageDir);
+//                    f2.mkdir();
+//                    
+//                    File movedF=new File(f2.getPath()+f.getName());
+//                    BufferedWriter writer=new BufferedWriter(new FileWriter(f));
+//                    writer.write(read);
+//                    writer.close();
+//                    f.delete();
+//                }
+//            }
+            
+            return read;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
         }
     }
 }

@@ -346,86 +346,11 @@ public class DbxFile {
         File[] fileArr=new File[(filesWithType.size())];
         return filesWithType.toArray(fileArr);
     }
-    private String readCode(JavaFile f){
-        try {
-            Scanner reader=new Scanner(f);
-            reader.useDelimiter("\n");
-            boolean inDropboxInjected=false;
-            String read="";
-            while(reader.hasNext()){
-                String line=reader.next();
-                if(!inDropboxInjected&&line.contains("//DROPBOXGRADERCODESTART")){
-                    inDropboxInjected=true;
-                }
-                else if(inDropboxInjected&&line.contains("//DROPBOXGRADERCODEEND")){
-                    inDropboxInjected=false;
-                }
-                else if(!inDropboxInjected){
-                    read+=line+"\n";
-                }
-            }
-            reader.close();
-//            if(packageDir!=null){
-//                System.out.println("Package at "+packageDir);
-//                if(packageFolder==null){
-//                    packageFolder=packageDir;
-//                }
-//                else{
-//                    //determine which is higher level
-//                    if(!packageFolder.equals(packageDir)){
-//                        String path=f.getPath();
-//                        path=path.replace("\\", "="); //cant split a \ for whatever reason
-//                        String[] pathFolders= path.split("=");
-//                        for(int x=0;x<pathFolders.length;x++){
-//                            pathFolders[x]=pathFolders[x].replace("=", "");
-//
-//                            if(pathFolders[x].equals(packageFolder)){
-//                                return read;
-//                            }
-//                            if(pathFolders[x].equals(packageDir)){
-//                                packageFolder=packageDir;
-//                                return read;
-//                            }
-//                        }
-//                    }
-//                    else{
-//                        return read;
-//                    }
-//                }
-//                if(!f.getParent().endsWith(packageDir)){
-//                    //need to move file into directory with packageName
-//                    File f2=new File(f.getParent()+"\\"+packageDir);
-//                    f2.mkdir();
-//                    
-//                    File movedF=new File(f2.getPath()+f.getName());
-//                    BufferedWriter writer=new BufferedWriter(new FileWriter(f));
-//                    writer.write(read);
-//                    writer.close();
-//                    f.delete();
-//                }
-//            }
-            
-            return read;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
     public JavaFile[] getJavaFiles(){
         return javaFiles;
     }
     public TextFile[] getTextFiles(){
         return textFiles;
-    }
-    public String[] getJavaCode(){
-        if(javaFiles==null){
-            return  null;
-        }
-        String[] code=new String[javaFiles.length];
-        for(int x=0;x<javaFiles.length;x++){
-            code[x]=readCode(javaFiles[x]);
-        }
-        return code;
     }
     
     public boolean run(JavaRunner runner, int times){

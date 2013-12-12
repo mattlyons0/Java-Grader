@@ -42,22 +42,28 @@ public class JavaCodeBrowser extends Container{
         tabPane=new JTabbedPane();
         File[] files=file.getJavaFiles();
         int numFiles=1;
-        boolean noFiles=true;
+        boolean noJavaFiles=true;
         if(files!=null){
             numFiles=file.getJavaFiles().length;
-            noFiles=false;
+            noJavaFiles=false;
         }
         if(numFiles==0||file.isInvalidZip()){
-            noFiles=true;
+            noJavaFiles=true;
         }
-        if(noFiles){
-            numFiles=1;
+        File[] text=file.getTextFiles();
+        File[] temp=files;
+        files=new File[text.length+temp.length];
+        for(int x=0;x<files.length;x++){
+            if(x<text.length){
+                files[x]=text[x];
+            }
+            else{
+                files[x]=temp[x-text.length];
+            }
         }
-        TextFile[] textFiles=file.getTextFiles(); //this is a bad way of handling it. but whatever
-        //i should really just add these to the files array since they are both instances of file
-        //and test if its an instance of textFile. But too late.
-        numFiles+=textFiles.length;
-        String[] javaCode=file.getJavaCode();
+        numFiles=files.length;
+        if(noJavaFiles)
+            numFiles++;
         browserArea=new JEditorPane[numFiles];
         fileWindows=new JPanel[numFiles];
         scrolls=new JScrollPane [numFiles];
@@ -66,36 +72,35 @@ public class JavaCodeBrowser extends Container{
         constraints.weightx=1;
         constraints.weighty=1;
         for(int x=0;x<numFiles;x++){
-            int textIndex=x-files.length;
             fileWindows[x]=new JPanel();
             fileWindows[x].setLayout(new GridBagLayout());
             
             browserArea[x]=new JEditorPane();
             browserArea[x].setEditable(true);
             scrolls[x]=new JScrollPane (browserArea[x]);
-            if(!noFiles&&textIndex<0){
-                System.out.println(javaCode.length+","+textIndex+","+x);
-                browserArea[x].setContentType("text/java");
-                browserArea[x].setText(javaCode[x]);
-            }
-            else if(textIndex>-1&&!noFiles){ //its a text file
-                browserArea[x].setText(textFiles[textIndex].getText());
-            }
-            else{ //theres no files
-                String text="No .java files found in the zip file.\n";
-                text+="File Structure:\n"+file.getFileStructure();
+            if(noJavaFiles&&numFiles-x==1){ //theres no files
+                String t="No .java files found in the zip file.\n";
+                t+="File Structure:\n"+file.getFileStructure();
                 if(file.isInvalidZip()){
-                    text="Zip file is invalid.";
+                    t="Zip file is invalid.";
                 }
-                browserArea[x].setText(text);
+                browserArea[x].setText(t);
+            }
+            else{
+                if(files[x] instanceof JavaFile){
+                    JavaFile jf=(JavaFile)files[x];
+                    browserArea[x].setContentType("text/java");
+                    browserArea[x].setText(jf.getCode());
+                }
+                else if(files[x] instanceof TextFile){
+                    TextFile tf=(TextFile)files[x];
+                    browserArea[x].setText(tf.getText());
+                }
             }
             fileWindows[x].add(scrolls[x],constraints);
             String tabName;
-            if(!noFiles&&x<=files.length-1){
+            if(!noJavaFiles||numFiles-x!=1){
                 tabName=files[x].getName();
-            }
-            else if(x>files.length-1){//its a text file
-                tabName=textFiles[textIndex].getName();
             }
             else{
                 tabName="Zipped File Structure";
