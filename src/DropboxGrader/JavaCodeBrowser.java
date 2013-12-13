@@ -51,7 +51,11 @@ public class JavaCodeBrowser extends Container{
             noJavaFiles=true;
         }
         File[] text=file.getTextFiles();
+        if(text==null)
+            text=new File[0];
         File[] temp=files;
+        if(temp==null)
+            temp=new File[0];
         files=new File[text.length+temp.length];
         for(int x=0;x<files.length;x++){
             if(x<text.length){
@@ -112,6 +116,10 @@ public class JavaCodeBrowser extends Container{
     }
     public void setFile(DbxFile f){
         file=f;
+        remove(tabPane);
+        for(JPanel panel:fileWindows){
+            remove(panel);
+        }
         init();
     }
     public String saveFile(){

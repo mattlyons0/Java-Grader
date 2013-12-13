@@ -16,8 +16,6 @@ Make code run from its own folder.
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
-Fix bug where it sometimes doesnt detect .java files. Not reproducible.
-Update gui when renaming impropper zip files.
 Fixed test no java duplicating.
 Fix repaint issue with code tabs.
 Catch out of memory with DropboxGrader code.

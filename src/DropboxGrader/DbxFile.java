@@ -70,15 +70,15 @@ public class DbxFile {
         }
     }
     public File forceDownload(){
-        return download(true);
+        return download(true,0);
     }
     public File download(){
         if(downloadedFile==null||downloadedFile.listFiles()==null||downloadedFile.listFiles().length==0){
-            return download(true);
+            return download(true,0);
         }
-        return download(false);
+        return download(false,0);
     }
-    private File download(boolean force){
+    private File download(boolean force,int retryNum){
         String zipPath=fileManager.getDownloadFolder()+"/"+entry.name;
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
         File file=new File(zipPath);
@@ -97,6 +97,9 @@ public class DbxFile {
         } catch (DbxException | IOException |ZipException ex) {
             System.err.println("Exception when unzipping "+ex);
             if(ex instanceof ZipException){
+                if(retryNum>0){
+                    download(true,1);
+                }
                 setInvalidZip();
             }
             else if(ex instanceof DbxException){
