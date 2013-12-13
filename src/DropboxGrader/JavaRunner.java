@@ -131,7 +131,7 @@ public class JavaRunner implements Runnable{
         if(compile)
             terminal.setText("");
         String errorSaving=browser.saveFile();
-        if(errorSaving==null||errorSaving.trim().equals(""))
+        if(errorSaving!=null&&!errorSaving.trim().equals(""))
             terminal.append("Error saving file: "+errorSaving,Color.RED);
         
         numRunsLeft=numTimes;

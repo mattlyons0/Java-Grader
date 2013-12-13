@@ -234,14 +234,14 @@ public class DbxFile {
         searchTextFiles();
     }
     private void searchJavaFiles(){
-        File[] newArr=searchForFiles(downloadedFile.getPath(),".java");
+        File[] newArr=searchForFiles(downloadedFile.getPath()+"\\",".java");
         javaFiles=new JavaFile[newArr.length];
         for(int x=0;x<newArr.length;x++){
             javaFiles[x]=(JavaFile)newArr[x];
         }
     }
     private void searchTextFiles(){
-        File[] newArr=searchForFiles(downloadedFile.getPath(),".txt");
+        File[] newArr=searchForFiles(downloadedFile.getPath()+"\\",".txt");
         textFiles=new TextFile[newArr.length];
         for(int x=0;x<newArr.length;x++){
             textFiles[x]=(TextFile)newArr[x];

@@ -30,7 +30,6 @@ public class JavaFile extends File{
     }
     public JavaFile(File f){
         super(f.getPath());
-        setMainMethod(false);
         validateFile(f);
     }
     public String changeCode(String newCode){
@@ -158,11 +157,13 @@ public class JavaFile extends File{
     }
     private void validateFile(File f){
         try {
+            code="";
             Scanner reader=new Scanner(f);
             reader.useDelimiter("\n");
             while(reader.hasNext()){
                 String packageDir=null;
                 String line=reader.next();
+                code+=line+"\n";
                 if(line.contains("package ")){ //if it contains packages we need to make sure its in the right folder
                     packageDir=line.substring(0,line.length()-1); //-1 to get rid of \n
                     packageDir=packageDir.replace("package ", "");
@@ -174,14 +175,17 @@ public class JavaFile extends File{
                     //System.out.println("Line "+line+" contained a package declaration.");
                 }
                 if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){ //if it contains a main method
-                    setMainMethod(true);
+                    if(!mainMethod){
+                        setMainMethod(true);
+                        validateFile(f);
+                        return;
+                    }
                 }
             }
             reader.close();
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
-        code=readCode();
     }
     public String getCode(){
         return code;

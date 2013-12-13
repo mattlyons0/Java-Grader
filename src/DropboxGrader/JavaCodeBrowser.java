@@ -31,6 +31,7 @@ public class JavaCodeBrowser extends Container{
     private JPanel[] fileWindows;
     private JTabbedPane tabPane;
     private DbxFile file;
+    private int numTextFiles;
     public JavaCodeBrowser(DbxFile f){
         file=f;
         
@@ -53,6 +54,7 @@ public class JavaCodeBrowser extends Container{
         File[] text=file.getTextFiles();
         if(text==null)
             text=new File[0];
+        numTextFiles=text.length;
         File[] temp=files;
         if(temp==null)
             temp=new File[0];
@@ -129,7 +131,7 @@ public class JavaCodeBrowser extends Container{
         }
         String result="";
         for(int x=0;x<files.length;x++){
-            String code=browserArea[x].getText();
+            String code=browserArea[x+numTextFiles].getText();
             result=files[x].changeCode(code)+"\n";
         }
         return result;
