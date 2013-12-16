@@ -188,7 +188,22 @@ public class JavaFile extends File{
         }
     }
     public String getCode(){
-        return code;
+        String c="";
+        boolean inInject=false;
+        for(String line:code.split("\n")){
+            if(line.contains("//DROPBOXGRADERCODESTART")){
+                inInject=true;
+            }
+            else if(inInject){
+                if(line.contains("//DROPBOXGRADERCODEEND")){
+                    inInject=false;
+                }
+            }
+            else{
+                c+=line+"\n";
+            }
+        }
+        return c;
     }
     private String readCode(){
         try {

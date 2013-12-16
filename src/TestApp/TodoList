@@ -19,3 +19,4 @@ Count lines of code?
 Fixed test no java duplicating.
 Fix repaint issue with code tabs.
 Catch out of memory with DropboxGrader code.
+Config to read text files
