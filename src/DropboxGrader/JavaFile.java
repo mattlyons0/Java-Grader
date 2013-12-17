@@ -119,6 +119,7 @@ public class JavaFile extends File{
                         }
                     }
                     if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){
+                        
                         String lineAfter=s.next();
                         if(!line.contains("{")){
                             line+=lineAfter;
@@ -158,6 +159,7 @@ public class JavaFile extends File{
     }
     private void validateFile(File f){
         try {
+            boolean removePackage=false;
             code="";
             Scanner reader=new Scanner(f);
             reader.useDelimiter("\n");
@@ -172,11 +174,26 @@ public class JavaFile extends File{
                     packageDir=packageDir.replace(";", "");
                     packageDir=packageDir.replace(".", "/");
                     setPackage(packageDir);
+                    //check if it is in the right folder, then move it.
+                    File parent=this.getParentFile();
+                    if(parent!=null&&parent.isDirectory()){
+                        String name=parent.getName();
+                        String[] folders=packageDir.split(".");
+                        if(folders.length<=0){
+                            folders=new String[1];
+                            folders[0]=packageDir;
+                        }
+                        if(!name.equals(folders[0])){
+                            removePackage=true;
+                        }
+                       
+                    }
                     //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
                     //System.out.println("Line "+line+" contained a package declaration.");
                 }
                 if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){ //if it contains a main method
                     if(!mainMethod){
+                        reader.close();
                         setMainMethod(true);
                         validateFile(f);
                         return;
@@ -184,6 +201,9 @@ public class JavaFile extends File{
                 }
             }
             reader.close();
+            if(removePackage){
+                removePackage(code);
+            }
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
@@ -270,5 +290,17 @@ public class JavaFile extends File{
             ex.printStackTrace();
             return null;
         }
+    }
+
+    private void removePackage(String code) {
+        packageFolder=null;
+        String newCode="";
+        String[] lines=code.split("\n");
+        for(int x=0;x<lines.length;x++){
+            if(!lines[x].contains("package")){
+                newCode+=lines[x];
+            }
+        }
+        changeCode(newCode);
     }
 }
