@@ -18,6 +18,7 @@ import com.google.gdata.util.ServiceException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -66,6 +67,8 @@ public class SpreadsheetGrader {
             }
             initAssignmentNums();
         } catch (IOException|ServiceException ex) {
+            if(ex instanceof UnknownHostException)
+                GuiHelper.alertDialog("Error connecting to google. "+ex);
             Logger.getLogger(SpreadsheetGrader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -119,23 +119,24 @@ public class JavaFile extends File{
                         }
                     }
                     if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){
-                        
-                        String lineAfter=s.next();
-                        if(!line.contains("{")){
-                            line+=lineAfter;
-                            lineAfter=s.next();
+                        if(s.hasNext()){
+                            String lineAfter=s.next();
+                            if(!line.contains("{")){
+                                line+=lineAfter;
+                                lineAfter=s.next();
+                            }
+                            if(lineAfter.contains("//DROPBOXGRADERCODESTART")){
+                                return;
+                            }
+                            int index=line.indexOf("{")+1; 
+                            //if someone is an idiot and puts a sout on the same line as the main method header it will catch it.
+                            currentFile+=line.substring(0, index)+"\n";
+                            //System.out.println("Injecting after "+line.substring(0, index));
+                            currentFile+=inject;
+                            currentFile+=line.substring(index);
+                            currentFile+=lineAfter+"\n";
+                            didFirstInject=true;
                         }
-                        if(lineAfter.contains("//DROPBOXGRADERCODESTART")){
-                            return;
-                        }
-                        int index=line.indexOf("{")+1; 
-                        //if someone is an idiot and puts a sout on the same line as the main method header it will catch it.
-                        currentFile+=line.substring(0, index)+"\n";
-                        //System.out.println("Injecting after "+line.substring(0, index));
-                        currentFile+=inject;
-                        currentFile+=line.substring(index);
-                        currentFile+=lineAfter+"\n";
-                        didFirstInject=true;
                     }
                     else if(braces==0&&didFirstInject&&!didLastInject){
                         currentFile+=inject2;
@@ -298,7 +299,7 @@ public class JavaFile extends File{
         String[] lines=code.split("\n");
         for(int x=0;x<lines.length;x++){
             if(!lines[x].contains("package")){
-                newCode+=lines[x];
+                newCode+=lines[x]+"\n";
             }
         }
         changeCode(newCode);
