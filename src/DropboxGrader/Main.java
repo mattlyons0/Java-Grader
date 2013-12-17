@@ -18,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             PrintStream s=new PrintStream(new File("error.log"));
-            //System.setErr(s); //log exceptions to error.log file.
+            System.setErr(s); //log exceptions to error.log file.
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
