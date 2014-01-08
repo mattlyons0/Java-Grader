@@ -53,7 +53,7 @@ public class Gui extends JFrame implements ActionListener{
     private DbxSession dbxSession;
     private DbxClient client;
     private GoogSession googSession;
-    private SpreadsheetGrader gradeWriter;
+    private HTMLGrader grader;
     private WorkerThread workerThread;
     private GuiListener listener;
     
@@ -134,11 +134,8 @@ public class Gui extends JFrame implements ActionListener{
         
         dbxSession=new DbxSession(this);
     }
-    private void initGoogSession(){
-        googSession=new GoogSession();
-        gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
-        fileManager.setGrader(gradeWriter);
-        setupFileBrowserGui();
+    private void initHTML(){
+        grader=new HTMLGrader(fileManager,dbxSession.getClient());
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
@@ -504,7 +501,7 @@ public class Gui extends JFrame implements ActionListener{
         if(submitButton!=null)
             remove(submitButton);
         createSession();
-        initGoogSession();
+        initHTML();
     }
     public SpreadsheetGrader getGrader(){
         return gradeWriter;
