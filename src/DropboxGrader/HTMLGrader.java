@@ -8,6 +8,7 @@ import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import javax.swing.JLabel;
 
 /**
  *
@@ -31,5 +32,20 @@ public class HTMLGrader {
         } catch(DbxException | IOException e){
             System.err.println("An error occured while initializing the HTML spreadsheet. "+e);
         }
+    }
+    public boolean setGrade(String name,String assignmentNum,String gradeNum,String comment,JLabel statusLabel){
+        return false;
+    }
+    public String getGrade(String name,String assignmentNum,JLabel statusLabel){
+        return "";
+    }
+    public String getComment(String name,String assignmentNum,JLabel statusLabel){
+        return "";
+    }
+    public boolean gradeWritten(String name,String assignmentNum,JLabel statusLabel){
+        return false;
+    }
+    public void reset(){
+        init();
     }
 }

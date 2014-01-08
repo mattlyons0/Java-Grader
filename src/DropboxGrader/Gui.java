@@ -258,14 +258,16 @@ public class Gui extends JFrame implements ActionListener{
         }
         gradeStatus=new JLabel("");
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
-        String[] grade=null;
-        if(gradeWriter!=null){
-            grade=gradeWriter.getEntryAt(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
+        String grade=null,comment=null;
+        if(grader!=null){
+            grade=grader.getGrade(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
+            comment=grader.getComment(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
         }
         if(grade==null){
-            grade=new String[2];
-            grade[0]="";
-            grade[1]="";
+            grade="";
+        }
+        if(comment==null){
+            comment="";
         }
         if(javaCode==null)
             javaCode=new JavaCodeBrowser(file);
@@ -323,13 +325,13 @@ public class Gui extends JFrame implements ActionListener{
         gradePanel.setLayout(new GridBagLayout());
         JLabel gradeLabel1=new JLabel("Grade: ");
         gradeNumber=new JTextField(3);
-        gradeNumber.setText(grade[0]);
+        gradeNumber.setText(grade);
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
         gradeNumber.setMinimumSize(new Dimension(30,15));
         gradeNumber.addActionListener(this);
         JLabel gradeLabel2=new JLabel(" Comment: ");
         gradeComment=new JTextField(25);
-        gradeComment.setText(grade[1]);
+        gradeComment.setText(comment);
         gradeComment.setHorizontalAlignment(JTextField.CENTER);
         gradeComment.setMinimumSize(new Dimension(250,15));
         gradeComment.addActionListener(this);
@@ -503,8 +505,8 @@ public class Gui extends JFrame implements ActionListener{
         createSession();
         initHTML();
     }
-    public SpreadsheetGrader getGrader(){
-        return gradeWriter;
+    public HTMLGrader getGrader(){
+        return grader;
     }
     public JavaRunner getRunner(){
         return runner;
@@ -615,7 +617,7 @@ public class Gui extends JFrame implements ActionListener{
                 DbxFile f=fileManager.getFile(i);
                 if(f!=null){
                     int assignment=Integer.parseInt(f.getAssignmentNumber());
-                    boolean written=gradeWriter.gradeWritten(f.getFirstLastName(), assignment,new JLabel());
+                    boolean written=grader.gradeWritten(f.getFirstLastName(), assignment+"",null);
                     if(!written){
                         kept=true;
                         select.remove(x);
@@ -691,14 +693,14 @@ public class Gui extends JFrame implements ActionListener{
             setupFileBrowserGui();
         }
         else if(e.getSource().equals(recordGradeButton)){
-            if(gradeWriter==null){
-                gradeStatus.setText("You have not authenticated your google account with this grader yet.");
+            if(grader==null){
+                gradeStatus.setText("Grader has not been initialized.");
                 return;
             }
             try{
                 int assign=Integer.parseInt(currentFile.getAssignmentNumber());
                 System.out.println(assign);
-                boolean success=gradeWriter.setGrade(currentFile.getFirstLastName(), assign, gradeNumber.getText(),gradeComment.getText(),gradeStatus);
+                boolean success=grader.setGrade(currentFile.getFirstLastName(), assign+"", gradeNumber.getText(),gradeComment.getText(),gradeStatus);
                 if(success){
                     if(selectedFiles.size()>1){
                         selectedFiles.remove(0);
@@ -727,9 +729,9 @@ public class Gui extends JFrame implements ActionListener{
             }
             Config.autoRun=autoRun.isSelected();
             Config.writeConfig();
-            gradeWriter=new SpreadsheetGrader(Config.spreadsheetName,googSession.getService(),this);
+            grader.reset();
             fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
-            fileManager.setGrader(gradeWriter);
+            fileManager.setGrader(grader);
             setupFileBrowserGui();
         }
     }

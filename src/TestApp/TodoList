@@ -22,3 +22,5 @@ Catch out of memory with DropboxGrader code.
 Config to read text files
 Delete downloaded files on close.
 Fix failing login with dropbox screwing things up
+Update checker
+Optional libraries to compile with setting.
