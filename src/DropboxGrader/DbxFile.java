@@ -194,7 +194,7 @@ public class DbxFile {
         try{
             int num=Integer.parseInt(getAssignmentNumber());
             if(fileManager.getGrader()!=null){
-                String grade=fileManager.getGrader().gradeAt(getFirstLastName(), num,new JLabel());
+                String grade=fileManager.getGrader().getGrade(getFirstLastName(), num+"",new JLabel());
                 if(grade!=null){
                     fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
                     return "Grade: "+grade;

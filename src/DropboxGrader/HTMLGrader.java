@@ -5,7 +5,9 @@
 package DropboxGrader;
 
 import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.swing.JLabel;
@@ -17,7 +19,8 @@ import javax.swing.JLabel;
 public class HTMLGrader {
     private DbxClient client;
     private FileManager manager;
-    private String filename;
+    private String filenameRemote;
+    private String filenameLocal;
     public HTMLGrader(FileManager manager,DbxClient client){
         this.client=client;
         this.manager=manager;
@@ -25,10 +28,20 @@ public class HTMLGrader {
     }
     private void init(){
         try{
-            filename="Grades-Period"+Config.dropboxPeriod+".html";
-            FileOutputStream f = new FileOutputStream(manager.getDownloadFolder()+"/"+filename);
-            filename=manager.getDropboxFolder()+"/"+filename;
-            client.getFile(filename, null, f);
+            filenameLocal="Grades-Period"+Config.dropboxPeriod+".html";
+            filenameRemote="/"+manager.getDropboxFolder()+"/"+filenameLocal;
+            filenameLocal=manager.getDownloadFolder()+"/"+filenameLocal;
+            FileOutputStream f = new FileOutputStream(filenameLocal);
+            DbxEntry entry=client.getMetadata(filenameRemote);
+            if(entry!=null){ //file has already been created
+                client.getFile(filenameRemote, null, f); //download file
+            }
+            else{ //need to create new spreadsheet
+                File sheet=new File(filenameLocal);
+                sheet.createNewFile();
+                String code;
+                
+            }
         } catch(DbxException | IOException e){
             System.err.println("An error occured while initializing the HTML spreadsheet. "+e);
         }

@@ -135,7 +135,7 @@ public class Gui extends JFrame implements ActionListener{
         dbxSession=new DbxSession(this);
     }
     private void initHTML(){
-        grader=new HTMLGrader(fileManager,dbxSession.getClient());
+        grader=new HTMLGrader(fileManager,client);
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
