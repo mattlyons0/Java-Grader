@@ -17,6 +17,7 @@ public class Config {
     public static String spreadsheetName;
     public static String dropboxFolder;
     public static int dropboxPeriod;
+    public static String dropboxSpreadsheetFolder;
     //FileBrowser
     public static String columnOrder;
     public static String columnWidth;
@@ -32,6 +33,7 @@ public class Config {
         spreadsheetName="APCS Period 1 Assignments";
         dropboxFolder="DROPitTOme";
         dropboxPeriod=1;
+        dropboxSpreadsheetFolder="Grades";
         //FileBrowser
         columnOrder="0,1,2,3,4";
         columnWidth="75,75,75,75,75"; //75=default
@@ -59,6 +61,7 @@ public class Config {
             sortColumn=vars[7];
             sortOrder=vars[8];
             dividerLocation=Integer.parseInt(vars[9]);
+            dropboxSpreadsheetFolder=vars[10];
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
@@ -74,6 +77,7 @@ public class Config {
         config=append(config,sortColumn);
         config=append(config,sortOrder);
         config=append(config,dividerLocation+"");
+        config=append(config,dropboxSpreadsheetFolder);
         
         DbxSession.writeToFile(configFile, config);
     }
@@ -87,5 +91,6 @@ public class Config {
     public static void reset(){
         init();
         writeConfig();
+        GuiHelper.alertDialog("Corrupt Config was detected.\nAll settings have been reset.");
     }
 }
