@@ -27,6 +27,7 @@ public class HTMLGrader {
     private String filenameRemote;
     private String filenameLocal;
     private File sheet;
+    private String code;
     public HTMLGrader(FileManager manager,DbxClient client){
         this.client=client;
         this.manager=manager;
@@ -50,6 +51,7 @@ public class HTMLGrader {
             else{ //no spreadsheet file found
                 createSheet();
             }
+            code=DbxSession.readFromFile(sheet);
         } catch(DbxException | IOException e){
             System.err.println("An error occured while downloading the HTML spreadsheet. "+e);
         }
@@ -116,20 +118,26 @@ public class HTMLGrader {
         return -1;
     }
     private void createAssignment(String assignmentNum){
-        String html=DbxSession.readFromFile(sheet);
         String substring="<!--assignments go below here-->";
-        int assignmentIndex=indexOf(substring,html)+substring.length();
-        html=html.substring(0, assignmentIndex)+"\n"
+        int assignmentIndex=indexOf(substring,code)+substring.length();
+        code=code.substring(0, assignmentIndex)+"\n"
                 + "                    <td>"+assignmentNum+"</td>\n"+
-                html.substring(assignmentIndex, html.length());
-        DbxSession.writeToFile(sheet, html);
+                code.substring(assignmentIndex, code.length());
+    }
+    private void createName(String name){
+        String substring="<!--names go here-->";
+        int nameIndex=indexOf(substring,code)+substring.length();
+        code=code.substring(0,nameIndex)+"\n"+
+                "                    <td>"+name+"</td>\n"+
+                code.substring(nameIndex,code.length());
     }
     public boolean setGrade(String name,String assignmentNum,String gradeNum,String comment,JLabel statusLabel){
         downloadSheet();
         if(!assignmentInTable(assignmentNum)){ //need to create assignment in table
             createAssignment(assignmentNum);
         }
-        //need to write data
+        
+        int index=indexOf("<td>"+assignmentNum,code);
         try{
             //upload to dropbox
             FileInputStream sheetStream = new FileInputStream(sheet);

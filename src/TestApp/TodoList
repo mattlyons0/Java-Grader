@@ -26,3 +26,4 @@ Update checker
 Optional libraries to compile with setting.
 HTML shouldn't be in the same directory as dropittome but a seperate one so it cannot be overriden.
 Don't download spreadsheet if the current copy is up to date.
+Delete downloads on close.

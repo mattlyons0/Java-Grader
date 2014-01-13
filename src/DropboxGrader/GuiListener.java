@@ -62,6 +62,15 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
         gui.isClosing();
         
         Config.writeConfig();
+        
+        //delete downloads
+        File downloads=new File("downloads\\");
+        File[] downloaded=downloads.listFiles();
+        if(downloaded!=null){
+            for(File f:downloaded){
+                f.delete();
+            }
+        }
     }
 
     @Override
