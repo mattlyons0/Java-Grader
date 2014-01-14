@@ -136,6 +136,7 @@ public class HTMLGrader {
         if(!assignmentInTable(assignmentNum)){ //need to create assignment in table
             createAssignment(assignmentNum);
         }
+        if
         
         int index=indexOf("<td>"+assignmentNum,code);
         try{
@@ -158,6 +159,9 @@ public class HTMLGrader {
         return false;
     }
     private boolean assignmentInTable(String assignmentNum){
+        return false;
+    }
+    private boolean nameInTable(String name){
         return false;
     }
     public void reset(){
