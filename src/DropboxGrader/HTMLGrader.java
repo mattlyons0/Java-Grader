@@ -136,9 +136,15 @@ public class HTMLGrader {
         if(!assignmentInTable(assignmentNum)){ //need to create assignment in table
             createAssignment(assignmentNum);
         }
-        if
+        if(!nameInTable(name)){
+            createName(name);
+        }
+        String assignmentString="<td>"+assignmentNum;
+        int assignmentIndex=indexOf(assignmentString,code)+assignmentString.length();
+        String nameString="<td>"+name;
+        int nameIndex=indexOf(nameString,code)+nameString.length();
         
-        int index=indexOf("<td>"+assignmentNum,code);
+        //select row col and put it in.
         try{
             //upload to dropbox
             FileInputStream sheetStream = new FileInputStream(sheet);
