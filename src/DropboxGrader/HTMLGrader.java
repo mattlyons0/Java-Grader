@@ -34,6 +34,9 @@ public class HTMLGrader {
         init();
     }
     private void init(){
+        if(Config.dropboxSpreadsheetFolder==null){
+            Config.reset(); //config corrupt...
+        }
         filenameLocal="Grades-Period"+Config.dropboxPeriod+".html";
         filenameRemote="/"+Config.dropboxSpreadsheetFolder+"/"+filenameLocal;
         filenameLocal=manager.getDownloadFolder()+"/"+filenameLocal;
@@ -84,13 +87,22 @@ public class HTMLGrader {
 "</html>";
             //write to file
             DbxSession.writeToFile(sheet, code);
+            upload();
+        } catch(IOException e){
+            System.err.println("An error occured while creating HTML spreadsheet. "+e);
+        }
+    }
+    private boolean upload(){
+        try{
             //upload to dropbox
             FileInputStream sheetStream = new FileInputStream(sheet);
-            client.uploadFile(filenameRemote, DbxWriteMode.add(), sheet.length(), sheetStream);
+            client.uploadFile(filenameRemote, DbxWriteMode.force(), sheet.length(), sheetStream);
             sheetStream.close();
-        } catch(IOException | DbxException e){
-            System.err.println("An error occured while creating and uploading HTML spreadsheet. "+e);
+        } catch(DbxException | IOException e){
+            System.err.println("Error uploading spredsheet to dropbox. "+e);
+            return false;
         }
+        return true;
     }
     public static int indexOf(String substring,String str){
         boolean inSub=false;
@@ -128,7 +140,7 @@ public class HTMLGrader {
         String substring="<!--names go here-->";
         int nameIndex=indexOf(substring,code)+substring.length();
         code=code.substring(0,nameIndex)+"\n"+
-                "                    <td>"+name+"</td>\n"+
+                "                    <tr><td>"+name+"</td></tr>\n"+
                 code.substring(nameIndex,code.length());
     }
     public boolean setGrade(String name,String assignmentNum,String gradeNum,String comment,JLabel statusLabel){
@@ -145,14 +157,10 @@ public class HTMLGrader {
         int nameIndex=indexOf(nameString,code)+nameString.length();
         
         //select row col and put it in.
-        try{
-            //upload to dropbox
-            FileInputStream sheetStream = new FileInputStream(sheet);
-            client.uploadFile(filenameRemote, DbxWriteMode.add(), sheet.length(), sheetStream);
-            sheetStream.close();
-        } catch(DbxException | IOException e){
-            System.err.println("Error uploading spredsheet to dropbox. "+e);
-        }
+        //write to file
+        DbxSession.writeToFile(sheet, code);
+        //upload
+        upload();
         return false;
     }
     public String getGrade(String name,String assignmentNum,JLabel statusLabel){

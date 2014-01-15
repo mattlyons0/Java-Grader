@@ -136,6 +136,7 @@ public class Gui extends JFrame implements ActionListener{
     }
     private void initHTML(){
         grader=new HTMLGrader(fileManager,client);
+        grader.setGrade("Matt Lyons", "1", "2", "Good Work Matt!", status);
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
