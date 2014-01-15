@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.JLabel;
 
@@ -64,7 +65,7 @@ public class HTMLGrader {
             File sheet=new File(filenameLocal);
             sheet.createNewFile();
             //default html page
-            String code="" +
+            code=""+
 "<!DOCTYPE html>\n" +
 "<html>\n" +
 "    <head>\n" +
@@ -78,9 +79,7 @@ public class HTMLGrader {
 "                <tr>\n" +
 "                    <td></td> <!--assignments go below here-->\n" +
 "                </tr>\n" +
-"                <tr>\n" +
-"                    <!--names go here-->\n" +
-"                </tr>\n" +
+"                <!--names go here-->\n" +
 "            </table>\n" +
 "        </div>\n" +
 "    </body>\n" +
@@ -129,6 +128,33 @@ public class HTMLGrader {
         }
         return -1;
     }
+    public static Integer[] allIndexOf(String substring,String str){
+        boolean inSub=false;
+        ArrayList<Integer> indexes=new ArrayList();
+        int subIndex=0;
+        int startIndex=-1;
+        for(int x=0;x<str.length();x++){
+            char c=str.charAt(x);
+            if(substring.charAt(subIndex)==c){
+                if(!inSub){
+                    startIndex=x;
+                    inSub=true;
+                    subIndex=0;
+                }
+                if(subIndex==substring.length()-1){
+                    indexes.add(startIndex);
+                }
+                subIndex++;
+            }
+            else{
+                inSub=false;
+                subIndex=0;
+                startIndex=-1;
+            }
+        }
+        Integer[] arr=new Integer[indexes.size()];
+        return indexes.toArray(arr);
+    }
     private void createAssignment(String assignmentNum){
         String substring="<!--assignments go below here-->";
         int assignmentIndex=indexOf(substring,code)+substring.length();
@@ -145,18 +171,19 @@ public class HTMLGrader {
     }
     public boolean setGrade(String name,String assignmentNum,String gradeNum,String comment,JLabel statusLabel){
         downloadSheet();
-        if(!assignmentInTable(assignmentNum)){ //need to create assignment in table
-            createAssignment(assignmentNum);
-        }
         if(!nameInTable(name)){
             createName(name);
         }
+        if(!assignmentInTable(assignmentNum)){ //need to create assignment in table
+            createAssignment(assignmentNum);
+        }
+        //select row col
         String assignmentString="<td>"+assignmentNum;
-        int assignmentIndex=indexOf(assignmentString,code)+assignmentString.length();
-        String nameString="<td>"+name;
-        int nameIndex=indexOf(nameString,code)+nameString.length();
-        
-        //select row col and put it in.
+        int assignCol=selectiveCountRepeats(assignmentString,"</tr>","</td>",code);
+        String nameString="<td>"+name+"</td>";
+        int startIndex=indexOf(nameString,code)+nameString.length();
+        //Determine which <td> block to put in
+                
         //write to file
         DbxSession.writeToFile(sheet, code);
         //upload
@@ -180,5 +207,15 @@ public class HTMLGrader {
     }
     public void reset(){
         init();
+    }
+
+    private int selectiveCountRepeats(String startString, String endString,String counted,String str) {
+        int startIndex=indexOf(startString,str)+startString.length();
+        str=str.substring(startIndex); //cut off the front part
+        int endIndex=indexOf(endString,str);
+        str=str.substring(0,endIndex); //cut off the end part
+        
+        Integer[] occurances=allIndexOf(counted,str);
+        return occurances.length;
     }
 }
