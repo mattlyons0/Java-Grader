@@ -128,6 +128,13 @@ public class HTMLGrader {
         }
         return -1;
     }
+    public static int lastIndexOf(String substring,String str){
+        Integer[] index=allIndexOf(substring,str);
+        if(index.length==0){
+            return -1;
+        }
+        return index[index.length-1];
+    }
     public static Integer[] allIndexOf(String substring,String str){
         boolean inSub=false;
         ArrayList<Integer> indexes=new ArrayList();
@@ -135,7 +142,7 @@ public class HTMLGrader {
         int startIndex=-1;
         for(int x=0;x<str.length();x++){
             char c=str.charAt(x);
-            if(substring.charAt(subIndex)==c){
+            if(substring.length()>subIndex&&substring.charAt(subIndex)==c){
                 if(!inSub){
                     startIndex=x;
                     inSub=true;
@@ -177,13 +184,26 @@ public class HTMLGrader {
         if(!assignmentInTable(assignmentNum)){ //need to create assignment in table
             createAssignment(assignmentNum);
         }
-        //select row col
+        //Isolate line
+        int injectLineIndexStart=indexOf("<td>"+name+"</td>",code);
+        String line=code.substring(injectLineIndexStart);
+        int injectLineIndexEnd=lastIndexOf("</tr>",line);
+        
+        //count td tags
         String assignmentString="<td>"+assignmentNum;
-        int assignCol=selectiveCountRepeats(assignmentString,"</tr>","</td>",code);
-        String nameString="<td>"+name+"</td>";
-        int startIndex=indexOf(nameString,code)+nameString.length();
+        int assignCol=selectiveCountRepeats("<!--assignments go below here-->",assignmentNum,"</td>",code);
+        
         //Determine which <td> block to put in
-                
+        int currentNumTags=selectiveCountRepeats(name+"</td>","</tr>","</td>",line);
+        int tagsToAdd=assignCol-currentNumTags;
+        int tagWriteIndex=lastIndexOf("</td>",line);
+        for(int x=0;x<tagsToAdd;x++){
+            line=line.substring(tagWriteIndex)+"<td></td>"+line.substring(tagWriteIndex,line.length());
+        }
+        int gradeIndex=lastIndexOf("</td>",line.substring(tagWriteIndex,line.length())); //this won't work for editing a "middle tag"
+        line=line.substring(0,gradeIndex)+gradeNum+"\n"+comment+line.substring(gradeIndex,line.length());
+        //Re-inject into code
+        code=code.substring(0,injectLineIndexStart)+line+code.substring(injectLineIndexEnd,code.length());
         //write to file
         DbxSession.writeToFile(sheet, code);
         //upload
