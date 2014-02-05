@@ -192,7 +192,7 @@ public class JavaFile extends File{
                     //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
                     //System.out.println("Line "+line+" contained a package declaration.");
                 }
-                if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){ //if it contains a main method
+                if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String")&&line.replace(" ", "").contains("[]")){ //if it contains a main method
                     if(!mainMethod){
                         reader.close();
                         setMainMethod(true);
