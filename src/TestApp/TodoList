@@ -32,3 +32,4 @@ Show file that is being run.
 State jdk used to compile and jre used to run.
 Fix null package.
 Alert dialog when creating assignment column and name in spreadsheet.
+Encrypt grade sheet
