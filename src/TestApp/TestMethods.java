@@ -4,7 +4,7 @@
  */
 package TestApp;
 
-import DropboxGrader.HTMLGrader;
+import DropboxGrader.TextGrader;
 
 /**
  *
@@ -13,7 +13,7 @@ import DropboxGrader.HTMLGrader;
 public class TestMethods {
     public static void main(String[] args) {
         String str="hello there my name is matt";
-        int index=HTMLGrader.indexOf("my name", str);
+        int index=TextGrader.indexOf("my name", str);
         System.out.println(index);
     }
 }

@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * @author 141lyonsm
  */
 public class FileManager {
-    private HTMLGrader grader;
+    private TextGrader grader;
     private String dropboxFolder;
     private DbxClient client;
     private Gui gui;
@@ -141,10 +141,10 @@ public class FileManager {
         }
         return files.get(x);
     }
-    public HTMLGrader getGrader(){
+    public TextGrader getGrader(){
         return grader;
     }
-    public void setGrader(HTMLGrader g){
+    public void setGrader(TextGrader g){
         grader=g;
     }
     public void delete(DbxFile file){

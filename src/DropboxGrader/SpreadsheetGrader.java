@@ -260,7 +260,7 @@ public class SpreadsheetGrader {
         firstName=name.substring(0, upercaseIndex);
         lastName=name.substring(upercaseIndex, name.length());
         
-        if(rowTitle.contains(firstName)&&name.contains(lastName)){
+        if(rowTitle.contains(firstName)&&rowTitle.contains(lastName)){
             return true;
         }
         return false;

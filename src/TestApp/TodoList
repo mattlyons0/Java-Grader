@@ -33,3 +33,5 @@ State jdk used to compile and jre used to run.
 Fix null package.
 Alert dialog when creating assignment column and name in spreadsheet.
 Encrypt grade sheet
+Upload a file to dropbox when downloading spreadsheet that states it is being modified and others cant download it.
+Check if local version is out of date before downloading a new version.

@@ -109,7 +109,7 @@ public class DbxSession {
             writer.close();
         } catch (IOException ex) {
             GuiHelper.alertDialog("Cannot read/write files. "+ex);
-            System.exit(1);
+            System.exit(1); //this is um bad, because we made this into a static method.
         }
     }
     public static String readFromFile(File f){

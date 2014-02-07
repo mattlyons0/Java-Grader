@@ -53,7 +53,7 @@ public class Gui extends JFrame implements ActionListener{
     private DbxSession dbxSession;
     private DbxClient client;
     private GoogSession googSession;
-    private HTMLGrader grader;
+    private TextGrader grader;
     private WorkerThread workerThread;
     private GuiListener listener;
     
@@ -135,8 +135,7 @@ public class Gui extends JFrame implements ActionListener{
         dbxSession=new DbxSession(this);
     }
     private void initHTML(){
-        grader=new HTMLGrader(fileManager,client);
-        grader.setGrade("Matt Lyons", "2", "2", "Good Work Matt!", status);
+        grader=new TextGrader(fileManager,client);
     }
     private void createSession(){
         if(client!=null||dbxSession!=null){
@@ -261,8 +260,8 @@ public class Gui extends JFrame implements ActionListener{
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
         String grade=null,comment=null;
         if(grader!=null){
-            grade=grader.getGrade(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
-            comment=grader.getComment(file.getFirstLastName(), file.getAssignmentNumber(), gradeStatus);
+            grade=grader.getGrade(file.getFirstLastName(), file.getAssignmentNumber());
+            comment=grader.getComment(file.getFirstLastName(), file.getAssignmentNumber());
         }
         if(grade==null){
             grade="";
@@ -505,8 +504,9 @@ public class Gui extends JFrame implements ActionListener{
             remove(submitButton);
         createSession();
         initHTML();
+        setupFileBrowserGui();
     }
-    public HTMLGrader getGrader(){
+    public TextGrader getGrader(){
         return grader;
     }
     public JavaRunner getRunner(){
@@ -617,8 +617,8 @@ public class Gui extends JFrame implements ActionListener{
                 int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
                 if(f!=null){
-                    int assignment=Integer.parseInt(f.getAssignmentNumber());
-                    boolean written=grader.gradeWritten(f.getFirstLastName(), assignment+"",null);
+                    int assignment=f.getAssignmentNumber();
+                    boolean written=grader.gradeWritten(f.getFirstLastName(), assignment,null);
                     if(!written){
                         kept=true;
                         select.remove(x);
@@ -699,10 +699,11 @@ public class Gui extends JFrame implements ActionListener{
                 return;
             }
             try{
-                int assign=Integer.parseInt(currentFile.getAssignmentNumber());
+                int assign=currentFile.getAssignmentNumber();
                 System.out.println(assign);
-                boolean success=grader.setGrade(currentFile.getFirstLastName(), assign+"", gradeNumber.getText(),gradeComment.getText(),gradeStatus);
+                boolean success=grader.setGrade(currentFile.getFirstLastName(), assign, gradeNumber.getText(),gradeComment.getText(),gradeStatus);
                 if(success){
+                    gradeStatus.setText("Graded");
                     if(selectedFiles.size()>1){
                         selectedFiles.remove(0);
                         currentFile=fileManager.getFile(selectedFiles.get(0));

@@ -119,14 +119,14 @@ public class DbxFile {
             return null;
         }
     }
-    public String getAssignmentNumber(){
+    public int getAssignmentNumber(){
         String s=entry.name;
         
         int num=safeStringToInt(s.split("_")[2]);
         if(num==-1){
-            return errorMsg;
+            //theres no number supplied
         }
-        return num+"";//assignment number is the 3rd underscore
+        return num;//assignment number is the 3rd underscore
     }
     public String getAssignmentName(int row,int col){
         String s=entry.name;
@@ -192,9 +192,9 @@ public class DbxFile {
     }
     public String getStatus(int row,int col){
         try{
-            int num=Integer.parseInt(getAssignmentNumber());
+            int num=getAssignmentNumber();
             if(fileManager.getGrader()!=null){
-                String grade=fileManager.getGrader().getGrade(getFirstLastName(), num+"",new JLabel());
+                String grade=fileManager.getGrader().getGrade(getFirstLastName(), num);
                 if(grade!=null){
                     fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
                     return "Grade: "+grade;
