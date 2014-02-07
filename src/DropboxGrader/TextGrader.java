@@ -26,6 +26,7 @@ public class TextGrader {
     private DbxClient client;
     private FileManager manager;
     private String filenameRemote;
+    private String downloadedRevision;
     private String filenameLocal;
     private File sheet;
     private String[][] table;
@@ -48,11 +49,15 @@ public class TextGrader {
     private void downloadSheet(){
         try{
             String code;
-            DbxEntry entry=client.getMetadata(filenameRemote);
+            DbxEntry.File entry=(DbxEntry.File)client.getMetadata(filenameRemote);
             if(entry!=null){ //file has already been created
+                if(downloadedRevision!=null&&downloadedRevision.equals(entry.rev)){ //current version is downloaded, no neede to do it again
+                    return;
+                }
                 FileOutputStream f = new FileOutputStream(filenameLocal);
                 client.getFile(filenameRemote, null, f); //download file
                 f.close();
+                downloadedRevision=entry.rev;
             }
             else{ //no spreadsheet file found
                 createSheet();
@@ -127,6 +132,14 @@ public class TextGrader {
     }
     private boolean upload(){
         try{
+            DbxEntry.File entry=(DbxEntry.File)client.getMetadata(filenameRemote);
+            if(entry!=null&&downloadedRevision!=null){ //file has already been created
+                if(!downloadedRevision.equals(entry.rev)){
+                    //Merge changes.
+                    //Need to write this part
+                    System.err.println("A different revision was downloaded than was uploaded.");
+                }
+            }
             //upload to dropbox
             FileInputStream sheetStream = new FileInputStream(sheet);
             client.uploadFile(filenameRemote, DbxWriteMode.force(), sheet.length(), sheetStream);
@@ -230,7 +243,7 @@ public class TextGrader {
         return uploadTable();
     }
     private String[] getGradeData(String name,int assignmentNum){
-        downloadSheet();
+        //downloadSheet(); //lagggy, unneccisary really. 
         int nameIndex=nameIndexInTable(name);
         if(nameIndex==-1||nameIndex==-2){
             return null;

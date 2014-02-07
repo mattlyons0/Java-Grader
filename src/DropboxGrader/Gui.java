@@ -504,6 +504,7 @@ public class Gui extends JFrame implements ActionListener{
             remove(submitButton);
         createSession();
         initHTML();
+        fileManager.setGrader(grader);
         setupFileBrowserGui();
     }
     public TextGrader getGrader(){
