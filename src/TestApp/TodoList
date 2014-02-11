@@ -1,13 +1,10 @@
-Maybe encrypt keys
+encrypt keys
 Ctrl tab in grader.
 Auto mark late.
-    Involves making a php submitter
-Remove the need for the spreadsheet and google api
-    Generate and upload html page to dropbox.
-
+    When creating new assignment ask when it was due
 Move rename to another thread
 display current fileQueue
-button to change dropbox
+button to change dropbox login
 Custom sorting
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
@@ -16,7 +13,7 @@ Make code run from its own folder.
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
-Fixed test no java duplicating.
+Fix test no java duplicating.
 Fix repaint issue with code tabs.
 Catch out of memory with DropboxGrader code.
 Config to read text files
@@ -24,14 +21,33 @@ Delete downloaded files on close.
 Fix failing login with dropbox screwing things up
 Update checker
 Optional libraries to compile with setting.
-HTML shouldn't be in the same directory as dropittome but a seperate one so it cannot be overriden.
 Don't download spreadsheet if the current copy is up to date.
 Delete downloads on close.
 Ability to close code tabs.
-Show file that is being run. 
+Show file that is being run (change color of that tab or something). 
 State jdk used to compile and jre used to run.
 Fix null package.
+Fix packagetest not working.
 Alert dialog when creating assignment column and name in spreadsheet.
 Encrypt grade sheet
 Upload a file to dropbox when downloading spreadsheet that states it is being modified and others cant download it.
 Check if local version is out of date before downloading a new version.
+Store if it is graded in IC or not.
+Disallow the deliminating character in the grade or comment field.
+Tab to go between fields.
+Config corrupting
+After modifying config need to restart or else theres lots of bugs.
+Refresh doesn't refresh grades
+Auto-email for things
+    Invalid file structure
+    Assignments that need to be resubmitted
+Unit testing (test methods with reflection or something)
+Percentage based downloading results.
+Catch and attempt to save out of memory errors.
+When grade column is hidden also hide grade and comment
+GUI for seeing spreadsheet
+    Click in box to copy and mark as graded in IC
+    Ability to make RTF printout for students.
+Stop running button sticks when there is an error compiling.
+Exception when deleting last assignment.
+Migrate dropbox app to my own account on dropbox, not tiverons.

@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 public class DbxSession {
     public static final String appName="Matt Lyons Assignment Grader";
     private final double appVersion=0.1;
-    private final String APP_KEY = "681xzhh2nqu3hjc";
+    private final String APP_KEY = "681xzhh2nqu3hjc"; //this should be read from a text file that isn't pushed to git once we move to github
     private final String APP_SECRET = "k7e1pkfljgg1jdb";
     private final File appKey;
     private boolean invalidToken=false;
