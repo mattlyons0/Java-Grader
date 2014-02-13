@@ -37,7 +37,9 @@ Disallow the deliminating character in the grade or comment field.
 Tab to go between fields.
 Config corrupting
 After modifying config need to restart or else theres lots of bugs.
+    Can't download/open any files.
 Refresh doesn't refresh grades
+    Closing and reopening is sometimes "faster" than refreshing.
 Auto-email for things
     Invalid file structure
     Assignments that need to be resubmitted
@@ -51,3 +53,22 @@ GUI for seeing spreadsheet
 Stop running button sticks when there is an error compiling.
 Exception when deleting last assignment.
 Migrate dropbox app to my own account on dropbox, not tiverons.
+auto check for javadocs
+read screenshots?
+refactor gui class to have Filebrowser,Config... as components
+    Multi-pane viewing mode?
+    Better UI
+    Fix window resize issues
+    More animated/lifelike
+    User friendly
+Remove println statements
+More detailed loading status
+    When opening update with task it is currently running.
+    Same with refreshing
+Only log critical errors to error.log
+    Upon exiting if there are errors in the log email them to me?
+More flexible file naming format.
+Upon first run open config menu first, default settings to empty/null
+Javadocs+ more comments
+User's manual or something. Maybe tutorial?
+Don't grade on main thread. Show status of grading

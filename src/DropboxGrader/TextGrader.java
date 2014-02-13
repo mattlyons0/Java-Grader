@@ -30,7 +30,7 @@ public class TextGrader {
     private String filenameLocal;
     private File sheet;
     private String[][] table;
-    private final String delimitor="`'`"; //who would use this combination of keys in a comment
+    private final String delimitor="`'`"; //this combination of keys cannot be used in comments/grade
     public TextGrader(FileManager manager,DbxClient client){
         this.client=client;
         this.manager=manager;
@@ -39,6 +39,7 @@ public class TextGrader {
     private void init(){
         if(Config.dropboxSpreadsheetFolder==null){
             Config.reset(); //config corrupt...
+            System.err.println("DropboxSpreadsheet folder was null. Config is being reset");
         }
         filenameLocal="Grades-Period"+Config.dropboxPeriod+".txt";
         filenameRemote="/"+Config.dropboxSpreadsheetFolder+"/"+filenameLocal;
@@ -342,9 +343,7 @@ public class TextGrader {
         }
         String[][] newTable=new String[rows][cols];
         for(int x=0;x<table.length;x++){
-            for(int y=0;y<table[0].length;y++){
-                newTable[x][y]=table[x][y];
-            }
+            System.arraycopy(table[x], 0, newTable[x], 0, table[0].length);
         }
         table=newTable;
     }
