@@ -14,6 +14,7 @@ public class TextGrade {
     public final String GRADE;
     public final String COMMENT;
     //public final Date DATEGRADED;
+    //public final boolean INGRADEBOOK
     
     public TextGrade(String grade,String comment){
         GRADE=grade;

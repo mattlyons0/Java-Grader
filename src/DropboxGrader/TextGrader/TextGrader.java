@@ -38,6 +38,7 @@ public class TextGrader {
     public TextGrader(FileManager manager,DbxClient client){
         this.client=client;
         this.manager=manager;
+        data=new TextSpreadsheet();
         init();
     }
     private void init(){
@@ -135,10 +136,10 @@ public class TextGrader {
     }
     public boolean setGrade(String name,int assignmentNum,String gradeNum,String comment,boolean overwrite){
         downloadSheet();
-        //TODO: check if theres already a grade written
         if(!data.nameDefined(name)){ //need to put name in gradebook
             String[] nameParts=splitName(name);
             data.addName(nameParts[0],nameParts[1]);
+            name=nameParts[0]+nameParts[1];
         }
         if(!data.assignmentDefined(assignmentNum)){ //need to create assignment in table
             String assignmentDescription=JOptionPane.showInputDialog("What is the name of assignment "+assignmentNum+"?");
@@ -184,8 +185,10 @@ public class TextGrader {
             int firstNameIndex=indexOf(firstName,name);
             if(firstNameIndex==0)
                 lastName=name.substring(firstName.length());
-            else
+            else if(firstNameIndex!=-1)
                 lastName=name.substring(0,firstNameIndex);
+            else
+                lastName=JOptionPane.showInputDialog(null,name+" does not follow proper capitalization.\n Please enter the LAST name",name);
         }
         else{
             firstName=name.substring(0, upercaseIndex);

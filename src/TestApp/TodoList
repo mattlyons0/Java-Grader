@@ -53,6 +53,17 @@ GUI for seeing spreadsheet
 Stop running button sticks when there is an error compiling.
 Exception when deleting last assignment.
 Migrate dropbox app to my own account on dropbox, not tiverons.
+After grading 1 assignment scrollbars default to bottom of code.
+Delete doesn't refresh afterwards
+More user friendly table for assignments submitted
+Rework gui to have navBar
+Setting to encrypt grade sheet
+
+Use graded date vs date uploaded to determine if resubmits are done or not.
+Validation code for config
+    Pressing enter in a box goes back
+    Details for every box when the cursor is in that box.
+
 auto check for javadocs
 read screenshots?
 refactor gui class to have Filebrowser,Config... as components
@@ -72,3 +83,6 @@ Upon first run open config menu first, default settings to empty/null
 Javadocs+ more comments
 User's manual or something. Maybe tutorial?
 Don't grade on main thread. Show status of grading
+
+Frontend app for submitting. Teacher distributes jar and file that has dropbox key
+    Put in name and assignment. Will autocomplete assignment name from those submitted

@@ -48,13 +48,17 @@ public class TextSpreadsheet {
                     else{
                         if(col==0){ //this is a name
                             names.add(new TextName(gradesInLine[col]));
+                            grades.add(new ArrayList());
                         }
                         else{
                             ArrayList<TextGrade> grade=grades.get(names.size()-1);
                             if(grade==null){
                                 grade=new ArrayList();
-                            }
-                            grade.add(new TextGrade(gradesInLine[col]));
+                        }
+                            if(!gradesInLine[col].equals("null"))
+                                grade.add(new TextGrade(gradesInLine[col]));
+                            else
+                                grade.add(null);
                         }
                     }
                 }
@@ -74,9 +78,7 @@ public class TextSpreadsheet {
         //Write the assignments
         for(int i=0;i<assignments.size();i++){
             code+=assignments.get(i).toText();
-            if(i<assignments.size()-1){
-                code+=GRADEDELIMITER;
-            }
+            code+=GRADEDELIMITER;
         }
         code+="\n";
         //Write names then grades
@@ -86,11 +88,16 @@ public class TextSpreadsheet {
                 if(i==0){ //name entry
                     code+=name.toText()+GRADEDELIMITER;
                 }
-                else{ //grade entry
-                    code+=grades.get(row).get(i-1).toText();
+                //grade entry
+                TextGrade g=grades.get(row).get(i);
+                if(g==null){
+                    code+="null";
+                }
+                else{
+                    code+=g.toText();
                 }
                 if(i<grades.get(0).size()){
-                    code+=GRADEDELIMITER;
+                        code+=GRADEDELIMITER;
                 }
             }
             code+="\n";
@@ -110,8 +117,9 @@ public class TextSpreadsheet {
         
         int numAssignments=grades.get(0).size();
         grades.add(new ArrayList());
+        int nameIndex=names.indexOf(names.get(names.size()-1));
         for(int i=0;i<numAssignments;i++){
-            grades.get(grades.size()).add(null);
+            grades.get(nameIndex).add(null);
         }
     }
     public boolean setGrade(TextName name,TextAssignment assignment,String grade,String comment, boolean overwrite){
@@ -140,7 +148,7 @@ public class TextSpreadsheet {
     }
     public TextName getName(String name){
         for(TextName tName:names){
-            if(name.contains(tName.FIRSTNAME)&&name.contains(tName.LASTNAME)){
+            if(name.toLowerCase().contains(tName.FIRSTNAME.toLowerCase())&&name.toLowerCase().contains(tName.LASTNAME.toLowerCase())){
                 return tName;
             }
         }
@@ -174,6 +182,7 @@ public class TextSpreadsheet {
         else
             grades=new ArrayList();
         
-        grades=null;
+        grades=new ArrayList();
+        grades.add(new ArrayList());
     }
 }
