@@ -6,6 +6,7 @@
 
 package DropboxGrader;
 
+import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -619,7 +620,7 @@ public class Gui extends JFrame implements ActionListener{
                 DbxFile f=fileManager.getFile(i);
                 if(f!=null){
                     int assignment=f.getAssignmentNumber();
-                    boolean written=grader.gradeWritten(f.getFirstLastName(), assignment,null);
+                    boolean written=grader.gradeWritten(f.getFirstLastName(), assignment);
                     if(!written){
                         kept=true;
                         select.remove(x);
@@ -701,8 +702,9 @@ public class Gui extends JFrame implements ActionListener{
             }
             try{
                 int assign=currentFile.getAssignmentNumber();
-                System.out.println(assign);
-                boolean success=grader.setGrade(currentFile.getFirstLastName(), assign, gradeNumber.getText(),gradeComment.getText(),gradeStatus);
+                boolean success=grader.setGrade(currentFile.getFirstLastName(), 
+                        assign, gradeNumber.getText(),gradeComment.getText(),
+                        grader.gradeWritten(currentFile.getFirstLastName(), assign));
                 if(success){
                     gradeStatus.setText("Graded");
                     if(selectedFiles.size()>1){
@@ -732,7 +734,7 @@ public class Gui extends JFrame implements ActionListener{
             }
             Config.autoRun=autoRun.isSelected();
             Config.writeConfig();
-            grader.reset();
+            grader.refresh();
             fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
             fileManager.setGrader(grader);
             setupFileBrowserGui();

@@ -83,7 +83,7 @@ public class GoogSession {
             oauthParams.setOAuthToken(token);
             oauthParams.setOAuthTokenSecret(tokenSecret);
         }
-        service=new SpreadsheetService(DbxSession.appName);
+        service=new SpreadsheetService(DbxSession.APPNAME);
         try {
             service.setOAuthCredentials(oauthParams, signer);
             //service.setUserToken(DbxSession.readFromFile(tokenFile));

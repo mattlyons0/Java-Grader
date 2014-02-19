@@ -32,18 +32,18 @@ import java.util.logging.Logger;
  * @author 141lyonsm
  */
 public class DbxSession {
-    public static final String appName="Matt Lyons Assignment Grader";
-    private final double appVersion=0.1;
+    public static final String APPNAME="Matt Lyons Assignment Grader";
+    private final double APPVERSION=0.1;
     private final String APP_KEY = "681xzhh2nqu3hjc"; //this should be read from a text file that isn't pushed to git once we move to github
     private final String APP_SECRET = "k7e1pkfljgg1jdb";
-    private final File appKey;
+    private final File KEYFILE;
     private boolean invalidToken=false;
     private DbxClient client;
     private DbxWebAuthNoRedirect webAuth;
     private Gui gui;
     
     public DbxSession(Gui gui){
-        appKey=new File("dbx.key");
+        KEYFILE=new File("dbx.key");
         this.gui=gui;
         
         createSession();
@@ -54,9 +54,9 @@ public class DbxSession {
     private void createSession(){
         DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
         DbxRequestConfig config = new DbxRequestConfig(
-            appName+" "+appVersion, Locale.getDefault().toString());
+            APPNAME+" "+APPVERSION, Locale.getDefault().toString());
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
-        if(!appKey.exists()||invalidToken){
+        if(!KEYFILE.exists()||invalidToken){
             String token=getToken(true);
             if(token!=null)
             client=new DbxClient(config,token);
@@ -81,7 +81,7 @@ public class DbxSession {
             return null;
         }
         else{
-            return readFromFile(appKey);
+            return readFromFile(KEYFILE);
         }
     }
     public void setKey(String key){
@@ -95,7 +95,7 @@ public class DbxSession {
                 }
                 val=null;
             }
-            writeToFile(appKey,val);
+            writeToFile(KEYFILE,val);
             createSession();
     }
     public static void writeToFile(File f,String s){

@@ -51,3 +51,21 @@ GUI for seeing spreadsheet
 Stop running button sticks when there is an error compiling.
 Exception when deleting last assignment.
 Migrate dropbox app to my own account on dropbox, not tiverons.
+After grading 1 assignment scrollbars default to bottom of code.
+Delete doesn't refresh afterwards
+More user friendly table for assignments submitted
+Rework gui to have navBar
+Setting to encrypt grade sheet
+
+TextGrader package
+    Object for data
+        Stores assignments, names, then grade object
+    Grade object
+        Stores grade, comment, date graded, status in IC
+Use graded date vs date uploaded to determine if resubmits are done or not.
+Validation code for config
+    Pressing enter in a box goes back
+    Details for every box when the cursor is in that box.
+
+Frontend app for submitting. Teacher distributes jar and file that has dropbox key
+    Put in name and assignment. Will autocomplete assignment name from those submitted

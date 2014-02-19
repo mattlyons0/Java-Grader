@@ -41,13 +41,13 @@ public class DbxFile {
     private JavaFile[] javaFiles;
     private TextFile[] textFiles;
     private boolean invalidZip;
-    private final String errorMsg;
+    private final String ERRORMSG;
     public DbxFile(DbxEntry.File entry,FileManager fileMan,DbxClient client){
         this.entry=entry;
         fileManager=fileMan;
         this.client=client;
         
-        errorMsg="File Naming Error: "+entry.name;
+        ERRORMSG="File Naming Error: "+entry.name;
         
         if(entry.name.indexOf(".")!=entry.name.length()-4){
             String newName=entry.name.replace(".", "");
@@ -135,7 +135,7 @@ public class DbxFile {
         }
         String[] splits=s.split("_");
         if(splits.length<4){
-            return errorMsg;
+            return ERRORMSG;
         }
         if(!isNotFirstYear(splits[2])&&splits.length==5||isCorrection(splits)){
             fileManager.getTableData().setColorAt(Color.YELLOW, new CellLocation(fileManager.getAttributes()[col],row));
@@ -153,7 +153,7 @@ public class DbxFile {
             return splits[3];
         }
         else{
-            return errorMsg;
+            return ERRORMSG;
         }
     }
     private boolean isNotFirstYear(String s){

@@ -4,7 +4,7 @@
  */
 package TestApp;
 
-import DropboxGrader.TextGrader;
+import DropboxGrader.TextGrader.TextGrader;
 
 /**
  *

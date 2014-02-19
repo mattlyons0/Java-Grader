@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
@@ -25,8 +26,8 @@ public class FileManager {
     private FileBrowserData tableData;
     private ArrayList<DbxFile> files;
     private int classPeriod;
-    private final String downloadFolder="downloads";
-    private final String[] attributes={"Assignment","Assignment Name","Submit Date","Name","Status"};
+    private final String DOWNLOADFOLDER="downloads";
+    private final String[] ATTRIBUTES={"Assignment","Assignment Name","Submit Date","Name","Status"};
     
     public FileManager(String dropboxFolder,int period,DbxClient client,Gui gui){
         this.dropboxFolder=dropboxFolder;
@@ -36,9 +37,9 @@ public class FileManager {
         
         files=new ArrayList();
         
-        File dlDirectory=new File(downloadFolder);
+        File dlDirectory=new File(DOWNLOADFOLDER);
         dlDirectory.mkdir();
-        File exDirectory=new File(downloadFolder);
+        File exDirectory=new File(DOWNLOADFOLDER);
         exDirectory.mkdir();
         
         init();
@@ -79,7 +80,7 @@ public class FileManager {
         }
     }
     public String getDownloadFolder(){
-        return downloadFolder;
+        return DOWNLOADFOLDER;
     }
     public String getDropboxFolder(){
         return dropboxFolder;
@@ -94,7 +95,7 @@ public class FileManager {
         return files.size();
     }
     public int getNumAttributes(){
-        return attributes.length;
+        return ATTRIBUTES.length;
     }
     public String getFileInfo(int fileNum,int attributeNum){
         if(fileNum>=files.size())
@@ -103,7 +104,7 @@ public class FileManager {
         return getAttribute(file,fileNum,attributeNum);
     }
     private String getAttribute(DbxFile file,int fileNum,int attribute){
-        String attrib=attributes[attribute];
+        String attrib=ATTRIBUTES[attribute];
         switch(attrib){
             case "Assignment": return file.getAssignmentNumber()+"";
             case "Assignment Name": return file.getAssignmentName(fileNum,attribute);
@@ -114,7 +115,7 @@ public class FileManager {
         return null;
     }
     public String[] getAttributes(){
-        return attributes;
+        return ATTRIBUTES;
     }
     public void setTableData(FileBrowserData d){
         tableData=d;

@@ -12,7 +12,7 @@ import java.io.File;
  * @author 141lyonsm
  */
 public class Config {
-    public static final File configFile=new File("config.cfg");
+    public static final File CONFIGFILE=new File("config.cfg");
     //Preinit
     public static String spreadsheetName;
     public static String dropboxFolder;
@@ -46,11 +46,11 @@ public class Config {
         dividerLocation=Toolkit.getDefaultToolkit().getScreenSize().width*2/3; //2/3rds
     }
     public static void readConfig(){
-        if(!configFile.exists()){
+        if(!CONFIGFILE.exists()){
             return;
         }
         try{
-            String[] vars=splitVars(DbxSession.readFromFile(configFile));
+            String[] vars=splitVars(DbxSession.readFromFile(CONFIGFILE));
             spreadsheetName=vars[0];
             dropboxFolder=vars[1];
             dropboxPeriod=DbxFile.safeStringToInt(vars[2]);
@@ -79,7 +79,7 @@ public class Config {
         config=append(config,dividerLocation+"");
         config=append(config,dropboxSpreadsheetFolder);
         
-        DbxSession.writeToFile(configFile, config);
+        DbxSession.writeToFile(CONFIGFILE, config);
     }
     private static String append(String s,String append){
         s+="\n"+append;
