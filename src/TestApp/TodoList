@@ -84,6 +84,9 @@ Javadocs+ more comments
 User's manual or something. Maybe tutorial?
 Don't grade on main thread. Show status of grading
 Theme selector. NIMBUS
+    Fix nimbus size of grade textbox
+If there are lots of things to run the JOptionPane goes past the monitor width
+Make errors in output easier to see, maybe highlight line error was in and make it clickable to go to that line.
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted
