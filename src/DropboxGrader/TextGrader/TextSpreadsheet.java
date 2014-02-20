@@ -16,9 +16,9 @@ import java.util.ArrayList;
  * @author Matt
  */
 public class TextSpreadsheet {
-    public static final String GRADEDELIMITER="`'`"; //who would use this combination of keys in a comment
+    public static final String GRADEDELIMITER="[`]"; //who would use this combination of keys in a comment
     public static final String COMMENTDELIMITER="/`/";
-    public static final String INDIVIDUALDELIMITER="``";
+    public static final String INDIVIDUALDELIMITER="'`'";
     
     private ArrayList<TextAssignment> assignments;
     private ArrayList<TextName> names;
@@ -131,9 +131,11 @@ public class TextSpreadsheet {
             return false;
         }
         if(getGrade(name,assignment)!=null&&!overwrite){
-            GuiHelper.alertDialog("There is already a grade written. If you want to update that grade, try again.");
-            System.err.println("There was already a grade written for assignment "+assignment+" by "+name);
-            return false;
+            overwrite=GuiHelper.yesNoDialog("There is already a grade written: "+getGrade(name,assignment)+"\nWould you like to overwrite this grade?");
+            if(!overwrite){
+                System.err.println("There was already a grade written for assignment "+assignment+" by "+name);
+                return false;
+            }
         }
         grades.get(nameIndex).set(assignmentIndex,new TextGrade(grade,comment)); //TODO: record date and timestamp with this.
         return true;

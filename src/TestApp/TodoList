@@ -80,7 +80,7 @@ Only log critical errors to error.log
     Upon exiting if there are errors in the log email them to me?
 More flexible file naming format.
 Upon first run open config menu first, default settings to empty/null
-Javadocs+ more comments
+Javadocs + more comments
 User's manual or something. Maybe tutorial?
 Don't grade on main thread. Show status of grading
 Theme selector. NIMBUS

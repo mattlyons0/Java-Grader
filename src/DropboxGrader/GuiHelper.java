@@ -44,4 +44,10 @@ public class GuiHelper{
     public static void alertDialog(String message){
         JOptionPane.showMessageDialog(null,message);
     }
+
+    public static boolean yesNoDialog(String question) {
+        String[] yesno={"Yes","No"};
+        int choice=multiOptionPane(question,yesno);
+        return choice==0;
+    }
 }
