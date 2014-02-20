@@ -23,7 +23,10 @@ public class TextGrade {
     public TextGrade(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
         GRADE=text[0];
-        COMMENT=text[1];
+        if(text.length>1)
+            COMMENT=text[1];
+        else
+            COMMENT="";
     }
     public String toText(){
         String text="";
