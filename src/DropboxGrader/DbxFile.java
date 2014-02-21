@@ -191,17 +191,13 @@ public class DbxFile {
         return s.split("_")[1];
     }
     public String getStatus(int row,int col){
-        try{
-            int num=getAssignmentNumber();
-            if(fileManager.getGrader()!=null){
-                String grade=fileManager.getGrader().getGrade(getFirstLastName(), num);
-                if(grade!=null){
-                    fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
-                    return "Grade: "+grade;
-                }
+        int num=getAssignmentNumber();
+        if(fileManager.getGrader()!=null){
+            String grade=fileManager.getGrader().getGrade(getFirstLastName(), num);
+            if(grade!=null){
+                fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
+                return "Grade: "+grade;
             }
-        } catch(NumberFormatException ex){
-            
         }
         if(downloadedFile==null){
             return "On Server";

@@ -11,28 +11,33 @@ package DropboxGrader.TextGrader;
  * @author Matt
  */
 public class TextName {
-    public final String FIRSTNAME;
-    public final String LASTNAME;
-    //public final String EMAIL;
+    public String firstName;
+    public String lastName;
+    //public String email;
     
     public TextName(String firstName,String lastName){
-        FIRSTNAME=firstName;
-        LASTNAME=lastName;
+        this.firstName=firstName;
+        this.lastName=lastName;
     }
     public TextName(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
-        FIRSTNAME=text[0];
-        LASTNAME=text[1];
+        //Pretty sure this should never happen, but just in case.
+        try{
+            firstName=text[0];
+            lastName=text[1];
+        } catch(Exception e){
+            System.err.println("Error reading name from \""+fromText+"\": "+e);
+        }
     }
     public String toText(){
         String text="";
-        text+=FIRSTNAME+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=LASTNAME;
+        text+=firstName+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=lastName;
         
         return text;
     }
     @Override
     public String toString(){
-        return FIRSTNAME+" "+LASTNAME;
+        return firstName+" "+lastName;
     }
 }

@@ -16,9 +16,9 @@ import java.util.ArrayList;
  * @author Matt
  */
 public class TextSpreadsheet {
-    public static final String GRADEDELIMITER="[`]"; //who would use this combination of keys in a comment
-    public static final String COMMENTDELIMITER="/`/";
-    public static final String INDIVIDUALDELIMITER="'`'";
+    public static final String GRADEDELIMITER="¶"; //Can't use most keyboard symbols with split because of regex... So I had to get creative
+    public static final String COMMENTDELIMITER="«"; //These symbols are banned from all forms of input dealing with the grades spreadsheet
+    public static final String INDIVIDUALDELIMITER="÷"; //See validateString(String) for more info on banning them
     
     private ArrayList<TextAssignment> assignments;
     private ArrayList<TextName> names;
@@ -106,6 +106,8 @@ public class TextSpreadsheet {
         DbxSession.writeToFile(f, code);
     }
     public void addAssignment(int assignmentNum,String assignmentName){ //TODO: store due date
+        assignmentName=validateString(assignmentName);
+        
         assignments.add(new TextAssignment(assignmentNum,assignmentName));
         
         for(ArrayList<TextGrade> grade:grades){
@@ -113,6 +115,9 @@ public class TextSpreadsheet {
         }
     }
     public void addName(String firstName,String lastName){ //TODO: store email and email when wrongly submitted file
+        firstName=validateString(firstName);
+        lastName=validateString(lastName);
+        
         names.add(new TextName(firstName,lastName));
         
         int numAssignments=grades.get(0).size();
@@ -123,6 +128,8 @@ public class TextSpreadsheet {
         }
     }
     public boolean setGrade(TextName name,TextAssignment assignment,String grade,String comment, boolean overwrite){
+        grade=validateString(grade);
+        comment=validateString(comment);
         int assignmentIndex=assignments.indexOf(assignment);
         int nameIndex=names.indexOf(name);
         if(assignmentIndex==-1||nameIndex==-1){
@@ -133,7 +140,6 @@ public class TextSpreadsheet {
         if(getGrade(name,assignment)!=null&&!overwrite){
             overwrite=GuiHelper.yesNoDialog("There is already a grade written: "+getGrade(name,assignment)+"\nWould you like to overwrite this grade?");
             if(!overwrite){
-                System.err.println("There was already a grade written for assignment "+assignment+" by "+name);
                 return false;
             }
         }
@@ -150,7 +156,7 @@ public class TextSpreadsheet {
     }
     public TextName getName(String name){
         for(TextName tName:names){
-            if(name.toLowerCase().contains(tName.FIRSTNAME.toLowerCase())&&name.toLowerCase().contains(tName.LASTNAME.toLowerCase())){
+            if(name.toLowerCase().contains(tName.firstName.toLowerCase())&&name.toLowerCase().contains(tName.lastName.toLowerCase())){
                 return tName;
             }
         }
@@ -158,7 +164,7 @@ public class TextSpreadsheet {
     }
     public TextAssignment getAssignment(int assignmentNum){
         for(TextAssignment tAssignment:assignments){
-            if(tAssignment.NUMBER==assignmentNum){
+            if(tAssignment.number==assignmentNum){
                 return tAssignment;
             }
         }
@@ -186,5 +192,12 @@ public class TextSpreadsheet {
         
         grades=new ArrayList();
         grades.add(new ArrayList());
+    }
+    private String validateString(String s){
+        s=s.replace(COMMENTDELIMITER,"");
+        s=s.replace(GRADEDELIMITER, "");
+        s=s.replace(INDIVIDUALDELIMITER, "");
+        
+        return s;
     }
 }

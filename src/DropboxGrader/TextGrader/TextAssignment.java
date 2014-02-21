@@ -11,28 +11,32 @@ package DropboxGrader.TextGrader;
  * @author Matt
  */
 public class TextAssignment {
-    public final int NUMBER;
-    public final String NAME;
-    //public final Date DATEDUE;
+    public int number;
+    public String name;
+    //public Date dateDue;
     
     public TextAssignment(int number,String name){
-        NUMBER=number;
-        NAME=name;
+        this.number=number;
+        this.name=name;
     }
     public TextAssignment(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
-        NUMBER=Integer.parseInt(text[0]);
-        NAME=text[1];
+        try{
+            number=Integer.parseInt(text[0]);
+            name=text[1];
+        } catch(Exception e){
+            System.err.println("Error reading assignment from \""+fromText+"\": "+e);
+        }
     }
     public String toText(){
         String text="";
-        text+=NUMBER+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=NAME;
+        text+=number+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=name;
         
         return text;
     }
     @Override
     public String toString(){
-        return "Assignment "+NUMBER+" "+NAME;
+        return "Assignment "+number+" "+name;
     }
 }

@@ -109,7 +109,7 @@ public class Gui extends JFrame implements ActionListener{
     public Gui(){
         super("Dropbox Grader");
         
-        UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
+        //UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
         previousSelection=new ArrayList();
         
         listener=new GuiListener(this);
@@ -328,13 +328,13 @@ public class Gui extends JFrame implements ActionListener{
         gradeNumber=new JTextField(3);
         gradeNumber.setText(grade);
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
-        gradeNumber.setMinimumSize(new Dimension(30,15));
+        gradeNumber.setMinimumSize(new Dimension(30,20));
         gradeNumber.addActionListener(this);
         JLabel gradeLabel2=new JLabel(" Comment: ");
         gradeComment=new JTextField(25);
         gradeComment.setText(comment);
         gradeComment.setHorizontalAlignment(JTextField.CENTER);
-        gradeComment.setMinimumSize(new Dimension(250,15));
+        gradeComment.setMinimumSize(new Dimension(250,20));
         gradeComment.addActionListener(this);
         cons=new GridBagConstraints();
         cons.fill=GridBagConstraints.BOTH;
@@ -430,7 +430,7 @@ public class Gui extends JFrame implements ActionListener{
         autoRun.setSelected(Config.autoRun);     
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
-        JLabel creditsLabel=new JLabel("Created by Matt Lyons, Class of 2014");
+        JLabel creditsLabel=new JLabel("Created by Matt Lyons");
         creditsLabel.setHorizontalAlignment(JLabel.CENTER);
         
         GridBagConstraints cons=new GridBagConstraints();
@@ -715,6 +715,9 @@ public class Gui extends JFrame implements ActionListener{
                     else if(selectedFiles.size()==1){
                         selectedFiles.clear();
                     }
+                }
+                else{
+                    gradeStatus.setText("Canceled Grading");
                 }
             } catch(NumberFormatException ex){
                 gradeStatus.setText("Error reading assignment number: "+currentFile.getAssignmentNumber());

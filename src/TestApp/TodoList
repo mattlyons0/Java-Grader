@@ -17,22 +17,22 @@ Fix test no java duplicating.
 Fix repaint issue with code tabs.
 Catch out of memory with DropboxGrader code.
 Config to read text files
-Delete downloaded files on close.
+Delete downloaded files on close config.
 Fix failing login with dropbox screwing things up
+    Gui being all weird
 Update checker
 Optional libraries to compile with setting.
-Don't download spreadsheet if the current copy is up to date.
-Delete downloads on close.
-Ability to close code tabs.
-Show file that is being run (change color of that tab or something). 
+Ability to close code tabs with right click.
+Show file code tab that is being run (change color of that tab or something). 
 State jdk used to compile and jre used to run.
-Fix null package.
+Fix null package when picking which class to run.
 Fix packagetest not working.
-Alert dialog when creating assignment column and name in spreadsheet.
 Encrypt grade sheet
 Upload a file to dropbox when downloading spreadsheet that states it is being modified and others cant download it.
 Check if local version is out of date before downloading a new version.
 Store if it is graded in IC or not.
+Store email
+Store graded date
 Disallow the deliminating character in the grade or comment field.
 Tab to go between fields.
 Config corrupting
@@ -84,10 +84,19 @@ Javadocs + more comments
 User's manual or something. Maybe tutorial?
 Don't grade on main thread. Show status of grading
 Theme selector. NIMBUS
-    Fix nimbus size of grade textbox
+    http://www.eclipse.org/swt/
 If there are lots of things to run the JOptionPane goes past the monitor width
 Make errors in output easier to see, maybe highlight line error was in and make it clickable to go to that line.
 Show grade and comment in status
+Warning upon startup when files downloaded is larger than 10MB
+Stop centering the damn window all the time, its annoying on multiple monitors.
+If we correct the name when grading in the popup, rename it in dropbox
+Make comment box expand when needed, also go to a multi-line box if needed.
+    Maybe do the same with the run times textField?
+Right click menu to forcefully delete things even if they arent graded
+Remove columns entirely in the grade overview table via right click menu
+Icon for taskbar
+Delete grades file on closing
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

@@ -110,6 +110,9 @@ public class TextGrader {
         return true;
     }
     public static int indexOf(String substring,String str){
+        if(substring.length()==0||str.length()==0){
+            return -1;
+        }
         boolean inSub=false;
         int subIndex=0;
         int startIndex=-1;
@@ -135,14 +138,25 @@ public class TextGrader {
         return -1;
     }
     public boolean setGrade(String name,int assignmentNum,String gradeNum,String comment,boolean overwrite){
+        if(gradeNum.equals("")||gradeNum.equals(" ")){
+            GuiHelper.alertDialog("No grade was entered.");
+            return false;
+        }
+        
         downloadSheet();
         if(!data.nameDefined(name)){ //need to put name in gradebook
             String[] nameParts=splitName(name);
+            if(nameParts==null){
+                return false;
+            }
             data.addName(nameParts[0],nameParts[1]);
             name=nameParts[0]+nameParts[1];
         }
         if(!data.assignmentDefined(assignmentNum)){ //need to create assignment in table
-            String assignmentDescription=JOptionPane.showInputDialog("What is the name of assignment "+assignmentNum+"?");
+            String assignmentDescription=JOptionPane.showInputDialog("What is the name of Assignment "+assignmentNum+"?");
+            if(assignmentDescription==null||assignmentDescription.equals("")){
+                assignmentDescription=" ";
+            }
             data.addAssignment(assignmentNum, assignmentDescription);
         }
         boolean gradeSet=data.setGrade(data.getName(name),data.getAssignment(assignmentNum), gradeNum, comment,overwrite);
@@ -154,11 +168,11 @@ public class TextGrader {
     }
     public String getGrade(String name,int assignmentNum){
         TextGrade grade=data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
-        return grade==null? null:grade.GRADE;
+        return grade==null? null:grade.grade;
     }
     public String getComment(String name,int assignmentNum){
         TextGrade grade=data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
-        return grade==null? null:grade.COMMENT;
+        return grade==null? null:grade.comment;
     }
     public boolean gradeWritten(String name,int assignmentNum){
         return getGrade(name,assignmentNum)!=null;
@@ -182,13 +196,28 @@ public class TextGrader {
         }
         if(upercaseIndex==-1){
             firstName=JOptionPane.showInputDialog(null,name+" does not follow proper capitalization.\n Please enter the FIRST name",name);
+            if(firstName==null){
+                return null;
+            }
+            else if(firstName.equals("")){
+                GuiHelper.alertDialog("That is not a valid name.");
+                return splitName(name);
+            }
             int firstNameIndex=indexOf(firstName,name);
             if(firstNameIndex==0)
                 lastName=name.substring(firstName.length());
             else if(firstNameIndex!=-1)
                 lastName=name.substring(0,firstNameIndex);
-            else
+            else{
                 lastName=JOptionPane.showInputDialog(null,name+" does not follow proper capitalization.\n Please enter the LAST name",name);
+                if(lastName==null){
+                    return null;
+                }
+                else if(lastName.equals("")){
+                    GuiHelper.alertDialog("That is not a valid name.");
+                    return splitName(name);
+                }
+            }
         }
         else{
             firstName=name.substring(0, upercaseIndex);
