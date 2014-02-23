@@ -166,7 +166,10 @@ public class TextGrader {
         //convert to code, write and upload
         return uploadTable();
     }
-    public String getGrade(String name,int assignmentNum){
+    public TextGrade getGrade(String name,int assignmentNum){
+        return data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
+    }
+    public String getGradeNum(String name,int assignmentNum){
         TextGrade grade=data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
         return grade==null? null:grade.grade;
     }
@@ -175,11 +178,14 @@ public class TextGrader {
         return grade==null? null:grade.comment;
     }
     public boolean gradeWritten(String name,int assignmentNum){
-        return getGrade(name,assignmentNum)!=null;
+        return getGradeNum(name,assignmentNum)!=null;
     }
     
     public void refresh(){
         init();
+    }
+    public TextSpreadsheet getSpreadsheet(){
+        return data;
     }
     private String[] splitName(String name){
         String firstName,lastName;

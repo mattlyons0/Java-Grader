@@ -176,6 +176,23 @@ public class TextSpreadsheet {
     public boolean assignmentDefined(int assignmentNum){
         return getAssignment(assignmentNum)!=null;
     }
+    public int numNames(){
+        return names.size();
+    }
+    public int numAssignments(){
+        return assignments.size();
+    }
+    public TextGrade getGradeAt(int assignmentIndex,int nameIndex){
+        TextAssignment assignment=assignments.get(assignmentIndex);
+        TextName name=names.get(nameIndex);
+        return getGrade(name,assignment);
+    }
+    public TextAssignment getAssignmentAt(int assignmentIndex){
+        return assignments.get(assignmentIndex);
+    }
+    public TextName getNameAt(int nameIndex){
+        return names.get(nameIndex);
+    }
     private void clearData(){
         if(assignments!=null)
             assignments.clear();

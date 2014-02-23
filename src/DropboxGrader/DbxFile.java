@@ -6,6 +6,7 @@
 
 package DropboxGrader;
 
+import DropboxGrader.TextGrader.TextGrade;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
@@ -193,10 +194,10 @@ public class DbxFile {
     public String getStatus(int row,int col){
         int num=getAssignmentNumber();
         if(fileManager.getGrader()!=null){
-            String grade=fileManager.getGrader().getGrade(getFirstLastName(), num);
+            TextGrade grade=fileManager.getGrader().getGrade(getFirstLastName(), num);
             if(grade!=null){
                 fileManager.getTableData().setColorAt(Color.GREEN, new CellLocation(fileManager.getAttributes()[col],row));
-                return "Grade: "+grade;
+                return "Graded: "+grade;
             }
         }
         if(downloadedFile==null){

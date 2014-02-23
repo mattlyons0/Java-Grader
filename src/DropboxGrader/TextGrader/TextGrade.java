@@ -40,6 +40,7 @@ public class TextGrade {
     }
     @Override
     public String toString(){
-        return "Grade "+grade+" "+comment;
+        String comment=this.comment==null? "":this.comment;
+        return grade+" "+comment;
     }
 }

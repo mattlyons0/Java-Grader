@@ -6,6 +6,8 @@
 
 package DropboxGrader;
 
+import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetBrowser;
+import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetTable;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
@@ -72,6 +74,7 @@ public class Gui extends JFrame implements ActionListener{
     private GridBagConstraints constraints;
     private JButton refreshButton;
     private JButton deleteButton;
+    private JButton spreadsheetButton;
     private JButton configButton;
     private JProgressBar progressBar;
     private JButton gradeButton;
@@ -97,6 +100,10 @@ public class Gui extends JFrame implements ActionListener{
     private JLabel gradeStatus;
     private JSplitPane graderDivider;
     
+    //Forth Stage (Gradebook) Instance Vars
+    private JPanel gradebookPanel;
+    private JScrollPane gradebookScroll;
+    private JButton backToFileBrowser;
     //Config Instance Vars
     private JPanel configPanel;
     private JTextField spreadsheetName;
@@ -105,6 +112,7 @@ public class Gui extends JFrame implements ActionListener{
     private JTextField runTimes;
     private JCheckBox autoRun;
     private JButton backToBrowser;
+    
     
     public Gui(){
         super("Dropbox Grader");
@@ -164,7 +172,10 @@ public class Gui extends JFrame implements ActionListener{
             remove(fileBrowserPanel);
             fileBrowserPanel=null;
         }
-        
+        if(gradebookPanel!=null){
+            remove(gradebookPanel);
+            gradebookPanel=null;
+        }
         fileBrowserPanel=new JPanel();
         fileBrowserPanel.setLayout(new GridBagLayout());
         setLayout(new GridBagLayout());
@@ -184,6 +195,8 @@ public class Gui extends JFrame implements ActionListener{
         deleteButton.addActionListener(this);
         if(statusText==null)
             statusText=new JLabel("");
+        spreadsheetButton=new JButton("Gradebook");
+        spreadsheetButton.addActionListener(this);
         configButton=new JButton("Settings");
         configButton.addActionListener(this);
         progressBar=new JProgressBar(0,0,100);
@@ -205,17 +218,19 @@ public class Gui extends JFrame implements ActionListener{
         fileBrowserPanel.add(statusText,constraints);
         constraints.anchor=GridBagConstraints.EAST;
         constraints.gridx=4;
+        fileBrowserPanel.add(spreadsheetButton,constraints);
+        constraints.gridx=5;
         //constraints.weightx=0.9;
         fileBrowserPanel.add(configButton,constraints);
         constraints.fill=GridBagConstraints.BOTH;
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.gridx=0;
         constraints.gridy=1;
-        constraints.gridwidth=5;
+        constraints.gridwidth=6;
         constraints.weightx=100;
         constraints.weighty=0.9;
         fileBrowserPanel.add(fileBrowserScroll,constraints);
-        constraints.gridwidth=4;
+        constraints.gridwidth=5;
         constraints.gridy=2;
         constraints.fill=GridBagConstraints.HORIZONTAL;
         constraints.weighty=0.01;
@@ -223,7 +238,7 @@ public class Gui extends JFrame implements ActionListener{
         fileBrowserPanel.add(progressBar,constraints);
         constraints.weightx=0.01;
         constraints.gridwidth=1;
-        constraints.gridx=4;
+        constraints.gridx=5;
         constraints.gridwidth=1;
         constraints.anchor=GridBagConstraints.EAST;
         constraints.fill=GridBagConstraints.NONE;
@@ -261,7 +276,7 @@ public class Gui extends JFrame implements ActionListener{
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
         String grade=null,comment=null;
         if(grader!=null){
-            grade=grader.getGrade(file.getFirstLastName(), file.getAssignmentNumber());
+            grade=grader.getGradeNum(file.getFirstLastName(), file.getAssignmentNumber());
             comment=grader.getComment(file.getFirstLastName(), file.getAssignmentNumber());
         }
         if(grade==null){
@@ -480,6 +495,41 @@ public class Gui extends JFrame implements ActionListener{
         revalidate();
         repaint();
     }
+    public void setupSpreadsheetGui(){
+        if(fileBrowserPanel!=null){
+            remove(fileBrowserPanel);
+            fileBrowserPanel=null;
+        }
+        setLayout(new GridBagLayout());
+        gradebookPanel=new JPanel();
+        gradebookPanel.setLayout(new GridBagLayout());
+        
+        JTable gradebookTable=new SpreadsheetTable(grader.getSpreadsheet());
+        gradebookScroll=new JScrollPane(gradebookTable);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        gradebookScroll.setBounds(0, 0, screenSize.width,screenSize.height);
+        backToFileBrowser=new JButton("Back");
+        backToFileBrowser.addActionListener(this);
+        
+        GridBagConstraints cons=new GridBagConstraints();
+        cons.anchor=GridBagConstraints.WEST;
+        cons.gridy=0;
+        cons.gridx=0;
+        cons.weighty=5;
+        cons.weightx=0;
+        gradebookPanel.add(backToFileBrowser,cons);
+        cons.anchor=GridBagConstraints.CENTER;
+        cons.fill=GridBagConstraints.BOTH;
+        cons.gridy=1;
+        cons.weighty=90;
+        gradebookPanel.add(gradebookScroll,cons);
+        cons.gridx=0;
+        cons.gridy=0;
+        add(gradebookPanel,cons);
+        
+        revalidate();
+        repaint();
+    }
     public void promptKey(){
         status.setText("Please login and paste the code here: ");
         keyField=new JTextField(30);
@@ -589,6 +639,7 @@ public class Gui extends JFrame implements ActionListener{
     }
     @Override
     public void actionPerformed(ActionEvent e) {
+        //TODO: use switch instead of if, because it uses jump tables.
         if(statusText!=null){
             statusText.setText("");
         }
@@ -740,6 +791,12 @@ public class Gui extends JFrame implements ActionListener{
             grader.refresh();
             fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
             fileManager.setGrader(grader);
+            setupFileBrowserGui();
+        }
+        else if(e.getSource().equals(spreadsheetButton)){
+            setupSpreadsheetGui();
+        }
+        else if(e.getSource().equals(backToFileBrowser)){
             setupFileBrowserGui();
         }
     }

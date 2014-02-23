@@ -37,6 +37,6 @@ public class TextAssignment {
     }
     @Override
     public String toString(){
-        return "Assignment "+number+" "+name;
+        return number+" "+name;
     }
 }
