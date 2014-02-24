@@ -96,7 +96,8 @@ Make comment box expand when needed, also go to a multi-line box if needed.
 Right click menu to forcefully delete things even if they arent graded
 Remove columns entirely in the grade overview table via right click menu
 Icon for taskbar
-Delete grades file on closing
+Filter by person
+  right click menu to only show that person's stuff.
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

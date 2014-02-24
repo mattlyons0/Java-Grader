@@ -16,6 +16,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -186,8 +187,6 @@ public class Gui extends JFrame implements ActionListener{
         fileBrowserListener=new FileBrowserListener(this);
         fileBrowserTable=new FileBrowser(fileBrowserData,fileBrowserListener);
         fileBrowserScroll=new JScrollPane(fileBrowserTable);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        fileBrowserScroll.setBounds(0, 0, screenSize.width,screenSize.height);
         
         refreshButton=new JButton("Refresh");
         refreshButton.addActionListener(this);
@@ -204,12 +203,11 @@ public class Gui extends JFrame implements ActionListener{
         gradeButton.addActionListener(this);
         
         constraints.anchor=GridBagConstraints.WEST;
-        constraints.ipady=5;
-        constraints.ipadx=10;
+        constraints.insets=new Insets(5,5,5,5);
         constraints.gridx=0;
         constraints.gridy=0;
         //constraints.weightx=0.05;
-        constraints.weighty=0.01;
+        constraints.weighty=GridBagConstraints.RELATIVE;
         fileBrowserPanel.add(refreshButton,constraints);
         constraints.gridx=1;
         fileBrowserPanel.add(deleteButton,constraints);
@@ -224,6 +222,7 @@ public class Gui extends JFrame implements ActionListener{
         fileBrowserPanel.add(configButton,constraints);
         constraints.fill=GridBagConstraints.BOTH;
         constraints.anchor=GridBagConstraints.CENTER;
+        constraints.insets=new Insets(0,5,5,5);
         constraints.gridx=0;
         constraints.gridy=1;
         constraints.gridwidth=6;
@@ -233,10 +232,12 @@ public class Gui extends JFrame implements ActionListener{
         constraints.gridwidth=5;
         constraints.gridy=2;
         constraints.fill=GridBagConstraints.HORIZONTAL;
-        constraints.weighty=0.01;
+        constraints.weighty=GridBagConstraints.RELATIVE;
+        constraints.ipady=5;
         constraints.weightx=1;
         fileBrowserPanel.add(progressBar,constraints);
-        constraints.weightx=0.01;
+        constraints.ipady=0;
+        constraints.weightx=GridBagConstraints.RELATIVE;
         constraints.gridwidth=1;
         constraints.gridx=5;
         constraints.gridwidth=1;
@@ -506,8 +507,6 @@ public class Gui extends JFrame implements ActionListener{
         
         JTable gradebookTable=new SpreadsheetTable(grader.getSpreadsheet());
         gradebookScroll=new JScrollPane(gradebookTable);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        gradebookScroll.setBounds(0, 0, screenSize.width,screenSize.height);
         backToFileBrowser=new JButton("Back");
         backToFileBrowser.addActionListener(this);
         
@@ -515,16 +514,22 @@ public class Gui extends JFrame implements ActionListener{
         cons.anchor=GridBagConstraints.WEST;
         cons.gridy=0;
         cons.gridx=0;
-        cons.weighty=5;
-        cons.weightx=0;
+        cons.weighty=GridBagConstraints.RELATIVE;
+        cons.weightx=50;
+        cons.insets=new Insets(5,5,5,5);
         gradebookPanel.add(backToFileBrowser,cons);
         cons.anchor=GridBagConstraints.CENTER;
         cons.fill=GridBagConstraints.BOTH;
         cons.gridy=1;
-        cons.weighty=90;
+        cons.weighty=95;
+        cons.insets=new Insets(0,5,5,5);
         gradebookPanel.add(gradebookScroll,cons);
-        cons.gridx=0;
-        cons.gridy=0;
+        cons=new GridBagConstraints();
+        cons.fill=GridBagConstraints.BOTH;
+        cons.anchor=GridBagConstraints.CENTER;
+        cons.weightx=1;
+        cons.weighty=1;
+        
         add(gradebookPanel,cons);
         
         revalidate();
