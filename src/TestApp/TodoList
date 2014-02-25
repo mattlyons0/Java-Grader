@@ -101,6 +101,8 @@ Seperate gui for making new assignments/adding new names
     has fields for javadocs required, date due
     or email address, year, class period...
     prompt when it sees a document with new assignment num
+Read RTF and Word files as well as text files.
+    apache word library
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

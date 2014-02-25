@@ -4,6 +4,7 @@
  */
 package TestApp;
 
+import DropboxGrader.GuiHelper;
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxAuthFinish;
 import com.dropbox.core.DbxClient;
@@ -45,7 +46,7 @@ public class Main {
         System.out.println("Files in the root path:");
         for (DbxEntry child : listing.children) {
             System.out.println("	" + child.name + ": " + child.toString());
-        }
+    }
     }
     private static void openWebsite(String url){
         Desktop desktop=Desktop.getDesktop();
