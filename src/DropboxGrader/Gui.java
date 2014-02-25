@@ -6,7 +6,6 @@
 
 package DropboxGrader;
 
-import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetBrowser;
 import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetTable;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
@@ -33,6 +32,7 @@ import java.util.logging.Logger;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -103,8 +103,11 @@ public class Gui extends JFrame implements ActionListener{
     
     //Forth Stage (Gradebook) Instance Vars
     private JPanel gradebookPanel;
+    private SpreadsheetTable gradebookTable;
     private JScrollPane gradebookScroll;
     private JButton backToFileBrowser;
+    private JComboBox gradebookMode;
+    
     //Config Instance Vars
     private JPanel configPanel;
     private JTextField spreadsheetName;
@@ -496,7 +499,7 @@ public class Gui extends JFrame implements ActionListener{
         revalidate();
         repaint();
     }
-    public void setupSpreadsheetGui(){
+    public void setupGradebookGui(){
         if(fileBrowserPanel!=null){
             remove(fileBrowserPanel);
             fileBrowserPanel=null;
@@ -505,23 +508,44 @@ public class Gui extends JFrame implements ActionListener{
         gradebookPanel=new JPanel();
         gradebookPanel.setLayout(new GridBagLayout());
         
-        JTable gradebookTable=new SpreadsheetTable(grader.getSpreadsheet());
+        gradebookTable=new SpreadsheetTable(grader.getSpreadsheet());
         gradebookScroll=new JScrollPane(gradebookTable);
         backToFileBrowser=new JButton("Back");
         backToFileBrowser.addActionListener(this);
-        
+        JLabel statusLabel=gradebookTable.getStatusLabel();
+        JPanel modeSelector=new JPanel();
+        modeSelector.setLayout(new GridBagLayout());
         GridBagConstraints cons=new GridBagConstraints();
+        modeSelector.add(new JLabel("Mode: "),cons);
+        gradebookMode=new JComboBox(SpreadsheetTable.MODES);
+        gradebookMode.addActionListener(this);
+        cons.gridx=1;
+        modeSelector.add(gradebookMode,cons);
+        
+        
+        cons=new GridBagConstraints();
         cons.anchor=GridBagConstraints.WEST;
         cons.gridy=0;
         cons.gridx=0;
         cons.weighty=GridBagConstraints.RELATIVE;
-        cons.weightx=50;
+        cons.weightx=1;
         cons.insets=new Insets(5,5,5,5);
         gradebookPanel.add(backToFileBrowser,cons);
         cons.anchor=GridBagConstraints.CENTER;
+        cons.gridx=1;
+        cons.weightx=2;
+        gradebookPanel.add(statusLabel,cons);
+        cons.anchor=GridBagConstraints.EAST;
+        cons.gridx=2;
+        cons.weightx=1;
+        gradebookPanel.add(modeSelector,cons);
+        cons.anchor=GridBagConstraints.CENTER;
         cons.fill=GridBagConstraints.BOTH;
         cons.gridy=1;
+        cons.gridx=0;
         cons.weighty=95;
+        cons.gridwidth=3;
+        cons.gridheight=1;
         cons.insets=new Insets(0,5,5,5);
         gradebookPanel.add(gradebookScroll,cons);
         cons=new GridBagConstraints();
@@ -597,7 +621,7 @@ public class Gui extends JFrame implements ActionListener{
         }
     }
     public void refreshFinished(){
-        if(fileBrowserData==null||fileBrowserListener==null){
+        if(fileBrowserData==null||fileBrowserListener==null||fileBrowserTable==null){
             return;
         }
         fileBrowserTable.setRowSelectionAllowed(true);
@@ -799,10 +823,13 @@ public class Gui extends JFrame implements ActionListener{
             setupFileBrowserGui();
         }
         else if(e.getSource().equals(spreadsheetButton)){
-            setupSpreadsheetGui();
+            setupGradebookGui();
         }
         else if(e.getSource().equals(backToFileBrowser)){
             setupFileBrowserGui();
+        }
+        else if(e.getSource().equals(gradebookMode)){
+            gradebookTable.setMode(gradebookMode.getSelectedIndex());
         }
     }
     public void proccessEnded(){

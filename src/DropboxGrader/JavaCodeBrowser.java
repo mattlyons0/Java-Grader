@@ -103,6 +103,7 @@ public class JavaCodeBrowser extends Container{
                     browserArea[x].setText(tf.getText());
                 }
             }
+            browserArea[x].setCaretPosition(0);
             fileWindows[x].add(scrolls[x],constraints);
             String tabName;
             if(!noJavaFiles||numFiles-x!=1){

@@ -94,9 +94,12 @@ public class TextGrader {
             DbxEntry.File entry=(DbxEntry.File)client.getMetadata(filenameRemote);
             if(entry!=null&&downloadedRevision!=null){ //file has already been created
                 if(!downloadedRevision.equals(entry.rev)){
-                    //Merge changes.
-                    //Need to write this part
-                    System.err.println("A different revision was downloaded than was uploaded.");
+                    //If someone changes a grade between the time it takes to download the sheet
+                    //proccess it, write the change to the sheet to disk then upload it.
+                    System.err.println("A different revision was downloaded than was going to be uploaded.\n"
+                            + "Someone changed a grade at the exact moment you changed a grade.");
+                    GuiHelper.alertDialog("Someone wrote a grade at the exact moment you did.\nTry again in a second.");
+                    return false;
                 }
             }
             //upload to dropbox

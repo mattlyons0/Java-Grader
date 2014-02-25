@@ -9,6 +9,7 @@ package DropboxGrader.GuiElements.SpreadsheetBrowser;
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -29,7 +30,8 @@ public class SpreadsheetTableRenderer extends DefaultTableCellRenderer{
         }
         else{ //First column, we are going to render this like a header cell
             TableCellRenderer renderer = table.getTableHeader().getDefaultRenderer();
-            return renderer.getTableCellRendererComponent(table, value, false, false, row, column);
+            JLabel l= (JLabel) renderer.getTableCellRendererComponent(table, value, false, false, row, column);
+            return l;
         }
         
     }

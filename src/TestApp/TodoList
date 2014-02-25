@@ -1,4 +1,3 @@
-encrypt keys
 Ctrl tab in grader.
 Auto mark late.
     When creating new assignment ask when it was due
@@ -14,7 +13,6 @@ Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
 Fix test no java duplicating.
-Fix repaint issue with code tabs.
 Catch out of memory with DropboxGrader code.
 Config to read text files
 Delete downloaded files on close config.
@@ -33,9 +31,9 @@ Check if local version is out of date before downloading a new version.
 Store if it is graded in IC or not.
 Store email
 Store graded date
-Disallow the deliminating character in the grade or comment field.
-Tab to go between fields.
-Config corrupting
+Store class period of student
+Store student email
+Store student year
 After modifying config need to restart or else theres lots of bugs.
     Can't download/open any files.
 Refresh doesn't refresh grades
@@ -53,7 +51,6 @@ GUI for seeing spreadsheet
 Stop running button sticks when there is an error compiling.
 Exception when deleting last assignment.
 Migrate dropbox app to my own account on dropbox, not tiverons.
-After grading 1 assignment scrollbars default to bottom of code.
 Delete doesn't refresh afterwards
 More user friendly table for assignments submitted
 Rework gui to have navBar
@@ -96,8 +93,14 @@ Make comment box expand when needed, also go to a multi-line box if needed.
 Right click menu to forcefully delete things even if they arent graded
 Remove columns entirely in the grade overview table via right click menu
 Icon for taskbar
-Filter by person
-  right click menu to only show that person's stuff.
+Filters
+    ex: name contains "" or assignment number == this
+Bulk options
+    change assignment number for all seen under current filter...
+Seperate gui for making new assignments/adding new names
+    has fields for javadocs required, date due
+    or email address, year, class period...
+    prompt when it sees a document with new assignment num
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted
