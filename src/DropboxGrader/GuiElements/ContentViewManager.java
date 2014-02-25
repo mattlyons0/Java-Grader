@@ -41,9 +41,9 @@ public class ContentViewManager extends JPanel{
     }
     private void changeView(int viewNum){
         if(selectedView!=-1){
-            remove(views.get(selectedView).getContent());
+            remove(views.get(selectedView));
         }
-        add(views.get(viewNum).getContent(),constraints);
+        add(views.get(viewNum),constraints);
         selectedView=viewNum;
     }
 }

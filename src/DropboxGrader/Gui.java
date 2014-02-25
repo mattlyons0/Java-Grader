@@ -6,6 +6,8 @@
 
 package DropboxGrader;
 
+import DropboxGrader.GuiElements.AuthView;
+import DropboxGrader.GuiElements.ContentViewManager;
 import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetTable;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
@@ -61,27 +63,13 @@ public class Gui extends JFrame implements ActionListener{
     private WorkerThread workerThread;
     private GuiListener listener;
     
+    //View Manager
+    private ContentViewManager viewManager;
+    
     //First Stage (Authentication) Instance Vars
     private JLabel status;
     private JTextField keyField;
     private JButton submitButton;
-    
-    //Second Stage (File Browser) Instance Vars
-    private JPanel fileBrowserPanel; 
-    private FileBrowserData fileBrowserData;
-    private FileBrowser fileBrowserTable;
-    private JScrollPane fileBrowserScroll;
-    private FileBrowserListener fileBrowserListener;
-    private GridBagConstraints constraints;
-    private JButton refreshButton;
-    private JButton deleteButton;
-    private JButton spreadsheetButton;
-    private JButton configButton;
-    private JProgressBar progressBar;
-    private JButton gradeButton;
-    private JLabel statusText;
-    private ArrayList<Integer> selectedFiles;
-    private ArrayList<Integer> previousSelection;
     
     //Third Stage (Grader) Instance Vars
     private DbxFile currentFile;
@@ -122,14 +110,19 @@ public class Gui extends JFrame implements ActionListener{
         super("Dropbox Grader");
         
         //UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
-        previousSelection=new ArrayList();
+        viewManager=new ContentViewManager();
         
         listener=new GuiListener(this);
         addWindowListener(listener);
         getContentPane().addComponentListener(listener);
         addWindowStateListener(listener);
         
+        initViewMan();
         init();
+    }
+    private void initViewMan(){
+        viewManager.addView(new AuthView());
+        viewManager.changeView("AuthView");
     }
     private void init(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -138,8 +131,6 @@ public class Gui extends JFrame implements ActionListener{
         setLocation(screenSize.width/2-this.getSize().width/2, screenSize.height/2-this.getSize().height/2);
         setLayout(new FlowLayout(FlowLayout.CENTER));
         
-        status=new JLabel("Connecting to Dropbox...");
-        status.setHorizontalAlignment(SwingConstants.CENTER);
         
         add(status);
         
@@ -603,64 +594,12 @@ public class Gui extends JFrame implements ActionListener{
             fileBrowserTable.repaint();
         }
     }
-    public void refreshTable(){
-        if(statusText!=null)
-            statusText.setText("Refreshing File Listings...");
-        saveSelection();
-        if(fileBrowserTable!=null){
-            fileBrowserTable.setRowSelectionAllowed(false);
-        }
-        
-        if(workerThread!=null){
-            workerThread.refreshData();
-        }
-        else{
-            if(fileManager!=null)
-                fileManager.refresh();
-            refreshFinished();
-        }
-    }
-    public void refreshFinished(){
-        if(fileBrowserData==null||fileBrowserListener==null||fileBrowserTable==null){
-            return;
-        }
-        fileBrowserTable.setRowSelectionAllowed(true);
-        fileBrowserTable.dataChanged();
-        usePreviousSelection();
-        
-        if(statusText!=null)
-            statusText.setText("");
-    }
     public void setStatus(String status){
         if(this.status!=null){
             this.status.setText(status);
         }
         else if(statusText!=null){
             statusText.setText(status);
-        }
-    }
-    public void saveSelection(){
-        if(fileBrowserTable==null){
-            return;
-        }
-        int[] rows=fileBrowserTable.getSelectedRows();
-        for(int r:rows){
-            previousSelection.add(r);
-        }
-    }
-    public void usePreviousSelection(){
-        if(fileBrowserTable==null){
-            return;
-        }
-        if(!previousSelection.isEmpty()){
-            for(int s:previousSelection){
-                try{
-                    fileBrowserTable.setRowSelectionInterval(s,s);
-                } catch(IllegalArgumentException ex){
-                    //whatever, we wont remember the row then.
-                }
-            }
-            previousSelection.clear();
         }
     }
     public void gradeRows(){
@@ -847,5 +786,11 @@ public class Gui extends JFrame implements ActionListener{
     }
     public WorkerThread getBackgroundThread(){
         return workerThread;
+    }
+    public DbxFile getCurrentFile(){
+        return currentFile;
+    }
+    public void setCurrentFile(DbxFile file){
+        currentFile=file;
     }
 }
