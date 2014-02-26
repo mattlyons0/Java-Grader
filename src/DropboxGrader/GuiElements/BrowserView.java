@@ -42,7 +42,6 @@ public class BrowserView extends ContentView{
     private JProgressBar progressBar;
     private JButton gradeButton;
     private JLabel statusText;
-    private ArrayList<Integer> selectedFiles;
     private ArrayList<Integer> previousSelection;
     
     public BrowserView(Gui gui,FileManager manager){
@@ -53,6 +52,8 @@ public class BrowserView extends ContentView{
     }
     @Override
     public void setup() {
+        previousSelection=new ArrayList();
+        
         constraints=new GridBagConstraints();
         fileBrowserData=new FileBrowserData(fileManager);
         fileManager.setTableData(fileBrowserData);
@@ -233,16 +234,38 @@ public class BrowserView extends ContentView{
                 statusText.setText("You must select at least one assignment to grade.");
                 return;
             }
-            selectedFiles=new ArrayList();
             for(int x=0;x<selected.length;x++){
-                selectedFiles.add(fileBrowserTable.convertRowIndexToModel(selected[x]));
+                gui.getSelectedFiles().add(fileBrowserTable.convertRowIndexToModel(selected[x]));
                 previousSelection.add(selected[x]);
             }
             
-            gui.getBackgroundThread().download(selectedFiles,true);
+            gui.getBackgroundThread().download(gui.getSelectedFiles(),true);
             
-            gui.setCurrentFile(fileManager.getFile(selectedFiles.get(0)));
+            gui.setCurrentFile(fileManager.getFile(gui.getSelectedFiles().get(0)));
+        }
+        else if(e.getSource().equals(spreadsheetButton)){
+            gui.setupGradebookGui();
         }
     }
-    
+
+    @Override
+    public void switchedTo() {
+
+    }
+
+    public void updateProgress(int val) {
+        progressBar.setValue(val);
+    }
+    public FileBrowser getTable(){
+        return fileBrowserTable;
+    }
+    public FileBrowserData getTableData(){
+        return fileBrowserData;
+    }
+    public void setStatus(String status){
+        statusText.setText(status);
+    }
+    public void gradeRows(){
+        actionPerformed(new ActionEvent(gradeButton,0,null));
+    }
 }

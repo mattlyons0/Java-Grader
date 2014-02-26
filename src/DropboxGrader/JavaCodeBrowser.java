@@ -37,7 +37,10 @@ public class JavaCodeBrowser extends Container{
         
         init();
     }
-    public void init(){  
+    public void init(){
+        if(file==null){
+            return;
+        }
         DefaultSyntaxKit.initKit();
         setLayout(new CardLayout(10,5));
         tabPane=new JTabbedPane();
@@ -119,9 +122,12 @@ public class JavaCodeBrowser extends Container{
     }
     public void setFile(DbxFile f){
         file=f;
-        remove(tabPane);
-        for(JPanel panel:fileWindows){
-            remove(panel);
+        if(tabPane!=null)
+            remove(tabPane);
+        if(fileWindows!=null){
+            for(JPanel panel:fileWindows){
+                remove(panel);
+            }
         }
         init();
     }
