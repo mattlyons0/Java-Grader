@@ -169,6 +169,15 @@ public class TextGrader {
         //convert to code, write and upload
         return uploadTable();
     }
+    public boolean setInGradebook(String name,int assignmentNum,boolean inGradebook){
+        if(getGrade(name,assignmentNum).inGradebook==inGradebook){
+            return true;
+        }
+        downloadSheet();
+        TextGrade grade=getGrade(name,assignmentNum);
+        grade.inGradebook=inGradebook;
+        return uploadTable();
+    }
     public TextGrade getGrade(String name,int assignmentNum){
         return data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
     }

@@ -30,8 +30,10 @@ public class SpreadsheetTableRenderer extends DefaultTableCellRenderer{
             JLabel l=(JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if(value instanceof TextGrade){
                 TextGrade grade=(TextGrade)value;
-                if(!grade.inIC){
+                if(!grade.inGradebook){
                     l.setBackground(Color.ORANGE);
+                    if(isSelected)
+                        l.setBackground(l.getBackground().darker());
                 }
             }
             return l;

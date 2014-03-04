@@ -8,6 +8,7 @@ package DropboxGrader.GuiElements.SpreadsheetBrowser;
 
 import DropboxGrader.Gui;
 import DropboxGrader.TextGrader.TextGrade;
+import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -81,6 +82,8 @@ public class SpreadsheetTable extends JTable implements MouseListener{
         try{
             Object clipData=clipboard.getData(DataFlavor.stringFlavor);
             if(clipData.equals(copyData)){
+                statusLabel.setText("Copied: "+copyData.toString());
+                setInGradebook(row,col);
                 return;
             }
         } catch(Exception e){ //its a risky operation to assume the data ont he clipboard is a string, so we are ok if that fails
@@ -89,9 +92,16 @@ public class SpreadsheetTable extends JTable implements MouseListener{
         try{
             clipboard.setContents(new StringSelection(copyData.toString()), null);
             statusLabel.setText("Copied: "+copyData.toString());
+            setInGradebook(row,col);
         } catch(IllegalStateException e){
             statusLabel.setText("Error accessing the clipboard.");
         }
+    }
+    private void setInGradebook(int row,int col){
+        TextGrader grader=gui.getGrader();
+        String name=sheet.getNameAt(row).firstName+sheet.getNameAt(row).lastName;
+        int assignment=sheet.getAssignmentAt(col-1).number;
+        grader.setInGradebook(name,assignment,true);
     }
     public void setMode(int modeIndex){
         mode=modeIndex;
@@ -114,6 +124,12 @@ public class SpreadsheetTable extends JTable implements MouseListener{
     @Override
     public void mouseReleased(MouseEvent e) {
         if(mode==1){
+            int r = rowAtPoint(e.getPoint());
+            if (r >= 0 && r < getRowCount()) {
+                setRowSelectionInterval(r, r);
+            } else {
+                clearSelection();
+            }
             copyCell(e.getButton());
         }
     }

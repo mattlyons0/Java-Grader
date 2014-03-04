@@ -98,9 +98,6 @@ Seperate gui for making new assignments/adding new names
 Read RTF and Word files as well as text files.
     apache word library
 Don't double click when modifier keys are being held down such as shift or control.
-Gradebook
-    click to copy grade
-    right click to copy comment
 Config option for folder to put grades in
 Configurable colors for gradebook (inIC,late..)
 Don't read doubleclick if modifiers are held
@@ -111,6 +108,11 @@ Option to not cache views and save memory if it is worth it (although the new co
 Fix config gui on bigger scales
 Mark as in IC once a grade has been copied
 When prompted for fixed name, rename file to that name.
+Mark in gradebook on another thread
+Right click menu in gradebook to mark as not in gradebook
+Ability to drag columns over and save that order
+Ability to drag names over and save that order
+Ability to edit names/assignments
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted
