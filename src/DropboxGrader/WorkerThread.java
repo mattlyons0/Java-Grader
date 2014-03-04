@@ -19,6 +19,7 @@ public class WorkerThread implements Runnable{
     private FileManager manager;
     private ArrayList<DbxFile> fileQueue;
     private ArrayList<DbxFile> deleteQueue;
+    private ArrayList<Runnable> actionQueue;
     private boolean graderAfter;
     private DbxFile fileToRun;
     private int timesToRun;
@@ -28,6 +29,7 @@ public class WorkerThread implements Runnable{
         this.gui=gui;
         fileQueue=new ArrayList();
         deleteQueue=new ArrayList();
+        actionQueue=new ArrayList();
         refreshNeeded=true;
     }
     @Override
@@ -50,6 +52,10 @@ public class WorkerThread implements Runnable{
             for(DbxFile f:deleteQueue){
                 if(f!=null)
                     f.delete();
+            }
+            for(int i=0;i<actionQueue.size();i++){
+                Runnable r=actionQueue.remove(i);
+                r.run();
             }
             if(!deleteQueue.isEmpty()){
                 deleteQueue.clear();
@@ -109,6 +115,9 @@ public class WorkerThread implements Runnable{
             return;
         }
         deleteQueue.add(manager.getFile(file));
+    }
+    public void invokeLater(Runnable run){
+        actionQueue.add(run);
     }
     public void refreshData(){
         refreshNeeded=true;

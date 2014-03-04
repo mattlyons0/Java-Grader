@@ -102,7 +102,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             int rowindex = table.convertRowIndexToModel(table.getSelectedRow());
             if (rowindex < 0)
                 return;
-            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
+            if (e.getComponent() instanceof JTable ) {
                 JPopupMenu popup = createRightClickMenu(rowindex);
                 popup.show(e.getComponent(), e.getX(), e.getY());
             }

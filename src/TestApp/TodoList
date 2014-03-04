@@ -57,7 +57,7 @@ Validation code for config
 
 auto check for javadocs
 read screenshots?
-refactor gui class to have Filebrowser,Config... as components
+gui
     Multi-pane viewing mode?
     Better UI
     Fix window resize issues
@@ -78,9 +78,7 @@ Theme selector. NIMBUS
     http://www.eclipse.org/swt/
 If there are lots of things to run the JOptionPane goes past the monitor width
 Make errors in output easier to see, maybe highlight line error was in and make it clickable to go to that line.
-Show grade and comment in status
 Warning upon startup when files downloaded is larger than 10MB
-Stop centering the damn window all the time, its annoying on multiple monitors.
 If we correct the name when grading in the popup, rename it in dropbox
 Make comment box expand when needed, also go to a multi-line box if needed.
     Maybe do the same with the run times textField?
@@ -106,13 +104,13 @@ When an error comes up compiling, option to exclude that class from being compil
 Remember window position
 Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
 Fix config gui on bigger scales
-Mark as in IC once a grade has been copied
 When prompted for fixed name, rename file to that name.
-Mark in gradebook on another thread
-Right click menu in gradebook to mark as not in gradebook
 Ability to drag columns over and save that order
 Ability to drag names over and save that order
 Ability to edit names/assignments
+Remove old resubmit thing, replace it with date based resubmits/late
+Remove guiHelper (JOptionPane)
+Confirmation for closing while a assignment is being run
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

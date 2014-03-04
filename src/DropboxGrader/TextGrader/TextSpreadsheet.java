@@ -183,6 +183,9 @@ public class TextSpreadsheet {
         return assignments.size();
     }
     public TextGrade getGradeAt(int assignmentIndex,int nameIndex){
+        if(nameIndex<0||assignmentIndex<0){
+            return null;
+        }
         TextAssignment assignment=assignments.get(assignmentIndex);
         TextName name=names.get(nameIndex);
         return getGrade(name,assignment);

@@ -46,10 +46,11 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
             runner.getRelay().stop();
             runner.getRelay().invalidate();
         }
-        if(gui.getTerminal()!=null){
+        if(gui!=null&&gui.getTerminal()!=null){
             gui.getTerminal().stop();
         }
-        gui.setVisible(false);
+        if(gui!=null)
+            gui.setVisible(false);
 
         File inputFolder=new File("runtimeFiles\\");
         File[] inputFiles=inputFolder.listFiles();
@@ -59,7 +60,8 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
             }
         }
         inputFolder.delete();
-        gui.isClosing();
+        if(gui!=null)
+            gui.isClosing();
         
         Config.writeConfig();
         
