@@ -15,8 +15,11 @@ import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiHelper;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -26,15 +29,16 @@ import javax.swing.JTextField;
  *
  * @author Matt
  */
-public class ConfigView extends ContentView{
+public class ConfigView extends ContentView implements FocusListener{
     private Gui gui;
     
-    private JTextField spreadsheetName;
+    private JTextField gradesFolder;
     private JTextField dropboxFolder;
     private JTextField dropboxPeriod;
     private JTextField runTimes;
     private JCheckBox autoRun;
     private JButton backToBrowser;
+    private JLabel statusLabel;
     
     public ConfigView(Gui gui){
         super("ConfigView");
@@ -43,8 +47,10 @@ public class ConfigView extends ContentView{
     }
     @Override
     public void setup() {
-        spreadsheetName=new JTextField(25);
-        spreadsheetName.setText(Config.spreadsheetName);
+        statusLabel=new JLabel("");
+        statusLabel.setHorizontalAlignment(JLabel.CENTER);
+        gradesFolder=new JTextField(25);
+        gradesFolder.setText(Config.dropboxSpreadsheetFolder);
         dropboxFolder=new JTextField(25);
         dropboxFolder.setText(Config.dropboxFolder);
         dropboxPeriod=new JTextField(3);
@@ -59,6 +65,7 @@ public class ConfigView extends ContentView{
         creditsLabel.setHorizontalAlignment(JLabel.CENTER);
         
         GridBagConstraints cons=new GridBagConstraints();
+        cons.insets=new Insets(5,5,5,5);
         cons.fill=GridBagConstraints.NONE;
         cons.anchor=GridBagConstraints.NORTHWEST;
         cons.weighty=1;
@@ -67,11 +74,18 @@ public class ConfigView extends ContentView{
         cons.gridy=0;
         add(backToBrowser,cons);
         cons.anchor=GridBagConstraints.CENTER;
-        cons.fill=GridBagConstraints.BOTH;
-        cons.gridy=1;
-        add(new JLabel("Spreadsheet Name: "),cons);
+        cons.fill=GridBagConstraints.NONE;
+        cons.ipadx=5;
+        cons.ipady=5;
         cons.gridx=1;
-        add(spreadsheetName,cons);
+        cons.gridwidth=2;
+        add(statusLabel,cons);
+        cons.gridwidth=1;
+        cons.gridx=0;
+        cons.gridy=1;
+        add(new JLabel("Grades Folder: "),cons);
+        cons.gridx=1;
+        add(gradesFolder,cons);
         cons.gridx=0;
         cons.gridy=2;
         add(new JLabel("Dropbox Folder: "),cons);
@@ -99,7 +113,7 @@ public class ConfigView extends ContentView{
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(backToBrowser)){
-            Config.spreadsheetName=spreadsheetName.getText();
+            Config.dropboxSpreadsheetFolder=gradesFolder.getText();
             Config.dropboxFolder=dropboxFolder.getText();
             Config.dropboxPeriod=DbxFile.safeStringToInt(dropboxPeriod.getText());
             try{
@@ -119,6 +133,16 @@ public class ConfigView extends ContentView{
     @Override
     public void switchedTo() {
 
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
