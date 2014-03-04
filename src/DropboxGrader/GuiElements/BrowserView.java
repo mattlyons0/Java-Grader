@@ -42,7 +42,6 @@ public class BrowserView extends ContentView{
     private JProgressBar progressBar;
     private JButton gradeButton;
     private JLabel statusText;
-    private ArrayList<Integer> previousSelection;
     
     public BrowserView(Gui gui,FileManager manager){
         super("BrowserView");
@@ -51,9 +50,7 @@ public class BrowserView extends ContentView{
         fileManager=manager;
     }
     @Override
-    public void setup() {
-        previousSelection=new ArrayList();
-        
+    public void setup() {        
         constraints=new GridBagConstraints();
         fileBrowserData=new FileBrowserData(fileManager);
         fileManager.setTableData(fileBrowserData);
@@ -117,31 +114,13 @@ public class BrowserView extends ContentView{
         constraints.anchor=GridBagConstraints.EAST;
         constraints.fill=GridBagConstraints.NONE;
         add(gradeButton,constraints);
-        
-        usePreviousSelection();
-        
+                
         revalidate();
-    }
-    public void usePreviousSelection(){
-        if(fileBrowserTable==null){
-            return;
-        }
-        if(!previousSelection.isEmpty()){
-            for(int s:previousSelection){
-                try{
-                    fileBrowserTable.setRowSelectionInterval(s,s);
-                } catch(IllegalArgumentException ex){
-                    //whatever, we wont remember the row then.
-                }
-            }
-            previousSelection.clear();
-        }
     }
     public void refreshTable(){
         WorkerThread workerThread=gui.getBackgroundThread();
         if(statusText!=null)
             statusText.setText("Refreshing File Listings...");
-        saveSelection();
         if(fileBrowserTable!=null){
             fileBrowserTable.setRowSelectionAllowed(false);
         }
@@ -161,19 +140,9 @@ public class BrowserView extends ContentView{
         }
         fileBrowserTable.setRowSelectionAllowed(true);
         fileBrowserTable.dataChanged();
-        usePreviousSelection();
         
         if(statusText!=null)
             statusText.setText("");
-    }
-    public void saveSelection(){
-        if(fileBrowserTable==null){
-            return;
-        }
-        int[] rows=fileBrowserTable.getSelectedRows();
-        for(int r:rows){
-            previousSelection.add(r);
-        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -234,11 +203,9 @@ public class BrowserView extends ContentView{
                 statusText.setText("You must select at least one assignment to grade.");
                 return;
             }
-            for(int x=0;x<selected.length;x++){
-                gui.getSelectedFiles().add(fileBrowserTable.convertRowIndexToModel(selected[x]));
-                previousSelection.add(selected[x]);
+            for(int element:selected){
+                gui.getSelectedFiles().add(fileBrowserTable.convertRowIndexToModel(element));
             }
-            
             gui.getBackgroundThread().download(gui.getSelectedFiles(),true);
             
             gui.setCurrentFile(fileManager.getFile(gui.getSelectedFiles().get(0)));
@@ -250,7 +217,8 @@ public class BrowserView extends ContentView{
 
     @Override
     public void switchedTo() {
-
+        statusText.setText("");
+        progressBar.setValue(0);
     }
 
     public void updateProgress(int val) {

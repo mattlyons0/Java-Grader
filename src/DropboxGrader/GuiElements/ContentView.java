@@ -28,6 +28,8 @@ public abstract class ContentView extends JPanel implements ActionListener{
     }
     public abstract void setup();
     public abstract void switchedTo();
+    //public abstract boolean shouldBeCached();
+    
     @Override
     public String toString(){
         return viewName;

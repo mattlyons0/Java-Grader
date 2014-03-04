@@ -53,6 +53,7 @@ public class ContentViewManager extends JPanel{
     }
     private void changeView(int viewNum){
         if(selectedView!=-1){
+            
             remove(views.get(selectedView));
         }
         views.get(viewNum).switchedTo();

@@ -12,19 +12,21 @@ package DropboxGrader.TextGrader;
  */
 public class TextGrade {
     public String grade;
-    public String comment;
+    public String comment="";
     //public final Date DATEGRADED;
-    //public final boolean INGRADEBOOK
+    public boolean inIC=false;
     
     public TextGrade(String grade,String comment){
         this.grade=grade;
         this.comment=comment;
+        inIC=false;
     }
     public TextGrade(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
         try{
             grade=text[0];
             comment=text[1];
+            inIC=Boolean.parseBoolean(text[2]);
         } catch(Exception e){
             //System.err.println("Error reading grade from \""+fromText+"\": "+e);
             //it is entirely normal to get this error, so we don't need to output anything
@@ -34,7 +36,8 @@ public class TextGrade {
     public String toText(){
         String text="";
         text+=grade+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=comment;
+        text+=comment+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=inIC;
         
         return text;
     }

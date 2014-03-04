@@ -7,7 +7,6 @@ button to change dropbox login
 Custom sorting
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
-Fix assignment number for yr 2
 Make code run from its own folder.
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
@@ -26,9 +25,6 @@ State jdk used to compile and jre used to run.
 Fix null package when picking which class to run.
 Fix packagetest not working.
 Encrypt grade sheet
-Upload a file to dropbox when downloading spreadsheet that states it is being modified and others cant download it.
-Check if local version is out of date before downloading a new version.
-Store if it is graded in IC or not.
 Store email
 Store graded date
 Store class period of student
@@ -45,12 +41,10 @@ Unit testing (test methods with reflection or something)
 Percentage based downloading results.
 Catch and attempt to save out of memory errors.
 When grade column is hidden also hide grade and comment
-GUI for seeing spreadsheet
-    Click in box to copy and mark as graded in IC
-    Ability to make RTF printout for students.
+Ability to make RTF printout for students.
 Stop running button sticks when there is an error compiling.
 Exception when deleting last assignment.
-Migrate dropbox app to my own account on dropbox, not tiverons.
+Migrate dropbox app to my own account on dropbox
 Delete doesn't refresh afterwards
 More user friendly table for assignments submitted
 Rework gui to have navBar
@@ -104,6 +98,19 @@ Seperate gui for making new assignments/adding new names
 Read RTF and Word files as well as text files.
     apache word library
 Don't double click when modifier keys are being held down such as shift or control.
+Gradebook
+    click to copy grade
+    right click to copy comment
+Config option for folder to put grades in
+Configurable colors for gradebook (inIC,late..)
+Don't read doubleclick if modifiers are held
+Check to see if we actually double clicked on the selected cell or not
+When an error comes up compiling, option to exclude that class from being compiled
+Remember window position
+Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
+Fix config gui on bigger scales
+Mark as in IC once a grade has been copied
+When prompted for fixed name, rename file to that name.
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

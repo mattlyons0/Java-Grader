@@ -6,6 +6,8 @@
 
 package DropboxGrader.GuiElements.SpreadsheetBrowser;
 
+import DropboxGrader.TextGrader.TextGrade;
+import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -24,8 +26,14 @@ public class SpreadsheetTableRenderer extends DefaultTableCellRenderer{
     
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        if(column!=0){
+        if(table.convertColumnIndexToModel(column)!=0){
             JLabel l=(JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if(value instanceof TextGrade){
+                TextGrade grade=(TextGrade)value;
+                if(!grade.inIC){
+                    l.setBackground(Color.ORANGE);
+                }
+            }
             return l;
         }
         else{ //First column, we are going to render this like a header cell

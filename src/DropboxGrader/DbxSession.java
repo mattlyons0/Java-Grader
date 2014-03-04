@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import DropboxGrader.Data.Data;
 import static TestApp.Main.appName;
 import static TestApp.Main.appVersion;
 import com.dropbox.core.DbxAppInfo;
@@ -33,9 +34,7 @@ import java.util.logging.Logger;
  */
 public class DbxSession {
     public static final String APPNAME="Matt Lyons Assignment Grader";
-    private final double APPVERSION=0.1;
-    private final String APP_KEY = "681xzhh2nqu3hjc"; //this should be read from a text file that isn't pushed to git once we move to github
-    private final String APP_SECRET = "k7e1pkfljgg1jdb";
+    public static final double APPVERSION=0.2;
     private final File KEYFILE;
     private boolean invalidToken=false;
     private DbxClient client;
@@ -52,7 +51,7 @@ public class DbxSession {
         return client;
     }
     private void createSession(){
-        DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
+        DbxAppInfo appInfo = new DbxAppInfo(Data.APP_KEY, Data.APP_SECRET);
         DbxRequestConfig config = new DbxRequestConfig(
             APPNAME+" "+APPVERSION, Locale.getDefault().toString());
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);

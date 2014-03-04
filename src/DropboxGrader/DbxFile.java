@@ -377,8 +377,7 @@ public class DbxFile {
             return false;
         }
         
-        runner.runFile(javaFiles,mainMethods.get(choice),times,downloadedFile.getPath());
-        return true;
+        return runner.runFile(javaFiles,mainMethods.get(choice),times,downloadedFile.getPath());
     }
     public String getFileName(){
         return entry.name;

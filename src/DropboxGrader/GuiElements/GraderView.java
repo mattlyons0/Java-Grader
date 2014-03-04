@@ -64,15 +64,10 @@ public class GraderView extends ContentView{
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
         javaCode=new JavaCodeBrowser(null);
         javaCode.setMinimumSize(new Dimension(300,50));
-        if(codeOutputArea==null)
-            codeOutputArea=new JTerminal(gui);
-        else
-            codeOutputArea.setText("");
+        codeOutputArea=new JTerminal(gui);
         codeOutputArea.setMinimumSize(new Dimension(100,50));
-        if(codeOutputScroll==null)
-            codeOutputScroll=new JScrollPane(codeOutputArea);
-        if(runner==null)
-            runner=new JavaRunner(codeOutputArea,gui,javaCode);   
+        codeOutputScroll=new JScrollPane(codeOutputArea);
+        runner=new JavaRunner(codeOutputArea,gui,javaCode);   
         gui.getGuiListener().setRunner(runner);
         
         JPanel topBar=new JPanel();
@@ -182,11 +177,6 @@ public class GraderView extends ContentView{
         cons.anchor=GridBagConstraints.EAST;
         cons.gridx=1;
         add(gradeButtonPanel,cons);
-                
-        if(Config.autoRun){
-            //If it should autorun, go autorun on the other thread.
-            gui.getBackgroundThread().runFile(gui.getSelectedFiles().get(0),Config.runTimes);
-        }
     }
 
     @Override
@@ -279,6 +269,14 @@ public class GraderView extends ContentView{
         
         javaCode.setFile(file);
         fileInfoLabel.setText(file.toString());
+        gradeStatus.setText("");
+        codeOutputArea.setText("");
+        runButton.setText("Run");
+        
+        if(Config.autoRun&&!gui.getSelectedFiles().isEmpty()){
+            //If it should autorun, go autorun on the other thread.
+            gui.getBackgroundThread().runFile(gui.getSelectedFiles().get(0),Config.runTimes);
+        }
     }
     public JavaRunner getRunner(){
         return runner;

@@ -8,6 +8,7 @@ package DropboxGrader.GuiElements;
 
 import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
+import DropboxGrader.DbxSession;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
@@ -54,7 +55,7 @@ public class ConfigView extends ContentView{
         autoRun.setSelected(Config.autoRun);     
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
-        JLabel creditsLabel=new JLabel("Created by Matt Lyons");
+        JLabel creditsLabel=new JLabel(DbxSession.APPNAME+" V"+DbxSession.APPVERSION+" Created by Matt Lyons");
         creditsLabel.setHorizontalAlignment(JLabel.CENTER);
         
         GridBagConstraints cons=new GridBagConstraints();

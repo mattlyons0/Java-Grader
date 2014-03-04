@@ -121,12 +121,12 @@ public class JavaRunner implements Runnable{
         }
         running=null;     
     }
-    public void runFile(JavaFile[] files,JavaFile runChoice,int numTimes,String folder){
-        runFile(files,runChoice,numTimes,folder,true);
+    public boolean runFile(JavaFile[] files,JavaFile runChoice,int numTimes,String folder){
+        return runFile(files,runChoice,numTimes,folder,true);
     }
-    private void runFile(JavaFile[] files,JavaFile runChoice, int numTimes,String folder,boolean compile){
+    private boolean runFile(JavaFile[] files,JavaFile runChoice, int numTimes,String folder,boolean compile){
         if(files.length==0){
-            return;
+            return false;
         }
         if(compile)
             terminal.setText("");
@@ -191,8 +191,7 @@ public class JavaRunner implements Runnable{
                 int result=compiler.run(null, System.out, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
                 if(result!=0){
                     terminal.append("Compile Failed\n\n",Color.RED);
-                    gui.proccessEnded();
-                    return;
+                    return false;
                 }
                 else{
                     terminal.append("Compile Finished\n\n",Color.GRAY);
@@ -211,7 +210,7 @@ public class JavaRunner implements Runnable{
             }
             if(index==-1){
                 System.out.println("Main File doesnt exist!");
-                return;
+                return false;
             }
             //for(int x=0;x<files.length;x++){
             String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
@@ -243,9 +242,11 @@ public class JavaRunner implements Runnable{
 //            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
 //            printStream=new PrintStream(filterStream);
               System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
+              return true;
             //}
         } catch (IOException ex) {
            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
+           return false;
         }
     }
     private void fixJavaPath(){
