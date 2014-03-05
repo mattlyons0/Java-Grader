@@ -13,9 +13,7 @@ Delete local files option in settings menu.
 Count lines of code?
 Fix test no java duplicating.
 Catch out of memory with DropboxGrader code.
-Config to read text files
-Fix failing login with dropbox screwing things up
-    Gui being all weird
+Config to read text files by default
 Update checker
 Optional libraries to compile with setting.
 Ability to close code tabs with right click.

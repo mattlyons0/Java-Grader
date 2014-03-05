@@ -69,7 +69,6 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             if(e.isAltDown()||e.isControlDown()||e.isMetaDown()||e.isShiftDown()||e.getComponent() instanceof JTableHeader){
                 return;
             }
-            System.out.println(e.getSource());
             long currentClick=System.currentTimeMillis();
             int selectedRow=table.getSelectedRow();
             if(selectedRow==-1){
