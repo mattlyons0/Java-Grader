@@ -42,6 +42,7 @@ import javax.swing.table.TableCellRenderer;
 public class SpreadsheetTable extends JTable implements MouseListener,ActionListener{
     public static final String[] MODES={"View","Copy"};
     private final String[] modeDescription={"","Copies selected grade to the clipboard. Left click for grade, Right click for comment."};
+    private SpreadsheetData sheetData;
     private Gui gui;
     private TextSpreadsheet sheet;
     private Clipboard clipboard;
@@ -56,11 +57,12 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         statusLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         mode=0;
         clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
+        sheetData=new SpreadsheetData(sheet);
         
         init();
     }
     private void init(){
-        setModel(new SpreadsheetData(sheet));
+        setModel(sheetData);
         getSelectionModel().addListSelectionListener(this);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
@@ -127,7 +129,10 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     public TableCellRenderer getDefaultRenderer(Class<?> columnClass) {
         return new SpreadsheetTableRenderer();
     }
-    
+    public void dataChanged(){
+        sheetData.fireTableStructureChanged();
+        sheetData.fireTableDataChanged();
+    }
     @Override
     public void mouseReleased(MouseEvent e) {
         if(mode==0){
@@ -195,6 +200,9 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         if(grade!=null){
             final String gradeChoice=JOptionPane.showInputDialog("What would you like to change the grade to?",grade.grade);
             final String commentChoice=JOptionPane.showInputDialog("What would you like to change the comment to?",grade.comment);
+            if(gradeChoice==null||commentChoice==null){
+                return;
+            }
             final String name=sheet.getNameAt(row).firstName+sheet.getNameAt(row).lastName;
             final int assignment=sheet.getAssignmentAt(col-1).number;
             gui.getBackgroundThread().invokeLater(new Runnable() {

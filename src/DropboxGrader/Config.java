@@ -31,9 +31,9 @@ public class Config {
     public static void init(){
         //Preinit
         spreadsheetName="APCS Period 1 Assignments";
-        dropboxFolder="DROPitTOme";
+        dropboxFolder="/DROPitTOme";
         dropboxPeriod=1;
-        dropboxSpreadsheetFolder="Grades";
+        dropboxSpreadsheetFolder="/Grades";
         //FileBrowser
         columnOrder="0,1,2,3,4";
         columnWidth="75,75,75,75,75"; //75=default

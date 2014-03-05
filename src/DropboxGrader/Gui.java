@@ -189,15 +189,22 @@ public class Gui extends JFrame implements ActionListener{
         graderView.proccessEnded();
     }
     public JTerminal getTerminal(){
-        return graderView.getTerminal();
+        return graderView!=null?graderView.getTerminal():null;
     }
     public FileManager getManager(){
         return fileManager;
     }
     public void isClosing(){
-        JSplitPane graderDivider=graderView.getDivider();
-        if(graderDivider!=null)
-            Config.dividerLocation=graderDivider.getDividerLocation();
+        if(graderView!=null){
+            JSplitPane graderDivider=graderView.getDivider();
+            if(graderDivider!=null)
+                Config.dividerLocation=graderDivider.getDividerLocation();
+        }
+        if(viewManager!=null){
+            if(viewManager.selectedViewNameEquals("ConfigView")){
+                configView.saveData();
+            }
+        }
     }
     public WorkerThread getBackgroundThread(){
         return workerThread;

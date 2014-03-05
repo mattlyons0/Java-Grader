@@ -13,6 +13,9 @@ import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.WorkerThread;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -39,6 +42,7 @@ public class ConfigView extends ContentView implements FocusListener{
     private JCheckBox autoRun;
     private JButton backToBrowser;
     private JLabel statusLabel;
+    private JLabel errorLabel;
     
     public ConfigView(Gui gui){
         super("ConfigView");
@@ -49,45 +53,58 @@ public class ConfigView extends ContentView implements FocusListener{
     public void setup() {
         statusLabel=new JLabel("");
         statusLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel=new JLabel();
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel.setForeground(Color.red);
         gradesFolder=new JTextField(25);
         gradesFolder.setText(Config.dropboxSpreadsheetFolder);
+        gradesFolder.addFocusListener(this);
         dropboxFolder=new JTextField(25);
         dropboxFolder.setText(Config.dropboxFolder);
+        dropboxFolder.addFocusListener(this);
         dropboxPeriod=new JTextField(3);
         dropboxPeriod.setText(Config.dropboxPeriod+"");
+        dropboxPeriod.addFocusListener(this);
         runTimes=new JTextField(3);
         runTimes.setText(Config.runTimes+"");
+        runTimes.addFocusListener(this);
         autoRun=new JCheckBox("AutoRun");
         autoRun.setSelected(Config.autoRun);     
+        autoRun.addFocusListener(this);
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
         JLabel creditsLabel=new JLabel(DbxSession.APPNAME+" V"+DbxSession.APPVERSION+" Created by Matt Lyons");
-        creditsLabel.setHorizontalAlignment(JLabel.CENTER);
+        creditsLabel.setHorizontalTextPosition(JLabel.CENTER);
         
         GridBagConstraints cons=new GridBagConstraints();
         cons.insets=new Insets(5,5,5,5);
         cons.fill=GridBagConstraints.NONE;
         cons.anchor=GridBagConstraints.NORTHWEST;
-        cons.weighty=1;
+        cons.weighty=GridBagConstraints.RELATIVE;
         cons.weightx=1;
         cons.gridx=0;
         cons.gridy=0;
         add(backToBrowser,cons);
+        cons.insets=new Insets(0,0,0,0);
         cons.anchor=GridBagConstraints.CENTER;
-        cons.fill=GridBagConstraints.NONE;
+        cons.fill=GridBagConstraints.BOTH;
         cons.ipadx=5;
         cons.ipady=5;
-        cons.gridx=1;
-        cons.gridwidth=2;
-        add(statusLabel,cons);
-        cons.gridwidth=1;
-        cons.gridx=0;
         cons.gridy=1;
+        cons.gridwidth=4;
+        add(statusLabel,cons);
+        cons.gridy=2;
+        add(errorLabel,cons);
+        cons.insets=new Insets(5,5,5,5);
+        cons.fill=GridBagConstraints.NONE;
+        cons.weighty=5;
+        cons.gridwidth=1;
+        cons.gridy=3;
         add(new JLabel("Grades Folder: "),cons);
         cons.gridx=1;
         add(gradesFolder,cons);
         cons.gridx=0;
-        cons.gridy=2;
+        cons.gridy=4;
         add(new JLabel("Dropbox Folder: "),cons);
         cons.gridx=1;
         add(dropboxFolder,cons);
@@ -95,14 +112,14 @@ public class ConfigView extends ContentView implements FocusListener{
         add(new JLabel("Class Period: "),cons);
         cons.gridx=3;
         add(dropboxPeriod,cons);
-        cons.gridy=3;
+        cons.gridy=5;
         cons.gridx=0;
         add(new JLabel("Default Output Runs: "),cons);
         cons.gridx=1;
         add(runTimes,cons);
         cons.gridx=3;
         add(autoRun,cons);
-        cons.gridy=4;
+        cons.gridy=6;
         cons.gridx=0;
         cons.gridwidth=4;
         add(creditsLabel,cons);
@@ -113,18 +130,9 @@ public class ConfigView extends ContentView implements FocusListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(backToBrowser)){
-            Config.dropboxSpreadsheetFolder=gradesFolder.getText();
-            Config.dropboxFolder=dropboxFolder.getText();
-            Config.dropboxPeriod=DbxFile.safeStringToInt(dropboxPeriod.getText());
-            try{
-                Config.runTimes=Integer.parseInt(runTimes.getText());
-            } catch(NumberFormatException ex){
-                GuiHelper.alertDialog("Default Output Runs was set to a invalid number.");
-            }
-            Config.autoRun=autoRun.isSelected();
-            Config.writeConfig();
             gui.getGrader().refresh();
             gui.getManager().refresh();
+            gui.refreshTable();
 
             gui.setupFileBrowserGui();
         }
@@ -134,15 +142,100 @@ public class ConfigView extends ContentView implements FocusListener{
     public void switchedTo() {
 
     }
-
+    public void saveData(){
+        for(Component c:getComponents()){
+            focusLost(new FocusEvent(c,FocusEvent.FOCUS_LOST));
+            //Effectively validates all of the fields
+        }
+    }
     @Override
     public void focusGained(FocusEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(e.getComponent().equals(autoRun)){
+            statusLabel.setText("Determines if code will automatically run when opened.");
+        }
+        else if(e.getComponent().equals(dropboxFolder)){
+            statusLabel.setText("Folder in dropbox containing assignments to grade. (May include slashes to indicate folders in another folder)");
+        }
+        else if(e.getComponent().equals(dropboxPeriod)){
+            statusLabel.setText("Class period to show. (Must be a number)");
+        }
+        else if(e.getComponent().equals(gradesFolder)){
+            statusLabel.setText("Folder in dropbox where grades will be stored. (Will be created if it doesn't already exist)");
+        }
+        else if(e.getComponent().equals(runTimes)){
+            statusLabel.setText("Default times to run code when run is clicked (or autorun is checked). (Must be a number)");
+        }
     }
 
     @Override
     public void focusLost(FocusEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        statusLabel.setText("");
+        //validate input data
+        if(e.getComponent().equals(autoRun)){
+            Config.autoRun=autoRun.isSelected();
+        }
+        else if(e.getComponent().equals(dropboxFolder)){
+            if(dropboxFolder.getText().endsWith("/")){ //cannot end with a slash
+                dropboxFolder.setText(dropboxFolder.getText().substring(0,dropboxFolder.getText().length()-1));
+            }
+            if(dropboxFolder.getText().contains("\\")){ //should be slashes, not backslashes
+                dropboxFolder.setText(dropboxFolder.getText().replace("\\", "/"));
+            }
+            Config.dropboxFolder=dropboxFolder.getText();
+        }
+        else if(e.getComponent().equals(dropboxPeriod)){
+            Integer period=null;
+            try{
+                period=Integer.parseInt(dropboxPeriod.getText());
+            } catch(NumberFormatException ex){
+                
+            }
+            if(period==null){
+                errorLabel.setText("Error: Class Period Must Be a Number");
+                dropboxPeriod.setBackground(Color.red);
+            }
+            else{
+                dropboxPeriod.setBackground(Color.white);
+                errorLabel.setText("");
+                Config.dropboxPeriod=period;
+            }
+        }
+        else if(e.getComponent().equals(gradesFolder)){
+            if(gradesFolder.getText().endsWith("/")){ //cannot end with a slash
+                gradesFolder.setText(gradesFolder.getText().substring(0,gradesFolder.getText().length()-1));
+            }
+            if(gradesFolder.getText().contains("\\")){ //should be slashes, not backslashes
+                gradesFolder.setText(gradesFolder.getText().replace("\\", "/"));
+            }
+            if(gradesFolder.getText().contains(dropboxFolder.getText())){
+                errorLabel.setText("Note: It is highly recommended that grades are not stored in the same folder as assignments.");
+                gradesFolder.setBackground(Color.orange);
+            }
+            else{
+                errorLabel.setText("");
+                gradesFolder.setBackground(Color.white);                
+            }
+            Config.dropboxSpreadsheetFolder=gradesFolder.getText();
+        }
+        else if(e.getComponent().equals(runTimes)){
+            Integer times=null;
+            try{
+                times=Integer.parseInt(runTimes.getText());
+            } catch(NumberFormatException ex){
+                
+            }
+            if(times==null){
+                errorLabel.setText("Error: Default Output Runs Must Be a Number");
+                runTimes.setBackground(Color.red);
+            }
+            else{
+                runTimes.setBackground(Color.white);
+                errorLabel.setText("");
+                Config.runTimes=times;
+            }
+        }
+        
+        Config.writeConfig();
     }
     
 }

@@ -181,7 +181,7 @@ public class BrowserView extends ContentView{
                 fileManager.delete(fileManager.getFile(select.get(x)));
             }
             if(deleted)
-                gui.setupFileBrowserGui();
+                gui.refreshTable();
             if(deleted&&kept){
                 statusText.setText("Deleted some files, kept other files becuase they weren't graded.");
             }

@@ -14,7 +14,6 @@ Count lines of code?
 Fix test no java duplicating.
 Catch out of memory with DropboxGrader code.
 Config to read text files
-Delete downloaded files on close config.
 Fix failing login with dropbox screwing things up
     Gui being all weird
 Update checker
@@ -30,8 +29,6 @@ Store graded date
 Store class period of student
 Store student email
 Store student year
-After modifying config need to restart or else theres lots of bugs.
-    Can't download/open any files.
 Refresh doesn't refresh grades
     Closing and reopening is sometimes "faster" than refreshing.
 Auto-email for things
@@ -111,6 +108,11 @@ Ability to edit names/assignments
 Remove old resubmit thing, replace it with date based resubmits/late
 Remove guiHelper (JOptionPane)
 Confirmation for closing while a assignment is being run
+Refresh after switching out of config
+Option to show assignments in subdirectories
+Auto search for grades spreadsheet
+Thread back button in config gui.
+Wait until background thread isnt busy to terminate proccess
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

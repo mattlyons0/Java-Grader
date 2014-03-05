@@ -51,6 +51,12 @@ public class ContentViewManager extends JPanel{
         }
         return null;
     }
+    public boolean selectedViewNameEquals(String otherViewName){
+        if(views.get(selectedView).getViewName().equals(otherViewName)){
+            return true;
+        }
+        return false;
+    }
     private void changeView(int viewNum){
         if(selectedView!=-1){
             
