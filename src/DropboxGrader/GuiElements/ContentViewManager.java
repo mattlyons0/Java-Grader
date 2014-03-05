@@ -4,17 +4,30 @@
  */
 package DropboxGrader.GuiElements;
 
+import DropboxGrader.Gui;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DebugGraphics;
+import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 /**
  *
  * @author 141lyonsm
  */
-public class ContentViewManager extends JPanel{
+public class ContentViewManager extends JDesktopPane{    
+    private JInternalFrame backgroundPanel;
+    
     private ArrayList<ContentView> views;
+    private ArrayList<ContentOverlay> overlays;
     private int selectedView;
     private GridBagConstraints constraints;
     
@@ -22,12 +35,23 @@ public class ContentViewManager extends JPanel{
         super();
         
         views=new ArrayList();
+        overlays=new ArrayList();
         selectedView=-1;
-        setLayout(new GridBagLayout());
+        backgroundPanel=new JInternalFrame("",false,false,false,false);
+        backgroundPanel.setLayout(new GridBagLayout());
+        backgroundPanel.setSize(100,100);
+        backgroundPanel.setBorder(null);
+        BasicInternalFrameUI ui=(BasicInternalFrameUI) backgroundPanel.getUI();
+        ui.setNorthPane(null);
+        backgroundPanel.setVisible(true);
+        
+        add(backgroundPanel,JLayeredPane.DEFAULT_LAYER);
         constraints=new GridBagConstraints();
         constraints.weightx=1;
         constraints.weighty=1;
         constraints.fill=GridBagConstraints.BOTH;
+        
+        setVisible(true);
     }
     public void addView(ContentView v){
         v.setup();
@@ -57,13 +81,21 @@ public class ContentViewManager extends JPanel{
         }
         return false;
     }
+    public void addOverlay(ContentOverlay o){
+        o.setup();
+        add(o,JLayeredPane.POPUP_LAYER);
+    }
     private void changeView(int viewNum){
         if(selectedView!=-1){
-            
-            remove(views.get(selectedView));
+            backgroundPanel.remove(views.get(selectedView));
         }
         views.get(viewNum).switchedTo();
-        add(views.get(viewNum),constraints);
+        backgroundPanel.add(views.get(viewNum),constraints);
+        try {
+            backgroundPanel.setMaximum(true);
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(ContentViewManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         selectedView=viewNum;
     }
 }

@@ -12,6 +12,7 @@ import DropboxGrader.GuiElements.ContentViewManager;
 import DropboxGrader.GuiElements.GraderView;
 import DropboxGrader.GuiElements.ConfigView;
 import DropboxGrader.GuiElements.GradebookView;
+import DropboxGrader.GuiElements.NameOverlay;
 import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetTable;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
@@ -79,7 +80,6 @@ public class Gui extends JFrame implements ActionListener{
     
     public Gui(){
         super("Dropbox Grader");
-        
         //UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
         viewManager=new ContentViewManager();
         selectedFiles=new ArrayList();        
@@ -97,20 +97,15 @@ public class Gui extends JFrame implements ActionListener{
         viewManager.changeView("AuthView");
         configView=new ConfigView(this);
         viewManager.addView(configView);
+        viewManager.addOverlay(new NameOverlay());
     }
     private void init(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width-100,screenSize.height-100);
         setLocation(screenSize.width/2-this.getSize().width/2, screenSize.height/2-this.getSize().height/2);
-        setLayout(new GridBagLayout());
         
-        GridBagConstraints cons=new GridBagConstraints();
-        cons.weightx=1;
-        cons.weighty=1;
-        cons.fill=GridBagConstraints.BOTH;
-        
-        add(viewManager,cons);
+        setContentPane(viewManager);
         
         setVisible(true);
         

@@ -114,7 +114,7 @@ public class BrowserView extends ContentView{
         constraints.anchor=GridBagConstraints.EAST;
         constraints.fill=GridBagConstraints.NONE;
         add(gradeButton,constraints);
-                
+        
         revalidate();
     }
     public void refreshTable(){

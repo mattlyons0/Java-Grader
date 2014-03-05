@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 /**
  *
@@ -20,6 +21,12 @@ public class Main {
         //Use operating system look. Basically makes it look better overall. Metal theme sucks
 //        try { 
 //            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }

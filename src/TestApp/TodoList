@@ -45,11 +45,7 @@ Use graded date vs date uploaded to determine if resubmits are done or not.
 auto check for javadocs
 read screenshots?
 gui
-    Multi-pane viewing mode?
-    Better UI
     Fix window resize issues
-    More animated/lifelike
-    User friendly
 Remove println statements
 More detailed loading status
     When opening update with task it is currently running.
@@ -100,6 +96,7 @@ Option to show assignments in subdirectories
 Auto search for grades spreadsheet
 Thread back button in config gui.
 Wait until background thread isnt busy to terminate proccess
+Prettier borders everywhere using borderfactory
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted
