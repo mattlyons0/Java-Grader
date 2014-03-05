@@ -72,9 +72,11 @@ public class WorkerThread implements Runnable{
             }
             if(refreshNeeded){
                 manager.refresh();
-                if(gui.getGrader()!=null)
-                    gui.getGrader().refresh();
                 gui.refreshFinished();
+                if(gui.getGrader()!=null){
+                    gui.getGrader().refresh();
+                    gui.repaint();
+                }
                 
                 refreshNeeded=false;
             }

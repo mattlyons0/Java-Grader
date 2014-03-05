@@ -29,8 +29,7 @@ Store graded date
 Store class period of student
 Store student email
 Store student year
-Refresh doesn't refresh grades
-    Closing and reopening is sometimes "faster" than refreshing.
+Improve FileManager init method for efficiency
 Auto-email for things
     Invalid file structure
     Assignments that need to be resubmitted
@@ -39,19 +38,12 @@ Percentage based downloading results.
 Catch and attempt to save out of memory errors.
 When grade column is hidden also hide grade and comment
 Ability to make RTF printout for students.
-Stop running button sticks when there is an error compiling.
-Exception when deleting last assignment.
+Exception when deleting last assignment (not always but sometimes).
 Migrate dropbox app to my own account on dropbox
-Delete doesn't refresh afterwards
 More user friendly table for assignments submitted
 Rework gui to have navBar
 Setting to encrypt grade sheet
-
 Use graded date vs date uploaded to determine if resubmits are done or not.
-Validation code for config
-    Pressing enter in a box goes back
-    Details for every box when the cursor is in that box.
-
 auto check for javadocs
 read screenshots?
 gui
@@ -66,6 +58,7 @@ More detailed loading status
     Same with refreshing
 Only log critical errors to error.log
     Upon exiting if there are errors in the log email them to me?
+    Popup box when errors occur?
 More flexible file naming format.
 Upon first run open config menu first, default settings to empty/null
 Javadocs + more comments
@@ -92,21 +85,17 @@ Seperate gui for making new assignments/adding new names
     prompt when it sees a document with new assignment num
 Read RTF and Word files as well as text files.
     apache word library
-Don't double click when modifier keys are being held down such as shift or control.
-Config option for folder to put grades in
 Configurable colors for gradebook (inIC,late..)
-Don't read doubleclick if modifiers are held
-Check to see if we actually double clicked on the selected cell or not
 When an error comes up compiling, option to exclude that class from being compiled
 Remember window position
 Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
-Fix config gui on bigger scales
+Fix guis on smaller scales
 When prompted for fixed name, rename file to that name.
 Ability to drag columns over and save that order
 Ability to drag names over and save that order
 Ability to edit names/assignments
 Remove old resubmit thing, replace it with date based resubmits/late
-Remove guiHelper (JOptionPane)
+Remove guiHelper and JOptionPane
 Confirmation for closing while a assignment is being run
 Refresh after switching out of config
 Option to show assignments in subdirectories
