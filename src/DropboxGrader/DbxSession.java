@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  */
 public class DbxSession {
     public static final String APPNAME="Matt Lyons Assignment Grader";
-    public static final double APPVERSION=0.2;
+    public static final double APPVERSION=0.5;
     private final File KEYFILE;
     private boolean invalidToken=false;
     private DbxClient client;
