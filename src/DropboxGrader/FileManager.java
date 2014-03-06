@@ -106,7 +106,7 @@ public class FileManager {
     private String getAttribute(DbxFile file,int fileNum,int attribute){
         String attrib=ATTRIBUTES[attribute];
         switch(attrib){
-            case "Assignment": return file.getAssignmentNumber()+"";
+            case "Assignment": return file.getAssignmentNumber()==-1?"":file.getAssignmentNumber()+"";
             case "Assignment Name": return file.getAssignmentName(fileNum,attribute);
             case "Submit Date": return file.getSubmitDate(true,fileNum,attribute);
             case "Name": return file.getFirstLastName();
