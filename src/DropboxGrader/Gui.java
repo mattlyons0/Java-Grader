@@ -218,7 +218,8 @@ public class Gui extends JFrame implements ActionListener{
         return listener;
     }
     public void refreshTable(){
-        browserView.refreshTable();
+        if(browserView!=null)
+            browserView.refreshTable();
     }
     public void refreshFinished(){
         if(browserView!=null)
