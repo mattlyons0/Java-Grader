@@ -7,9 +7,11 @@
 package DropboxGrader.GuiElements.SpreadsheetBrowser;
 
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.NameOverlay;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -67,6 +69,8 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        setDragEnabled(false); 
+        getTableHeader().setReorderingAllowed(false);//remove this once i make things work with dragging
         addMouseListener(this);
     }
     private void copyCell(int mouseButton){
@@ -166,33 +170,51 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     private JPopupMenu createRightClickMenu(){
         int row=getSelectedRow();
         int col=getSelectedColumn();
-        TextGrade grade=sheet.getGradeAt(col-1, row);
-        if(grade==null){
-            return null;
+        if(col!=0){
+            TextGrade grade=sheet.getGradeAt(col-1, row);
+            if(grade==null){
+                return null;
+            }
+            JPopupMenu m=new JPopupMenu();
+            JMenuItem m1=new JMenuItem("Toggle Gradebook Status");
+            m1.setActionCommand("Toggle Gradebook Status"+row+","+col);
+            m1.addActionListener(this);
+            JMenuItem m2=new JMenuItem("Edit Grade");
+            m2.setActionCommand("Edit Grade"+row+","+col);
+            m2.addActionListener(this);
+            m.add(m1);
+            m.add(m2);
+            return m;
         }
-        JPopupMenu m=new JPopupMenu();
-        JMenuItem m1=new JMenuItem("Toggle Gradebook Status");
-        m1.setActionCommand("Toggle Gradebook Status"+row+","+col);
-        m1.addActionListener(this);
-        JMenuItem m2=new JMenuItem("Edit Grade");
-        m2.setActionCommand("Edit Grade"+row+","+col);
-        m2.addActionListener(this);
-        m.add(m1);
-        m.add(m2);
-        return m;
+        else{ //if its a name
+            TextName name=sheet.getNameAt(row);
+            if(name==null){
+                return null;
+            }
+            JPopupMenu m=new JPopupMenu();
+            JMenuItem m1=new JMenuItem("Edit Name");
+            m1.setActionCommand("Edit Name"+name.firstName+"÷"+name.lastName);
+            m1.addActionListener(this);
+            m.add(m1);
+            return m;
+        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().contains("Toggle Gradebook Status")){
+        if(e.getActionCommand().startsWith("Toggle Gradebook Status")){
             int[] coords=extractCoords("Toggle Gradebook Status",e.getActionCommand());
             TextGrade grade=sheet.getGradeAt(coords[1]-1,coords[0]);
             if(grade!=null){
                setInGradebook(coords[0],coords[1],!grade.inGradebook); 
             }
         }
-        else if(e.getActionCommand().contains("Edit Grade")){
+        else if(e.getActionCommand().startsWith("Edit Grade")){
             int[] coords=extractCoords("Edit Grade",e.getActionCommand());
             changeGrade(coords[0],coords[1]);
+        }
+        else if(e.getActionCommand().startsWith("Edit Name")){
+            String[] name=extractValues("Edit Name",e.getActionCommand());
+            changeName(name[0],name[1]);
         }
     }
     private void changeGrade(int row,int col){
@@ -214,11 +236,29 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         });
         }
     }
+    private void changeName(final String firstName,final String lastName){
+        final NameOverlay overlay=new NameOverlay(gui);
+        overlay.setData(firstName, lastName);
+        overlay.setCallback(new Runnable() {
+            @Override
+            public void run() {
+                String[] names=overlay.getNames();
+                gui.getGrader().changeName(firstName+lastName, names);
+                repaint();
+            }
+        });
+        gui.getViewManager().addOverlay(overlay);
+    }
     private int[] extractCoords(String key,String data){
         data=data.replace(key, "");
         String[] coordsData=data.split(",");
         int[] coords={Integer.parseInt(coordsData[0]),Integer.parseInt(coordsData[1])};
         return coords;
+    }
+    private String[] extractValues(String key,String data){
+        data=data.replace(key, "");
+        String[] datas=data.split("÷"); //yea no ones name will contain that
+        return datas;
     }
     @Override
     public void mouseEntered(MouseEvent e) {}

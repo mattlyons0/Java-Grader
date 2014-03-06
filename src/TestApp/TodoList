@@ -97,6 +97,11 @@ Auto search for grades spreadsheet
 Thread back button in config gui.
 Wait until background thread isnt busy to terminate proccess
 Prettier borders everywhere using borderfactory
+Refactor everything that uses workerThread to use the new fancy runnable anon method way
+Progress spinner displayed on all views that says what it is doing and spins when something is happening.
+Check return values when changing data in gradebook
+Fatal exception alert if the background thread crashes, basically say you gotta restart because we screwed up bad! Or maybe just restart the thread.
+Fix names with multiple capitalizations, if there is any doubt just ask for the first time then always use first and last name
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

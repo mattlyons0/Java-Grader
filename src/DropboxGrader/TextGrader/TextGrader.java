@@ -8,6 +8,7 @@ import DropboxGrader.Config;
 import DropboxGrader.DbxSession;
 import DropboxGrader.FileManager;
 import static DropboxGrader.Config.CONFIGFILE;
+import DropboxGrader.GuiElements.NameOverlay;
 import DropboxGrader.GuiHelper;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
@@ -107,7 +108,7 @@ public class TextGrader {
             client.uploadFile(filenameRemote, DbxWriteMode.force(), sheet.length(), sheetStream);
             sheetStream.close();
         } catch(DbxException | IOException e){
-            System.err.println("Error uploading spredsheet to dropbox. "+e);
+            System.err.println("Error uploading spreadsheet to dropbox. "+e);
             return false;
         }
         return true;
@@ -148,9 +149,9 @@ public class TextGrader {
         
         downloadSheet();
         if(!data.nameDefined(name)){ //need to put name in gradebook
-            String[] nameParts=splitName(name);
+            String[] nameParts=splitName(name,assignmentNum,gradeNum,comment,overwrite);
             if(nameParts==null){
-                return false;
+                return true;
             }
             data.addName(nameParts[0],nameParts[1]);
             name=nameParts[0]+nameParts[1];
@@ -178,6 +179,16 @@ public class TextGrader {
         grade.inGradebook=inGradebook;
         return uploadTable();
     }
+    public boolean changeName(String currentName,String[] newNames){
+        downloadSheet();
+        TextName name=data.getName(currentName);
+        if(name==null){
+            return false;
+        }
+        name.firstName=newNames[0];
+        name.lastName=newNames[1];
+        return uploadTable();
+    }
     public TextGrade getGrade(String name,int assignmentNum){
         return data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
     }
@@ -199,7 +210,7 @@ public class TextGrader {
     public TextSpreadsheet getSpreadsheet(){
         return data;
     }
-    private String[] splitName(String name){
+    private String[] splitName(String name,final int assignmentNum,final String gradeNum,final String comment,final boolean overwrite){
         String firstName,lastName;
         int upercaseIndex=-1;
         char c;
@@ -213,29 +224,18 @@ public class TextGrader {
             }
         }
         if(upercaseIndex==-1){
-            firstName=JOptionPane.showInputDialog(null,name+" does not follow proper capitalization.\n Please enter the FIRST name",name);
-            if(firstName==null){
-                return null;
-            }
-            else if(firstName.equals("")){
-                GuiHelper.alertDialog("That is not a valid name.");
-                return splitName(name);
-            }
-            int firstNameIndex=indexOf(firstName,name);
-            if(firstNameIndex==0)
-                lastName=name.substring(firstName.length());
-            else if(firstNameIndex!=-1)
-                lastName=name.substring(0,firstNameIndex);
-            else{
-                lastName=JOptionPane.showInputDialog(null,name+" does not follow proper capitalization.\n Please enter the LAST name",name);
-                if(lastName==null){
-                    return null;
+            final NameOverlay overlay=new NameOverlay(manager.getGui());
+            overlay.setData(name, name);
+            overlay.setCallback(new Runnable() {
+                @Override
+                public void run() {
+                    String firstName=overlay.getNames()[0];
+                    String lastName=overlay.getNames()[1];
+                    setGrade(firstName+lastName,assignmentNum,gradeNum,comment,overwrite);
                 }
-                else if(lastName.equals("")){
-                    GuiHelper.alertDialog("That is not a valid name.");
-                    return splitName(name);
-                }
-            }
+            });
+            manager.getGui().getViewManager().addOverlay(overlay);
+            return null;
         }
         else{
             firstName=name.substring(0, upercaseIndex);

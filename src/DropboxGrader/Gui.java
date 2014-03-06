@@ -88,8 +88,9 @@ public class Gui extends JFrame implements ActionListener{
         getContentPane().addComponentListener(listener);
         addWindowStateListener(listener);
         
-        initViewMan();
         init();
+        initViewMan();
+        dbxSession=new DbxSession(this);
     }
     private void initViewMan(){
         authView=new AuthView(this);
@@ -97,19 +98,16 @@ public class Gui extends JFrame implements ActionListener{
         viewManager.changeView("AuthView");
         configView=new ConfigView(this);
         viewManager.addView(configView);
-        viewManager.addOverlay(new NameOverlay());
     }
     private void init(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(screenSize.width-100,screenSize.height-100);
+        setSize((int)(screenSize.width*0.95),(int)(screenSize.height*0.9));
         setLocation(screenSize.width/2-this.getSize().width/2, screenSize.height/2-this.getSize().height/2);
         
         setContentPane(viewManager);
         
         setVisible(true);
-        
-        dbxSession=new DbxSession(this);
     }
     private void createSession(){
         fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
@@ -225,5 +223,8 @@ public class Gui extends JFrame implements ActionListener{
     public void refreshFinished(){
         if(browserView!=null)
             browserView.refreshFinished();
+    }
+    public ContentViewManager getViewManager(){
+        return viewManager;
     }
 }
