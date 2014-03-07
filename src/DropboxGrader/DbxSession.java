@@ -17,16 +17,26 @@ import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.transform.Source;
 
 /**
  *
@@ -130,7 +140,8 @@ public class DbxSession {
     public static String readFromFile(File f){
         String read="";
         try {
-            Scanner reader=new Scanner(f);
+            Reader inputStream = new InputStreamReader(new FileInputStream(f.getPath()), "UTF-8");
+            Scanner reader=new Scanner(inputStream);
             reader.useDelimiter("\n");
             while(reader.hasNext()){
                 read+=reader.next();
@@ -138,7 +149,8 @@ public class DbxSession {
                     read+="\n";
                 }
             }
-        } catch (FileNotFoundException ex) {
+            reader.close();
+        } catch (FileNotFoundException|UnsupportedEncodingException ex) {
             GuiHelper.alertDialog("Cannot read/write files. "+ex);
         }
         return read;
