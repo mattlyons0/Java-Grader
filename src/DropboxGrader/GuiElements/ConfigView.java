@@ -73,7 +73,7 @@ public class ConfigView extends ContentView implements FocusListener{
         autoRun.addFocusListener(this);
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
-        JLabel creditsLabel=new JLabel(DbxSession.APPNAME+" V"+DbxSession.APPVERSION+" Created by Matt Lyons");
+        JLabel creditsLabel=new JLabel(DbxSession.APPNAME+" V"+DbxSession.getVersion()+" Created by Matt Lyons");
         creditsLabel.setHorizontalTextPosition(JLabel.CENTER);
         
         GridBagConstraints cons=new GridBagConstraints();

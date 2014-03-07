@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  */
 public class DbxSession {
     public static final String APPNAME="Matt Lyons Assignment Grader";
-    public static final double APPVERSION=0.5;
+    public static final double APPVERSION=0.51;
     private final File KEYFILE;
     private boolean invalidToken=false;
     private DbxClient client;
@@ -156,5 +156,22 @@ public class DbxSession {
         else{
             System.out.println("Opening urls is not supported.");
         }
+    }
+    public static String getVersion(){
+        String version=APPVERSION+"";
+        String out="";
+        for(int i=0;i<version.length();i++){
+            if(i%2==0&&i!=0){
+                if(version.charAt(i)!='.')
+                    out+=version.charAt(i)+".";
+            }
+            else if(i%2==1){
+                out+=version.charAt(i);
+            }
+            else{ //i==0
+                out+=version.charAt(i);
+            }
+        }
+        return out;
     }
 }
