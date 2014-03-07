@@ -117,7 +117,16 @@ public class TextSpreadsheet {
     public void addName(String firstName,String lastName){ //TODO: store email and email when wrongly submitted file
         firstName=validateString(firstName);
         lastName=validateString(lastName);
-        
+        while(getName(firstName+lastName)!=null){
+            if(Character.isDigit(lastName.charAt(lastName.length()-1))){
+                int num=Integer.parseInt(lastName.charAt(lastName.length()-1)+"");
+                num++;
+                lastName=lastName.substring(0,lastName.length()-1)+num;
+            }
+            else{
+                lastName+=1;
+            }
+        }
         names.add(new TextName(firstName,lastName));
         
         int numAssignments=grades.get(0).size();
@@ -146,6 +155,18 @@ public class TextSpreadsheet {
         grades.get(nameIndex).set(assignmentIndex,new TextGrade(grade,comment)); //TODO: record date and timestamp with this.
         return true;
     }
+    public boolean setGradeAt(int nameIndex,int assignmentIndex,String grade,String comment,boolean overwrite){
+        grade=validateString(grade);
+        comment=validateString(comment);
+        if(getGradeAt(nameIndex,assignmentIndex)!=null&&!overwrite){
+            overwrite=GuiHelper.yesNoDialog("There is already a grade written: "+getGradeAt(nameIndex,assignmentIndex)+"\nWould you like to overwrite this grade?");
+            if(!overwrite){
+                return false;
+            }
+        }
+        grades.get(nameIndex).set(assignmentIndex,new TextGrade(grade,comment)); //TODO: record date and timestamp with this.
+        return true;
+    }
     public TextGrade getGrade(TextName name,TextAssignment assignment){
         int assignmentIndex=assignments.indexOf(assignment);
         int nameIndex=names.indexOf(name);
@@ -153,6 +174,10 @@ public class TextSpreadsheet {
             return null;
         }
         return grades.get(nameIndex).get(assignmentIndex);
+    }
+    public TextGrade[] getAllGrades(int nameIndex){
+        TextGrade[] g=new TextGrade[0];
+        return grades.get(nameIndex).toArray(g);        
     }
     public TextName getName(String name){
         for(TextName tName:names){
@@ -170,6 +195,109 @@ public class TextSpreadsheet {
         }
         return null;
     }
+    public boolean changeName(TextName name,String newNames[]){
+        TextName desiredName=null;
+        int desiredIndex=-1;
+        for(int i=0;i<names.size();i++){
+            if(names.get(i)!=name&&names.get(i).equals(new TextName(newNames[0],newNames[1]))){ //if it isn't the same pointer, but it has the same first/last name
+                desiredName=names.get(i);
+                desiredIndex=i;
+                break;
+            }
+        }
+        int nameIndex=-1;
+        for(int i=0;i<names.size();i++){
+            if(names.get(i)!=desiredName&&names.get(i).equals(name)){ //if its the same pointer
+                nameIndex=i;
+                break;
+            }
+        }
+        if(desiredName==null){
+            name.firstName=newNames[0];
+            name.lastName=newNames[1];
+            return true;
+        }
+        else if(desiredName.equals(name)&&!isDuplicateName(desiredName.firstName,desiredName.lastName)){ //if someone is trying to rename something to itself
+            //yea we don't have to do anything, user is too lazy to hit X
+            return true;
+        }
+        else{ //merge names
+            TextGrade[] desiredGrades=getAllGrades(desiredIndex);
+            TextGrade[] currentGrades=getAllGrades(nameIndex);
+            for(int i=0;i<desiredGrades.length;i++){
+                if(desiredGrades[i]!=null&&currentGrades[i]==null){
+                    //cool we already have this grade
+                }
+                else if(currentGrades[i]!=null&&desiredGrades[i]==null){
+                    //copy that grade to the desired
+                    setGradeAt(desiredIndex, i, currentGrades[i].grade, currentGrades[i].comment, false);
+                }
+                else if(desiredGrades[i]==null&&currentGrades[i]==null){
+                    //awesome, nothing to merge
+                }
+                else{ //they both have data
+                    GuiHelper.alertDialog("There are conflicting grades when trying to merge "
+                            +name+" with "+newNames[0]+" "+newNames[1]+"."
+                            + "\nDelete the conflicting grades then try again.");
+                    return false;
+                }
+            }
+            deleteNameAt(nameIndex);
+            return true;
+        }
+    }
+    public boolean deleteName(TextName name){
+        int nameIndex=names.indexOf(name);
+        if(nameIndex==-1){
+            return false;
+        }
+//        ArrayList<TextGrade> nameGrades=grades.get(nameIndex);
+//        for(int i=0;i<nameGrades.size();i++){ //must not have any existing grades, as a failsafe
+//            if(nameGrades.get(i)!=null){
+//                return false;
+//            }
+//        }
+        names.remove(nameIndex);
+        grades.remove(nameIndex);
+        return true;
+    }
+    public boolean deleteNameAt(int nameIndex){
+        //        ArrayList<TextGrade> nameGrades=grades.get(nameIndex);
+//        for(int i=0;i<nameGrades.size();i++){ //must not have any existing grades, as a failsafe
+//            if(nameGrades.get(i)!=null){
+//                return false;
+//            }
+//        }
+        names.remove(nameIndex);
+        grades.remove(nameIndex);
+        return true;
+    }
+    public boolean deleteGrade(TextName name,TextAssignment assign,TextGrade grade){
+        int nameIndex=names.indexOf(name);
+        if(nameIndex==-1){
+            return false;
+        }
+        int assignmentIndex=assignments.indexOf(assign);
+        if(assignmentIndex==-1){
+            return false;
+        }
+        TextGrade assumedGrade=grades.get(nameIndex).get(assignmentIndex);
+        if(!grade.equals(assumedGrade)){ //double check we are deleting the correct grade
+            return false;
+        }
+        grades.get(nameIndex).set(assignmentIndex, null); //switch assignment to be null instead
+        return true;
+    }
+    public boolean isDuplicateName(String firstName,String lastName){
+        int repeatCount=0;
+        for(int i=0;i<names.size();i++){
+            TextName name=names.get(i);
+            if(name.firstName.equals(firstName)&&name.lastName.equals(lastName)){
+                repeatCount++;
+            }
+        }
+        return repeatCount>1; //true if repeat count is larger than one
+    }
     public boolean nameDefined(String name){
         return getName(name)!=null;
     }
@@ -183,12 +311,10 @@ public class TextSpreadsheet {
         return assignments.size();
     }
     public TextGrade getGradeAt(int assignmentIndex,int nameIndex){
-        if(nameIndex<0||assignmentIndex<0){
+        if(nameIndex<0||assignmentIndex<0||nameIndex>names.size()||assignmentIndex>assignments.size()){
             return null;
         }
-        TextAssignment assignment=assignments.get(assignmentIndex);
-        TextName name=names.get(nameIndex);
-        return getGrade(name,assignment);
+        return grades.get(nameIndex).get(assignmentIndex);
     }
     public TextAssignment getAssignmentAt(int assignmentIndex){
         return assignments.get(assignmentIndex);

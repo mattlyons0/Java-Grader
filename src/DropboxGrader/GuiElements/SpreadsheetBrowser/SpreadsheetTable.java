@@ -9,6 +9,7 @@ package DropboxGrader.GuiElements.SpreadsheetBrowser;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.NameOverlay;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.TextGrader.TextName;
@@ -179,11 +180,15 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
             JMenuItem m1=new JMenuItem("Toggle Gradebook Status");
             m1.setActionCommand("Toggle Gradebook Status"+row+","+col);
             m1.addActionListener(this);
-            JMenuItem m2=new JMenuItem("Edit Grade");
+            JMenuItem m2=new JMenuItem("Edit");
             m2.setActionCommand("Edit Grade"+row+","+col);
             m2.addActionListener(this);
+            JMenuItem m3=new JMenuItem("Delete");
+            m3.setActionCommand("Delete Grade"+row+","+col);
+            m3.addActionListener(this);
             m.add(m1);
             m.add(m2);
+            m.add(m3);
             return m;
         }
         else{ //if its a name
@@ -192,10 +197,14 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
                 return null;
             }
             JPopupMenu m=new JPopupMenu();
-            JMenuItem m1=new JMenuItem("Edit Name");
-            m1.setActionCommand("Edit Name"+name.firstName+"÷"+name.lastName);
+            JMenuItem m1=new JMenuItem("Edit");
+            m1.setActionCommand("Edit Name"+row+","+col);
             m1.addActionListener(this);
+            JMenuItem m2=new JMenuItem("Delete");
+            m2.setActionCommand("Delete Name"+row+","+col);
+            m2.addActionListener(this);
             m.add(m1);
+            m.add(m2);
             return m;
         }
     }
@@ -212,9 +221,17 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
             int[] coords=extractCoords("Edit Grade",e.getActionCommand());
             changeGrade(coords[0],coords[1]);
         }
+        else if(e.getActionCommand().startsWith("Delete Grade")){
+            int[] coords=extractCoords("Delete Grade",e.getActionCommand());
+            deleteGrade(coords[0],coords[1]);
+        }
         else if(e.getActionCommand().startsWith("Edit Name")){
-            String[] name=extractValues("Edit Name",e.getActionCommand());
-            changeName(name[0],name[1]);
+            int[] coords=extractCoords("Edit Name",e.getActionCommand());
+            changeName(coords[0]);
+        }
+        else if(e.getActionCommand().startsWith("Delete Name")){
+            int[] coords=extractCoords("Delete Name",e.getActionCommand());
+            deleteName(coords[0]);
         }
     }
     private void changeGrade(int row,int col){
@@ -232,22 +249,68 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
             public void run() {
                 gui.getGrader().setGrade(name, assignment, gradeChoice, commentChoice, true);
                 repaint();
+                gui.fileBrowserDataChanged();
             }
         });
         }
     }
-    private void changeName(final String firstName,final String lastName){
+    private void changeName(final int row){
+        final TextName name=sheet.getNameAt(row);
         final NameOverlay overlay=new NameOverlay(gui);
-        overlay.setData(firstName, lastName);
+        overlay.setData(name.firstName,name.lastName);
         overlay.setCallback(new Runnable() {
             @Override
             public void run() {
+                gui.getGrader().downloadSheet();
                 String[] names=overlay.getNames();
-                gui.getGrader().changeName(firstName+lastName, names);
-                repaint();
+                boolean success=sheet.changeName(name,names);
+                if(success){
+                    gui.getGrader().uploadTable();
+                    revalidate();
+                    repaint();
+                    gui.fileBrowserDataChanged();
+                }
+                else{
+                    gui.getGrader().forceDownloadSheet(); //revert our changes
+                }
             }
         });
         gui.getViewManager().addOverlay(overlay);
+    }
+    private void deleteName(final int row){
+        gui.getBackgroundThread().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                gui.getGrader().downloadSheet();
+                TextName name=sheet.getNameAt(row);
+                sheet.deleteName(name);
+                gui.getGrader().uploadTable();
+                
+                revalidate();
+                repaint();
+                gui.fileBrowserDataChanged();
+            }
+        });
+    }
+    private void deleteGrade(int row,int col){
+        final TextAssignment assign=sheet.getAssignmentAt(col-1);
+        final TextName name=sheet.getNameAt(row);
+        final TextGrade grade=sheet.getGradeAt(col-1, row);
+        int choice=GuiHelper.multiOptionPane("Are you sure you would like to delete grade of "+grade.grade+", "+grade.comment
+                +" by "+name+" on Assignment "+assign,new String[]{"Yes","No"});
+        if(choice==0){
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    gui.getGrader().downloadSheet();
+                    sheet.deleteGrade(name, assign, grade);
+                    gui.getGrader().uploadTable();
+                    
+                    repaint();
+                    gui.fileBrowserDataChanged();
+                }
+            });
+        }
     }
     private int[] extractCoords(String key,String data){
         data=data.replace(key, "");

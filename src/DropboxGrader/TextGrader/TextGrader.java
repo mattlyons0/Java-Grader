@@ -18,9 +18,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -52,11 +55,17 @@ public class TextGrader {
         sheet=new File(filenameLocal);
         downloadSheet();
     }
-    private void downloadSheet(){
+    public void forceDownloadSheet(){
+        downloadSheet(true);
+    }
+    public void downloadSheet(){
+        downloadSheet(false);
+    }
+    private void downloadSheet(boolean force){
         try{
             DbxEntry.File entry=(DbxEntry.File)client.getMetadata(filenameRemote);
             if(entry!=null){ //file has already been created
-                if(downloadedRevision!=null&&downloadedRevision.equals(entry.rev)){ //current version is downloaded, no need to do it again
+                if(!force&&downloadedRevision!=null&&downloadedRevision.equals(entry.rev)){ //current version is downloaded, no need to do it again
                     return;
                 }
                 FileOutputStream f = new FileOutputStream(filenameLocal);
@@ -72,6 +81,15 @@ public class TextGrader {
             
         } catch(DbxException | IOException e){
             System.err.println("An error occured while downloading the HTML spreadsheet. "+e);
+            if(e instanceof ConnectException||e instanceof DbxException.NetworkIO){
+                GuiHelper.alertDialog("Error, Connection Timed Out.");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TextGrader.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                downloadSheet(force);
+            }
         }
     }
     //make sheet, and save it to a file.
@@ -86,7 +104,7 @@ public class TextGrader {
             System.err.println("An error occured while creating HTML spreadsheet. "+e);
         }
     }
-    private boolean uploadTable(){
+    public boolean uploadTable(){
         data.writeToFile(sheet);
         return upload();
     }
@@ -177,16 +195,6 @@ public class TextGrader {
         downloadSheet();
         TextGrade grade=getGrade(name,assignmentNum);
         grade.inGradebook=inGradebook;
-        return uploadTable();
-    }
-    public boolean changeName(String currentName,String[] newNames){
-        downloadSheet();
-        TextName name=data.getName(currentName);
-        if(name==null){
-            return false;
-        }
-        name.firstName=newNames[0];
-        name.lastName=newNames[1];
         return uploadTable();
     }
     public TextGrade getGrade(String name,int assignmentNum){

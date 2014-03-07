@@ -68,7 +68,23 @@ public class DbxSession {
         try {
             gui.goodKey(client.getAccountInfo().displayName,client);
         } catch (DbxException ex) {
-            invalidToken=true;
+            if(ex instanceof DbxException.InvalidAccessToken){
+                invalidToken=true;
+            }
+            else if(ex instanceof DbxException.NetworkIO){
+                GuiHelper.alertDialog("Error connecting to the network.");
+            }
+            else if(ex instanceof DbxException.RetryLater||ex instanceof DbxException.ServerError){
+                GuiHelper.alertDialog("Dropbox is currently overloaded. We will keep trying to get through.");
+            }
+            else{
+                GuiHelper.alertDialog("Unknown error connecting to dropbox. "+ex);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex1) {
+                Logger.getLogger(DbxSession.class.getName()).log(Level.SEVERE, null, ex1);
+            }
             createSession();
         }
     }

@@ -73,25 +73,20 @@ Filters
     ex: name contains "" or assignment number == this
 Bulk options
     change assignment number for all seen under current filter...
-Seperate gui for making new assignments/adding new names
-    has fields for javadocs required, date due
-    or email address, year, class period...
-    prompt when it sees a document with new assignment num
 Read RTF and Word files as well as text files.
     apache word library
-Configurable colors for gradebook (inIC,late..)
+Configurable colors for gradebook as well as browser (inIC,late..)
 When an error comes up compiling, option to exclude that class from being compiled
-Remember window position
+Remember window position and size each session
 Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
 Fix guis on smaller scales
 When prompted for fixed name, rename file to that name.
 Ability to drag columns over and save that order
 Ability to drag names over and save that order
-Ability to edit names/assignments
+Ability to edit assignments
 Remove old resubmit thing, replace it with date based resubmits/late
 Remove guiHelper and JOptionPane
 Confirmation for closing while a assignment is being run
-Refresh after switching out of config
 Option to show assignments in subdirectories
 Auto search for grades spreadsheet
 Thread back button in config gui.
@@ -102,7 +97,12 @@ Progress spinner displayed on all views that says what it is doing and spins whe
 Check return values when changing data in gradebook
 Fatal exception alert if the background thread crashes, basically say you gotta restart because we screwed up bad! Or maybe just restart the thread.
 Fix names with multiple capitalizations, if there is any doubt just ask for the first time then always use first and last name
-Merge names in gradebook
+Put gui helper on the EDT
+Really, no grading should be done on the main thread since that could mess things up pretty bad if it is modified on two threads at once.
+Default cursor to grade field
+Default cursor to firstName field in edit name
+Return in edit name overlay submits from lastName box.
+Use contentOverlay instead of GuiHelper for almost everything.
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

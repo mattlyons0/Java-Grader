@@ -6,6 +6,8 @@
 
 package DropboxGrader.TextGrader;
 
+import java.util.Objects;
+
 /**
  *
  * @author Matt
@@ -40,6 +42,28 @@ public class TextGrade {
         text+=inGradebook;
         
         return text;
+    }
+    @Override
+    public boolean equals(Object o){
+        if(o==this){
+            return true;
+        }
+        if(o instanceof TextGrade){
+            TextGrade g=(TextGrade)o;
+            if(g.grade.equals(grade)&&g.comment.equals(comment)&&g.inGradebook==inGradebook){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 73 * hash + Objects.hashCode(this.grade);
+        hash = 73 * hash + Objects.hashCode(this.comment);
+        hash = 73 * hash + (this.inGradebook ? 1 : 0);
+        return hash;
     }
     @Override
     public String toString(){

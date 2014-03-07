@@ -139,10 +139,14 @@ public class BrowserView extends ContentView{
             return;
         }
         fileBrowserTable.setRowSelectionAllowed(true);
-        fileBrowserTable.dataChanged();
+        dataChanged();
         
         if(statusText!=null)
             statusText.setText("");
+    }
+    public void dataChanged(){
+        fileBrowserTable.dataChanged();
+        gui.getManager().refreshCellColors();
     }
     @Override
     public void actionPerformed(ActionEvent e) {

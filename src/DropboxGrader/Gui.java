@@ -225,6 +225,11 @@ public class Gui extends JFrame implements ActionListener{
         if(browserView!=null)
             browserView.refreshFinished();
     }
+    public void fileBrowserDataChanged(){
+        if(browserView!=null){
+            browserView.dataChanged();
+        }
+    }
     public ContentViewManager getViewManager(){
         return viewManager;
     }

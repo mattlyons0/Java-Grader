@@ -133,6 +133,11 @@ public class FileManager {
         if(tableData!=null)
             tableData.refresh();
     }
+    public void refreshCellColors(){
+        if(tableData!=null){
+            tableData.refresh();
+        }
+    }
     public int getFileNum(DbxFile f){
         return files.indexOf(f);
     }

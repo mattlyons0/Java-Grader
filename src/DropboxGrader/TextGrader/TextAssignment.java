@@ -6,6 +6,8 @@
 
 package DropboxGrader.TextGrader;
 
+import java.util.Objects;
+
 /**
  *
  * @author Matt
@@ -34,6 +36,27 @@ public class TextAssignment {
         text+=name;
         
         return text;
+    }
+    @Override
+    public boolean equals(Object o){
+        if(o==this){
+            return true; //interestingly enough this is insanely efficient to simply check if they are the same reference
+        }
+        if(o instanceof TextAssignment){
+            TextAssignment a=(TextAssignment)o;
+            if(a.name.equals(name)&&a.number==number){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + this.number;
+        hash = 79 * hash + Objects.hashCode(this.name);
+        return hash;
     }
     @Override
     public String toString(){

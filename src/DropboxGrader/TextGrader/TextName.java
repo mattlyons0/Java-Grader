@@ -6,6 +6,8 @@
 
 package DropboxGrader.TextGrader;
 
+import java.util.Objects;
+
 /**
  *
  * @author Matt
@@ -35,6 +37,27 @@ public class TextName {
         text+=lastName;
         
         return text;
+    }
+    @Override
+    public boolean equals(Object o){
+        if(o==this){
+            return true;
+        }
+        if(o instanceof TextName){
+            TextName n=(TextName)o;
+            if(n.firstName.equals(firstName)&&n.lastName.equals(lastName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(this.firstName);
+        hash = 59 * hash + Objects.hashCode(this.lastName);
+        return hash;
     }
     @Override
     public String toString(){
