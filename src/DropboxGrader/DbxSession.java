@@ -19,9 +19,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -128,7 +130,7 @@ public class DbxSession {
             if(!f.exists()){
                 f.createNewFile();
             }
-            BufferedWriter writer=new BufferedWriter(new FileWriter(f));
+            OutputStreamWriter writer=new OutputStreamWriter(new FileOutputStream(f),Charset.forName("UTF-8"));
             writer.write(s);
             
             writer.close();
@@ -140,17 +142,20 @@ public class DbxSession {
     public static String readFromFile(File f){
         String read="";
         try {
-            Reader inputStream = new InputStreamReader(new FileInputStream(f.getPath()), "UTF-8");
-            Scanner reader=new Scanner(inputStream);
-            reader.useDelimiter("\n");
-            while(reader.hasNext()){
-                read+=reader.next();
-                if(reader.hasNext()){
-                    read+="\n";
+            boolean firstRead=true;
+            String line;
+            BufferedReader reader=new BufferedReader(new InputStreamReader(new FileInputStream(f),"UTF8"));
+            while((line=reader.readLine())!=null){
+                if(firstRead){
+                    read+=line;
+                    firstRead=false;
+                }
+                else{
+                    read+="\n"+line;
                 }
             }
             reader.close();
-        } catch (FileNotFoundException|UnsupportedEncodingException ex) {
+        } catch (IOException ex) {
             GuiHelper.alertDialog("Cannot read/write files. "+ex);
         }
         return read;
