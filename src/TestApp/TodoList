@@ -103,6 +103,13 @@ Default cursor to grade field
 Default cursor to firstName field in edit name
 Return in edit name overlay submits from lastName box.
 Use contentOverlay instead of GuiHelper for almost everything.
+easier paste (maybe button to click instead of box) for access token
+button to re-ask for access token
+Don't delete names unless all of the grades for that name are deleted
+right click menu for adding a grade in gradebook
+Put in assignment with no name then edit it based on user input from popup box instead of not grading until user hits submit when adding new assignment
+Investigate other overlays not updating in gradebook when submit is pushed
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted
+    View grades

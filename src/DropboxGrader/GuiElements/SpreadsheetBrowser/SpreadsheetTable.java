@@ -7,6 +7,7 @@
 package DropboxGrader.GuiElements.SpreadsheetBrowser;
 
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.AssignmentOverlay;
 import DropboxGrader.GuiElements.NameOverlay;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextAssignment;
@@ -36,6 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
 /**
@@ -73,6 +75,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         setDragEnabled(false); 
         getTableHeader().setReorderingAllowed(false);//remove this once i make things work with dragging
         addMouseListener(this);
+        getTableHeader().addMouseListener(this);
     }
     private void copyCell(int mouseButton){
         int row=getSelectedRow();
@@ -140,12 +143,20 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     }
     @Override
     public void mouseReleased(MouseEvent e) {
-        if(mode==0){
-            if(e.getButton()==MouseEvent.BUTTON3){
-                selectAtPoint(e.getPoint());
-                JPopupMenu m=createRightClickMenu();
-                if(m!=null)
-                    m.show(e.getComponent(), e.getX(), e.getY());
+        if(mode==0){ //view mode
+            if(e.getButton()==MouseEvent.BUTTON3){ //right click
+                if(!(e.getSource() instanceof JTableHeader)){ //they clicked on a cell/rowHeader
+                    selectAtPoint(e.getPoint());
+                    JPopupMenu m=createRightClickMenu();
+                    if(m!=null)
+                        m.show(e.getComponent(), e.getX(), e.getY());
+                }
+                else{ //they clicked on a columnHeader
+                    int col=getTableHeader().columnAtPoint(e.getPoint());
+                    JPopupMenu m=createColHeaderRightClickMenu(col);
+                    if(m!=null)
+                        m.show(e.getComponent(),e.getX(),e.getY());
+                }
             }
         }
         else if(mode==1){
@@ -161,7 +172,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
             clearSelection();
         }
         int c=columnAtPoint(p);
-        if(c >= 0 && r < getColumnCount()){
+        if(c >= 0 && c < getColumnCount()){
             setColumnSelectionInterval(c,c);
         }
         else{
@@ -208,6 +219,27 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
             return m;
         }
     }
+    private JPopupMenu createColHeaderRightClickMenu(int col){
+        col--;
+        if(col==-1){
+            return null;
+        }
+        TextAssignment assign=sheet.getAssignmentAt(col);
+        if(assign==null){
+            return null;
+        }
+        JPopupMenu m=new JPopupMenu();
+        JMenuItem m1=new JMenuItem("Edit");
+        m1.setActionCommand("Edit Assignment"+col);
+        m1.addActionListener(this);
+        JMenuItem m2=new JMenuItem("Delete");
+        m2.setActionCommand("Delete Assignment"+col);
+        m2.addActionListener(this);
+        m.add(m1);
+        m.add(m2);
+        
+        return m;
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().startsWith("Toggle Gradebook Status")){
@@ -232,6 +264,14 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         else if(e.getActionCommand().startsWith("Delete Name")){
             int[] coords=extractCoords("Delete Name",e.getActionCommand());
             deleteName(coords[0]);
+        }
+        else if(e.getActionCommand().startsWith("Edit Assignment")){
+            int col=extractNumber("Edit Assignment",e.getActionCommand());
+            changeAssignment(col);
+        }
+        else if(e.getActionCommand().startsWith("Delete Assignment")){
+            int col=extractNumber("Delete Assignment",e.getActionCommand());
+            deleteAssignment(col);
         }
     }
     private void changeGrade(int row,int col){
@@ -277,20 +317,41 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         });
         gui.getViewManager().addOverlay(overlay);
     }
-    private void deleteName(final int row){
-        gui.getBackgroundThread().invokeLater(new Runnable() {
+    private void changeAssignment(final int col){
+        TextAssignment assign=sheet.getAssignmentAt(col);
+        final AssignmentOverlay overlay=new AssignmentOverlay(gui);
+        overlay.setData(assign.number, assign.name);
+        overlay.setCallback(new Runnable() {
             @Override
             public void run() {
                 gui.getGrader().downloadSheet();
-                TextName name=sheet.getNameAt(row);
-                sheet.deleteName(name);
+                Object[] data=overlay.getData();
+                TextAssignment assign=sheet.getAssignmentAt(col);
+                assign.number=(int)data[0];
+                assign.name=(String)data[1];
                 gui.getGrader().uploadTable();
-                
-                revalidate();
-                repaint();
-                gui.fileBrowserDataChanged();
+                dataChanged();
             }
         });
+        gui.getViewManager().addOverlay(overlay);
+    }
+    private void deleteName(final int row){
+        TextName name=sheet.getNameAt(row);
+        int choice=GuiHelper.multiOptionPane("Are you sure you would like to delete "+
+                name.firstName+" "+name.lastName+" and ALL their assignments?",new String[]{"Yes","No"});
+        if(choice==0){
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    gui.getGrader().downloadSheet();
+                    TextName name=sheet.getNameAt(row);
+                    sheet.deleteName(name);
+                    gui.getGrader().uploadTable();
+
+                    dataChanged();
+                }
+            });
+        }
     }
     private void deleteGrade(int row,int col){
         final TextAssignment assign=sheet.getAssignmentAt(col-1);
@@ -306,8 +367,29 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
                     sheet.deleteGrade(name, assign, grade);
                     gui.getGrader().uploadTable();
                     
-                    repaint();
+                    dataChanged();
                     gui.fileBrowserDataChanged();
+                }
+            });
+        }
+    }
+    private void deleteAssignment(final int col){
+        final TextAssignment assign=sheet.getAssignmentAt(col);
+        int choice=GuiHelper.multiOptionPane("Are you sure you would like to delete Assignment "+
+                assign+"?",new String[]{"Yes","No"});
+        if(choice==0){
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    gui.getGrader().downloadSheet();
+                    boolean success=sheet.deleteAssignmentAt(col);
+                    if(success){
+                        gui.getGrader().uploadTable();
+                        dataChanged();
+                    }
+                    else{
+                        GuiHelper.alertDialog("You must delete all grades under an assignment before deleting that assignment.");
+                    }
                 }
             });
         }
@@ -322,6 +404,10 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         data=data.replace(key, "");
         String[] datas=data.split("÷"); //yea no ones name will contain that
         return datas;
+    }
+    private int extractNumber(String key,String data){
+        data=data.replace(key, "");
+        return Integer.parseInt(data);
     }
     @Override
     public void mouseEntered(MouseEvent e) {}

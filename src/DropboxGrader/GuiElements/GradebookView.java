@@ -97,5 +97,8 @@ public class GradebookView extends ContentView{
             gradebookTable.setMode(gradebookMode.getSelectedIndex());
         }
     }
+    public void dataChanged(){
+        gradebookTable.dataChanged();
+    }
     
 }

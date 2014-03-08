@@ -233,4 +233,9 @@ public class Gui extends JFrame implements ActionListener{
     public ContentViewManager getViewManager(){
         return viewManager;
     }
+    public void gradebookDataChanged(){
+        if(gradebookView!=null){
+            gradebookView.dataChanged();
+        }
+    }
 }

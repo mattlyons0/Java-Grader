@@ -8,6 +8,7 @@ import DropboxGrader.Config;
 import DropboxGrader.DbxSession;
 import DropboxGrader.FileManager;
 import static DropboxGrader.Config.CONFIGFILE;
+import DropboxGrader.GuiElements.AssignmentOverlay;
 import DropboxGrader.GuiElements.NameOverlay;
 import DropboxGrader.GuiHelper;
 import com.dropbox.core.DbxClient;
@@ -159,7 +160,7 @@ public class TextGrader {
         }
         return -1;
     }
-    public boolean setGrade(String name,int assignmentNum,String gradeNum,String comment,boolean overwrite){
+    public boolean setGrade(String name,final int assignmentNum,final String gradeNum,final String comment,final boolean overwrite){
         if(gradeNum.equals("")||gradeNum.equals(" ")){
             GuiHelper.alertDialog("No grade was entered.");
             return false;
@@ -175,17 +176,27 @@ public class TextGrader {
             name=nameParts[0]+nameParts[1];
         }
         if(!data.assignmentDefined(assignmentNum)){ //need to create assignment in table
-            String assignmentDescription=JOptionPane.showInputDialog("What is the name of Assignment "+assignmentNum+"?");
-            if(assignmentDescription==null||assignmentDescription.equals("")){
-                assignmentDescription=" ";
-            }
-            data.addAssignment(assignmentNum, assignmentDescription);
+            final String fName=name;
+            final AssignmentOverlay overlay=new AssignmentOverlay(manager.getGui());
+            overlay.setData(assignmentNum, "");
+            overlay.setCallback(new Runnable() {
+                @Override
+                public void run() {
+                    Object[] returned=overlay.getData();
+                    data.addAssignment((int)returned[0],(String)returned[1]);
+                    setGrade(fName,assignmentNum,gradeNum,comment,overwrite);
+                    
+                }
+            });
+            manager.getGui().getViewManager().addOverlay(overlay);
+            return true;
         }
         boolean gradeSet=data.setGrade(data.getName(name),data.getAssignment(assignmentNum), gradeNum, comment,overwrite);
         if(!gradeSet){
             return false;
         }
         //convert to code, write and upload
+        manager.getGui().gradebookDataChanged();
         return uploadTable();
     }
     public boolean setInGradebook(String name,int assignmentNum,boolean inGradebook){

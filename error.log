@@ -1,0 +1,3 @@
+Error reading assignment from "3÷": java.lang.ArrayIndexOutOfBoundsException: 1
+Error reading assignment from "4÷": java.lang.ArrayIndexOutOfBoundsException: 1
+Error reading assignment from "9000÷": java.lang.ArrayIndexOutOfBoundsException: 1

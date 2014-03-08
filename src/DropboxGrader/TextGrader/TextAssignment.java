@@ -27,6 +27,9 @@ public class TextAssignment {
             number=Integer.parseInt(text[0]);
             name=text[1];
         } catch(Exception e){
+            if(name==null){
+                name="";
+            }
             System.err.println("Error reading assignment from \""+fromText+"\": "+e);
         }
     }

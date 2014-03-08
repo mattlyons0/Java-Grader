@@ -272,6 +272,18 @@ public class TextSpreadsheet {
         grades.remove(nameIndex);
         return true;
     }
+    public boolean deleteAssignmentAt(int assignmentIndex){
+        for(int name=0;name<names.size();name++){
+            if(grades.get(name).get(assignmentIndex)!=null){
+                return false;
+            }
+        }
+        assignments.remove(assignmentIndex);
+        for(int name=0;name<names.size();name++){
+            grades.get(name).remove(assignmentIndex);
+        }
+        return true;
+    }
     public boolean deleteGrade(TextName name,TextAssignment assign,TextGrade grade){
         int nameIndex=names.indexOf(name);
         if(nameIndex==-1){
