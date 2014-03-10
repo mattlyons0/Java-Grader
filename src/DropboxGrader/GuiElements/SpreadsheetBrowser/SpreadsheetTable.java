@@ -6,6 +6,7 @@
 
 package DropboxGrader.GuiElements.SpreadsheetBrowser;
 
+import DropboxGrader.Config;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.AssignmentOverlay;
 import DropboxGrader.GuiElements.NameOverlay;
@@ -36,7 +37,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
@@ -54,7 +58,8 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     private int mode;
     private JLabel statusLabel;
     
-    public SpreadsheetTable(Gui gui,TextSpreadsheet sheet){        
+    public SpreadsheetTable(Gui gui,TextSpreadsheet sheet){
+        super();
         this.sheet=sheet;
         this.gui=gui;
         
@@ -73,7 +78,8 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         setDragEnabled(false); 
-        getTableHeader().setReorderingAllowed(false);//remove this once i make things work with dragging
+        getTableHeader().setReorderingAllowed(true);
+        getColumnModel().addColumnModelListener(this);
         addMouseListener(this);
         getTableHeader().addMouseListener(this);
     }
@@ -160,8 +166,10 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
             }
         }
         else if(mode==1){
-            selectAtPoint(e.getPoint());
-            copyCell(e.getButton());
+            if(!(e.getSource() instanceof JTableHeader)){
+                selectAtPoint(e.getPoint());
+                copyCell(e.getButton());
+            }
         }
     }
     private void selectAtPoint(Point p){
@@ -417,4 +425,32 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     public void mouseClicked(MouseEvent e) {}
     @Override
     public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void columnMoved(TableColumnModelEvent e){
+        super.columnMoved(e);
+        int from=e.getFromIndex();
+        int to=e.getToIndex();
+        //System.out.println(from+" to "+to);
+        from=convertColumnIndexToModel(to);
+        to=convertColumnIndexToModel(e.getFromIndex());
+        if(e.getFromIndex()==e.getToIndex()){
+            return;
+        }
+        System.out.println(from+" to "+to);
+    }
+
+    @Override
+    public void columnMarginChanged(ChangeEvent e) {
+        super.columnMarginChanged(e);
+        int cols=getColumnModel().getColumnCount();
+        String width="";
+        for(int x=0;x<cols;x++){
+            width+=getColumnModel().getColumn(x).getPreferredWidth();
+            if(x!=cols-1){
+                width+=",";
+            }
+        }
+        System.out.println(width);
+    }
 }

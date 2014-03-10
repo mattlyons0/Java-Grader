@@ -19,6 +19,7 @@ public class SpreadsheetData extends AbstractTableModel{
     
     
     public SpreadsheetData(TextSpreadsheet data){
+        super();
         this.data=data;
     }
 

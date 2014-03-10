@@ -39,8 +39,6 @@ public class GradebookView extends ContentView{
     public void setup() {
         gradebookTable=new SpreadsheetTable(gui,gui.getGrader().getSpreadsheet());
         gradebookScroll=new JScrollPane(gradebookTable);
-        gradebookScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        gradebookScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         backToFileBrowser=new JButton("Back");
         backToFileBrowser.addActionListener(this);
         JLabel statusLabel=gradebookTable.getStatusLabel();

@@ -221,6 +221,7 @@ public class JavaRunner implements Runnable{
             className+=files[index].getName();
             className=className.substring(0,className.length()-5); //removes .java
             String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
+            System.out.println(javaExe);
             javaExe="java";
             String directory=folder;
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());

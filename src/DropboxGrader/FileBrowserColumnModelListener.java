@@ -22,12 +22,10 @@ public class FileBrowserColumnModelListener implements TableColumnModelListener{
         this.table=table;
     }
     @Override
-    public void columnAdded(TableColumnModelEvent e) {
-    }
+    public void columnAdded(TableColumnModelEvent e) {}
 
     @Override
-    public void columnRemoved(TableColumnModelEvent e) {
-    }
+    public void columnRemoved(TableColumnModelEvent e) {}
 
     @Override
     public void columnMoved(TableColumnModelEvent e) {
@@ -67,8 +65,7 @@ public class FileBrowserColumnModelListener implements TableColumnModelListener{
     }
 
     @Override
-    public void columnSelectionChanged(ListSelectionEvent e) {
-    }
+    public void columnSelectionChanged(ListSelectionEvent e) {}
     
     
 }

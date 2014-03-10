@@ -36,6 +36,7 @@ public class Main {
             errLog.createNewFile();
             PrintStream s=new PrintStream(errLog);
             System.setErr(s); //log exceptions to error.log file.
+            System.setOut(s);
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }

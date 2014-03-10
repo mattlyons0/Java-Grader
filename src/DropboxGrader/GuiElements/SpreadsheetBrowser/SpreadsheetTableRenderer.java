@@ -21,7 +21,7 @@ import javax.swing.table.TableCellRenderer;
  */
 public class SpreadsheetTableRenderer extends DefaultTableCellRenderer{
     public SpreadsheetTableRenderer(){
-        
+        super();
     }
     
     @Override
