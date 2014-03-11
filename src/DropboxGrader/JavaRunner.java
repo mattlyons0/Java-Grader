@@ -191,6 +191,7 @@ public class JavaRunner implements Runnable{
                 int result=compiler.run(null, System.out, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
                 if(result!=0){
                     terminal.append("Compile Failed\n\n",Color.RED);
+                    gui.proccessEnded();
                     return false;
                 }
                 else{
@@ -264,33 +265,36 @@ public class JavaRunner implements Runnable{
 //            System.setProperty("java.home", path);
 //        }
         if(ToolProvider.getSystemJavaCompiler()==null){
-            File dir=new File("C:\\Program Files (x86)\\Java\\");
+            File dir=new File("C:\\Program Files\\Java\\");
             File[] files=dir.listFiles();
             for(File f:files){
                 if(f.getName().contains("jdk")){
-                    path=f.getAbsolutePath()+"\\jre";
-                    fixedPath=true;
-                }
-            }
-            if(!fixedPath){
-                dir=new File("C:\\Program Files\\Java\\");
-                files=dir.listFiles();
-                for(File f:files){
-                    if(f.getName().contains("jdk")){
-                        path=f.getAbsolutePath()+"\\jre";
+                    path=f.getAbsolutePath();
+                    System.setProperty("java.home", path);
+                    if(ToolProvider.getSystemJavaCompiler()!=null){
                         fixedPath=true;
+                        return;
                     }
                 }
             }
-            System.setProperty("java.home", path);
+            dir=new File("C:\\Program Files (x86)\\Java\\");
+            files=dir.listFiles();
+            for(File f:files){
+                if(f.getName().contains("jdk")){
+                    path=f.getAbsolutePath();
+                    System.setProperty("java.home", path);
+                    if(ToolProvider.getSystemJavaCompiler()!=null){
+                        fixedPath=true;
+                        return;
+                    }
+                }
+            }
         }
-        if(ToolProvider.getSystemJavaCompiler()==null){
-            if(System.getProperty("os.name").contains("Windows"))
-                terminal.append("No JDK found, please install any version of the java JDK.",Color.RED);
-            else
-                terminal.append("This program must be run using a JDK, on windows it will automatically detect a"
-                        + " JDK but on other operating systems it must be manually set.\nThe best bet is to try running this on windows.");
-        }
+        if(System.getProperty("os.name").contains("Windows"))
+            terminal.append("No JDK found, please install any version of the java JDK.",Color.RED);
+        else
+            terminal.append("This program must be run using a JDK in order to compile code.\n"
+                    + "Set the JAVA_HOME variable to the path of a JDK and restart this program to compile code.");
         fixedPath=true;
     }
     public InputRelayer getRelay(){

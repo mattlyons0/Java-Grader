@@ -15,28 +15,36 @@ import java.util.Objects;
 public class TextAssignment {
     public int number;
     public String name;
+    public int perferredWidth; //perferred width in gradebook table
     //public Date dateDue;
     
     public TextAssignment(int number,String name){
         this.number=number;
         this.name=name;
+        this.perferredWidth=75;
     }
     public TextAssignment(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
         try{
             number=Integer.parseInt(text[0]);
             name=text[1];
+            perferredWidth=Integer.parseInt(text[2]);
         } catch(Exception e){
             if(name==null){
                 name="";
             }
-            System.err.println("Error reading assignment from \""+fromText+"\": "+e);
+            if(perferredWidth==0){
+                perferredWidth=75;
+            }
+            //System.err.println("Error reading assignment from \""+fromText+"\": "+e);
+            //That just means the comment was null really, not important
         }
     }
     public String toText(){
         String text="";
         text+=number+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=name;
+        text+=name+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=perferredWidth;
         
         return text;
     }

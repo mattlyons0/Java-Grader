@@ -55,7 +55,12 @@ public class WorkerThread implements Runnable{
             }
             for(int i=0;i<actionQueue.size();i++){
                 Runnable r=actionQueue.remove(i);
-                r.run();
+                try{
+                    r.run();
+                } catch(Exception e){
+                    System.err.println("Exception was logged running code on the backgroundThread.\n"+e);
+                    e.printStackTrace();
+                }
             }
             if(!deleteQueue.isEmpty()){
                 deleteQueue.clear();

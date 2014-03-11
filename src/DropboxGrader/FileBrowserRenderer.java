@@ -29,6 +29,7 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
         } catch(ArrayIndexOutOfBoundsException ex){
             c=null;
             System.err.println("Determining color failed, "+ex); //tried to color something during a data refresh or something.
+            ex.printStackTrace();
         }
         if(c!=null){
             l.setBackground(c);

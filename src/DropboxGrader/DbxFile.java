@@ -388,7 +388,8 @@ public class DbxFile {
         try {
             client.delete(entry.path);
         } catch (DbxException ex) {
-            System.err.println("Error occured deleting "+entry.name+" from dropbox.");
+            System.err.println("Error occured deleting "+entry.name+" from dropbox.\n"+ex);
+            ex.printStackTrace();
         }
     }
     private void searchForFilesToDelete(String directory){

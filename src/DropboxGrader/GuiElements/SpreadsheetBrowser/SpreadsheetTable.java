@@ -16,9 +16,14 @@ import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.TextGrader.TextSpreadsheet;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -29,7 +34,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import javax.swing.DropMode;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -41,6 +49,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
@@ -49,21 +58,25 @@ import javax.swing.table.TableCellRenderer;
  * @author Matt
  */
 public class SpreadsheetTable extends JTable implements MouseListener,ActionListener{
-    public static final String[] MODES={"View","Copy"};
-    private final String[] modeDescription={"","Copies selected grade to the clipboard. Left click for grade, Right click for comment."};
+    public static final String[] MODES={"View/Edit","Copy"};
+    private final String[] modeDescription={"Right click to manipulate data. Drag to reorder Assignments and Names.","Copies selected grade to the clipboard. Left click for grade, Right click for comment."};
     private SpreadsheetData sheetData;
     private Gui gui;
     private TextSpreadsheet sheet;
     private Clipboard clipboard;
     private int mode;
     private JLabel statusLabel;
+    private boolean ignoredColMove;
+    private boolean adjustedColSize;
+    private ArrayList<TableColumnModelEvent> columnMoveEvents;
     
     public SpreadsheetTable(Gui gui,TextSpreadsheet sheet){
         super();
         this.sheet=sheet;
         this.gui=gui;
         
-        statusLabel=new JLabel();
+        columnMoveEvents=new ArrayList();
+        statusLabel=new JLabel(modeDescription[mode]);
         statusLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         mode=0;
         clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -77,11 +90,26 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        setDragEnabled(false); 
+        setDragEnabled(true); 
+        setDropMode(DropMode.INSERT_ROWS);
+        setTransferHandler(new SpreadsheetTransferHandler(this));
         getTableHeader().setReorderingAllowed(true);
-        getColumnModel().addColumnModelListener(this);
         addMouseListener(this);
         getTableHeader().addMouseListener(this);
+        initWidths();
+    }
+    private void initWidths(){
+        int cols=getModel().getColumnCount();
+        int maxNameWidth=0;
+        for(int i=0;i<getModel().getRowCount();i++){
+            Component comp=getDefaultRenderer(this.getClass()).getTableCellRendererComponent(this, getModel().getValueAt(i, 0), false, false, i, 0);
+            maxNameWidth=Math.max(comp.getPreferredSize().width, maxNameWidth);
+        }
+        if(cols>0)
+            getColumnModel().getColumn(0).setPreferredWidth(maxNameWidth+5);
+        for(int i=1;i<cols;i++){
+            getColumnModel().getColumn(i).setPreferredWidth(sheet.getAssignmentAt(i-1).perferredWidth);
+        }
     }
     private void copyCell(int mouseButton){
         int row=getSelectedRow();
@@ -144,11 +172,69 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         return new SpreadsheetTableRenderer();
     }
     public void dataChanged(){
+        setDragEnabled(false);
+        getTableHeader().setReorderingAllowed(false);
+        
         sheetData.fireTableStructureChanged();
         sheetData.fireTableDataChanged();
+        
+        setDragEnabled(true);
+        getTableHeader().setReorderingAllowed(true);
     }
     @Override
+    public void mouseEntered(MouseEvent e) {}
+    @Override
+    public void mouseExited(MouseEvent e) {}
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+    @Override
+    public void mousePressed(MouseEvent e) {}
+    @Override
     public void mouseReleased(MouseEvent e) {
+        if(e.getButton()==MouseEvent.BUTTON1){
+            for(int i=0;i<columnMoveEvents.size();i++){
+                final TableColumnModelEvent ev=columnMoveEvents.get(i);
+                if(i!=columnMoveEvents.size()-1&&columnMoveEvents.get(i+1).getFromIndex()==ev.getToIndex()){
+                    columnMoveEvents.remove(0);
+                    i--;
+                }
+                else if(convertColumnIndexToModel(ev.getToIndex())!=ev.getToIndex()){
+                    initWidths();
+                    //System.out.println(convertColumnIndexToModel(ev.getToIndex())+" to "+ev.getToIndex());
+                    statusLabel.setText("Synchronizing Assignment Order...");
+                    getTableHeader().setReorderingAllowed(false);
+                    gui.getBackgroundThread().invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            gui.getGrader().downloadSheet();
+                            int oldIndex=convertColumnIndexToModel(ev.getToIndex());
+                            sheet.moveAssignment(oldIndex-1,ev.getToIndex()-1);
+                            gui.getGrader().uploadTable();
+                            ignoredColMove=true;
+                            moveColumn(ev.getToIndex()-1,oldIndex-1);
+                            dataChanged();
+                            statusLabel.setText("");
+                            getTableHeader().setReorderingAllowed(true);
+                        }
+                        });
+                    columnMoveEvents.clear();
+                }
+            }
+            if(adjustedColSize){
+                adjustedColSize=false;
+                gui.getBackgroundThread().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        gui.getGrader().downloadSheet();
+                        int cols=getColumnModel().getColumnCount();
+                        for(int i=1;i<cols;i++){
+                            sheet.getAssignmentAt(i-1).perferredWidth=getColumnModel().getColumn(i).getPreferredWidth();
+                        }
+                        gui.getGrader().uploadTable();
+                    }
+                });
+            }
+        }
         if(mode==0){ //view mode
             if(e.getButton()==MouseEvent.BUTTON3){ //right click
                 if(!(e.getSource() instanceof JTableHeader)){ //they clicked on a cell/rowHeader
@@ -316,6 +402,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
                     gui.getGrader().uploadTable();
                     revalidate();
                     repaint();
+                    initWidths();
                     gui.fileBrowserDataChanged();
                 }
                 else{
@@ -417,40 +504,51 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         data=data.replace(key, "");
         return Integer.parseInt(data);
     }
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-    @Override
-    public void mouseExited(MouseEvent e) {}
-    @Override
-    public void mouseClicked(MouseEvent e) {}
-    @Override
-    public void mousePressed(MouseEvent e) {}
 
     @Override
-    public void columnMoved(TableColumnModelEvent e){
+    public void columnMoved(final TableColumnModelEvent e){
         super.columnMoved(e);
-        int from=e.getFromIndex();
-        int to=e.getToIndex();
-        //System.out.println(from+" to "+to);
-        from=convertColumnIndexToModel(to);
-        to=convertColumnIndexToModel(e.getFromIndex());
+        if(ignoredColMove){
+            ignoredColMove=false;
+            return;
+        }
         if(e.getFromIndex()==e.getToIndex()){
             return;
         }
-        System.out.println(from+" to "+to);
+        if(e.getToIndex()==0||e.getFromIndex()==0){
+            ignoredColMove=true;
+            moveColumn(e.getToIndex(),e.getFromIndex());
+            return;
+        }
+        columnMoveEvents.add(e);
     }
 
     @Override
     public void columnMarginChanged(ChangeEvent e) {
         super.columnMarginChanged(e);
-        int cols=getColumnModel().getColumnCount();
-        String width="";
-        for(int x=0;x<cols;x++){
-            width+=getColumnModel().getColumn(x).getPreferredWidth();
-            if(x!=cols-1){
-                width+=",";
+        adjustedColSize=true;
+    }
+    public void moveRow(final int from,final int to){
+        statusLabel.setText("Synchronizing Name Order...");
+        setDragEnabled(false);
+        getTableHeader().setReorderingAllowed(false);
+        gui.getBackgroundThread().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                gui.getGrader().downloadSheet();
+                sheet.moveName(from,to);
+                gui.getGrader().uploadTable();
+                dataChanged();
+                
+                setDragEnabled(true);
+                getTableHeader().setReorderingAllowed(true);
+                statusLabel.setText("");
             }
-        }
-        System.out.println(width);
+        });
+    }
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        super.tableChanged(e);
+        initWidths();
     }
 }

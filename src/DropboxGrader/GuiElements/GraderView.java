@@ -275,8 +275,8 @@ public class GraderView extends ContentView{
         
         if(Config.autoRun&&!gui.getSelectedFiles().isEmpty()){
             //If it should autorun, go autorun on the other thread.
-            gui.getBackgroundThread().runFile(gui.getSelectedFiles().get(0),Config.runTimes);
             runButton.setText("Stop Running");
+            gui.getBackgroundThread().runFile(gui.getSelectedFiles().get(0),Config.runTimes);
         }
     }
     public JavaRunner getRunner(){

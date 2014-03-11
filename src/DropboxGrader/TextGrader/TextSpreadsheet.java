@@ -300,6 +300,29 @@ public class TextSpreadsheet {
         grades.get(nameIndex).set(assignmentIndex, null); //switch assignment to be null instead
         return true;
     }
+    public void moveAssignment(int oldIndex,int newIndex){
+        TextAssignment assign=assignments.get(oldIndex);
+        for(ArrayList<TextGrade> name:grades){
+            if(!name.isEmpty()){
+                TextGrade grade=name.get(oldIndex);
+                name.remove(oldIndex);
+                name.add(newIndex,grade);
+            }
+        }
+        assignments.remove(oldIndex);
+        assignments.add(newIndex, assign);
+    }
+    public void moveName(int oldIndex,int newIndex){
+        if(newIndex>=names.size()){
+            newIndex--;
+        }
+        TextName name=names.get(oldIndex);
+        ArrayList<TextGrade> grade=grades.get(oldIndex);
+        grades.remove(oldIndex);
+        grades.add(newIndex,grade);
+        names.remove(oldIndex);
+        names.add(newIndex,name);
+    }
     public boolean isDuplicateName(String firstName,String lastName){
         int repeatCount=0;
         for(int i=0;i<names.size();i++){
