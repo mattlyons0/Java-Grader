@@ -34,14 +34,13 @@ public class JavaCodeBrowser extends Container{
     private int numTextFiles;
     public JavaCodeBrowser(DbxFile f){
         file=f;
-        
+        DefaultSyntaxKit.initKit();
         init();
     }
     public void init(){
         if(file==null){
             return;
         }
-        DefaultSyntaxKit.initKit();
         setLayout(new CardLayout(10,5));
         tabPane=new JTabbedPane();
         File[] files=file.getJavaFiles();

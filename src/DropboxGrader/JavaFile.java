@@ -16,20 +16,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * I hate this class
  * @author Matt
  */
 public class JavaFile extends File{
+    private DbxFile dbxFile;
     private boolean mainMethod;
     private String packageFolder;
     private String code;
-    public JavaFile(String location,boolean containsMain,String packageF){
-        super(location);
-        setMainMethod(containsMain);
-        packageFolder=packageF;
-    }
-    public JavaFile(File f){
+    public JavaFile(File f,DbxFile dbx){
         super(f.getPath());
+        dbxFile=dbx;
         validateFile(f);
     }
     public String changeCode(String newCode){
@@ -40,8 +37,10 @@ public class JavaFile extends File{
             writer.close();
             validateFile(this);
         } catch (IOException ex) {
-            ex.printStackTrace();
-            return ex+"";
+            if(exists()){ //we check if the file still exists to see if we moved it or not
+                ex.printStackTrace();
+                return ex+"";
+            }
         }
         return "";
     }
@@ -160,7 +159,6 @@ public class JavaFile extends File{
     }
     private void validateFile(File f){
         try {
-            boolean removePackage=false;
             code="";
             Scanner reader=new Scanner(f);
             reader.useDelimiter("\n");
@@ -175,23 +173,10 @@ public class JavaFile extends File{
                     packageDir=packageDir.replace(";", "");
                     packageDir=packageDir.replace(".", "/");
                     setPackage(packageDir);
-                    //check if it is in the right folder, then move it.
-                    File parent=this.getParentFile();
-                    if(parent!=null&&parent.isDirectory()){
-                        String name=parent.getName();
-                        String[] folders=packageDir.split(".");
-                        if(folders.length<=0){
-                            folders=new String[1];
-                            folders[0]=packageDir;
-                        }
-                        if(!name.equals(folders[0])){
-                            removePackage=true;
-                        }
-                       
-                    }
                     //read="//"+line+" //This was commented out by DropboxGrader in order to run the code.";
                     //System.out.println("Line "+line+" contained a package declaration.");
                 }
+                
                 if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String")&&line.replace(" ", "").contains("[]")){ //if it contains a main method
                     if(!mainMethod){
                         reader.close();
@@ -202,8 +187,50 @@ public class JavaFile extends File{
                 }
             }
             reader.close();
-            if(removePackage){
-                removePackage(code);
+            //check if initial package is wrong and attempt to fix that
+            if(!dbxFile.changedFolder()){
+                boolean movedFiles=false;
+                File parent=getParentFile();
+                if(packageFolder!=null&&parent!=null&&parent.isDirectory()){
+                        //get the package folders
+                        String[] folders=packageFolder.split("/");
+                        if(folders.length<=0){
+                            folders=new String[1];
+                            folders[0]=packageFolder;
+                        }
+                        for(int i=folders.length-1;i>=0;i--){
+                            if(parent!=null){
+                                if(parent.getName().equals(folders[i])){
+                                    //cool this far, keep going
+                                }
+                                else if(parent.getParentFile()==null||
+                                        !parent.getParentFile().getName().equals("downloads")){ //upper folder isn't the right name and it is not the zip folder
+                                    System.out.println("Renamed "+parent.getPath()+" to "+parent.getPath().substring(0,parent.getPath().length()-parent.getName().length())+folders[i]);
+                                    File dest=new File(parent.getPath().substring(0,parent.getPath().length()-parent.getName().length())+folders[i]);
+                                    parent.renameTo(dest);
+                                    movedFiles=true;
+                                }
+                                else{ //upper folder isnt the right name and parent is the zip folder
+                                    File currentFolder=new File(getPath().substring(0,getPath().lastIndexOf("\\")));
+                                    File newFolder=new File(currentFolder.getPath()+"\\"+folders[i]);
+                                    newFolder.mkdir();
+                                    System.out.println("Made new folder "+newFolder.getPath());
+                                    if(currentFolder.listFiles()!=null){
+                                        for(File files:currentFolder.listFiles()){
+                                            File newFile=new File(newFolder.getPath()+files.getPath().replace(parent.getPath(), ""));
+                                            System.out.println("Renamed "+files.getPath()+" to "+newFile.getPath());
+                                            files.renameTo(newFile);
+                                        }
+                                        movedFiles=true;       
+                                    }
+                                }
+                                parent=parent.getParentFile();
+                            }
+                        }
+                    }
+                if(movedFiles){
+                    dbxFile.movedFiles();
+                }
             }
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -292,16 +319,22 @@ public class JavaFile extends File{
             return null;
         }
     }
-
-    private void removePackage(String code) {
-        packageFolder=null;
-        String newCode="";
-        String[] lines=code.split("\n");
-        for(int x=0;x<lines.length;x++){
-            if(!lines[x].contains("package")){
-                newCode+=lines[x]+"\n";
-            }
-        }
-        changeCode(newCode);
-    }
+    /**
+     * The idea of this method was right, but there simply isn't a good way to determine
+     * the root package on a file by file basis. Infact there can be multiple root
+     * packages and then i would have to organize all of them and create an entire system
+     * where files talked to eachother, and they don't now, and won't ever.
+     * @param code 
+     */
+//    private void removePackage(String code) {
+//        packageFolder=null;
+//        String newCode="";
+//        String[] lines=code.split("\n");
+//        for(int x=0;x<lines.length;x++){
+//            if(!lines[x].contains("package")){
+//                newCode+=lines[x]+"\n";
+//            }
+//        }
+//        changeCode(newCode);
+//    }
 }

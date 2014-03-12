@@ -71,9 +71,11 @@ public class JavaRunner implements Runnable{
                         Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
-                    if(code!=0||numRunsLeft==0){
-                        
-                        terminal.append("\nRun Finished: "+code+"\n",Color.GRAY);
+                    if(code!=0){ //abnormal exit
+                        terminal.append("\nRun Stopped: "+code+"\n",Color.RED);
+                    }
+                    else if(numRunsLeft==0){ //normal exit
+                        terminal.append("\nRun Finished\n",Color.GRAY);
                     }
                     if(numRunsLeft>0){
                         System.out.println("running new file.");
@@ -130,9 +132,6 @@ public class JavaRunner implements Runnable{
         }
         if(compile)
             terminal.setText("");
-        String errorSaving=browser.saveFile();
-        if(errorSaving!=null&&!errorSaving.trim().equals(""))
-            terminal.append("Error saving file: "+errorSaving,Color.RED);
         
         numRunsLeft=numTimes;
         currentFiles=files;
@@ -156,14 +155,44 @@ public class JavaRunner implements Runnable{
         String[] filePaths=new String[files.length+manualArgNum];
 
         filePaths[0]="-cp";
-        String path=files[0].getAbsolutePath();
+        String path=runChoice.getAbsolutePath();
         if(path.length()!=0){
             path=path.replace("\\", "=");
-            String[] pathPart=path.split("="); //cant split \ for whatever reason
+            String[] pathPart=path.split("="); //cant split \ for whatever reason (regex strikes again!)..
             path=path.replace("=", "\\");
             path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
             if(containsPackages){
-                path=path.substring(0, path.length()-pathPart[pathPart.length-2].length()-1);
+                if(runChoice.hasPackage()){
+                    
+                    String firstPackage="";
+                    if(runChoice.packageFolder().contains("/")){
+                        firstPackage=runChoice.packageFolder().substring(0,runChoice.packageFolder().indexOf("/"));
+                    }
+                    else{
+                        firstPackage=runChoice.packageFolder();
+                    }
+                    int partIndex=-1;
+                    for(int i=0;i<pathPart.length;i++){
+                        if(pathPart[i].equals(firstPackage)){
+                            partIndex=i;
+                            //don't break because we want the most recent one that equals it
+                            //i could go backwards and then break but whatever
+                        }
+                    }
+                    if(partIndex==-1){
+                        System.err.println("Error determining package to compile for "+path+" with package "+runChoice.packageFolder()
+                            +"\nFile: "+runChoice.getPath());
+                        terminal.append("Error determining package structure.\n"+
+                                "This file does not have the same folder structure as it does package structure.\n\n", Color.red);
+                    }
+                    path="";
+                    for(int i=0;i<partIndex;i++){
+                        path+=pathPart[i];
+                        if(i<=partIndex){
+                            path+="\\";
+                        }
+                    }
+                }
             }
             if(pathPart.length==1){
                 path="";
@@ -187,7 +216,9 @@ public class JavaRunner implements Runnable{
                         compiler=ToolProvider.getSystemJavaCompiler();
                     }
                 }
-                terminal.append("The java.home path is: "+System.getProperty("java.home")+"\n",Color.GRAY);
+                String javaVersion=Runtime.class.getPackage().getImplementationVersion();
+                terminal.append("JDK: "+System.getProperty("java.home")+"\n",Color.GRAY);
+                terminal.append("JRE: "+javaVersion+"\n",Color.GRAY);
                 int result=compiler.run(null, System.out, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
                 if(result!=0){
                     terminal.append("Compile Failed\n\n",Color.RED);
@@ -203,27 +234,17 @@ public class JavaRunner implements Runnable{
             }
         }
         try{
-            int index=-1;
-            for(int x=0;x<files.length;x++){
-                if(files[x].equals(runChoice)){
-                    index=x;
-                }
-            }
-            if(index==-1){
-                System.out.println("Main File doesnt exist!");
-                return false;
-            }
             //for(int x=0;x<files.length;x++){
             String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
             String className="";
-            if(files[index].hasPackage()){
-                className+=files[index].packageFolder()+"/";
+            if(runChoice.hasPackage()){
+                className+=runChoice.packageFolder()+"/";
             }
-            className+=files[index].getName();
+            className+=runChoice.getName();
             className=className.substring(0,className.length()-5); //removes .java
             String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
             System.out.println(javaExe);
-            javaExe="java";
+            javaExe="java"; //since we set the java.home the keyword java will go to the right place
             String directory=folder;
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
@@ -299,5 +320,8 @@ public class JavaRunner implements Runnable{
     }
     public InputRelayer getRelay(){
         return relay;
+    }
+    public boolean isRunning(){
+        return running!=null;
     }
 }

@@ -22,12 +22,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 
 /**
  *
@@ -74,15 +76,17 @@ public class GraderView extends ContentView{
         topBar.setLayout(new GridBagLayout());
         graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,javaCode,codeOutputScroll);
         graderDivider.setDividerLocation(Config.dividerLocation);
+        graderDivider.setContinuousLayout(true);
         JPanel navPanel=new JPanel();
         navPanel.setLayout(new FlowLayout());
         backButton=new JButton("Back to Browser");
         backButton.addActionListener(this);
         fileInfoLabel=new JLabel("");
-        fileInfoLabel.setMinimumSize(new Dimension(10,10));
+        //fileInfoLabel.setMinimumSize(new Dimension(10,10));
+        //fileInfoLabel.setPreferredSize(new Dimension(100,10));
         navPanel.add(backButton);
         navPanel.add(fileInfoLabel);
-        navPanel.setMinimumSize(new Dimension(175,35));
+        //navPanel.setMinimumSize(new Dimension(175,35)); //causes scrollbar in code to break gui
         runButton=new JButton("Run");
         if(Config.autoRun)
             runButton.setText("Stop Running");
@@ -183,10 +187,13 @@ public class GraderView extends ContentView{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(runButton)){
             if(runButton.getText().equals("Run")&&!e.getActionCommand().equals("Ended")){
+                String errorSaving=javaCode.saveFile();
+                if(errorSaving!=null&&!errorSaving.trim().equals(""))
+                    codeOutputArea.append("Error saving file: "+errorSaving,Color.RED);
                 try{
                     int times=Integer.parseInt(iterationsField.getText().trim());
                     if(times>0){
-                        boolean running=fileManager.getFile(gui.getSelectedFiles().get(0)).run(runner,times);
+                        boolean running=fileManager.getFile(gui.getSelectedFiles().get(0)).run(times);
                         if(running)
                             runButton.setText("Stop Running");
                     }
@@ -205,6 +212,7 @@ public class GraderView extends ContentView{
         }
         else if(e.getSource().equals(backButton)){
             runner.stopProcess();
+            javaCode.saveFile();
             gui.getSelectedFiles().clear();
             gui.setupFileBrowserGui();
         }

@@ -153,7 +153,9 @@ public class Gui extends JFrame implements ActionListener{
         return grader;
     }
     public JavaRunner getRunner(){
-        return graderView.getRunner();
+        if(graderView!=null)
+            return graderView.getRunner();
+        return null;
     }
     public void updateProgress(int val){
         browserView.updateProgress(val);

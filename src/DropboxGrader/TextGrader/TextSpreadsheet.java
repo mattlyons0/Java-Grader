@@ -146,10 +146,16 @@ public class TextSpreadsheet {
             System.err.println("Error grading "+assignment+" by "+name+"\nAssignmentIndex: "+assignmentIndex+" NameIndex: "+nameIndex);
             return false;
         }
-        if(getGrade(name,assignment)!=null&&!overwrite){
-            overwrite=GuiHelper.yesNoDialog("There is already a grade written: "+getGrade(name,assignment)+"\nWould you like to overwrite this grade?");
+        TextGrade currentGrade=grades.get(nameIndex).get(assignmentIndex);
+        if(currentGrade!=null){
+            if(currentGrade.grade.equals(grade)&&currentGrade.comment.equals(comment)){ //if they have the same data
+                return true; //we can say we are done because there is nothing to change.
+            }
             if(!overwrite){
-                return false;
+                overwrite=GuiHelper.yesNoDialog("There is already a grade written: "+getGrade(name,assignment)+"\nWould you like to overwrite this grade?");
+                if(!overwrite){
+                    return false;
+                }
             }
         }
         grades.get(nameIndex).set(assignmentIndex,new TextGrade(grade,comment)); //TODO: record date and timestamp with this.

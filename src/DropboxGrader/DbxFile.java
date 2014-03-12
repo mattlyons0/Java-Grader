@@ -42,12 +42,15 @@ public class DbxFile {
     private JavaFile[] javaFiles;
     private TextFile[] textFiles;
     private boolean invalidZip;
+    private int fileVersion;
     private final String ERRORMSG;
+    private boolean changedFolder;
     public DbxFile(DbxEntry.File entry,FileManager fileMan,DbxClient client){
         this.entry=entry;
         fileManager=fileMan;
         this.client=client;
         
+        fileVersion=0;
         ERRORMSG="File Naming Error: "+entry.name;
         
         if(entry.name.indexOf(".")!=entry.name.length()-4){
@@ -59,6 +62,12 @@ public class DbxFile {
         }
         
         checkExists();
+    }
+    public void movedFiles(){
+        changedFolder=true;
+        checkExists();
+        if(fileManager.getGui().getRunner()!=null)
+            fileManager.getGui().getRunner().stopProcess();
     }
     private void checkExists(){ //ties reference if it is already downloaded
         String zipPath=fileManager.getDownloadFolder()+"/"+entry.name;
@@ -229,6 +238,7 @@ public class DbxFile {
         downloadedFile=f;
         searchJavaFiles();
         searchTextFiles();
+        fileVersion++;
     }
     private void searchJavaFiles(){
         File[] newArr=searchForFiles(downloadedFile.getPath()+"\\",".java");
@@ -266,7 +276,7 @@ public class DbxFile {
                 if(f.getName().endsWith(fileType.toLowerCase())||f.getName().endsWith(fileType.toUpperCase())){
                     //if file is .Java it wont get added, but that is stupid capitalization that nothing would save as anyway.
                     if(fileType.equalsIgnoreCase(".java"))
-                        f=new JavaFile(f);
+                        f=new JavaFile(f,this);
                     else if(fileType.equalsIgnoreCase(".txt"))
                         f=new TextFile(f);
                     filesWithType.add(f);
@@ -353,7 +363,8 @@ public class DbxFile {
         return textFiles;
     }
     
-    public boolean run(JavaRunner runner, int times){
+    public boolean run(int times){
+        int currentVersion=fileVersion;
         ArrayList<JavaFile> mainMethods=new ArrayList();
         for(JavaFile f:javaFiles){
             if(f.containsMain()){
@@ -368,7 +379,10 @@ public class DbxFile {
         if(mainMethods.size()>1){
             String[] choices=new String[mainMethods.size()];
             for(int x=0;x<mainMethods.size();x++){
-                String path=mainMethods.get(x).packageFolder()+"."+mainMethods.get(x).getName();
+                String path="";
+                if(mainMethods.get(x).packageFolder()!=null)
+                    path+=mainMethods.get(x).packageFolder()+".";
+                path+=mainMethods.get(x).getName();
                 choices[x]=path;
             }
             choice=GuiHelper.multiOptionPane("There are multiple main methods, which would you like to run?", choices);
@@ -377,7 +391,11 @@ public class DbxFile {
             return false;
         }
         
-        return runner.runFile(javaFiles,mainMethods.get(choice),times,downloadedFile.getPath());
+        boolean success = fileManager.getGui().getRunner().runFile(javaFiles,mainMethods.get(choice),times,downloadedFile.getPath());
+        if(!success&&currentVersion!=fileVersion){ //if we moved it between saving/running try again
+            return run(times);
+        }
+        return success;
     }
     public String getFileName(){
         return entry.name;
@@ -488,6 +506,9 @@ public class DbxFile {
     }
     public boolean isInvalidZip(){
         return invalidZip;
+    }
+    public boolean changedFolder(){
+        return changedFolder;
     }
     
 }

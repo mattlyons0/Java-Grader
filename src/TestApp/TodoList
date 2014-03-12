@@ -2,6 +2,7 @@ Ctrl tab in grader.
 Auto mark late.
     When creating new assignment ask when it was due
 Move rename to another thread
+Move redownload to another thread
 display current fileQueue
 button to change dropbox login
 Custom sorting
@@ -12,14 +13,12 @@ Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
 Fix test no java duplicating.
-Catch out of memory with DropboxGrader code.
+Catch out of memory with massive files.
 Config to read text files by default
 Update checker
 Optional libraries to compile with setting.
 Ability to close code tabs with right click.
 Show file code tab that is being run (change color of that tab or something). 
-State jdk used to compile and jre used to run.
-Fix null package when picking which class to run.
 Fix packagetest not working.
 Encrypt grade sheet
 Store email
@@ -28,6 +27,8 @@ Store class period of student
 Store student email
 Store student year
 Improve FileManager init method for efficiency
+Improve overall init for efficiency
+    not all of the things on init have to happen on the main thread
 Auto-email for things
     Invalid file structure
     Assignments that need to be resubmitted
@@ -36,16 +37,13 @@ Percentage based downloading results.
 Catch and attempt to save out of memory errors.
 When grade column is hidden also hide grade and comment
 Ability to make RTF printout for students.
-Exception when deleting last assignment (not always but sometimes).
+Exception when refreshing tables sometimes
 Migrate dropbox app to my own account on dropbox
 More user friendly table for assignments submitted
-Rework gui to have navBar
 Setting to encrypt grade sheet
 Use graded date vs date uploaded to determine if resubmits are done or not.
 auto check for javadocs
 read screenshots?
-gui
-    Fix window resize issues
 Remove println statements
 More detailed loading status
     When opening update with task it is currently running.
@@ -76,7 +74,6 @@ Bulk options
 Read RTF and Word files as well as text files.
     apache word library
 Configurable colors for gradebook as well as browser (inIC,late..)
-When an error comes up compiling, option to exclude that class from being compiled
 Remember window position and size each session
 Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
 Fix guis on smaller scales
@@ -91,8 +88,8 @@ Wait until background thread isnt busy to terminate proccess
 Prettier borders everywhere using borderfactory
 Refactor everything that uses workerThread to use the new fancy runnable anon method way
 Progress spinner displayed on all views that says what it is doing and spins when something is happening.
+    More detailed status when initially loading, and downloading/opening files
 Check return values when changing data in gradebook
-Make the background thread even more uncrashable
 Fix names with multiple capitalizations, if there is any doubt just ask for the first time then always use first and last name
 Put gui helper on the EDT
 Really, no grading should be done on the main thread since that could mess things up pretty bad if it is modified on two threads at once.
@@ -102,11 +99,18 @@ Return in edit name overlay submits from lastName box.
 Use contentOverlay instead of GuiHelper for almost everything.
 easier paste (maybe button to click instead of box) for access token
 button to re-open browser asking for token
-Don't delete names unless all of the grades for that name are deleted
+tell the user what is going on in dropbox authentication stage
+Don't delete names unless all of the grades for that name are deleted in gradebook
 right click menu for adding a grade in gradebook
 Put in assignment with no name then edit it based on user input from popup box instead of not grading until user hits submit when adding new assignment
-Investigate other overlays not updating in gradebook when submit is pushed
+Investigate overlays not updating in gradebook when submit is pushed
 Mode to switch names/assignments axis
+Assignment Status at the top instead of filename
+Horizontal scroll wheel support
+Redownload should delete old files before downloading new
+Determine compiliation requirements for all javaFiles and only compile what is needed
+    will fix people submitting old testers that are broken that we dont' care about
+Save code being edited when you hit back
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

@@ -35,60 +35,68 @@ public class WorkerThread implements Runnable{
     @Override
     public void run() {
         while(true){
-            int size=fileQueue.size();
-            for(int x=0;x<size;x++){
-                DbxFile f=fileQueue.remove(0);
-                if(f!=null){
-                    gui.setStatus("Downloading "+f.getFileName());
-                    f.download();
-                    int progress=(int)((double)(x+1)/size*100);
-                    gui.updateProgress(progress);
-                    if(size==1){
-                        gui.updateProgress(50);
+            try{
+                int size=fileQueue.size();
+                for(int x=0;x<size;x++){
+                    DbxFile f=fileQueue.remove(0);
+                    if(f!=null){
+                        gui.setStatus("Downloading "+f.getFileName());
+                        f.download();
+                        int progress=(int)((double)(x+1)/size*100);
+                        gui.updateProgress(progress);
+                        if(size==1){
+                            gui.updateProgress(50);
+                        }
+                        gui.repaintTable();
                     }
-                    gui.repaintTable();
                 }
-            }
-            for(DbxFile f:deleteQueue){
-                if(f!=null)
-                    f.delete();
-            }
-            for(int i=0;i<actionQueue.size();i++){
-                Runnable r=actionQueue.remove(i);
-                try{
-                    r.run();
-                } catch(Exception e){
-                    System.err.println("Exception was logged running code on the backgroundThread.\n"+e);
-                    e.printStackTrace();
+                for(DbxFile f:deleteQueue){
+                    if(f!=null)
+                        f.delete();
                 }
-            }
-            if(!deleteQueue.isEmpty()){
-                deleteQueue.clear();
-                gui.refreshTable();
-            }
-            if(graderAfter){
-                gui.setupGraderGui();
-                graderAfter=false;
-            }
-            if(fileToRun!=null){
-                fileToRun.run(gui.getRunner(), timesToRun);
-                fileToRun=null;
-                timesToRun=0;
-            }
-            if(refreshNeeded){
-                manager.refresh();
-                gui.refreshFinished();
-                if(gui.getGrader()!=null){
-                    gui.getGrader().refresh();
-                    gui.repaint();
+                for(int i=0;i<actionQueue.size();i++){
+                    Runnable r=actionQueue.remove(i);
+                    try{
+                        r.run();
+                    } catch(Exception e){
+                        System.err.println("Exception was logged running queued code on the backgroundThread.\n"+e);
+                        e.printStackTrace();
+                    }
                 }
-                
-                refreshNeeded=false;
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(WorkerThread.class.getName()).log(Level.SEVERE, null, ex);
+                if(!deleteQueue.isEmpty()){
+                    deleteQueue.clear();
+                    gui.refreshTable();
+                }
+                if(graderAfter){
+                    gui.setupGraderGui();
+                    graderAfter=false;
+                }
+                if(fileToRun!=null){
+                    boolean success=fileToRun.run(timesToRun);
+                    if(!success){
+                        gui.proccessEnded();
+                    }
+                    fileToRun=null;
+                    timesToRun=0;
+                }
+                if(refreshNeeded){
+                    manager.refresh();
+                    gui.refreshFinished();
+                    if(gui.getGrader()!=null){
+                        gui.getGrader().refresh();
+                        gui.repaint();
+                    }
+
+                    refreshNeeded=false;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(WorkerThread.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } catch(Exception e){
+                System.err.println("An exception occured on the background thread and it was caught from crashing.\n"+e);
+                e.printStackTrace();
             }
         }
     }
