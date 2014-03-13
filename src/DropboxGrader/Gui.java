@@ -89,8 +89,13 @@ public class Gui extends JFrame implements ActionListener{
         addWindowStateListener(listener);
         
         init();
+        
+        workerThread=new WorkerThread(this);
+        Thread thread=new Thread(workerThread);
+        thread.setName("WorkerThread");
+        thread.start();
+        
         initViewMan();
-        dbxSession=new DbxSession(this);
     }
     private void initViewMan(){
         authView=new AuthView(this);
@@ -111,8 +116,7 @@ public class Gui extends JFrame implements ActionListener{
     }
     private void createSession(){
         fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
-        workerThread=new WorkerThread(fileManager,this);
-        new Thread(workerThread).start();
+        workerThread.setFileManager(fileManager);
         grader=new TextGrader(fileManager,client);
         fileManager.setGrader(grader);
         
@@ -136,14 +140,7 @@ public class Gui extends JFrame implements ActionListener{
     public void setupGradebookGui(){
         viewManager.changeView("GradebookView");
     }
-    public void promptKey(){
-        authView.promptKey();
-    }
-    public void badKey(){
-        authView.badKey();
-    }
-    public void goodKey(String loginName,DbxClient client){
-        authView.goodKey(loginName);
+    public void goodKey(DbxClient client){
         this.client=client;
         createSession();
 
@@ -210,6 +207,9 @@ public class Gui extends JFrame implements ActionListener{
     public void setCurrentFile(DbxFile file){
         currentFile=file;
     }
+    public void setDbxSession(DbxSession s){
+        dbxSession=s;
+    }
     public DbxSession getDbxSession(){
         return dbxSession;
     }
@@ -239,5 +239,10 @@ public class Gui extends JFrame implements ActionListener{
         if(gradebookView!=null){
             gradebookView.dataChanged();
         }
+    }
+    public JavaCodeBrowser getCodeBrowser(){
+        if(graderView!=null)
+            return graderView.getCodeBrowser();
+        return null;
     }
 }

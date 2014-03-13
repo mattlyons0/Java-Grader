@@ -41,37 +41,42 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
 
     @Override
     public void windowClosing(WindowEvent e) {
-        if(runner!=null){
-            runner.stopProcess();
-            runner.getRelay().stop();
-            runner.getRelay().invalidate();
-        }
-        if(gui!=null&&gui.getTerminal()!=null){
-            gui.getTerminal().stop();
-        }
-        if(gui!=null)
-            gui.setVisible(false);
+        try{
+            if(runner!=null){
+                runner.stopProcess();
+                runner.getRelay().stop();
+                runner.getRelay().invalidate();
+            }
+            if(gui!=null&&gui.getTerminal()!=null){
+                gui.getTerminal().stop();
+            }
+            if(gui!=null)
+                gui.setVisible(false);
 
-        File inputFolder=new File("runtimeFiles\\");
-        File[] inputFiles=inputFolder.listFiles();
-        if(inputFiles!=null){
-            for(File f:inputFiles){
-                f.delete();
+            File inputFolder=new File("runtimeFiles\\");
+            File[] inputFiles=inputFolder.listFiles();
+            if(inputFiles!=null){
+                for(File f:inputFiles){
+                    f.delete();
+                }
             }
-        }
-        inputFolder.delete();
-        if(gui!=null)
-            gui.isClosing();
-        
-        Config.writeConfig();
-        
-        //delete downloads
-        File downloads=new File("downloads\\");
-        File[] downloaded=downloads.listFiles();
-        if(downloaded!=null){
-            for(File f:downloaded){
-                f.delete();
+            inputFolder.delete();
+            if(gui!=null)
+                gui.isClosing();
+
+            Config.writeConfig();
+
+            //delete downloads
+            File downloads=new File("downloads\\");
+            File[] downloaded=downloads.listFiles();
+            if(downloaded!=null){
+                for(File f:downloaded){
+                    f.delete();
+                }
             }
+        } catch(Exception ex){
+            System.err.println("Error doing closing tasks, someone probably terminated the proccess really fast.\n "+ex);
+            ex.printStackTrace();
         }
     }
 

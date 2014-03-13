@@ -182,14 +182,17 @@ public class TextGrader {
             overlay.setCallback(new Runnable() {
                 @Override
                 public void run() {
+                    downloadSheet();
                     Object[] returned=overlay.getData();
-                    data.addAssignment((int)returned[0],(String)returned[1]);
-                    setGrade(fName,assignmentNum,gradeNum,comment,overwrite);
-                    
+                    TextAssignment assign=data.getAssignment(assignmentNum);
+                    assign.number=(int)returned[0];
+                    assign.name=(String)returned[1];
+                    uploadTable();
+                    manager.getGui().gradebookDataChanged();
                 }
             });
             manager.getGui().getViewManager().addOverlay(overlay);
-            return true;
+            data.addAssignment(assignmentNum, "");
         }
         boolean gradeSet=data.setGrade(data.getName(name),data.getAssignment(assignmentNum), gradeNum, comment,overwrite);
         if(!gradeSet){

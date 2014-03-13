@@ -363,7 +363,7 @@ public class DbxFile {
         return textFiles;
     }
     
-    public boolean run(int times){
+    public boolean run(int times,JavaCodeBrowser codeView){
         int currentVersion=fileVersion;
         ArrayList<JavaFile> mainMethods=new ArrayList();
         for(JavaFile f:javaFiles){
@@ -390,10 +390,11 @@ public class DbxFile {
         if(choice==-1){
             return false;
         }
-        
+        if(codeView!=null)
+            codeView.setRunningFile(mainMethods.get(choice));
         boolean success = fileManager.getGui().getRunner().runFile(javaFiles,mainMethods.get(choice),times,downloadedFile.getPath());
         if(!success&&currentVersion!=fileVersion){ //if we moved it between saving/running try again
-            return run(times);
+            return run(times,codeView);
         }
         return success;
     }

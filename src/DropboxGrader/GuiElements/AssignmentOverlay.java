@@ -42,7 +42,9 @@ public class AssignmentOverlay extends ContentOverlay{
         setLayout(new GridBagLayout());
         
         assignmentNumField=new JTextField(10);
+        assignmentNumField.addActionListener(this);
         assignmentNameField=new JTextField(20);
+        assignmentNameField.addActionListener(this);
         if(assignmentNum!=null)
             assignmentNumField.setText(assignmentNum+"");
         if(assignmentName!=null)
@@ -80,12 +82,11 @@ public class AssignmentOverlay extends ContentOverlay{
     }
 
     @Override
-    public void switchedTo() {
-    }
+    public void switchedTo() {}
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(submitButton)){
+        if(e.getSource().equals(submitButton)||e.getSource().equals(assignmentNumField)||e.getSource().equals(assignmentNameField)){
             //validate data
             try{
                 assignmentNum=Integer.parseInt(assignmentNumField.getText().replace(" ", ""));

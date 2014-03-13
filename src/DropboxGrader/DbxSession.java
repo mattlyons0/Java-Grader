@@ -5,6 +5,7 @@
 package DropboxGrader;
 
 import DropboxGrader.Data.Data;
+import DropboxGrader.GuiElements.AuthView;
 import static TestApp.Main.appName;
 import static TestApp.Main.appVersion;
 import com.dropbox.core.DbxAppInfo;
@@ -51,28 +52,26 @@ public class DbxSession {
     private boolean invalidToken=false;
     private DbxClient client;
     private DbxWebAuthNoRedirect webAuth;
-    private Gui gui;
+    private DbxRequestConfig config;
     
-    public DbxSession(Gui gui){
+    private AuthView gui;
+    
+    public DbxSession(AuthView gui){
         KEYFILE=new File("dbx.key");
         this.gui=gui;
         
-        createSession();
     }
     public DbxClient getClient(){
         return client;
     }
-    private void createSession(){
+    public void createSession(){
         DbxAppInfo appInfo = new DbxAppInfo(Data.APP_KEY, Data.APP_SECRET);
-        DbxRequestConfig config = new DbxRequestConfig(
+        config = new DbxRequestConfig(
             APPNAME+" "+APPVERSION, Locale.getDefault().toString());
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
         if(!KEYFILE.exists()||invalidToken){
-            String token=getToken(true);
-            if(token!=null)
-            client=new DbxClient(config,token);
-            else
-                return; //return if there no key specified yet.
+            gui.needsKey();
+            return; //no session yet
         }
         else{
             client=new DbxClient(config,getToken(false));
@@ -99,6 +98,9 @@ public class DbxSession {
             }
             createSession();
         }
+    }
+    public void promptKey(){
+        getToken(true);
     }
     private String getToken(boolean newKey){
         if(newKey){

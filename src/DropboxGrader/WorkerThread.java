@@ -24,8 +24,7 @@ public class WorkerThread implements Runnable{
     private DbxFile fileToRun;
     private int timesToRun;
     private boolean refreshNeeded;
-    public WorkerThread(FileManager man,Gui gui){
-        manager=man;
+    public WorkerThread(Gui gui){
         this.gui=gui;
         fileQueue=new ArrayList();
         deleteQueue=new ArrayList();
@@ -72,14 +71,14 @@ public class WorkerThread implements Runnable{
                     graderAfter=false;
                 }
                 if(fileToRun!=null){
-                    boolean success=fileToRun.run(timesToRun);
+                    boolean success=fileToRun.run(timesToRun,gui.getCodeBrowser());
                     if(!success){
                         gui.proccessEnded();
                     }
                     fileToRun=null;
                     timesToRun=0;
                 }
-                if(refreshNeeded){
+                if(refreshNeeded&&manager!=null){
                     manager.refresh();
                     gui.refreshFinished();
                     if(gui.getGrader()!=null){
@@ -138,6 +137,9 @@ public class WorkerThread implements Runnable{
     }
     public void refreshData(){
         refreshNeeded=true;
+    }
+    public void setFileManager(FileManager man){
+        manager=man;
     }
     
 }

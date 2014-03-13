@@ -1,10 +1,10 @@
-Ctrl tab in grader.
+Ctrl tab in grader. also ctrl w and while we are at it ctrl enter to compile?
 Auto mark late.
     When creating new assignment ask when it was due
 Move rename to another thread
 Move redownload to another thread
 display current fileQueue
-button to change dropbox login
+button to change dropbox login in config
 Custom sorting
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
@@ -18,8 +18,6 @@ Config to read text files by default
 Update checker
 Optional libraries to compile with setting.
 Ability to close code tabs with right click.
-Show file code tab that is being run (change color of that tab or something). 
-Fix packagetest not working.
 Encrypt grade sheet
 Store email
 Store graded date
@@ -34,7 +32,6 @@ Auto-email for things
     Assignments that need to be resubmitted
 Unit testing (test methods with reflection or something)
 Percentage based downloading results.
-Catch and attempt to save out of memory errors.
 When grade column is hidden also hide grade and comment
 Ability to make RTF printout for students.
 Exception when refreshing tables sometimes
@@ -55,7 +52,6 @@ More flexible file naming format.
 Upon first run open config menu first, default settings to empty/null
 Javadocs + more comments
 User's manual or something. Maybe tutorial?
-Don't grade on main thread. Show status of grading
 Theme selector. NIMBUS
     http://www.eclipse.org/swt/
 If there are lots of things to run the JOptionPane goes past the monitor width
@@ -76,13 +72,13 @@ Read RTF and Word files as well as text files.
 Configurable colors for gradebook as well as browser (inIC,late..)
 Remember window position and size each session
 Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
-Fix guis on smaller scales
+Fix guis on smaller window sizes
 When prompted for fixed name, rename file to that name.
 Remove old resubmit thing, replace it with date based resubmits/late
-Remove guiHelper and JOptionPane
 Confirmation for closing while a assignment is being run
 Option to show assignments in subdirectories
 Auto search for grades spreadsheet
+Auto search for class period with grades
 Thread back button in config gui.
 Wait until background thread isnt busy to terminate proccess
 Prettier borders everywhere using borderfactory
@@ -90,27 +86,19 @@ Refactor everything that uses workerThread to use the new fancy runnable anon me
 Progress spinner displayed on all views that says what it is doing and spins when something is happening.
     More detailed status when initially loading, and downloading/opening files
 Check return values when changing data in gradebook
-Fix names with multiple capitalizations, if there is any doubt just ask for the first time then always use first and last name
 Put gui helper on the EDT
 Really, no grading should be done on the main thread since that could mess things up pretty bad if it is modified on two threads at once.
-Default cursor to grade field
-Default cursor to firstName field in edit name
-Return in edit name overlay submits from lastName box.
-Use contentOverlay instead of GuiHelper for almost everything.
-easier paste (maybe button to click instead of box) for access token
-button to re-open browser asking for token
-tell the user what is going on in dropbox authentication stage
-Don't delete names unless all of the grades for that name are deleted in gradebook
+Use contentOverlay instead of GuiHelper and JOptionPane
 right click menu for adding a grade in gradebook
-Put in assignment with no name then edit it based on user input from popup box instead of not grading until user hits submit when adding new assignment
-Investigate overlays not updating in gradebook when submit is pushed
 Mode to switch names/assignments axis
 Assignment Status at the top instead of filename
 Horizontal scroll wheel support
 Redownload should delete old files before downloading new
 Determine compiliation requirements for all javaFiles and only compile what is needed
     will fix people submitting old testers that are broken that we dont' care about
-Save code being edited when you hit back
+demo mode
+    Log them into a test dropbox with some test code and files
+    Don't allow renaming or deleting, but everything else is enabled
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key
     Put in name and assignment. Will autocomplete assignment name from those submitted

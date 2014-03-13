@@ -42,6 +42,7 @@ public class NameOverlay extends ContentOverlay{
         
         firstNameField=new JTextField(20);
         lastNameField=new JTextField(20);
+        lastNameField.addActionListener(this);
         if(firstName!=null)
             firstNameField.setText(firstName);
         if(lastName!=null)
@@ -85,7 +86,7 @@ public class NameOverlay extends ContentOverlay{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(submitButton)){
+        if(e.getSource().equals(submitButton)||e.getSource().equals(lastNameField)){
             //validate data
             if(firstNameField.getText().equals("")||firstNameField.getText().equals(" ")){
                 return;

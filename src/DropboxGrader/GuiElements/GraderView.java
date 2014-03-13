@@ -193,7 +193,7 @@ public class GraderView extends ContentView{
                 try{
                     int times=Integer.parseInt(iterationsField.getText().trim());
                     if(times>0){
-                        boolean running=fileManager.getFile(gui.getSelectedFiles().get(0)).run(times);
+                        boolean running=fileManager.getFile(gui.getSelectedFiles().get(0)).run(times,javaCode);
                         if(running)
                             runButton.setText("Stop Running");
                     }
@@ -208,6 +208,7 @@ public class GraderView extends ContentView{
             else{
                 runner.stopProcess();
                 runButton.setText("Run");
+                javaCode.setRunningFile(null);
             }
         }
         else if(e.getSource().equals(backButton)){
@@ -299,5 +300,7 @@ public class GraderView extends ContentView{
     public JSplitPane getDivider(){
         return graderDivider;
     }
-    
+    public JavaCodeBrowser getCodeBrowser(){
+        return javaCode;
+    }
 }

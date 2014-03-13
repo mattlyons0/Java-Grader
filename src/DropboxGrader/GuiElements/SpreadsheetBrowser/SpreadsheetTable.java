@@ -426,6 +426,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
                 assign.name=(String)data[1];
                 gui.getGrader().uploadTable();
                 dataChanged();
+                gui.fileBrowserDataChanged();
             }
         });
         gui.getViewManager().addOverlay(overlay);
@@ -433,17 +434,22 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     private void deleteName(final int row){
         TextName name=sheet.getNameAt(row);
         int choice=GuiHelper.multiOptionPane("Are you sure you would like to delete "+
-                name.firstName+" "+name.lastName+" and ALL their assignments?",new String[]{"Yes","No"});
+                name.firstName+" "+name.lastName+"?",new String[]{"Yes","No"});
         if(choice==0){
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     gui.getGrader().downloadSheet();
                     TextName name=sheet.getNameAt(row);
-                    sheet.deleteName(name);
-                    gui.getGrader().uploadTable();
-
-                    dataChanged();
+                    boolean success=sheet.deleteName(name);
+                    if(success){
+                        gui.getGrader().uploadTable();
+                        dataChanged();
+                    }
+                    else{
+                        GuiHelper.alertDialog("You must delete all grades under that name before it can be deleted.");
+                    }
+                    
                 }
             });
         }
@@ -483,7 +489,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
                         dataChanged();
                     }
                     else{
-                        GuiHelper.alertDialog("You must delete all grades under an assignment before deleting that assignment.");
+                        GuiHelper.alertDialog("You must delete all grades under that assignment before it can delete it.");
                     }
                 }
             });

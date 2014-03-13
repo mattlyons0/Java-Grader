@@ -76,6 +76,9 @@ public class ContentViewManager extends JDesktopPane{
         return null;
     }
     public boolean selectedViewNameEquals(String otherViewName){
+        if(selectedView==-1){
+            return false;
+        }
         if(views.get(selectedView).getViewName().equals(otherViewName)){
             return true;
         }
@@ -84,6 +87,12 @@ public class ContentViewManager extends JDesktopPane{
     public void addOverlay(ContentOverlay o){
         o.setup();
         add(o,JLayeredPane.POPUP_LAYER);
+        o.switchedTo();
+        try {
+            o.setSelected(true);
+        } catch (PropertyVetoException ex) {
+            //oh no it cant be selected! whatever will we do!
+        }
     }
     private void changeView(int viewNum){
         if(selectedView!=-1){

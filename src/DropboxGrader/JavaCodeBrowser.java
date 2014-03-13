@@ -6,6 +6,7 @@ package DropboxGrader;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -32,6 +33,8 @@ public class JavaCodeBrowser extends Container{
     private JTabbedPane tabPane;
     private DbxFile file;
     private int numTextFiles;
+    private int currentlyRunning;
+    private Color defaultBackground;
     public JavaCodeBrowser(DbxFile f){
         file=f;
         DefaultSyntaxKit.initKit();
@@ -41,6 +44,7 @@ public class JavaCodeBrowser extends Container{
         if(file==null){
             return;
         }
+        currentlyRunning=-1;
         setLayout(new CardLayout(10,5));
         tabPane=new JTabbedPane();
         File[] files=file.getJavaFiles();
@@ -118,6 +122,8 @@ public class JavaCodeBrowser extends Container{
             tabPane.addTab(tabName, fileWindows[x]);
         }
         add(tabPane,BorderLayout.CENTER);
+        if(numFiles!=0)
+            defaultBackground=tabPane.getBackgroundAt(0);
     }
     public void setFile(DbxFile f){
         file=f;
@@ -141,5 +147,21 @@ public class JavaCodeBrowser extends Container{
             result=files[x].changeCode(code)+"\n";
         }
         return result;
+    }
+    public void setRunningFile(JavaFile f){
+        if(f!=null){
+            JavaFile[] files=file.getJavaFiles();
+            for(int i=0;i<files.length;i++){
+                if(files[i].getPath().equals(f.getPath())){
+                    tabPane.setBackgroundAt(i, new Color(163,255,163));
+                    currentlyRunning=i;
+                    break;
+                }
+            }
+        }
+        else if(currentlyRunning!=-1){ //nothing is running anymore
+            tabPane.setBackgroundAt(currentlyRunning, defaultBackground);
+            currentlyRunning=-1;
+        }
     }
 }

@@ -257,12 +257,12 @@ public class TextSpreadsheet {
         if(nameIndex==-1){
             return false;
         }
-//        ArrayList<TextGrade> nameGrades=grades.get(nameIndex);
-//        for(int i=0;i<nameGrades.size();i++){ //must not have any existing grades, as a failsafe
-//            if(nameGrades.get(i)!=null){
-//                return false;
-//            }
-//        }
+        ArrayList<TextGrade> nameGrades=grades.get(nameIndex);
+        for(int i=0;i<nameGrades.size();i++){ //must not have any existing grades, as a failsafe
+            if(nameGrades.get(i)!=null){
+                return false;
+            }
+        }
         names.remove(nameIndex);
         grades.remove(nameIndex);
         return true;
