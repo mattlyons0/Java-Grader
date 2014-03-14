@@ -69,7 +69,7 @@ public class GraderView extends ContentView{
         codeOutputArea=new JTerminal(gui);
         codeOutputArea.setMinimumSize(new Dimension(100,50));
         codeOutputScroll=new JScrollPane(codeOutputArea);
-        runner=new JavaRunner(codeOutputArea,gui,javaCode);   
+        runner=new JavaRunner(codeOutputArea,gui);   
         gui.getGuiListener().setRunner(runner);
         
         JPanel topBar=new JPanel();

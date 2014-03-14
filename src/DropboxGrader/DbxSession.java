@@ -6,40 +6,25 @@ package DropboxGrader;
 
 import DropboxGrader.Data.Data;
 import DropboxGrader.GuiElements.AuthView;
-import static TestApp.Main.appName;
-import static TestApp.Main.appVersion;
 import com.dropbox.core.DbxAppInfo;
-import com.dropbox.core.DbxAuthFinish;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.DbxWebAuthNoRedirect;
 import java.awt.Desktop;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Locale;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.transform.Source;
 
 /**
  *
@@ -83,14 +68,18 @@ public class DbxSession {
                 invalidToken=true;
             }
             else if(ex instanceof DbxException.NetworkIO){
-                GuiHelper.alertDialog("Error connecting to the network.");
+                GuiHelper.alertDialog("Error connecting to the Dropbox API.\n"+ex.getMessage());
             }
             else if(ex instanceof DbxException.RetryLater||ex instanceof DbxException.ServerError){
-                GuiHelper.alertDialog("Dropbox is currently overloaded. We will keep trying to get through.");
+                GuiHelper.alertDialog("Dropbox is currently overloaded/down. We will keep trying to get through.\n"+ex.getMessage());
+            }
+            else if(ex instanceof DbxException.BadResponse){
+                GuiHelper.alertDialog("Dropbox Servers are currently down and are responding with error:\n"+ex.getMessage());
             }
             else{
-                GuiHelper.alertDialog("Unknown error connecting to dropbox. "+ex);
+                GuiHelper.alertDialog("Unknown error connecting to dropbox.\n"+ex);
             }
+            System.err.println("Error creating dropbox session.\n"+ex);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex1) {

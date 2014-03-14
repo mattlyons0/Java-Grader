@@ -5,26 +5,12 @@
 package DropboxGrader;
 
 import java.awt.Color;
-import java.awt.Toolkit;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.FilterInputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import javax.swing.JTextArea;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -43,13 +29,11 @@ public class JavaRunner implements Runnable{
     private JavaFile[] currentFiles;
     private JavaFile mainFile;
     private boolean fixedPath=false;
-    private JavaCodeBrowser browser;
     private String folder;
-    public JavaRunner(JTerminal t,Gui gui,JavaCodeBrowser browser){
+    public JavaRunner(JTerminal t,Gui gui){
         terminal=t;
         this.gui=gui;
         this.relay=new InputRelayer(t);
-        this.browser=browser;
         new File("runtimeFiles\\").mkdir();
         errorRelay=new RelayStream(System.out,terminal);
         thread=new Thread(this);
@@ -152,7 +136,9 @@ public class JavaRunner implements Runnable{
         relay.changeReadFile(new File("runtimeFiles\\output"+highest+".log"));
         
         int manualArgNum=4;
-        String[] filePaths=new String[files.length+manualArgNum];
+        ArrayList<JavaFile> dependentFiles=calcDependencies(runChoice,Arrays.copyOf(files, files.length));
+        dependentFiles.add(mainFile);
+        String[] filePaths=new String[dependentFiles.size()+manualArgNum];
 
         filePaths[0]="-cp";
         String path=runChoice.getAbsolutePath();
@@ -201,8 +187,8 @@ public class JavaRunner implements Runnable{
         filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
         filePaths[2]="-sourcepath";
         filePaths[3]=filePaths[1];
-        for(int x=manualArgNum;x<files.length+manualArgNum;x++){
-            filePaths[x]=files[x-manualArgNum].getAbsolutePath();
+        for(int i=manualArgNum;i<filePaths.length;i++){
+            filePaths[i]=dependentFiles.get(i-manualArgNum).getAbsolutePath();
         }
         if(compile){
             //System.out.println("Compiling "+Arrays.toString(filePaths));
@@ -323,5 +309,30 @@ public class JavaRunner implements Runnable{
     }
     public boolean isRunning(){
         return running!=null;
+    }
+    private ArrayList<JavaFile> calcDependencies(JavaFile mainFile,JavaFile[] files){
+        ArrayList<JavaFile> depFiles=new ArrayList();
+        String[] fileDeps=mainFile.getDependencies();
+        //ArrayList<JavaFile> allFiles=new ArrayList(Arrays.asList(files));
+        //allFiles.remove(mainFile);
+        for(int i=0;i<files.length;i++){
+            JavaFile f=files[i];
+            if(f!=null&&f.equals(mainFile)){
+                files[i]=null;
+            }
+        }
+        for(String dep:fileDeps){
+            dep+=".java";
+            for(JavaFile jf:files){
+                if(jf!=null&&jf.getName().equals(dep)){
+                    if(!depFiles.contains(jf)){
+                        depFiles.add(jf);
+                        depFiles.addAll(calcDependencies(jf,files));
+                    }
+                }
+            }
+        }
+        
+        return depFiles;
     }
 }

@@ -5,10 +5,10 @@ Move rename to another thread
 Move redownload to another thread
 display current fileQueue
 button to change dropbox login in config
-Custom sorting
+Custom sorting in browser table
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
-Make code run from its own folder.
+Make code run from its own folder (so accessing resource won't fail).
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
@@ -27,6 +27,7 @@ Store student year
 Improve FileManager init method for efficiency
 Improve overall init for efficiency
     not all of the things on init have to happen on the main thread
+    stop doing file analysis on init in dbx files and thread it
 Auto-email for things
     Invalid file structure
     Assignments that need to be resubmitted
@@ -34,7 +35,6 @@ Unit testing (test methods with reflection or something)
 Percentage based downloading results.
 When grade column is hidden also hide grade and comment
 Ability to make RTF printout for students.
-Exception when refreshing tables sometimes
 Migrate dropbox app to my own account on dropbox
 More user friendly table for assignments submitted
 Setting to encrypt grade sheet
@@ -72,6 +72,7 @@ Read RTF and Word files as well as text files.
 Configurable colors for gradebook as well as browser (inIC,late..)
 Remember window position and size each session
 Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
+    Review memory management (profile)
 Fix guis on smaller window sizes
 When prompted for fixed name, rename file to that name.
 Remove old resubmit thing, replace it with date based resubmits/late
@@ -96,6 +97,7 @@ Horizontal scroll wheel support
 Redownload should delete old files before downloading new
 Determine compiliation requirements for all javaFiles and only compile what is needed
     will fix people submitting old testers that are broken that we dont' care about
+Sort code tabs
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

@@ -11,23 +11,12 @@ import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JLabel;
 import net.lingala.zip4j.exception.ZipException;
 
 /**
@@ -245,6 +234,9 @@ public class DbxFile {
         javaFiles=new JavaFile[newArr.length];
         for(int x=0;x<newArr.length;x++){
             javaFiles[x]=(JavaFile)newArr[x];
+        }
+        for(JavaFile j:javaFiles){
+            j.setOtherClasses(javaFiles);
         }
     }
     private void searchTextFiles(){

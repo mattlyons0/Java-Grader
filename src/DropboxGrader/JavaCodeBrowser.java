@@ -151,8 +151,8 @@ public class JavaCodeBrowser extends Container{
     public void setRunningFile(JavaFile f){
         if(f!=null){
             JavaFile[] files=file.getJavaFiles();
-            for(int i=0;i<files.length;i++){
-                if(files[i].getPath().equals(f.getPath())){
+            for(int i=numTextFiles;i<files.length+numTextFiles;i++){
+                if(files[i-numTextFiles].equals(f)){
                     tabPane.setBackgroundAt(i, new Color(163,255,163));
                     currentlyRunning=i;
                     break;

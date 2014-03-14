@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,10 +26,16 @@ public class JavaFile extends File{
     private boolean mainMethod;
     private String packageFolder;
     private String code;
+    private String[] otherClassNames;
+    private ArrayList<String> classDependencies;
+    
     public JavaFile(File f,DbxFile dbx){
         super(f.getPath());
         dbxFile=dbx;
+        classDependencies=new ArrayList();
+        
         validateFile(f);
+        
     }
     public String changeCode(String newCode){
         mainMethod=false;
@@ -319,22 +327,140 @@ public class JavaFile extends File{
             return null;
         }
     }
+    public void setOtherClasses(JavaFile[] javaFiles){
+        otherClassNames=new String[javaFiles.length];
+        for(int i=0;i<javaFiles.length;i++){
+            JavaFile jf=javaFiles[i];
+            String name=jf.getName();
+            name=name.substring(0,name.length()-5); //get rid of .java
+            otherClassNames[i]=name;
+        }
+        calculateDependencies();
+    }
+    private void calculateDependencies(){
+        if(otherClassNames==null||otherClassNames.length==0){
+            System.err.println("Error calculating dependencies of "+getName()+". The other classes were not provided.");
+            return;
+        }
+        classDependencies.clear();
+
+        String[] lines=code.split("\n");
+        boolean inComment=false; //for multiline comments
+        for(String line:lines){
+            if(!inComment&&!line.contains("//")&&!line.contains("/*")){
+                addDependencies(line);
+            }
+            if(line.contains("/*")&&!line.contains("//")&&!inComment){
+                String subLine=line.substring(0,line.indexOf("/*"));
+                addDependencies(subLine);
+                inComment=true;
+            }
+            else if(line.contains("//")&&!inComment&&!line.contains("*/")){
+                String subLine=line.substring(0,line.indexOf("//"));
+                addDependencies(subLine);
+            }
+            else if(line.contains("//")&&line.contains("/*")&&!inComment){
+                String subLine=line.substring(0,line.indexOf("//"));
+                if(subLine.contains("/*")&&!subLine.contains("*/")){ //if the /* is before the // ignore the //
+                    addDependencies(subLine);
+                    inComment=true;
+                }
+                else if(subLine.contains("/*")&&subLine.contains("*/")){
+                    String subLine1=subLine.substring(0,subLine.indexOf("/*"));
+                    String subLine2=subLine.substring(subLine.indexOf("*/"));
+                    addDependencies(subLine1);
+                    addDependencies(subLine2);
+                }
+                else if(subLine.contains("/*")&&line.contains("*/")){ //if there is a */ later in the line, after the //
+                    String subLine1=line.substring(line.indexOf("*/"));
+                    addDependencies(subLine1);
+                    inComment=false;
+                }
+                else if(!subLine.contains("/*")){ //if // comes before /*
+                    addDependencies(subLine);
+                }
+                else{
+                    System.err.println("Error, there is something with the comments that is not accounted for in line: "+line);
+                }
+            }
+            else if(line.contains("*/")&&line.contains("//")){
+                String subLine=line.substring(0,line.indexOf("//"));
+                if(inComment){
+                    if(subLine.contains("*/")){
+                        String subLine1=subLine.substring(subLine.indexOf("*/"));
+                        addDependencies(subLine1);
+                        inComment=false;
+                    }
+                }
+                else{ //not in a comment
+                    addDependencies(subLine);                    
+                }
+            }
+            //not else if since it would not catch /* and */ in the same line without a //
+            if(line.contains("*/")&&inComment&&!line.contains("//")){
+                String subLine=line.substring(line.indexOf("*/"));
+                addDependencies(subLine);
+                inComment=false;
+            }
+        }
+    }
     /**
-     * The idea of this method was right, but there simply isn't a good way to determine
-     * the root package on a file by file basis. Infact there can be multiple root
-     * packages and then i would have to organize all of them and create an entire system
-     * where files talked to eachother, and they don't now, and won't ever.
-     * @param code 
+     * Adds dependencies to classDependencies from a string, ignoring comments
+     * @param line string to evaluate
+     * Adds to classDependencies
      */
-//    private void removePackage(String code) {
-//        packageFolder=null;
-//        String newCode="";
-//        String[] lines=code.split("\n");
-//        for(int x=0;x<lines.length;x++){
-//            if(!lines[x].contains("package")){
-//                newCode+=lines[x]+"\n";
-//            }
-//        }
-//        changeCode(newCode);
-//    }
+    private void addDependencies(String line){
+        if(line.length()==0){
+            return;
+        }
+        String thisClassName=getName().substring(0,getName().length()-5); //remove .java
+        for(String otherClass:otherClassNames){
+            line=line.replaceAll("\t", " ").replaceAll("\n", " ").replaceAll("\r", " "); //so we can check for spaces
+            if(!otherClass.equals(thisClassName)&&(containsClass(otherClass,line))){
+                if(!classDependencies.contains(otherClass)){
+                    classDependencies.add(otherClass);
+                }
+            }
+        }
+    }
+    private boolean containsClass(String other,String current){
+        if(current.contains(" "+other+" ")||current.contains(" "+other+"(")||
+                current.contains(" "+other+".")||current.contains("."+other+" ")||
+                current.contains("."+other+";")||current.contains("."+other+".")||
+                current.contains("("+other+" ")||current.contains("<"+other+">")||
+                current.contains("("+other+".")||current.contains("("+other+"(")||
+                current.contains("."+other+"(")||current.contains("."+other+")")){
+            return true;
+        }
+        return false;
+    }
+    public String[] getDependencies(){
+        String[] arr=new String[0];
+        return classDependencies.toArray(arr);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj==this){
+            return true;
+        }
+        if(obj instanceof JavaFile){
+            JavaFile jf=(JavaFile)obj;
+            if(jf.getPath().equals(getPath())){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 47 * hash + Objects.hashCode(this.dbxFile);
+        return hash;
+    }
+    @Override
+    public String toString(){
+        return getName();
+    }
 }
