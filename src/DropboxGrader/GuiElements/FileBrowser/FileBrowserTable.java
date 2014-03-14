@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.GuiElements.FileBrowser;
 
+import DropboxGrader.Config;
+import DropboxGrader.DbxFile;
 import java.util.ArrayList;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
@@ -17,9 +19,9 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author Matt
  */
-public class FileBrowser extends JTable{
+public class FileBrowserTable extends JTable{
     private FileBrowserData model;
-    public FileBrowser(FileBrowserData data,FileBrowserListener listener){
+    public FileBrowserTable(FileBrowserData data,FileBrowserListener listener){
         super(data);
         model=data;
         

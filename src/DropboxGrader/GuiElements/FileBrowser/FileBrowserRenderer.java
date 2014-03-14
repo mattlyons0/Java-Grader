@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.GuiElements.FileBrowser;
 
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JLabel;

@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements.SpreadsheetBrowser;
+package DropboxGrader.GuiElements.GradebookBrowser;
 
 import DropboxGrader.Config;
 import DropboxGrader.Gui;
-import DropboxGrader.GuiElements.AssignmentOverlay;
-import DropboxGrader.GuiElements.NameOverlay;
+import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
+import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrade;
@@ -57,10 +57,10 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author Matt
  */
-public class SpreadsheetTable extends JTable implements MouseListener,ActionListener{
+public class GradebookTable extends JTable implements MouseListener,ActionListener{
     public static final String[] MODES={"View/Edit","Copy"};
     private final String[] modeDescription={"Right click to manipulate data. Drag to reorder Assignments and Names.","Copies selected grade to the clipboard. Left click for grade, Right click for comment."};
-    private SpreadsheetData sheetData;
+    private GradebookData sheetData;
     private Gui gui;
     private TextSpreadsheet sheet;
     private Clipboard clipboard;
@@ -70,7 +70,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     private boolean adjustedColSize;
     private ArrayList<TableColumnModelEvent> columnMoveEvents;
     
-    public SpreadsheetTable(Gui gui,TextSpreadsheet sheet){
+    public GradebookTable(Gui gui,TextSpreadsheet sheet){
         super();
         this.sheet=sheet;
         this.gui=gui;
@@ -80,7 +80,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         statusLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         mode=0;
         clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
-        sheetData=new SpreadsheetData(sheet);
+        sheetData=new GradebookData(sheet);
         
         init();
     }
@@ -92,7 +92,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         setDragEnabled(true); 
         setDropMode(DropMode.INSERT_ROWS);
-        setTransferHandler(new SpreadsheetTransferHandler(this));
+        setTransferHandler(new GradebookTransferHandler(this));
         getTableHeader().setReorderingAllowed(true);
         addMouseListener(this);
         getTableHeader().addMouseListener(this);
@@ -169,7 +169,7 @@ public class SpreadsheetTable extends JTable implements MouseListener,ActionList
     }
     @Override
     public TableCellRenderer getDefaultRenderer(Class<?> columnClass) {
-        return new SpreadsheetTableRenderer();
+        return new GradebookTableRenderer();
     }
     public void dataChanged(){
         setDragEnabled(false);

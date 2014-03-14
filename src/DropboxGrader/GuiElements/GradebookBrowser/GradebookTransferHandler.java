@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements.SpreadsheetBrowser;
+package DropboxGrader.GuiElements.GradebookBrowser;
 
 import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
@@ -20,11 +20,11 @@ import javax.swing.TransferHandler;
  * Pretty much this http://stackoverflow.com/questions/638807/how-do-i-drag-and-drop-a-row-in-a-jtable
  * @author Matt
  */
-public class SpreadsheetTransferHandler extends TransferHandler {
+public class GradebookTransferHandler extends TransferHandler {
    private final DataFlavor localObjectFlavor=new ActivationDataFlavor(Integer.class, DataFlavor.javaJVMLocalObjectMimeType, "Integer Row Index");
-   private SpreadsheetTable table=null;
+   private GradebookTable table=null;
 
-   public SpreadsheetTransferHandler(SpreadsheetTable table) {
+   public GradebookTransferHandler(GradebookTable table) {
       this.table = table;
    }
 

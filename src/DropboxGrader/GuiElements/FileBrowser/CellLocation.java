@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.GuiElements.FileBrowser;
 
 import java.util.Objects;
 

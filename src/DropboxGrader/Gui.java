@@ -6,14 +6,19 @@
 
 package DropboxGrader;
 
-import DropboxGrader.GuiElements.AuthView;
-import DropboxGrader.GuiElements.BrowserView;
+import DropboxGrader.GuiElements.Grader.JTerminal;
+import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
+import DropboxGrader.RunCompileJava.JavaRunner;
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
+import DropboxGrader.GuiElements.MiscViews.AuthView;
+import DropboxGrader.GuiElements.FileBrowser.BrowserView;
 import DropboxGrader.GuiElements.ContentViewManager;
-import DropboxGrader.GuiElements.GraderView;
-import DropboxGrader.GuiElements.ConfigView;
-import DropboxGrader.GuiElements.GradebookView;
-import DropboxGrader.GuiElements.NameOverlay;
-import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetTable;
+import DropboxGrader.GuiElements.Grader.GraderView;
+import DropboxGrader.GuiElements.MiscViews.ConfigView;
+import DropboxGrader.GuiElements.GradebookBrowser.GradebookView;
+import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
+import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
@@ -158,7 +163,7 @@ public class Gui extends JFrame implements ActionListener{
         browserView.updateProgress(val);
     }
     public void repaintTable(){
-        FileBrowser fileBrowserTable=browserView.getTable();
+        FileBrowserTable fileBrowserTable=browserView.getTable();
         FileBrowserData fileBrowserData=browserView.getTableData();
         if(fileBrowserTable!=null){
             

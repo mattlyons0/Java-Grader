@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.GuiElements.Grader;
 
+import DropboxGrader.Gui;
 import java.awt.Color;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;

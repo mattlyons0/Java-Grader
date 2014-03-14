@@ -4,16 +4,17 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements;
+package DropboxGrader.GuiElements.Grader;
 
 import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiHelper;
-import DropboxGrader.JTerminal;
-import DropboxGrader.JavaCodeBrowser;
-import DropboxGrader.JavaRunner;
+import DropboxGrader.GuiElements.Grader.JTerminal;
+import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
+import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrader;
 import java.awt.Color;
 import java.awt.Dimension;

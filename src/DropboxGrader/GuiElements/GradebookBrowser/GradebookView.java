@@ -4,10 +4,11 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements;
+package DropboxGrader.GuiElements.GradebookBrowser;
 
 import DropboxGrader.Gui;
-import DropboxGrader.GuiElements.SpreadsheetBrowser.SpreadsheetTable;
+import DropboxGrader.GuiElements.ContentView;
+import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -25,7 +26,7 @@ import javax.swing.JScrollPane;
 public class GradebookView extends ContentView{
     private Gui gui;
     
-    private SpreadsheetTable gradebookTable;
+    private GradebookTable gradebookTable;
     private JScrollPane gradebookScroll;
     private JButton backToFileBrowser;
     private JComboBox gradebookMode;
@@ -37,7 +38,7 @@ public class GradebookView extends ContentView{
     }
     @Override
     public void setup() {
-        gradebookTable=new SpreadsheetTable(gui,gui.getGrader().getSpreadsheet());
+        gradebookTable=new GradebookTable(gui,gui.getGrader().getSpreadsheet());
         gradebookScroll=new JScrollPane(gradebookTable);
         backToFileBrowser=new JButton("Back");
         backToFileBrowser.addActionListener(this);
@@ -46,7 +47,7 @@ public class GradebookView extends ContentView{
         modeSelector.setLayout(new GridBagLayout());
         GridBagConstraints cons=new GridBagConstraints();
         modeSelector.add(new JLabel("Mode: "),cons);
-        gradebookMode=new JComboBox(SpreadsheetTable.MODES);
+        gradebookMode=new JComboBox(GradebookTable.MODES);
         gradebookMode.addActionListener(this);
         cons.gridx=1;
         modeSelector.add(gradebookMode,cons);

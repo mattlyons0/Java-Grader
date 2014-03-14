@@ -2,10 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package DropboxGrader.GuiElements;
+package DropboxGrader.GuiElements.MiscViews;
 
 import DropboxGrader.DbxSession;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.ContentView;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
 import java.awt.Dimension;

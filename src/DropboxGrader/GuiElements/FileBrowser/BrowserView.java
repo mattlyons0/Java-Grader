@@ -2,14 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package DropboxGrader.GuiElements;
+package DropboxGrader.GuiElements.FileBrowser;
 
 import DropboxGrader.DbxFile;
-import DropboxGrader.FileBrowser;
-import DropboxGrader.FileBrowserData;
-import DropboxGrader.FileBrowserListener;
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserListener;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.WorkerThread;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -31,7 +32,7 @@ public class BrowserView extends ContentView{
     private FileManager fileManager;
     
     private FileBrowserData fileBrowserData;
-    private FileBrowser fileBrowserTable;
+    private FileBrowserTable fileBrowserTable;
     private JScrollPane fileBrowserScroll;
     private FileBrowserListener fileBrowserListener;
     private GridBagConstraints constraints;
@@ -55,7 +56,7 @@ public class BrowserView extends ContentView{
         fileBrowserData=new FileBrowserData(fileManager);
         fileManager.setTableData(fileBrowserData);
         fileBrowserListener=new FileBrowserListener(gui);
-        fileBrowserTable=new FileBrowser(fileBrowserData,fileBrowserListener);
+        fileBrowserTable=new FileBrowserTable(fileBrowserData,fileBrowserListener);
         fileBrowserScroll=new JScrollPane(fileBrowserTable);
         
         refreshButton=new JButton("Refresh");
@@ -228,7 +229,7 @@ public class BrowserView extends ContentView{
     public void updateProgress(int val) {
         progressBar.setValue(val);
     }
-    public FileBrowser getTable(){
+    public FileBrowserTable getTable(){
         return fileBrowserTable;
     }
     public FileBrowserData getTableData(){

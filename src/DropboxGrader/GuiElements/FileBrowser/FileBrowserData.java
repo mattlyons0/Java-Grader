@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.GuiElements.FileBrowser;
 
+import DropboxGrader.FileManager;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;

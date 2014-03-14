@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;

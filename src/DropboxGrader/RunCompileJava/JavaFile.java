@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.RunCompileJava;
 
+import DropboxGrader.DbxFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;

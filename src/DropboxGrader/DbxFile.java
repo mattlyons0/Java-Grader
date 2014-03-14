@@ -6,6 +6,10 @@
 
 package DropboxGrader;
 
+import DropboxGrader.GuiElements.Grader.TextFile;
+import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
+import DropboxGrader.RunCompileJava.JavaFile;
+import DropboxGrader.GuiElements.FileBrowser.CellLocation;
 import DropboxGrader.TextGrader.TextGrade;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;

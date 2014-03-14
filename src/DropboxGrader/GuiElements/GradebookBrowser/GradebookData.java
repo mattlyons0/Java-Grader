@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements.SpreadsheetBrowser;
+package DropboxGrader.GuiElements.GradebookBrowser;
 
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import javax.swing.table.AbstractTableModel;
@@ -14,11 +14,11 @@ import javax.swing.table.AbstractTableModel;
  * appears to be a header.
  * @author Matt
  */
-public class SpreadsheetData extends AbstractTableModel{
+public class GradebookData extends AbstractTableModel{
     private TextSpreadsheet data;
     
     
-    public SpreadsheetData(TextSpreadsheet data){
+    public GradebookData(TextSpreadsheet data){
         super();
         this.data=data;
     }

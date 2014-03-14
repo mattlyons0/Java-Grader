@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements.SpreadsheetBrowser;
+package DropboxGrader.GuiElements.GradebookBrowser;
 
 import DropboxGrader.TextGrader.TextGrade;
 import java.awt.Color;
@@ -19,8 +19,8 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author Matt
  */
-public class SpreadsheetTableRenderer extends DefaultTableCellRenderer{
-    public SpreadsheetTableRenderer(){
+public class GradebookTableRenderer extends DefaultTableCellRenderer{
+    public GradebookTableRenderer(){
         super();
     }
     

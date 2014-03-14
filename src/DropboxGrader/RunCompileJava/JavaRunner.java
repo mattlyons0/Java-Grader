@@ -2,8 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package DropboxGrader;
+package DropboxGrader.RunCompileJava;
 
+import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.Grader.JTerminal;
+import DropboxGrader.RunCompileJava.JavaFile;
+import DropboxGrader.RunCompileJava.InputRelayer;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;

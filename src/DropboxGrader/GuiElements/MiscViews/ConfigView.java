@@ -4,13 +4,14 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements;
+package DropboxGrader.GuiElements.MiscViews;
 
 import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
 import DropboxGrader.DbxSession;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.WorkerThread;

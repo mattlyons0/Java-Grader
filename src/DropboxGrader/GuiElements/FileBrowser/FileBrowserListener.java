@@ -2,8 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package DropboxGrader;
+package DropboxGrader.GuiElements.FileBrowser;
 
+import DropboxGrader.Config;
+import DropboxGrader.DbxFile;
+import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,7 +28,7 @@ import javax.swing.table.JTableHeader;
  * @author 141lyonsm
  */
 public class FileBrowserListener implements ActionListener,MouseListener,RowSorterListener{
-    private FileBrowser table;
+    private FileBrowserTable table;
     private Gui gui;
     private long lastClick;
     private int lastRow;
@@ -34,7 +38,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
         lastClick=DOUBLECLICKDELAY*-1;
         lastRow=-1;
     }
-    public void setTable(FileBrowser t){
+    public void setTable(FileBrowserTable t){
         table=t;
     }
     private JPopupMenu createRightClickMenu(int row){

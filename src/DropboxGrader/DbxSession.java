@@ -5,7 +5,7 @@
 package DropboxGrader;
 
 import DropboxGrader.Data.Data;
-import DropboxGrader.GuiElements.AuthView;
+import DropboxGrader.GuiElements.MiscViews.AuthView;
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;

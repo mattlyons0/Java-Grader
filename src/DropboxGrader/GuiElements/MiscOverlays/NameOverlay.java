@@ -2,9 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package DropboxGrader.GuiElements;
+package DropboxGrader.GuiElements.MiscOverlays;
 
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.ContentOverlay;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
