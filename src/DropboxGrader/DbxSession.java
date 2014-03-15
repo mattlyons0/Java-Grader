@@ -74,7 +74,13 @@ public class DbxSession {
                 GuiHelper.alertDialog("Dropbox is currently overloaded/down. We will keep trying to get through.\n"+ex.getMessage());
             }
             else if(ex instanceof DbxException.BadResponse){
-                GuiHelper.alertDialog("Dropbox Servers are currently down and are responding with error:\n"+ex.getMessage());
+                boolean codeHandled=false;
+                if(ex.getMessage().equals("unexpected response code: 401")){ //user revoked app
+                    invalidToken=true;
+                    codeHandled=true;
+                }
+                if(!codeHandled)
+                    GuiHelper.alertDialog("Dropbox Servers are currently responding with error:\n"+ex.getMessage());
             }
             else{
                 GuiHelper.alertDialog("Unknown error connecting to dropbox.\n"+ex);
@@ -106,6 +112,7 @@ public class DbxSession {
         String val;
         try {
                 val=webAuth.finish(key).accessToken;
+                invalidToken=false;
             } catch (DbxException ex) {
                 if(ex instanceof DbxException.BadRequest){
                     gui.badKey();

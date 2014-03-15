@@ -88,6 +88,8 @@ public class AuthView extends ContentView{
         add(demoLabel,cons);
         cons.gridy=4;
         add(demoButton,cons);
+        revalidate();
+        repaint();
     }
     public void promptKey(){
         if(authButton!=null){
@@ -112,7 +114,7 @@ public class AuthView extends ContentView{
             cons.gridy=2;
             add(keySubmitButton,cons);
         }
-
+        revalidate();
         repaint();
     }
     public void badKey(){
@@ -148,6 +150,7 @@ public class AuthView extends ContentView{
     public void goodKey(String loginName,final DbxClient client){
         descriptionLabel.setText("Logged in as "+loginName+".");
         statusLabel.setText("Building File Directory...");
+        statusLabel.setForeground(Color.black);
         if(keyField!=null){
             remove(keyField);
             keyField=null;
