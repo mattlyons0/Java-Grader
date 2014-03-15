@@ -238,6 +238,7 @@ public class JavaRunner implements Runnable{
             String directory=folder;
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
+            //builder.directory(runChoice.getParentFile().getParentFile()); //do something like this but safer to set proper working directory
             builder.inheritIO();
             //builder.directory(new File(directory)); //if this is uncommented it wont generate the input/output files in the right place.
             System.out.println("Running from: "+directory);

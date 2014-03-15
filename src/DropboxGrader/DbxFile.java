@@ -85,6 +85,10 @@ public class DbxFile {
         String zipPath=fileManager.getDownloadFolder()+"/"+entry.name;
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
         File file=new File(zipPath);
+        if(force&&file.exists()){
+            deleteDirectory(file);
+            file.delete();
+        }
         if(!force&&file.exists()){
             setFile(file);
             return file;
@@ -403,7 +407,7 @@ public class DbxFile {
         try {
             client.delete(entry.path);
         } catch (DbxException ex) {
-            System.err.println("Error occured deleting "+entry.name+" from dropbox.\n"+ex);
+            System.err.println("Error occured deleting "+entry.name+" from dropbox.");
             ex.printStackTrace();
         }
     }
@@ -506,6 +510,23 @@ public class DbxFile {
     }
     public boolean changedFolder(){
         return changedFolder;
+    }
+    public static void deleteDirectory(File directory){
+        if(directory.isFile()){
+            directory.delete();
+        }
+        else if(directory.isDirectory()){
+            File[] files=directory.listFiles();
+            for(File f:files){
+                if(f.isFile()){
+                    f.delete();
+                }
+                else if(f.isDirectory()){
+                    deleteDirectory(f);
+                    f.delete();
+                }
+            }
+        }
     }
     
 }

@@ -19,12 +19,16 @@ import DropboxGrader.TextGrader.TextGrader;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -54,6 +58,9 @@ public class GraderView extends ContentView{
     private JButton recordGradeButton;
     private JLabel gradeStatus;
     private JSplitPane graderDivider;
+    private JPanel codeSortPanel;
+    private JComboBox codeSortMode;
+    private JComboBox codeSortOrder;
     
     public GraderView(Gui gui,FileManager fileManager){
         super("GraderView");
@@ -67,6 +74,34 @@ public class GraderView extends ContentView{
         gradeStatus.setHorizontalAlignment(JLabel.CENTER);
         javaCode=new JavaCodeBrowser(null);
         javaCode.setMinimumSize(new Dimension(300,50));
+        JPanel sortPanel=new JPanel();
+        sortPanel.setLayout(new FlowLayout());
+        codeSortPanel=new JPanel();
+        codeSortPanel.setLayout(new GridBagLayout());
+        codeSortMode=new JComboBox(JavaCodeBrowser.sortModes);
+        codeSortMode.addActionListener(this);
+        codeSortOrder=new JComboBox(new String[] {"Ascending","Descending"});
+        codeSortOrder.addActionListener(this);
+        JLabel sortLabel=new JLabel("Sort: ");
+        sortPanel.add(sortLabel);
+        sortPanel.add(codeSortMode);
+        sortPanel.add(codeSortOrder);
+        GridBagConstraints cons=new GridBagConstraints();
+        cons.anchor=GridBagConstraints.NORTHEAST;
+        cons.insets=new Insets(5,5,5,5);
+        cons.fill=GridBagConstraints.NONE;
+        cons.gridx=0;
+        cons.gridy=0;
+        cons.weighty=1;
+        cons.weightx=1;
+        codeSortPanel.add(sortPanel,cons);
+        cons.insets=new Insets(0,0,0,0);
+        cons.anchor=GridBagConstraints.CENTER;
+        cons.fill=GridBagConstraints.BOTH;
+        cons.weighty=999;
+        cons.gridy=1;
+        cons.gridx=0;
+        codeSortPanel.add(javaCode,cons);
         codeOutputArea=new JTerminal(gui);
         codeOutputArea.setMinimumSize(new Dimension(100,50));
         codeOutputScroll=new JScrollPane(codeOutputArea);
@@ -75,7 +110,7 @@ public class GraderView extends ContentView{
         
         JPanel topBar=new JPanel();
         topBar.setLayout(new GridBagLayout());
-        graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,javaCode,codeOutputScroll);
+        graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,codeSortPanel,codeOutputScroll);
         graderDivider.setDividerLocation(Config.dividerLocation);
         graderDivider.setContinuousLayout(true);
         JPanel navPanel=new JPanel();
@@ -102,7 +137,7 @@ public class GraderView extends ContentView{
         runPanel.setMinimumSize(new Dimension(100,25));
         
         
-        GridBagConstraints cons=new GridBagConstraints();
+        cons=new GridBagConstraints();
         cons.weightx=1;
         runPanel.add(runButton,cons);
         cons.gridx=1;
@@ -252,6 +287,12 @@ public class GraderView extends ContentView{
         }
         else if(e.getSource().equals(gradeComment)||e.getSource().equals(gradeNumber)){ //return was pressed in the text field.
             actionPerformed(new ActionEvent(recordGradeButton,0,null));
+        }
+        else if(e.getSource().equals(codeSortMode)){
+            javaCode.setSortMode(codeSortMode.getSelectedIndex());
+        }
+        else if(e.getSource().equals(codeSortOrder)){
+            javaCode.setSortOrder(codeSortOrder.getSelectedIndex());
         }
     }
 

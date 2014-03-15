@@ -58,7 +58,7 @@ public class WorkerThread implements Runnable{
                     try{
                         r.run();
                     } catch(Exception e){
-                        System.err.println("Exception was logged running queued code on the backgroundThread.\n"+e);
+                        System.err.println("Exception was logged running queued code on the backgroundThread.");
                         e.printStackTrace();
                     }
                 }
@@ -94,7 +94,7 @@ public class WorkerThread implements Runnable{
                     Logger.getLogger(WorkerThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } catch(Exception e){
-                System.err.println("An exception occured on the background thread and it was caught from crashing.\n"+e);
+                System.err.println("An exception occured on the background thread and it was caught from crashing.");
                 e.printStackTrace();
             }
         }

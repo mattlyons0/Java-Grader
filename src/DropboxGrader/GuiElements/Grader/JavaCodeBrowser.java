@@ -13,8 +13,12 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
+import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -30,7 +34,7 @@ import jsyntaxpane.DefaultSyntaxKit;
  *
  * @author 141lyonsm
  */
-public class JavaCodeBrowser extends Container{
+public class JavaCodeBrowser extends JPanel{
     private JScrollPane [] scrolls;
     private JEditorPane[] browserArea;
     private JPanel[] fileWindows;
@@ -39,19 +43,31 @@ public class JavaCodeBrowser extends Container{
     private int numTextFiles;
     private int currentlyRunning;
     private Color defaultBackground;
+    private int sortMode;
+    private int sortOrder;
+    private ArrayList<JavaFile> files;
+    private CardLayout layout;
+    public static final String[] sortModes = {"Default","Most Important","Most Code","Alphabetically"};
+    
+    
     public JavaCodeBrowser(DbxFile f){
         file=f;
         DefaultSyntaxKit.initKit();
+        sort();
         init();
     }
     public void init(){
-        if(file==null){
+        currentlyRunning=-1;
+        if(files==null){
             return;
         }
-        currentlyRunning=-1;
-        setLayout(new CardLayout(10,5));
-        tabPane=new JTabbedPane();
-        File[] files=file.getJavaFiles();
+        layout=new CardLayout(10,5);
+        setLayout(layout);
+        if(tabPane==null)
+            tabPane=new JTabbedPane();
+        else
+            tabPane.removeAll();
+        File[] files=this.files.toArray(new File[0]);
         int numFiles=1;
         boolean noJavaFiles=true;
         if(files!=null){
@@ -124,27 +140,131 @@ public class JavaCodeBrowser extends Container{
             }
             add(fileWindows[x],tabName);
             tabPane.addTab(tabName, fileWindows[x]);
+            if(!noJavaFiles&&files[x] instanceof JavaFile)
+                tabPane.setToolTipTextAt(x,getTooltip((JavaFile)files[x]));
         }
         add(tabPane,BorderLayout.CENTER);
-        if(numFiles!=0)
+        if(numFiles!=0){
             defaultBackground=tabPane.getBackgroundAt(0);
+            layout.show(this, this.files.get(0).getName());
+        }
+    }
+    private void sort(){ //no more than 100 classes are going to be sorted at once, so I probably don't have to implement a fancy sorting algorithm
+        if(file==null){
+            return;
+        }
+        if(files==null){
+            files=new ArrayList(Arrays.asList(file.getJavaFiles()));
+        }
+        else{
+            files.clear();
+            files.addAll(Arrays.asList(file.getJavaFiles()));
+        }
+        if(sortMode==0){ //default order
+            //we already did it in the else statement above
+        }
+        else if(sortMode==1){ //most important (most dependencies)
+            ArrayList<JavaFile> files=new ArrayList();
+            for(JavaFile f:this.files){ //we don't want to mutate files as this method might get threaded in the future
+                files.add(f);
+            }
+            ArrayList<JavaFile> sorted=new ArrayList();
+            int size=files.size();
+            JavaFile largest=null;
+            for(int i=0;i<size;i++){
+                for(int x=0;x<files.size();x++){
+                    if(largest==null||files.get(x).getDependencies().length>largest.getDependencies().length){
+                        largest=files.get(x);
+                    }
+                }
+                sorted.add(largest);
+                files.remove(largest);
+                largest=null;
+            }
+            this.files.clear();
+            for(JavaFile f:sorted){
+                this.files.add(f);
+            }
+        }
+        else if(sortMode==2){ //Most Code (characters)
+            ArrayList<JavaFile> files=new ArrayList();
+            for(JavaFile f:this.files){ //we don't want to mutate files as this method might get threaded in the future
+                files.add(f);
+            }
+            ArrayList<JavaFile> sorted=new ArrayList();
+            int size=files.size();
+            JavaFile largest=null;
+            for(int i=0;i<size;i++){
+                for(int x=0;x<files.size();x++){
+                    if(largest==null||files.get(x).getCode().length()>largest.getCode().length()){
+                        largest=files.get(x);
+                    }
+                }
+                sorted.add(largest);
+                files.remove(largest);
+                largest=null;
+            }
+            this.files.clear();
+            for(JavaFile f:sorted){
+                this.files.add(f);
+            }
+        }
+        else if(sortMode==3){ //Alphabetically
+            ArrayList<String> fileNames=new ArrayList();
+            for(JavaFile f:files){
+                fileNames.add(f.getName());
+            }
+            Collections.sort(fileNames, Collator.getInstance());
+            
+            ArrayList<JavaFile> filesCopy=new ArrayList();
+            for(JavaFile f:files){
+                filesCopy.add(f);
+            }
+            int size=filesCopy.size();
+            files.clear();
+            for(int i=0;i<size;i++){
+                for(int x=0;x<fileNames.size();x++){
+                    if(fileNames.get(i).equals(filesCopy.get(x).getName())){
+                        files.add(filesCopy.get(x));
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if(sortOrder==1){ //sort descending
+            Collections.reverse(files);
+        }
+        
+    }
+    private String getTooltip(JavaFile f){
+        if(sortMode==0){
+            return null;
+        }
+        else if(sortMode==1){
+            return f.getDependencies().length+" Dependencies";
+        }
+        else if(sortMode==2){
+            return f.getCode().length()+" Characters";
+        }
+        else if(sortMode==3){
+            return null;
+        }
+        else{
+            return "There is no tooltip defined for this sorting mode. \nSomeone should get on that.";
+        }
     }
     public void setFile(DbxFile f){
         file=f;
-        if(tabPane!=null)
-            remove(tabPane);
-        if(fileWindows!=null){
-            for(JPanel panel:fileWindows){
-                remove(panel);
-            }
-        }
+        
+        sort();
         init();
     }
     public String saveFile(){
-        JavaFile[] files=file.getJavaFiles();
         if(files==null){
             return "";
         }
+        JavaFile[] files=this.files.toArray(new JavaFile[0]);
         String result="";
         for(int x=0;x<files.length;x++){
             String code=browserArea[x+numTextFiles].getText();
@@ -167,5 +287,21 @@ public class JavaCodeBrowser extends Container{
             tabPane.setBackgroundAt(currentlyRunning, defaultBackground);
             currentlyRunning=-1;
         }
+    }
+    public void setSortMode(int mode){
+        sortMode=mode;
+        
+        sort();
+        init();
+        revalidate();
+        repaint();
+    }
+    public void setSortOrder(int order){
+        sortOrder=order;
+        
+        sort();
+        init();
+        revalidate();
+        repaint();
     }
 }

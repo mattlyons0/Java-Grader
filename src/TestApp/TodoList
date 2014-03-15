@@ -8,7 +8,7 @@ button to change dropbox login in config
 Custom sorting in browser table
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
-Make code run from its own folder (so accessing resource won't fail).
+Make code run from its own folder (so accessing resource won't fail). http://stackoverflow.com/questions/8405723/how-to-set-working-directory-with-processbuilder
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
@@ -94,10 +94,9 @@ right click menu for adding a grade in gradebook
 Mode to switch names/assignments axis
 Assignment Status at the top instead of filename
 Horizontal scroll wheel support
-Redownload should delete old files before downloading new
-Determine compiliation requirements for all javaFiles and only compile what is needed
-    will fix people submitting old testers that are broken that we dont' care about
-Sort code tabs (but what would they sort by?) (Alphabetically, Most Dependencies, Most Lines)
+Make code sort take up less space
+Ctrl Z in gradebook
+Store last used code sorting method in config
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

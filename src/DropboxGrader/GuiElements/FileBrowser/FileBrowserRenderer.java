@@ -29,7 +29,7 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
             c=data.getColorAt(new CellLocation(colName,table.convertRowIndexToModel(row)));
         } catch(ArrayIndexOutOfBoundsException ex){
             c=null;
-            System.err.println("Determining color failed, "+ex); //tried to color something during a data refresh or something.
+            System.err.println("Determining color failed, "); //tried to color something during a data refresh or something.
             ex.printStackTrace();
         }
         if(c!=null){
