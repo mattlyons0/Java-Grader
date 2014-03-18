@@ -1,2 +1,0 @@
-Error creating dropbox session.
-com.dropbox.core.DbxException$BadResponse: unexpected response code: 401
