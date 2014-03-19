@@ -19,8 +19,10 @@ import DropboxGrader.GuiElements.MiscViews.ConfigView;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookView;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
+import DropboxGrader.Printing.Print;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
+import com.sun.org.apache.xml.internal.serialize.Printer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -73,6 +75,7 @@ public class Gui extends JFrame implements ActionListener{
     private GuiListener listener;
     private ArrayList<Integer> selectedFiles;
     private DbxFile currentFile;
+    private Print printer;
     
     //View Manager
     private ContentViewManager viewManager;
@@ -118,6 +121,7 @@ public class Gui extends JFrame implements ActionListener{
         setContentPane(viewManager);
         
         setVisible(true);
+        printer=new Print(this);
     }
     private void createSession(){
         fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
@@ -249,5 +253,8 @@ public class Gui extends JFrame implements ActionListener{
         if(graderView!=null)
             return graderView.getCodeBrowser();
         return null;
+    }
+    public Print getPrinter(){
+        return printer;
     }
 }

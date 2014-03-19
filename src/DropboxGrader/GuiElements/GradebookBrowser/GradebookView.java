@@ -9,6 +9,7 @@ package DropboxGrader.GuiElements.GradebookBrowser;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
+import DropboxGrader.GuiElements.MiscOverlays.PrintOverlay;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -30,6 +31,7 @@ public class GradebookView extends ContentView{
     private JScrollPane gradebookScroll;
     private JButton backToFileBrowser;
     private JComboBox gradebookMode;
+    private JButton printButton;
     
     public GradebookView(Gui gui){
         super("GradebookView");
@@ -51,6 +53,8 @@ public class GradebookView extends ContentView{
         gradebookMode.addActionListener(this);
         cons.gridx=1;
         modeSelector.add(gradebookMode,cons);
+        printButton=new JButton("Print");
+        printButton.addActionListener(this);
         
         
         cons=new GridBagConstraints();
@@ -69,12 +73,16 @@ public class GradebookView extends ContentView{
         cons.gridx=2;
         cons.weightx=1;
         add(modeSelector,cons);
+        cons.gridx=3;
+        cons.weightx=0.1;
+        add(printButton,cons);
+        cons.weightx=1;
         cons.anchor=GridBagConstraints.CENTER;
         cons.fill=GridBagConstraints.BOTH;
         cons.gridy=1;
         cons.gridx=0;
         cons.weighty=95;
-        cons.gridwidth=3;
+        cons.gridwidth=4;
         cons.gridheight=1;
         cons.insets=new Insets(0,5,5,5);
         add(gradebookScroll,cons);
@@ -94,6 +102,18 @@ public class GradebookView extends ContentView{
         }
         else if(e.getSource().equals(gradebookMode)){
             gradebookTable.setMode(gradebookMode.getSelectedIndex());
+        }
+        else if(e.getSource().equals(printButton)){
+            //gui.getPrinter().print();
+            PrintOverlay overlay=new PrintOverlay(gui);
+            overlay.setCallback(new Runnable() {
+                @Override
+                public void run() {
+                    gui.getPrinter().print();
+                }
+            });
+            gui.getViewManager().addOverlay(overlay);
+            
         }
     }
     public void dataChanged(){

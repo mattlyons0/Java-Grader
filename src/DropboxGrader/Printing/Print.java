@@ -1,82 +1,119 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package DropboxGrader.Printing;
 
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.MessageFormat;
-import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
-
-/**
+/*
+ * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
  *
- * @author 141lyonsm
- */
-public class Print {
-    private String test="Hello";
-        private void load(JTextArea comp, String fileName) {
-        try {
-            comp.read(
-                new InputStreamReader(
-                    getClass().getResourceAsStream(fileName)),
-                null);
-        } catch (IOException ex) {
-            // should never happen with the resources we provide
-            ex.printStackTrace();
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ *   - Neither the name of Oracle or the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+http://docs.oracle.com/javase/tutorial/2d/printing/examples/HelloWorldPrinter.java
+ */ 
+
+
+import DropboxGrader.Gui;
+import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextSpreadsheet;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.awt.print.*;
+
+public class Print implements Printable {
+    private Gui gui;
+    
+    public Print(Gui gui){
+        this.gui=gui;
+    }
+    @Override
+    public int print(Graphics g,PageFormat pf,int page) throws PrinterException {
+        return printData(g,pf,page);
+    }
+    public void printPreview(Graphics g,PageFormat pf,int page){
+        try{
+            printData(g,pf,page);
+        } catch(PrinterException e){
+            System.err.println("Error generating print preview.\n"+e);
         }
     }
-     
-    private void print(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_print
-        MessageFormat header = createFormat(headerField);
-        MessageFormat footer = createFormat(footerField);
-        boolean interactive = interactiveCheck.isSelected();
-        boolean background = backgroundCheck.isSelected();
- 
-        PrintingTask task = new PrintingTask(header, footer, interactive);
-        if (background) {
-            task.execute();
-        } else {
-            task.run();
+    private int printData(Graphics g, PageFormat pf, int page) throws PrinterException {
+        g.setColor(Color.black);
+        if (page > 0) { /* We have only one page, and 'page' is zero-based */
+            return NO_SUCH_PAGE;
         }
-    }//GEN-LAST:event_print
-     
-    private class PrintingTask extends SwingWorker<Object, Object> {
-        private final MessageFormat headerFormat;
-        private final MessageFormat footerFormat;
-        private final boolean interactive;
-        private volatile boolean complete = false;
-        private volatile String message;
-         
-        public PrintingTask(MessageFormat header, MessageFormat footer,
-                            boolean interactive) {
-            this.headerFormat = header;
-            this.footerFormat = footer;
-            this.interactive = interactive;
+
+        /* User (0,0) is typically outside the imageable area, so we must
+         * translate by the X and Y values in the PageFormat to avoid clipping
+         */
+        Graphics2D g2d = (Graphics2D)g;
+        g2d.translate(pf.getImageableX(), pf.getImageableY());
+
+        /* Now we perform our rendering */
+        TextGrader grader=gui.getGrader();
+        grader.getSpreadsheet().numNames();
+//        for(int i=0;i<grader.getSpreadsheet().numNames();i++){
+//            renderStudent(g2d,i,grader,pf);
+//        }
+        renderStudent(g2d,0,grader,pf);
+        
+
+        /* tell the caller that this page is part of the printed document */
+        return PAGE_EXISTS;
+    }
+    private void renderStudent(Graphics2D g,int studentIndex,TextGrader grader,PageFormat pf){
+        int marginY=50;
+        double centerX=(int)(pf.getImageableWidth()/2.0);
+        TextSpreadsheet sheet=grader.getSpreadsheet();
+        g.drawString(sheet.getNameAt(studentIndex).toString(), (int)centerX, (int)marginY);
+        marginY+=75;
+        for(int i=0;i<sheet.numAssignments();i++){
+            g.drawString("Assignment: "+sheet.getAssignmentAt(i),(int)centerX,(int)marginY);
+            marginY+=25;
+            g.drawString("Grade: "+sheet.getGradeAt(i, studentIndex),(int)centerX,(int)marginY);
+            marginY+=50;
         }
-         
-        @Override
-        protected Object doInBackground() {
+    }
+    public boolean print(){
+        PrinterJob job=PrinterJob.getPrinterJob();
+        job.setPrintable(this);
+        boolean accepted=job.printDialog();
+        if(accepted){
             try {
-                complete = text.print(headerFormat, footerFormat,
-                        true, null, null, interactive);
-                message = "Printing " + (complete ? "complete" : "canceled");
+                job.print();
             } catch (PrinterException ex) {
-                message = "Sorry, a printer error occurred";
-            } catch (SecurityException ex) {
-                message =
-                    "Sorry, cannot access the printer due to security reasons";
+                  /* The job did not successfully complete */
+                return false;
             }
-            return null;
         }
-         
-        @Override
-        protected void done() {
-            message(!complete, message);
+        else{
+            return false;
         }
+        return true;
+        
+    }
+    public static void main(String[] args) {
+        
     }
 }
