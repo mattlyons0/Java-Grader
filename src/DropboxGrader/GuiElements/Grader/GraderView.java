@@ -149,13 +149,13 @@ public class GraderView extends ContentView{
         gradeNumber=new JTextField(3);
         gradeNumber.setText("");
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
-        gradeNumber.setMinimumSize(new Dimension(30,20));
+        gradeNumber.setMinimumSize(new Dimension(30,30));
         gradeNumber.addActionListener(this);
         JLabel gradeLabel2=new JLabel(" Comment: ");
         gradeComment=new JTextField(25);
         gradeComment.setText("");
         gradeComment.setHorizontalAlignment(JTextField.CENTER);
-        gradeComment.setMinimumSize(new Dimension(250,20));
+        gradeComment.setMinimumSize(new Dimension(250,30));
         gradeComment.addActionListener(this);
         cons=new GridBagConstraints();
         cons.fill=GridBagConstraints.BOTH;

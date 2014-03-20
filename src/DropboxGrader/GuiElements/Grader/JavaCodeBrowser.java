@@ -9,8 +9,10 @@ import DropboxGrader.RunCompileJava.JavaFile;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -28,6 +30,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.plaf.TabbedPaneUI;
 import jsyntaxpane.DefaultSyntaxKit;
 
 /**
@@ -278,6 +281,7 @@ public class JavaCodeBrowser extends JPanel{
             for(int i=numTextFiles;i<files.length+numTextFiles;i++){
                 if(files[i-numTextFiles].equals(f)){
                     tabPane.setBackgroundAt(i, new Color(163,255,163));
+                    tabPane.setTitleAt(i,"*"+tabPane.getTitleAt(i)+"*");
                     currentlyRunning=i;
                     break;
                 }
@@ -285,6 +289,7 @@ public class JavaCodeBrowser extends JPanel{
         }
         else if(currentlyRunning!=-1){ //nothing is running anymore
             tabPane.setBackgroundAt(currentlyRunning, defaultBackground);
+            tabPane.setTitleAt(currentlyRunning, tabPane.getTitleAt(currentlyRunning).replaceAll("\\*", ""));
             currentlyRunning=-1;
         }
     }

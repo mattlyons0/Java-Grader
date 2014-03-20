@@ -29,23 +29,48 @@ package DropboxGrader.Printing;
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-http://docs.oracle.com/javase/tutorial/2d/printing/examples/HelloWorldPrinter.java
+ * 
+ * Modified from http://docs.oracle.com/javase/tutorial/2d/printing/examples/HelloWorldPrinter.java
  */ 
 
 
 import DropboxGrader.Gui;
+import DropboxGrader.TextGrader.TextAssignment;
+import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.TextGrader.TextSpreadsheet;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.awt.print.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Pageable;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.util.Date;
 
 public class Print implements Printable {
     private Gui gui;
+    private Pageable pageable;
     
-    public Print(Gui gui){
+    public Print(final Gui gui){
         this.gui=gui;
+        
+        pageable=new Pageable() {
+            @Override
+            public int getNumberOfPages() {
+                return gui.getGrader().getSpreadsheet().numNames();
+            }
+            @Override
+            public PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
+                return new PageFormat();
+            }
+            @Override
+            public Printable getPrintable(int pageIndex) throws IndexOutOfBoundsException {
+                return Print.this;
+            }
+        };
     }
     @Override
     public int print(Graphics g,PageFormat pf,int page) throws PrinterException {
@@ -58,46 +83,67 @@ public class Print implements Printable {
             System.err.println("Error generating print preview.\n"+e);
         }
     }
-    private int printData(Graphics g, PageFormat pf, int page) throws PrinterException {
+    private int printData(Graphics g, PageFormat pf, int pageNum) throws PrinterException {
         g.setColor(Color.black);
-        if (page > 0) { /* We have only one page, and 'page' is zero-based */
-            return NO_SUCH_PAGE;
-        }
 
         /* User (0,0) is typically outside the imageable area, so we must
          * translate by the X and Y values in the PageFormat to avoid clipping
          */
+        TextGrader grader=gui.getGrader();
+        int pages=grader.getSpreadsheet().numNames();
+        if(pageNum>=pages||0>pageNum){
+            return NO_SUCH_PAGE;
+        }
+        
+        
         Graphics2D g2d = (Graphics2D)g;
-        g2d.translate(pf.getImageableX(), pf.getImageableY());
+        g2d.translate(pf.getImageableX()*0.5, pf.getImageableY()*0.5);
 
         /* Now we perform our rendering */
-        TextGrader grader=gui.getGrader();
-        grader.getSpreadsheet().numNames();
-//        for(int i=0;i<grader.getSpreadsheet().numNames();i++){
-//            renderStudent(g2d,i,grader,pf);
-//        }
-        renderStudent(g2d,0,grader,pf);
+        renderStudent(g2d,pageNum,grader,pf);
         
 
         /* tell the caller that this page is part of the printed document */
         return PAGE_EXISTS;
     }
     private void renderStudent(Graphics2D g,int studentIndex,TextGrader grader,PageFormat pf){
-        int marginY=50;
-        double centerX=(int)(pf.getImageableWidth()/2.0);
+        int marginY=0;
+        double centerX=(int)(pf.getImageableWidth()/2.0)-pf.getImageableX()*0.5;
         TextSpreadsheet sheet=grader.getSpreadsheet();
+        g.drawString(new Date().toString(),0, marginY);
+        marginY+=25;
+        g.setFont(g.getFont().deriveFont(Font.BOLD));
         g.drawString(sheet.getNameAt(studentIndex).toString(), (int)centerX, (int)marginY);
-        marginY+=75;
+        g.setFont(g.getFont().deriveFont(Font.PLAIN));
+        marginY+=25;
         for(int i=0;i<sheet.numAssignments();i++){
-            g.drawString("Assignment: "+sheet.getAssignmentAt(i),(int)centerX,(int)marginY);
+            TextAssignment assign=sheet.getAssignmentAt(i);
+            TextGrade grade=sheet.getGradeAt(i, studentIndex);
+            
+            g.drawString("Assignment "+assign.number+": "+assign.name,0,(int)marginY);
+            marginY+=15;
+            if(grade!=null){
+                if(!grade.comment.equals("")){
+                    g.drawString("Grade: "+grade.grade+" Comment: "+grade.comment,0,(int)marginY);
+                } else{
+                    g.drawString("Grade: "+grade.grade,0,(int)marginY);
+                }
+            }
+            else{
+                g.setColor(Color.red);
+                g.setFont(g.getFont().deriveFont(Font.BOLD));
+                g.drawString("Missing",0,(int)marginY);
+                g.setColor(Color.black);
+                g.setFont(g.getFont().deriveFont(Font.PLAIN));
+            }
             marginY+=25;
-            g.drawString("Grade: "+sheet.getGradeAt(i, studentIndex),(int)centerX,(int)marginY);
-            marginY+=50;
         }
     }
     public boolean print(){
         PrinterJob job=PrinterJob.getPrinterJob();
         job.setPrintable(this);
+        job.setJobName("Grade Reports");
+        job.setPageable(pageable);
         boolean accepted=job.printDialog();
         if(accepted){
             try {
@@ -111,9 +157,6 @@ public class Print implements Printable {
             return false;
         }
         return true;
-        
-    }
-    public static void main(String[] args) {
         
     }
 }

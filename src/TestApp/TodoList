@@ -97,6 +97,9 @@ Horizontal scroll wheel support
 Make code sort take up less space
 Ctrl Z in gradebook
 Store last used code sorting method in config
+Line wrap printing
+    Don't cut off if there are too many assignments
+    Deal with page formats better, print minimum margins
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled
