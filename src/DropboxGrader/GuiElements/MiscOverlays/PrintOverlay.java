@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -22,6 +23,8 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.BevelBorder;
 
 /**
@@ -40,6 +43,7 @@ public class PrintOverlay extends ContentOverlay{
     private JButton backButton;
     private JButton forwardButton;
     private JLabel pageLabel;
+    private JScrollPane scroll;
     
     public PrintOverlay(Gui gui){
         super("PrintOverlay");
@@ -52,6 +56,8 @@ public class PrintOverlay extends ContentOverlay{
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
         printer.printPreview(image.getGraphics(),new PageFormat(), currentPage);
         
+        JPanel panel=new JPanel();
+        panel.setLayout(new GridBagLayout());
         ImageIcon icon=new ImageIcon(image);
         iconLabel=new JLabel(icon);
         iconLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -73,21 +79,27 @@ public class PrintOverlay extends ContentOverlay{
         cons.gridwidth=4;
         cons.fill=GridBagConstraints.NONE;
         cons.anchor=GridBagConstraints.NORTH;
-        add(iconLabel,cons);
+        panel.add(iconLabel,cons);
         cons.gridwidth=1;
         cons.gridy=1;
         cons.weighty=10;
         cons.anchor=GridBagConstraints.NORTHWEST;
         cons.weightx=5;
-        add(print,cons);
+        panel.add(print,cons);
         cons.anchor=GridBagConstraints.NORTH;
         cons.weightx=1;
         cons.gridx=1;
-        add(backButton,cons);
+        panel.add(backButton,cons);
         cons.gridx=2;
-        add(pageLabel,cons);
+        panel.add(pageLabel,cons);
         cons.gridx=3;
-        add(forwardButton,cons);
+        panel.add(forwardButton,cons);
+        
+        scroll=new JScrollPane(panel);
+        cons.gridx=0;
+        cons.gridy=0;
+        cons.fill=GridBagConstraints.BOTH;
+        add(scroll,cons);
         
         setTitle("Print Preview");
         setResizable(true);

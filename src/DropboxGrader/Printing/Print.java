@@ -97,7 +97,7 @@ public class Print implements Printable {
         
         
         Graphics2D g2d = (Graphics2D)g;
-        g2d.translate(pf.getImageableX()*0.5, pf.getImageableY()*0.5);
+        g2d.translate(pf.getImageableX(), pf.getImageableY());
 
         /* Now we perform our rendering */
         renderStudent(g2d,pageNum,grader,pf);
@@ -107,7 +107,7 @@ public class Print implements Printable {
         return PAGE_EXISTS;
     }
     private void renderStudent(Graphics2D g,int studentIndex,TextGrader grader,PageFormat pf){
-        int marginY=0;
+        int marginY=10;
         double centerX=(int)(pf.getImageableWidth()/2.0)-pf.getImageableX()*0.5;
         TextSpreadsheet sheet=grader.getSpreadsheet();
         g.drawString(new Date().toString(),0, marginY);
@@ -144,6 +144,7 @@ public class Print implements Printable {
         job.setPrintable(this);
         job.setJobName("Grade Reports");
         job.setPageable(pageable);
+        
         boolean accepted=job.printDialog();
         if(accepted){
             try {
