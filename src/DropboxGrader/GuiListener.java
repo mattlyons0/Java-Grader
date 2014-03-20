@@ -31,7 +31,7 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
     }
     @Override
     public void windowOpened(WindowEvent e) {
-        File inputFolder=new File("runtimeFiles\\");
+        File inputFolder=new File("runtimeFiles/");
         File[] inputFiles=inputFolder.listFiles();
         if(inputFiles!=null){
             for(File f:inputFiles){
@@ -54,7 +54,7 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
             if(gui!=null)
                 gui.setVisible(false);
 
-            File inputFolder=new File("runtimeFiles\\");
+            File inputFolder=new File("runtimeFiles/");
             File[] inputFiles=inputFolder.listFiles();
             if(inputFiles!=null){
                 for(File f:inputFiles){

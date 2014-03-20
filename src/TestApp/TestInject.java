@@ -123,13 +123,13 @@ public class TestInject {
         java.io.PrintStream printDropbox=null;
         try{	
             int x=0;
-            java.io.File f=new java.io.File("inputFiles\\input"+x+".log");
+            java.io.File f=new java.io.File("inputFiles/input"+x+".log");
             while(f.exists()){
-                f=new java.io.File("inputFiles\\input"+x+".log");
+                f=new java.io.File("inputFiles/input"+x+".log");
                 x++;
             }
             x-=2;
-            f=new java.io.File("inputFiles\\input"+x+".log");
+            f=new java.io.File("inputFiles/input"+x+".log");
             iDropbox=new java.io.FileInputStream(f){
             //int runNum=0; //requires everything to be written twice, for stupid reasons.
                 @Override
@@ -142,7 +142,7 @@ public class TestInject {
                 }
             };
         System.setIn(iDropbox);
-        printDropbox=new java.io.PrintStream(new java.io.FileOutputStream("inputFiles\\output"+x+".log"));
+        printDropbox=new java.io.PrintStream(new java.io.FileOutputStream("inputFiles/output"+x+".log"));
         System.setOut(printDropbox);
         System.setErr(printDropbox);
         } catch(java.io.IOException e){

@@ -38,7 +38,7 @@ public class JavaRunner implements Runnable{
         terminal=t;
         this.gui=gui;
         this.relay=new InputRelayer(t);
-        new File("runtimeFiles\\").mkdir();
+        new File("runtimeFiles/").mkdir();
         errorRelay=new RelayStream(System.out,terminal);
         thread=new Thread(this);
         thread.setName("CheckProccessStateThread");
@@ -134,10 +134,10 @@ public class JavaRunner implements Runnable{
                 break;
             }
         }
-        File[] filess=new File("runtimeFiles\\").listFiles();
+        File[] filess=new File("runtimeFiles/").listFiles();
         int highest=filess.length/2;
-        terminal.setInputFile(new File("runtimeFiles\\input"+highest+".log"));
-        relay.changeReadFile(new File("runtimeFiles\\output"+highest+".log"));
+        terminal.setInputFile(new File("runtimeFiles/input"+highest+".log"));
+        relay.changeReadFile(new File("runtimeFiles/output"+highest+".log"));
         
         int manualArgNum=4;
         ArrayList<JavaFile> dependentFiles=calcDependencies(runChoice,Arrays.copyOf(files, files.length));
@@ -147,9 +147,9 @@ public class JavaRunner implements Runnable{
         filePaths[0]="-cp";
         String path=runChoice.getAbsolutePath();
         if(path.length()!=0){
-            path=path.replace("\\", "=");
+            path=path.replace("/", "=");
             String[] pathPart=path.split("="); //cant split \ for whatever reason (regex strikes again!)..
-            path=path.replace("=", "\\");
+            path=path.replace("=", "/");
             path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
             if(containsPackages){
                 if(runChoice.hasPackage()){
@@ -179,7 +179,7 @@ public class JavaRunner implements Runnable{
                     for(int i=0;i<partIndex;i++){
                         path+=pathPart[i];
                         if(i<=partIndex){
-                            path+="\\";
+                            path+="/";
                         }
                     }
                 }
@@ -232,7 +232,7 @@ public class JavaRunner implements Runnable{
             }
             className+=runChoice.getName();
             className=className.substring(0,className.length()-5); //removes .java
-            String javaExe=System.getProperty("java.home")+"\\bin\\java.exe";
+            String javaExe=System.getProperty("java.home")+"/bin/java.exe";
             System.out.println(javaExe);
             javaExe="java"; //since we set the java.home the keyword java will go to the right place
             String directory=folder;
@@ -277,7 +277,7 @@ public class JavaRunner implements Runnable{
 //            System.setProperty("java.home", path);
 //        }
         if(ToolProvider.getSystemJavaCompiler()==null){
-            File dir=new File("C:\\Program Files\\Java\\");
+            File dir=new File("C:/Program Files/Java/");
             File[] files=dir.listFiles();
             for(File f:files){
                 if(f.getName().contains("jdk")){
@@ -289,7 +289,7 @@ public class JavaRunner implements Runnable{
                     }
                 }
             }
-            dir=new File("C:\\Program Files (x86)\\Java\\");
+            dir=new File("C:/Program Files (x86)/Java/");
             files=dir.listFiles();
             for(File f:files){
                 if(f.getName().contains("jdk")){

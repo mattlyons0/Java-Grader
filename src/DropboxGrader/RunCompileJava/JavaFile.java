@@ -83,13 +83,13 @@ public class JavaFile extends File{
 "        java.io.PrintStream printDropbox=null;\n" +
 "        try{	\n" +
 "            int x=0;\n" +
-"            java.io.File f=new java.io.File(\"runtimeFiles\\\\input\"+x+\".log\");\n" +
+"            java.io.File f=new java.io.File(\"runtimeFiles/input\"+x+\".log\");\n" +
 "            while(f.exists()){\n" +
-"                f=new java.io.File(\"runtimeFiles\\\\input\"+x+\".log\");\n" +
+"                f=new java.io.File(\"runtimeFiles/input\"+x+\".log\");\n" +
 "                x++;\n" +
 "            }\n" +
 "            x-=2;\n" +
-"            f=new java.io.File(\"runtimeFiles\\\\input\"+x+\".log\");\n" +
+"            f=new java.io.File(\"runtimeFiles/input\"+x+\".log\");\n" +
 "            iDropbox=new java.io.FileInputStream(f){\n" +
 "            //int runNum=0; //requires everything to be written twice, for stupid reasons.\n" +
 "                @Override\n" +
@@ -102,7 +102,7 @@ public class JavaFile extends File{
 "                }\n" +
 "            };\n" +
 "        System.setIn(iDropbox);\n" +
-"        printDropbox=new java.io.PrintStream(new java.io.FileOutputStream(\"runtimeFiles\\\\output\"+x+\".log\"));\n" +
+"        printDropbox=new java.io.PrintStream(new java.io.FileOutputStream(\"runtimeFiles/output\"+x+\".log\"));\n" +
 "        System.setOut(printDropbox);\n" +
 "        System.setErr(printDropbox);\n" +
 "        } catch(java.io.IOException e){\n" +
@@ -220,8 +220,8 @@ public class JavaFile extends File{
                                     movedFiles=true;
                                 }
                                 else{ //upper folder isnt the right name and parent is the zip folder
-                                    File currentFolder=new File(getPath().substring(0,getPath().lastIndexOf("\\")));
-                                    File newFolder=new File(currentFolder.getPath()+"\\"+folders[i]);
+                                    File currentFolder=new File(getPath().substring(0,getPath().lastIndexOf("/")));
+                                    File newFolder=new File(currentFolder.getPath()+"/"+folders[i]);
                                     newFolder.mkdir();
                                     System.out.println("Made new folder "+newFolder.getPath());
                                     if(currentFolder.listFiles()!=null){

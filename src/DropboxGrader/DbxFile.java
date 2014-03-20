@@ -238,7 +238,7 @@ public class DbxFile {
         fileVersion++;
     }
     private void searchJavaFiles(){
-        File[] newArr=searchForFiles(downloadedFile.getPath()+"\\",".java");
+        File[] newArr=searchForFiles(downloadedFile.getPath()+"/",".java");
         javaFiles=new JavaFile[newArr.length];
         for(int x=0;x<newArr.length;x++){
             javaFiles[x]=(JavaFile)newArr[x];
@@ -248,7 +248,7 @@ public class DbxFile {
         }
     }
     private void searchTextFiles(){
-        File[] newArr=searchForFiles(downloadedFile.getPath()+"\\",".txt");
+        File[] newArr=searchForFiles(downloadedFile.getPath()+"/",".txt");
         textFiles=new TextFile[newArr.length];
         for(int x=0;x<newArr.length;x++){
             textFiles[x]=(TextFile)newArr[x];
@@ -285,7 +285,7 @@ public class DbxFile {
             }
             else if(f.isDirectory()){
                 if(!f.getName().endsWith(".git")&&!f.getName().equals("__MACOSX")){ //skip git folder for performance, skip mac cache folder in zips
-                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName(),fileType)));
+                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"/"+f.getName(),fileType)));
                 }
             }
         }
@@ -296,7 +296,7 @@ public class DbxFile {
     public String getFileStructure(){
         String zipPath=entry.name;
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
-        String str=getFileStructure(fileManager.getDownloadFolder()+"\\"+zipPath,null);
+        String str=getFileStructure(fileManager.getDownloadFolder()+"/"+zipPath,null);
         if(str.equals("")){
             str="No files exist in the zip.";
         }
@@ -311,7 +311,7 @@ public class DbxFile {
         if(files!=null){
             for(File f:files){
                 String tabs="";
-                for(int x=0;x<occurancesOf('\\',f.getPath());x++){
+                for(int x=0;x<occurancesOf('/',f.getPath());x++){
                     tabs+="  ";
                 }
                 if(f.isDirectory()){
@@ -349,7 +349,7 @@ public class DbxFile {
             }
             else if(f.isDirectory()){
                 if(!f.getName().endsWith(".git")){ //skip git folder for performance
-                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"\\"+f.getName())));
+                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"/"+f.getName())));
                 }
             }
         }
@@ -422,7 +422,7 @@ public class DbxFile {
                 f.delete();
             }
             else if(f.isDirectory()){
-                searchForFilesToDelete(directory+"\\"+f.getName());
+                searchForFilesToDelete(directory+"/"+f.getName());
                 f.delete();
             }
         }
