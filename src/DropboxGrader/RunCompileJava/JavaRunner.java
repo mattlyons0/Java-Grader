@@ -145,7 +145,7 @@ public class JavaRunner implements Runnable{
         String[] filePaths=new String[dependentFiles.size()+manualArgNum];
 
         filePaths[0]="-cp";
-        String path=runChoice.getAbsolutePath();
+        String path=runChoice.getAbsolutePath(); //broke around here
         if(path.length()!=0){
             path=path.replace("/", "=");
             String[] pathPart=path.split("="); //cant split \ for whatever reason (regex strikes again!)..

@@ -437,6 +437,14 @@ public class DbxFile {
         boolean moved=false;
         try {
             client.move(entry.path, directory+newName);
+            DbxEntry en=client.getMetadata(directory+newName);
+            if(en.isFile()){
+                entry=(DbxEntry.File)en;
+            }
+            else{
+                System.err.println("Error renaming file from "+entry.path+" to "+(directory+newName)
+                       +"\n"+en+" is not a file entry");
+            }
             moved=true;
         } catch (DbxException ex) { //try again with a number after the name
             int num=1;
