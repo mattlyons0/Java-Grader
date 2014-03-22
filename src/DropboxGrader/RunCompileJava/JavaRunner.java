@@ -34,10 +34,13 @@ public class JavaRunner implements Runnable{
     private JavaFile mainFile;
     private boolean fixedPath=false;
     private String folder;
+    public final static boolean onWindows=System.getProperty("os.name").contains("Windows");
+    
     public JavaRunner(JTerminal t,Gui gui){
         terminal=t;
         this.gui=gui;
         this.relay=new InputRelayer(t);
+        
         new File("runtimeFiles/").mkdir();
         errorRelay=new RelayStream(System.out,terminal);
         thread=new Thread(this);
@@ -145,9 +148,12 @@ public class JavaRunner implements Runnable{
         String[] filePaths=new String[dependentFiles.size()+manualArgNum];
 
         filePaths[0]="-cp";
-        String path=runChoice.getAbsolutePath(); //broke around here
+        String path=runChoice.getAbsolutePath();
         if(path.length()!=0){
-            path=path.replace("/", "=");
+            if(onWindows)
+                path=path.replace("\\", "="); //windows uses stupid slashes when everything else doesnt
+            else
+                path=path.replace("/","=");
             String[] pathPart=path.split("="); //cant split \ for whatever reason (regex strikes again!)..
             path=path.replace("=", "/");
             path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
@@ -302,7 +308,7 @@ public class JavaRunner implements Runnable{
                 }
             }
         }
-        if(System.getProperty("os.name").contains("Windows"))
+        if(onWindows)
             terminal.append("No JDK found, please install any version of the java JDK.",Color.RED);
         else
             terminal.append("This program must be run using a JDK in order to compile code.\n"

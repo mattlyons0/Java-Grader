@@ -100,6 +100,8 @@ Store last used code sorting method in config
 Line wrap printing
     Don't cut off if there are too many assignments
     Deal with page formats better, print minimum margins
+    Put print and page things outside of scrollbox
+Fix bug with overlays not working
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled
