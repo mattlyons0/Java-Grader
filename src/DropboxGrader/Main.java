@@ -19,17 +19,17 @@ import javax.swing.UIManager.LookAndFeelInfo;
 public class Main {
     public static void main(String[] args) {
         //Use operating system look. Basically makes it look better overall. Metal theme sucks
-        try { 
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        try { 
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //uncommenting this causes the overlays to make the rest of the screen black when they are exited
 //            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 //                if ("Nimbus".equals(info.getName())) {
 //                    UIManager.setLookAndFeel(info.getClassName());
 //                    break;
 //                }
 //            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         
         try {
             File errLog=new File("error.log");

@@ -54,13 +54,12 @@ public class PrintOverlay extends ContentOverlay{
     public void setup() {
         format=new PageFormat();
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
-        printer.printPreview(image.getGraphics(),new PageFormat(), currentPage);
+        printer.printPreview(image.getGraphics(), currentPage);
         
         JPanel panel=new JPanel();
         panel.setLayout(new GridBagLayout());
         ImageIcon icon=new ImageIcon(image);
         iconLabel=new JLabel(icon);
-        iconLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         print=new JButton("Print");
         print.addActionListener(this);
         backButton=new JButton("Back");
@@ -80,26 +79,30 @@ public class PrintOverlay extends ContentOverlay{
         cons.fill=GridBagConstraints.NONE;
         cons.anchor=GridBagConstraints.NORTH;
         panel.add(iconLabel,cons);
-        cons.gridwidth=1;
-        cons.gridy=1;
-        cons.weighty=10;
-        cons.anchor=GridBagConstraints.NORTHWEST;
-        cons.weightx=5;
-        panel.add(print,cons);
-        cons.anchor=GridBagConstraints.NORTH;
-        cons.weightx=1;
-        cons.gridx=1;
-        panel.add(backButton,cons);
-        cons.gridx=2;
-        panel.add(pageLabel,cons);
-        cons.gridx=3;
-        panel.add(forwardButton,cons);
         
         scroll=new JScrollPane(panel);
         cons.gridx=0;
         cons.gridy=0;
+        cons.weighty=99;
+        cons.gridwidth=4;
         cons.fill=GridBagConstraints.BOTH;
+        cons.insets=new Insets(5,5,5,5);
         add(scroll,cons);
+        cons.fill=GridBagConstraints.NONE;
+        cons.gridwidth=1;
+        cons.gridy=1;
+        cons.weighty=1;
+        cons.anchor=GridBagConstraints.NORTHWEST;
+        cons.weightx=5;
+        add(print,cons);
+        cons.anchor=GridBagConstraints.NORTH;
+        cons.weightx=1;
+        cons.gridx=1;
+        add(backButton,cons);
+        cons.gridx=2;
+        add(pageLabel,cons);
+        cons.gridx=3;
+        add(forwardButton,cons);
         
         setTitle("Print Preview");
         setResizable(true);
@@ -113,7 +116,7 @@ public class PrintOverlay extends ContentOverlay{
     private void changePage(int newPage){
         currentPage=newPage;
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
-        printer.printPreview(image.getGraphics(),new PageFormat(), currentPage);
+        printer.printPreview(image.getGraphics(), currentPage);
         iconLabel.setIcon(new ImageIcon(image));
         pageLabel.setText("Page "+currentPage);
         if(currentPage==0){

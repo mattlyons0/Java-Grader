@@ -48,15 +48,18 @@ import java.awt.print.Pageable;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Print implements Printable {
     private Gui gui;
     private Pageable pageable;
+    private PrinterJob job;
     
     public Print(final Gui gui){
         this.gui=gui;
         
+        job=PrinterJob.getPrinterJob();
         pageable=new Pageable() {
             @Override
             public int getNumberOfPages() {
@@ -64,7 +67,7 @@ public class Print implements Printable {
             }
             @Override
             public PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
-                return new PageFormat();
+                return job.defaultPage();
             }
             @Override
             public Printable getPrintable(int pageIndex) throws IndexOutOfBoundsException {
@@ -76,9 +79,9 @@ public class Print implements Printable {
     public int print(Graphics g,PageFormat pf,int page) throws PrinterException {
         return printData(g,pf,page);
     }
-    public void printPreview(Graphics g,PageFormat pf,int page){
+    public void printPreview(Graphics g,int page){
         try{
-            printData(g,pf,page);
+            printData(g,job.defaultPage(),page);
         } catch(PrinterException e){
             System.err.println("Error generating print preview.\n"+e);
         }
@@ -124,7 +127,12 @@ public class Print implements Printable {
             marginY+=15;
             if(grade!=null){
                 if(!grade.comment.equals("")){
-                    g.drawString("Grade: "+grade.grade+" Comment: "+grade.comment,0,(int)marginY);
+                    String str="Grade: "+grade.grade+" Comment: "+grade.comment;
+                    String[] stringLines=lineWrap(str,(int)pf.getImageableWidth(),g);
+                    for(String s:stringLines){
+                        g.drawString(s,0,(int)marginY);
+                        marginY+=15;
+                    }
                 } else{
                     g.drawString("Grade: "+grade.grade,0,(int)marginY);
                 }
@@ -139,8 +147,48 @@ public class Print implements Printable {
             marginY+=25;
         }
     }
+    private String[] lineWrap(String str,int width,Graphics2D g){
+        int lineWidth=g.getFontMetrics().stringWidth(str);
+        double lines=lineWidth/(double)width;
+        if(lines<=1){
+            return new String[]{str};
+        }
+        
+        String lastString=null;
+        String[] split=str.split(" ");
+        for(int i=0;i<split.length;i++){
+            String combined="";
+            for(int index=0;index<i;index++){
+                if(index!=0){
+                    combined+=" ";
+                }
+                combined+=split[index];
+            }
+            int curWidth=g.getFontMetrics().stringWidth(combined);
+            if(curWidth<=width){
+                lastString=combined;
+            }
+            else{
+                if(lastString==null){ //there were no spaces so we will just cut it off
+                    lastString=str;
+                }
+                break;
+            }
+        }
+        String[] otherLines=lineWrap(str.substring(lastString.length()),width,g);
+        String[] merged=new String[otherLines.length+1];
+        for(int i=0;i<merged.length;i++){
+            if(i==0){
+                merged[i]=lastString;
+            }
+            else{
+                merged[i]=otherLines[i-1];
+            }
+        }
+        return merged;
+        
+    }
     public boolean print(){
-        PrinterJob job=PrinterJob.getPrinterJob();
         job.setPrintable(this);
         job.setJobName("Grade Reports");
         job.setPageable(pageable);
@@ -159,5 +207,8 @@ public class Print implements Printable {
         }
         return true;
         
+    }
+    public PageFormat getFormat(){
+        return job.defaultPage();
     }
 }
