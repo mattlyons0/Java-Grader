@@ -94,7 +94,7 @@ right click menu for adding a grade in gradebook
 Mode to switch names/assignments axis
 Assignment Status at the top instead of filename
 Horizontal scroll wheel support
-Make code sort take up less space
+Make code sort take up less space (maybe put it in an overlay)
 Ctrl Z in gradebook
 Store last used code sorting method in config
 Printing Modes:
@@ -102,8 +102,8 @@ Printing Modes:
     Print All Reports
 Gradebook mode:
     View grade percentage per person
-fix conflicting package test
-fix moving packages when needed
+Fix window internal padding changing upon clicking something on linux gtk L&F
+Do multiple runs faster, investigate why the delays are needed now that we aren't using files.
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

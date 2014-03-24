@@ -31,11 +31,9 @@ public class JTerminal extends JTextPane implements KeyListener{
         super();
         this.gui=gui;
         addKeyListener(this);
-        EmptyBorder border=new EmptyBorder(new Insets(10,10,10,10));
-        setBorder(border);
         setMargin(new Insets(5,5,5,5));
     }
-    public void setInputFile(OutputStream out){
+    public void setInputStream(OutputStream out){
         if(writer!=null){
             writer.close();
             writer=null;

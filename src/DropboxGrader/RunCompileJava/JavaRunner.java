@@ -137,7 +137,8 @@ public class JavaRunner implements Runnable{
                 break;
             }
         }
-        File[] filess=new File("runtimeFiles/").listFiles();
+        //From when we injected code
+        //File[] filess=new File("runtimeFiles/").listFiles();
         //int highest=filess.length/2;
         //terminal.setInputFile(new File("runtimeFiles/input"+highest+".log"));
         //relay.changeReadFile(new File("runtimeFiles/output"+highest+".log"));
@@ -241,10 +242,10 @@ public class JavaRunner implements Runnable{
             String javaExe=System.getProperty("java.home")+"/bin/java.exe";
             //System.out.println(javaExe);
             javaExe="java"; //since we set the java.home the keyword java will go to the right place
-            String directory=folder;
+            //String directory=folder;
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
-            //builder.directory(runChoice.getParentFile()); //do something like this but safer to set proper working directory
+            builder.directory(runChoice.getParentFile()); //do something like this but safer to set proper working directory
             //todo: verify this works with packages
             //builder.inheritIO();
             System.out.println("Running from: "+runChoice.getParentFile());
@@ -252,7 +253,7 @@ public class JavaRunner implements Runnable{
                 terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();
             relay.changeReadProccess(running.getInputStream(), running.getErrorStream());
-            terminal.setInputFile(running.getOutputStream());
+            terminal.setInputStream(running.getOutputStream());
             numRunsLeft--;
             //System.setOut(s);
             //running=Runtime.getRuntime().exec("java "+call);

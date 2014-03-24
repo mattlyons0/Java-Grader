@@ -5,21 +5,16 @@
 package DropboxGrader.GuiElements;
 
 import DropboxGrader.Gui;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.DebugGraphics;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.JRootPane;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 /**
@@ -50,6 +45,7 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         BasicInternalFrameUI ui=(BasicInternalFrameUI) backgroundPanel.getUI();
         ui.setNorthPane(null);
         backgroundPanel.setVisible(true);
+        removeAll(); //removes taskbar added on linux (gtk) l&f
         
         add(backgroundPanel,JLayeredPane.DEFAULT_LAYER);
         constraints=new GridBagConstraints();
@@ -63,15 +59,20 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         v.setup();
         views.add(v);
     }
-    public void changeView(String viewName){
-        for(int i=0;i<views.size();i++){
-            if(views.get(i).hasName(viewName)){
-                changeView(i);
-                revalidate();
-                repaint();
-                return;
+    public void changeView(final String viewName){
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                for(int i=0;i<views.size();i++){
+                    if(views.get(i).hasName(viewName)){
+                        changeView(i);
+                        revalidate();
+                        repaint();
+                        return;
+                    }
+                }
             }
-        }
+        });
     }
     public ContentView getContentView(String viewName){
         for(ContentView v:views){
