@@ -11,16 +11,8 @@ import java.awt.Color;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.AttributeSet;
@@ -35,7 +27,6 @@ import javax.swing.text.StyleContext;
 public class JTerminal extends JTextPane implements KeyListener{
     private Gui gui;
     private PrintWriter writer;
-    private File file;
     public JTerminal(Gui gui){
         super();
         this.gui=gui;
@@ -44,15 +35,12 @@ public class JTerminal extends JTextPane implements KeyListener{
         setBorder(border);
         setMargin(new Insets(5,5,5,5));
     }
-    public void setInputFile(File f){
-        if(writer!=null)
+    public void setInputFile(OutputStream out){
+        if(writer!=null){
             writer.close();
-        try {
-            file=f;
-            writer=new PrintWriter(f);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(JTerminal.class.getName()).log(Level.SEVERE, null, ex);
+            writer=null;
         }
+        writer=new PrintWriter(out);
     }
     public void append(String s){
         append(s,Color.BLACK);

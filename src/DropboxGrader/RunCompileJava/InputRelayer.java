@@ -7,12 +7,15 @@
 package DropboxGrader.RunCompileJava;
 
 import DropboxGrader.GuiElements.Grader.JTerminal;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -23,8 +26,8 @@ import java.util.logging.Logger;
  * @author Matt
  */
 public class InputRelayer implements Runnable{
-    private File file;
-    private BufferedReader stream;
+    private BufferedReader output;
+    private BufferedReader error;
     private JTerminal terminal;
     private boolean looping;
     public InputRelayer(JTerminal t){
@@ -37,49 +40,46 @@ public class InputRelayer implements Runnable{
     }
     public void invalidate(){
         try {
-            if(stream!=null)
-                stream.close();
-            stream=null;
+            if(output!=null)
+                output.close();
+            if(error!=null)
+                error.close();
+            output=null;
+            error=null;
         } catch (IOException ex) {
             Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public void changeReadFile(File f){
+    public void changeReadProccess(InputStream out,InputStream err){
         stop();
         invalidate();
-        file=f;
-        try {
-            file.createNewFile();
-            stream=new BufferedReader(new FileReader(file));
-        } catch (IOException ex) {
-            Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    public void start(){
-        try {
-            stream=new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        output=new BufferedReader(new InputStreamReader(out));
+        error=new BufferedReader(new InputStreamReader(err));
         looping=true;
     }
     @Override
     public void run() {
         while(true){
-            while(looping&&stream!=null){
+            while(looping&&output!=null&&error!=null){
                 try {
-                    String line=stream.readLine();
+                    String line=output.readLine();
                     if(line!=null){
                         terminal.append(line+"\n");
+                    }
+                    line=error.readLine();
+                    if(line!=null){
+                        terminal.append(line+"\n",Color.RED);
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             try{
-                if(stream!=null&&!looping){
-                    stream.close();
-                    stream=null;
+                if(output!=null&&error!=null&&!looping){
+                    output.close();
+                    error.close();
+                    output=null;
+                    error=null;
                 }
                 Thread.sleep(1000);
             } catch (IOException|InterruptedException ex) {

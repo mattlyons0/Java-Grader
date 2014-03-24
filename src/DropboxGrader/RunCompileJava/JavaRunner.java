@@ -138,9 +138,9 @@ public class JavaRunner implements Runnable{
             }
         }
         File[] filess=new File("runtimeFiles/").listFiles();
-        int highest=filess.length/2;
-        terminal.setInputFile(new File("runtimeFiles/input"+highest+".log"));
-        relay.changeReadFile(new File("runtimeFiles/output"+highest+".log"));
+        //int highest=filess.length/2;
+        //terminal.setInputFile(new File("runtimeFiles/input"+highest+".log"));
+        //relay.changeReadFile(new File("runtimeFiles/output"+highest+".log"));
         
         int manualArgNum=4;
         ArrayList<JavaFile> dependentFiles=calcDependencies(runChoice,Arrays.copyOf(files, files.length));
@@ -160,7 +160,7 @@ public class JavaRunner implements Runnable{
             if(containsPackages){
                 if(runChoice.hasPackage()){
                     
-                    String firstPackage="";
+                    String firstPackage;
                     if(runChoice.packageFolder().contains("/")){
                         firstPackage=runChoice.packageFolder().substring(0,runChoice.packageFolder().indexOf("/"));
                     }
@@ -245,14 +245,14 @@ public class JavaRunner implements Runnable{
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
             //builder.directory(runChoice.getParentFile()); //do something like this but safer to set proper working directory
-            //if above is uncommented it wont generate the input/output files in the right place.
             //todo: verify this works with packages
             //builder.inheritIO();
             System.out.println("Running from: "+runChoice.getParentFile());
             if(compile)
                 terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();
-            relay.start();
+            relay.changeReadProccess(running.getInputStream(), running.getErrorStream());
+            terminal.setInputFile(running.getOutputStream());
             numRunsLeft--;
             //System.setOut(s);
             //running=Runtime.getRuntime().exec("java "+call);

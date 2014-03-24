@@ -140,7 +140,7 @@ public class JavaFile extends File{
                             //if someone is an idiot and puts a sout on the same line as the main method header it will catch it.
                             currentFile+=line.substring(0, index)+"\n";
                             //System.out.println("Injecting after "+line.substring(0, index));
-                            currentFile+=inject;
+                            //currentFile+=inject;
                             currentFile+=line.substring(index);
                             currentFile+=lineAfter+"\n";
                             didFirstInject=true;

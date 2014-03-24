@@ -108,8 +108,10 @@ public class GraderView extends ContentView{
         topBar.setLayout(new GridBagLayout());
         graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,codeSortPanel,codeOutputScroll);
         graderDivider.setDividerLocation(Config.dividerLocation);
-        if(graderDivider.getDividerLocation()<graderDivider.getMinimumDividerLocation())
+        if(graderDivider.getDividerLocation()<graderDivider.getMinimumDividerLocation()){
             graderDivider.setDividerLocation(graderDivider.getMinimumDividerLocation());
+            Config.dividerLocation=graderDivider.getMinimumDividerLocation();
+        }
         graderDivider.setContinuousLayout(true);
         JPanel navPanel=new JPanel();
         navPanel.setLayout(new FlowLayout());
