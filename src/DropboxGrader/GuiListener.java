@@ -94,7 +94,6 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
 
     @Override
     public void componentResized(ComponentEvent e) {
-        //gui.resized();
     }
 
     @Override

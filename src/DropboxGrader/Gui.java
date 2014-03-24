@@ -6,60 +6,29 @@
 
 package DropboxGrader;
 
-import DropboxGrader.GuiElements.Grader.JTerminal;
-import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
-import DropboxGrader.RunCompileJava.JavaRunner;
+import DropboxGrader.GuiElements.ContentViewManager;
+import DropboxGrader.GuiElements.FileBrowser.BrowserView;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
-import DropboxGrader.GuiElements.MiscViews.AuthView;
-import DropboxGrader.GuiElements.FileBrowser.BrowserView;
-import DropboxGrader.GuiElements.ContentViewManager;
-import DropboxGrader.GuiElements.Grader.GraderView;
-import DropboxGrader.GuiElements.MiscViews.ConfigView;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookView;
-import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
-import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
+import DropboxGrader.GuiElements.Grader.GraderView;
+import DropboxGrader.GuiElements.Grader.JTerminal;
+import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
+import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
+import DropboxGrader.GuiElements.MiscViews.AuthView;
+import DropboxGrader.GuiElements.MiscViews.ConfigView;
 import DropboxGrader.Printing.Print;
+import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
-import com.sun.org.apache.xml.internal.serialize.Printer;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.table.TableModel;
 
 /**
  *
@@ -89,7 +58,8 @@ public class Gui extends JFrame implements ActionListener{
     public Gui(){
         super("Dropbox Grader");
         //UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
-        viewManager=new ContentViewManager();
+        setBackground(Color.lightGray);
+        viewManager=new ContentViewManager(this);
         selectedFiles=new ArrayList();        
         listener=new GuiListener(this);
         addWindowListener(listener);

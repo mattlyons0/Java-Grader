@@ -5,8 +5,11 @@
 package DropboxGrader.GuiElements;
 
 import DropboxGrader.Gui;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -23,7 +26,8 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
  *
  * @author 141lyonsm
  */
-public class ContentViewManager extends JDesktopPane{    
+public class ContentViewManager extends JDesktopPane implements ComponentListener{    
+    private Gui gui;
     private JInternalFrame backgroundPanel;
     
     private ArrayList<ContentView> views;
@@ -31,15 +35,17 @@ public class ContentViewManager extends JDesktopPane{
     private int selectedView;
     private GridBagConstraints constraints;
     
-    public ContentViewManager(){
+    public ContentViewManager(Gui gui){
         super();
+        this.gui=gui;
+        gui.addComponentListener(this);
         
         views=new ArrayList();
         overlays=new ArrayList();
         selectedView=-1;
         backgroundPanel=new JInternalFrame("",false,false,false,false);
+        componentResized(null);
         backgroundPanel.setLayout(new GridBagLayout());
-        backgroundPanel.setSize(100,100);
         backgroundPanel.setBorder(null);
         BasicInternalFrameUI ui=(BasicInternalFrameUI) backgroundPanel.getUI();
         ui.setNorthPane(null);
@@ -100,11 +106,21 @@ public class ContentViewManager extends JDesktopPane{
         }
         views.get(viewNum).switchedTo();
         backgroundPanel.add(views.get(viewNum),constraints);
-        try {
-            backgroundPanel.setMaximum(true);
-        } catch (PropertyVetoException ex) {
-            Logger.getLogger(ContentViewManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        componentResized(null);
         selectedView=viewNum;
     }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        backgroundPanel.setSize(gui.getContentPane().getSize());
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {}
+
+    @Override
+    public void componentShown(ComponentEvent e) {}
+
+    @Override
+    public void componentHidden(ComponentEvent e) {}
 }
