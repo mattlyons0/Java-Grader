@@ -108,9 +108,16 @@ public class PrintOverlay extends ContentOverlay{
         setResizable(true);
         setClosable(true);
         setMaximizable(true);
-        Dimension parentSize = gui.getSize();
-        setSize((int)(format.getWidth()*1.1f),(int)(format.getHeight()*1.1f));
-        setLocation((parentSize.width-getSize().width)/2,(parentSize.height-getSize().height)/2);
+        int width=(int)(format.getWidth()*1.1f);
+        int height=(int)(format.getHeight()*1.1f);
+        if(height>=gui.getContentPane().getHeight()){
+            height=gui.getContentPane().getHeight();
+        }
+        if(width>=gui.getContentPane().getWidth()){
+            width=gui.getContentPane().getWidth();
+        }
+        setSize(width,height);
+        setLocation((gui.getContentPane().getWidth()-width)/2,(gui.getContentPane().getHeight()-height)/2);
         setVisible(true);
         
     }
@@ -119,7 +126,7 @@ public class PrintOverlay extends ContentOverlay{
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
         printer.printPreview(image.getGraphics(), currentPage);
         iconLabel.setIcon(new ImageIcon(image));
-        pageLabel.setText("Page "+(currentPage+1));
+        pageLabel.setText("Page "+(currentPage+1)+"/"+printer.getNumPages());
         if(currentPage==0){
             backButton.setEnabled(false);
         }

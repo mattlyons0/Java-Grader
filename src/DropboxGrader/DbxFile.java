@@ -51,7 +51,7 @@ public class DbxFile {
             if(newName.contains("zip"))
                 newName=newName.substring(0, newName.length()-3);
             newName+=".zip";
-            rename(newName);
+            rename(newName,true);
         }
         
         checkExists();
@@ -428,7 +428,7 @@ public class DbxFile {
         }
         new File(directory).delete();
     }
-    public void rename(String newName){
+    private void rename(String newName,boolean onInit){
         System.out.println(entry.path);
         String directory=entry.path;
         String[] split=directory.split("/");
@@ -451,15 +451,18 @@ public class DbxFile {
             int dotIndex=getLastIndex(newName,'.');
             if(Character.isDigit(newName.charAt(dotIndex-1)))
                 num=safeStringToInt(Character.toString(newName.charAt(dotIndex-1)));
-            rename(newName.substring(0, dotIndex)+num+newName.substring(dotIndex, newName.length()));
+            rename(newName.substring(0, dotIndex)+num+newName.substring(dotIndex, newName.length()),onInit);
         }
         if(moved&&downloadedFile!=null){
             searchForFilesToDelete(downloadedFile.getPath());
             downloadedFile=null;
         }
-        if(moved){
+        if(moved&&!onInit){
             fileManager.getGui().refreshTable();
         }
+    }
+    public void rename(String newName){
+        rename(newName,false);
     }
     public static int getLastIndex(String s,char c){
         for(int x=s.length()-1;x>0;x--){

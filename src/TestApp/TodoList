@@ -21,6 +21,7 @@ Ability to close code tabs with right click.
 Encrypt grade sheet
 Store email
 Store graded date
+Store grade total
 Store class period of student
 Store student email
 Store student year
@@ -99,6 +100,8 @@ Store last used code sorting method in config
 Printing Modes:
     Only Print One Person's Report
     Print All Reports
+Gradebook mode:
+    View grade percentage per person
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled
