@@ -102,6 +102,8 @@ Printing Modes:
     Print All Reports
 Gradebook mode:
     View grade percentage per person
+fix conflicting package test
+fix moving packages when needed
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

@@ -239,15 +239,16 @@ public class JavaRunner implements Runnable{
             className+=runChoice.getName();
             className=className.substring(0,className.length()-5); //removes .java
             String javaExe=System.getProperty("java.home")+"/bin/java.exe";
-            System.out.println(javaExe);
+            //System.out.println(javaExe);
             javaExe="java"; //since we set the java.home the keyword java will go to the right place
             String directory=folder;
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
-            //builder.directory(runChoice.getParentFile().getParentFile()); //do something like this but safer to set proper working directory
-            builder.inheritIO();
-            //builder.directory(new File(directory)); //if this is uncommented it wont generate the input/output files in the right place.
-            System.out.println("Running from: "+directory);
+            //builder.directory(runChoice.getParentFile()); //do something like this but safer to set proper working directory
+            //if above is uncommented it wont generate the input/output files in the right place.
+            //todo: verify this works with packages
+            //builder.inheritIO();
+            System.out.println("Running from: "+runChoice.getParentFile());
             if(compile)
                 terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();

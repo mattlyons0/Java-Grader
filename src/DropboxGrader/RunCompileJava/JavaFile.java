@@ -220,8 +220,16 @@ public class JavaFile extends File{
                                     movedFiles=true;
                                 }
                                 else{ //upper folder isnt the right name and parent is the zip folder
-                                    File currentFolder=new File(getPath().substring(0,getPath().lastIndexOf("/")));
-                                    File newFolder=new File(currentFolder.getPath()+"/"+folders[i]);
+                                    File currentFolder;
+                                    File newFolder;
+                                    if(JavaRunner.onWindows){
+                                        currentFolder=new File(getPath().substring(0,getPath().lastIndexOf("\\")));
+                                        newFolder=new File(currentFolder.getPath()+"\\"+folders[i]);
+                                    }
+                                    else{
+                                        currentFolder=new File(getPath().substring(0,getPath().lastIndexOf("/")));
+                                        newFolder=new File(currentFolder.getPath()+"/"+folders[i]);
+                                    }
                                     newFolder.mkdir();
                                     System.out.println("Made new folder "+newFolder.getPath());
                                     if(currentFolder.listFiles()!=null){

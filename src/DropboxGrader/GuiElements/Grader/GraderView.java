@@ -19,22 +19,18 @@ import DropboxGrader.TextGrader.TextGrader;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.border.BevelBorder;
 
 /**
  *
@@ -112,6 +108,8 @@ public class GraderView extends ContentView{
         topBar.setLayout(new GridBagLayout());
         graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,codeSortPanel,codeOutputScroll);
         graderDivider.setDividerLocation(Config.dividerLocation);
+        if(graderDivider.getDividerLocation()<graderDivider.getMinimumDividerLocation())
+            graderDivider.setDividerLocation(graderDivider.getMinimumDividerLocation());
         graderDivider.setContinuousLayout(true);
         JPanel navPanel=new JPanel();
         navPanel.setLayout(new FlowLayout());
