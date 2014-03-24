@@ -34,7 +34,6 @@ import javax.swing.border.BevelBorder;
 public class PrintOverlay extends ContentOverlay{
     private Gui gui;
     private Print printer;
-    private Runnable callback;
     private int currentPage;
     private PageFormat format;
     
@@ -48,11 +47,11 @@ public class PrintOverlay extends ContentOverlay{
     public PrintOverlay(Gui gui){
         super("PrintOverlay");
         this.gui=gui;
-        printer=gui.getPrinter();
+        printer=new Print(gui);
     }
     @Override
     public void setup() {
-        format=new PageFormat();
+        format=printer.getFormat();
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
         printer.printPreview(image.getGraphics(), currentPage);
         
@@ -63,11 +62,10 @@ public class PrintOverlay extends ContentOverlay{
         print=new JButton("Print");
         print.addActionListener(this);
         backButton=new JButton("Back");
-        backButton.setEnabled(false);
         backButton.addActionListener(this);
         forwardButton=new JButton("Forward");
         forwardButton.addActionListener(this);
-        pageLabel=new JLabel("Page "+currentPage);
+        pageLabel=new JLabel();
         
         GridBagConstraints cons=new GridBagConstraints();
         cons.insets=new Insets(5,5,5,5);
@@ -104,6 +102,8 @@ public class PrintOverlay extends ContentOverlay{
         cons.gridx=3;
         add(forwardButton,cons);
         
+        changePage(0);
+        
         setTitle("Print Preview");
         setResizable(true);
         setClosable(true);
@@ -112,32 +112,41 @@ public class PrintOverlay extends ContentOverlay{
         setSize((int)(format.getWidth()*1.1f),(int)(format.getHeight()*1.1f));
         setLocation((parentSize.width-getSize().width)/2,(parentSize.height-getSize().height)/2);
         setVisible(true);
+        
     }
     private void changePage(int newPage){
         currentPage=newPage;
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
         printer.printPreview(image.getGraphics(), currentPage);
         iconLabel.setIcon(new ImageIcon(image));
-        pageLabel.setText("Page "+currentPage);
+        pageLabel.setText("Page "+(currentPage+1));
         if(currentPage==0){
             backButton.setEnabled(false);
         }
         else{
             backButton.setEnabled(true);
         }
+        int numPages=printer.getNumPages();
+        if(currentPage==numPages-1){
+            forwardButton.setEnabled(false);
+        }
+        else{
+            forwardButton.setEnabled(true);
+        }
     }
     @Override
     public void switchedTo() {}
-    public void setCallback(Runnable r){
-        callback=r;
-    }
     
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(print)){
-            if(callback!=null){
-                gui.getBackgroundThread().invokeLater(callback);
-            }
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    Print p=new Print(gui);
+                    p.print();
+                }
+            });
         }
         else if(e.getSource().equals(backButton)){
             changePage(currentPage-1);

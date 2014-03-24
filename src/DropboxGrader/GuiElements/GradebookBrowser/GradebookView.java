@@ -106,12 +106,6 @@ public class GradebookView extends ContentView{
         else if(e.getSource().equals(printButton)){
             //gui.getPrinter().print();
             PrintOverlay overlay=new PrintOverlay(gui);
-            overlay.setCallback(new Runnable() {
-                @Override
-                public void run() {
-                    gui.getPrinter().print();
-                }
-            });
             gui.getViewManager().addOverlay(overlay);
             
         }

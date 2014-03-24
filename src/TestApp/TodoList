@@ -32,9 +32,9 @@ Auto-email for things
     Invalid file structure
     Assignments that need to be resubmitted
 Unit testing (test methods with reflection or something)
+    Auto-run and grade tests in background upon startup
 Percentage based downloading results.
 When grade column is hidden also hide grade and comment
-Ability to make RTF printout for students.
 Migrate dropbox app to my own account on dropbox
 More user friendly table for assignments submitted
 Setting to encrypt grade sheet
@@ -82,7 +82,6 @@ Auto search for grades spreadsheet
 Auto search for class period with grades
 Thread back button in config gui.
 Wait until background thread isnt busy to terminate proccess
-Prettier borders everywhere using borderfactory
 Refactor everything that uses workerThread to use the new fancy runnable anon method way
 Progress spinner displayed on all views that says what it is doing and spins when something is happening.
     More detailed status when initially loading, and downloading/opening files
@@ -97,9 +96,9 @@ Horizontal scroll wheel support
 Make code sort take up less space
 Ctrl Z in gradebook
 Store last used code sorting method in config
-Line wrap printing
-    Don't cut off if there are too many assignments
-Fix bug with overlays not working when changing the look and feel to native
+Printing Modes:
+    Only Print One Person's Report
+    Print All Reports
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

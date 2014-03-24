@@ -1,36 +1,7 @@
 package DropboxGrader.Printing;
 
 /*
- * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   - Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *
- *   - Neither the name of Oracle or the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * Modified from http://docs.oracle.com/javase/tutorial/2d/printing/examples/HelloWorldPrinter.java
+ * Modified heavilly from http://docs.oracle.com/javase/tutorial/2d/printing/examples/HelloWorldPrinter.java
  */ 
 
 
@@ -43,27 +14,38 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Pageable;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Print implements Printable {
     private Gui gui;
     private Pageable pageable;
     private PrinterJob job;
     
+    private int cachedPages;
+    
+    private int previousPage=-1;
+    private int previousStudent=-1;
+    private int previousMultiPageIndex=-1;
+    private int previousAssignmentIndex=-1;
+    private int previousAssignmentLine=-1;
+    
     public Print(final Gui gui){
         this.gui=gui;
         
         job=PrinterJob.getPrinterJob();
+        calcTotalPages();
         pageable=new Pageable() {
             @Override
             public int getNumberOfPages() {
-                return gui.getGrader().getSpreadsheet().numNames();
+                return cachedPages;
             }
             @Override
             public PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
@@ -74,6 +56,10 @@ public class Print implements Printable {
                 return Print.this;
             }
         };
+    }
+    public Print(Gui gui,boolean needPages){
+        this.gui=gui;
+        job=PrinterJob.getPrinterJob();
     }
     @Override
     public int print(Graphics g,PageFormat pf,int page) throws PrinterException {
@@ -87,55 +73,104 @@ public class Print implements Printable {
         }
     }
     private int printData(Graphics g, PageFormat pf, int pageNum) throws PrinterException {
+        if(0>pageNum){
+            return NO_SUCH_PAGE;
+        }
         g.setColor(Color.black);
 
         /* User (0,0) is typically outside the imageable area, so we must
          * translate by the X and Y values in the PageFormat to avoid clipping
          */
         TextGrader grader=gui.getGrader();
-        int pages=grader.getSpreadsheet().numNames();
-        if(pageNum>=pages||0>pageNum){
+        if(previousPage!=pageNum-1||pageNum==0){
+            previousAssignmentIndex=-1;
+            previousMultiPageIndex=-1;
+            previousStudent=-1;
+            previousAssignmentLine=0;
+            previousAssignmentIndex=0;
+            if(pageNum!=pageNum-1){
+                BufferedImage i=new BufferedImage(1,1,BufferedImage.TYPE_3BYTE_BGR);
+                printData(i.getGraphics(),pf,pageNum-1);
+            }
+        }
+        if(previousStudent>=gui.getGrader().getSpreadsheet().numNames()){
             return NO_SUCH_PAGE;
         }
-        
-        
         Graphics2D g2d = (Graphics2D)g;
         g2d.translate(pf.getImageableX(), pf.getImageableY());
-
         /* Now we perform our rendering */
-        renderStudent(g2d,pageNum,grader,pf);
-        
-
+        if(previousMultiPageIndex<1){
+            if(previousStudent==-1){
+                previousStudent++;
+            }
+            boolean finished=renderStudent(g2d,previousStudent,grader,pf,0);
+            if(!finished){
+                previousMultiPageIndex=1;
+            }
+            else{
+                previousStudent++;
+                previousMultiPageIndex=0;
+                previousAssignmentIndex=-1;
+                previousAssignmentLine=0;
+            }
+        }
+        else if(previousPage==pageNum-1){
+            boolean finished=renderStudent(g2d,previousStudent,grader,pf,previousMultiPageIndex);
+            if(!finished){
+                previousMultiPageIndex++;
+            }
+            else{
+                previousStudent++;
+                previousMultiPageIndex=0;
+                previousAssignmentIndex=-1;
+                previousAssignmentLine=0;
+            }
+        }
+        previousPage=pageNum;
         /* tell the caller that this page is part of the printed document */
         return PAGE_EXISTS;
     }
-    private void renderStudent(Graphics2D g,int studentIndex,TextGrader grader,PageFormat pf){
+    private boolean renderStudent(Graphics2D g,int studentIndex,TextGrader grader,PageFormat pf,int page){
         int marginY=10;
         double centerX=(int)(pf.getImageableWidth()/2.0)-pf.getImageableX()*0.5;
         TextSpreadsheet sheet=grader.getSpreadsheet();
         g.drawString(new Date().toString(),0, marginY);
         marginY+=25;
-        g.setFont(g.getFont().deriveFont(Font.BOLD));
-        g.drawString(sheet.getNameAt(studentIndex).toString(), (int)centerX, (int)marginY);
-        g.setFont(g.getFont().deriveFont(Font.PLAIN));
-        marginY+=25;
-        for(int i=0;i<sheet.numAssignments();i++){
+        if(page==0){
+            g.setFont(g.getFont().deriveFont(Font.BOLD));
+            g.drawString(sheet.getNameAt(studentIndex).toString(), (int)centerX, (int)marginY);
+            g.setFont(g.getFont().deriveFont(Font.PLAIN));
+            marginY+=25;
+            
+            previousAssignmentIndex=0;
+            previousAssignmentLine=0;
+        }
+        for(int i=previousAssignmentIndex;i<sheet.numAssignments();i++){
             TextAssignment assign=sheet.getAssignmentAt(i);
             TextGrade grade=sheet.getGradeAt(i, studentIndex);
-            
-            g.drawString("Assignment "+assign.number+": "+assign.name,0,(int)marginY);
-            marginY+=15;
+            if(previousAssignmentLine==0)
+                g.drawString("Assignment "+assign.number+": "+assign.name,0,(int)marginY);
+            else
+                g.drawString("Assignment "+assign.number+" Continued:",0,(int)marginY);
+            marginY+=20;
             if(grade!=null){
                 if(!grade.comment.equals("")){
                     String str="Grade: "+grade.grade+" Comment: "+grade.comment;
                     String[] stringLines=lineWrap(str,(int)pf.getImageableWidth(),g);
-                    for(String s:stringLines){
+                    for(int line=previousAssignmentLine;line<stringLines.length;line++){
+                        String s=stringLines[line];
                         g.drawString(s,0,(int)marginY);
                         marginY+=15;
+                        if(marginY>=pf.getImageableHeight()){
+                            previousAssignmentIndex=i;
+                            previousAssignmentLine=line+1;
+                            return false;
+                        }
                     }
                 } else{
                     g.drawString("Grade: "+grade.grade,0,(int)marginY);
                 }
+                previousAssignmentLine=0;
             }
             else{
                 g.setColor(Color.red);
@@ -145,7 +180,14 @@ public class Print implements Printable {
                 g.setFont(g.getFont().deriveFont(Font.PLAIN));
             }
             marginY+=25;
+            if(marginY>=pf.getImageableHeight()){
+                previousAssignmentIndex=i+1;
+                previousAssignmentLine=0;
+                return false;
+            }
         }
+        previousAssignmentLine=0;
+        return true;
     }
     private String[] lineWrap(String str,int width,Graphics2D g){
         int lineWidth=g.getFontMetrics().stringWidth(str);
@@ -210,5 +252,28 @@ public class Print implements Printable {
     }
     public PageFormat getFormat(){
         return job.defaultPage();
+    }
+    public int getNumPages(){
+        return pageable.getNumberOfPages();
+    }
+    private void calcTotalPages(){
+        int pages=0;
+        BufferedImage i=new BufferedImage(1,1,BufferedImage.TYPE_3BYTE_BGR);
+        boolean done=false;
+        Print p=new Print(gui,false);
+        while(!done){
+            try {
+                int value=p.printData(i.getGraphics(),job.defaultPage(),pages);
+                if(value==Print.NO_SUCH_PAGE){
+                    done=true;
+                }
+                else{
+                    pages++;
+                }
+            } catch (PrinterException ex) {
+                Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        cachedPages=pages;
     }
 }
