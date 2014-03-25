@@ -63,14 +63,30 @@ public class InputRelayer implements Runnable{
             while(looping&&output!=null&&error!=null){
                 try {
                     String line=null;
-                    if(output.ready())
-                        line=output.readLine();
+                    int out=-2;
+                    while(output.ready()&&out!=-1){
+                        out=output.read();
+                        if(line==null)
+                            line="";
+                        if(out!=-1||out!=-2)
+                            line+=(char)out;
+                        if(out==-2)
+                            out=-1;
+                    }
                     if(line!=null){
                         terminal.append(line+"\n");
                     }
                     line=null;
-                    if(error.ready())
-                        line=error.readLine();
+                    out=-2;
+                    while(error.ready()&&out!=-1){
+                        out=error.read();
+                        if(line==null)
+                            line="";
+                        if(out!=-1||out!=-2)
+                            line+=(char)out;
+                        if(out==-2)
+                            out=-1;
+                    }
                     if(line!=null){
                         terminal.append(line+"\n",Color.RED);
                     }

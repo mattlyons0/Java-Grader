@@ -104,6 +104,8 @@ Gradebook mode:
     View grade percentage per person
 Fix window internal padding changing upon clicking something on linux gtk L&F
 Do multiple runs faster, investigate why the delays are needed now that we aren't using files.
+Paste into terminal and code panel
+Fix split pane not saving position
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled
