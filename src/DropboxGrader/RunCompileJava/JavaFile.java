@@ -438,7 +438,9 @@ public class JavaFile extends File{
                 current.contains("."+other+";")||current.contains("."+other+".")||
                 current.contains("("+other+" ")||current.contains("<"+other+">")||
                 current.contains("("+other+".")||current.contains("("+other+"(")||
-                current.contains("."+other+"(")||current.contains("."+other+")")){
+                current.contains("."+other+"(")||current.contains("."+other+")")||
+                current.contains(" "+other+"{")||current.contains(" "+other+",")||
+                current.contains(","+other+"{")||current.contains(","+other+",")){
             return true;
         }
         return false;

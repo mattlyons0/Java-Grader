@@ -12,8 +12,6 @@ import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiHelper;
-import DropboxGrader.GuiElements.Grader.JTerminal;
-import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrader;
 import java.awt.Color;
@@ -312,7 +310,7 @@ public class GraderView extends ContentView{
             comment="";
         }
         //if the divider somehow gets hidden lets make it small
-        if(graderDivider.getDividerLocation()>getSize().width-50){
+        if(graderDivider.getDividerLocation()>gui.getRootPane().getSize().width-50){
             graderDivider.setDividerLocation(gui.getRootPane().getSize().width-50);
             Config.dividerLocation=gui.getRootPane().getSize().width-50;
         }

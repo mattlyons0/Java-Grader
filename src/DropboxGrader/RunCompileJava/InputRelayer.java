@@ -9,15 +9,9 @@ package DropboxGrader.RunCompileJava;
 import DropboxGrader.GuiElements.Grader.JTerminal;
 import java.awt.Color;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,7 +68,7 @@ public class InputRelayer implements Runnable{
                             out=-1;
                     }
                     if(line!=null){
-                        terminal.append(line+"\n");
+                        terminal.append(line);
                     }
                     line=null;
                     out=-2;
@@ -88,7 +82,7 @@ public class InputRelayer implements Runnable{
                             out=-1;
                     }
                     if(line!=null){
-                        terminal.append(line+"\n",Color.RED);
+                        terminal.append(line,Color.RED);
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, ex);

@@ -8,7 +8,6 @@ import DropboxGrader.DbxFile;
 import DropboxGrader.RunCompileJava.JavaFile;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.File;
@@ -33,8 +32,7 @@ public class JavaCodeBrowser extends JPanel{
     private JTabbedPane tabPane;
     private DbxFile file;
     private int numTextFiles;
-    private int currentlyRunning;
-    private Color defaultBackground;
+    private JavaFile currentlyRunning;
     private int sortMode;
     private int sortOrder;
     private ArrayList<JavaFile> files;
@@ -45,20 +43,23 @@ public class JavaCodeBrowser extends JPanel{
     public JavaCodeBrowser(DbxFile f){
         file=f;
         DefaultSyntaxKit.initKit();
+        currentlyRunning=null;
         sort();
         init();
     }
     public void init(){
-        currentlyRunning=-1;
         if(files==null){
             return;
         }
         layout=new CardLayout(10,5);
         setLayout(layout);
-        if(tabPane==null)
+        if(tabPane==null){
             tabPane=new JTabbedPane();
-        else
+        }
+        else{
             tabPane.removeAll();
+            removeAll();
+        }
         File[] files=this.files.toArray(new File[0]);
         int numFiles=1;
         boolean noJavaFiles=true;
@@ -137,11 +138,10 @@ public class JavaCodeBrowser extends JPanel{
         }
         add(tabPane,BorderLayout.CENTER);
         if(numFiles!=0&&files.length!=0){
-            defaultBackground=tabPane.getBackgroundAt(0);
-            layout.show(this, this.files.get(0).getName());
+            layout.show(this, this.files.get(0).getName()); //select first tab
         }
     }
-    private void sort(){ //no more than 100 classes are going to be sorted at once, so I probably don't have to implement a fancy sorting algorithm
+    private void sort(){ //no more than ~100 classes are going to be sorted at once, so I probably don't have to implement a fancy sorting algorithm
         if(file==null){
             return;
         }
@@ -265,21 +265,24 @@ public class JavaCodeBrowser extends JPanel{
         return result;
     }
     public void setRunningFile(JavaFile f){
+        String colorString1="<html><font color='00AB00'>";
+        String colorString2="</font></html>";
         if(f!=null){
-            JavaFile[] files=file.getJavaFiles();
-            for(int i=numTextFiles;i<files.length+numTextFiles;i++){
-                if(files[i-numTextFiles].equals(f)){
-                    tabPane.setBackgroundAt(i, new Color(163,255,163));
-                    tabPane.setTitleAt(i,"*"+tabPane.getTitleAt(i)+"*");
-                    currentlyRunning=i;
+            for(int i=numTextFiles;i<files.size()+numTextFiles;i++){
+                if(files.get(i-numTextFiles).equals(f)){
+                    tabPane.setTitleAt(i,colorString1+tabPane.getTitleAt(i)+colorString2);
+                    currentlyRunning=f;
                     break;
                 }
             }
         }
-        else if(currentlyRunning!=-1){ //nothing is running anymore
-            tabPane.setBackgroundAt(currentlyRunning, defaultBackground);
-            tabPane.setTitleAt(currentlyRunning, tabPane.getTitleAt(currentlyRunning).replaceAll("\\*", ""));
-            currentlyRunning=-1;
+        else if(currentlyRunning!=null){ //nothing is running anymore
+            for(int i=numTextFiles;i<files.size()+numTextFiles;i++){
+                if(files.get(i-numTextFiles).equals(currentlyRunning)){
+                    tabPane.setTitleAt(i, tabPane.getTitleAt(i).replace(colorString1,"").replace(colorString2,""));
+                    currentlyRunning=null;
+                }
+            }
         }
     }
     public void setSortMode(int mode){
@@ -287,6 +290,7 @@ public class JavaCodeBrowser extends JPanel{
         
         sort();
         init();
+        setRunningFile(currentlyRunning);
         revalidate();
         repaint();
     }

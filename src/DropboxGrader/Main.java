@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import DropboxGrader.RunCompileJava.RelayStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -35,8 +36,8 @@ public class Main {
             File errLog=new File("error.log");
             errLog.createNewFile();
             PrintStream s=new PrintStream(errLog);
-            System.setErr(s); //log exceptions to error.log file.
-            //System.setOut(s);
+            SplitStream es=new SplitStream(s,System.err);  
+            System.setErr(es);
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }

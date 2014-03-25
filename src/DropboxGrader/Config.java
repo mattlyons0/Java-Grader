@@ -43,7 +43,7 @@ public class Config {
         //GradingPanel
         autoRun=false;
         runTimes=1;
-        dividerLocation=Toolkit.getDefaultToolkit().getScreenSize().width*2/3; //2/3rds
+        dividerLocation=(int)(Toolkit.getDefaultToolkit().getScreenSize().width*2.0/3); //2/3rds
     }
     public static void readConfig(){
         if(!CONFIGFILE.exists()){

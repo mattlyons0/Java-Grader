@@ -14,7 +14,6 @@ import java.awt.event.KeyListener;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import javax.swing.JTextPane;
-import javax.swing.border.EmptyBorder;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;

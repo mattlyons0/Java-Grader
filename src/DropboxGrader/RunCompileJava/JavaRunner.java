@@ -6,8 +6,6 @@ package DropboxGrader.RunCompileJava;
 
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Grader.JTerminal;
-import DropboxGrader.RunCompileJava.JavaFile;
-import DropboxGrader.RunCompileJava.InputRelayer;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +39,6 @@ public class JavaRunner implements Runnable{
         this.gui=gui;
         this.relay=new InputRelayer(t);
         
-        new File("runtimeFiles/").mkdir();
         errorRelay=new RelayStream(System.out,terminal);
         thread=new Thread(this);
         thread.setName("CheckProccessStateThread");
