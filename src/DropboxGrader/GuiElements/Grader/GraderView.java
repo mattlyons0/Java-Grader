@@ -108,10 +108,6 @@ public class GraderView extends ContentView{
         topBar.setLayout(new GridBagLayout());
         graderDivider=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,codeSortPanel,codeOutputScroll);
         graderDivider.setDividerLocation(Config.dividerLocation);
-        if(graderDivider.getDividerLocation()<graderDivider.getMinimumDividerLocation()){
-            graderDivider.setDividerLocation(graderDivider.getMinimumDividerLocation());
-            Config.dividerLocation=graderDivider.getMinimumDividerLocation();
-        }
         graderDivider.setContinuousLayout(true);
         JPanel navPanel=new JPanel();
         navPanel.setLayout(new FlowLayout());
@@ -314,6 +310,11 @@ public class GraderView extends ContentView{
         }
         if(comment==null){
             comment="";
+        }
+        //if the divider somehow gets hidden lets make it small
+        if(graderDivider.getDividerLocation()>getSize().width-50){
+            graderDivider.setDividerLocation(gui.getRootPane().getSize().width-50);
+            Config.dividerLocation=gui.getRootPane().getSize().width-50;
         }
         gradeNumber.setText(grade);
         gradeComment.setText(comment);

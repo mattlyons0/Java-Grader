@@ -78,8 +78,8 @@ public class JTerminal extends JTextPane implements KeyListener{
            }
            writer.append(call+"\n");
            writer.flush();
-           writer.write("");
-           writer.flush();
+           //writer.write("");
+           //writer.flush();
        }
     }
     public void stop(){

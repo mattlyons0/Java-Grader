@@ -136,7 +136,7 @@ public class JavaCodeBrowser extends JPanel{
                 tabPane.setToolTipTextAt(x,getTooltip((JavaFile)files[x]));
         }
         add(tabPane,BorderLayout.CENTER);
-        if(numFiles!=0){
+        if(numFiles!=0&&files.length!=0){
             defaultBackground=tabPane.getBackgroundAt(0);
             layout.show(this, this.files.get(0).getName());
         }
