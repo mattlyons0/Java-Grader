@@ -235,8 +235,10 @@ public class JavaFile extends File{
                                     if(currentFolder.listFiles()!=null){
                                         for(File files:currentFolder.listFiles()){
                                             File newFile=new File(newFolder.getPath()+files.getPath().replace(parent.getPath(), ""));
-                                            System.out.println("Renamed "+files.getPath()+" to "+newFile.getPath());
-                                            files.renameTo(newFile);
+                                            if(!newFile.equals(currentFolder)){
+                                                System.out.println("Renamed "+files.getPath()+" to "+newFile.getPath());
+                                                files.renameTo(newFile);
+                                            }
                                         }
                                         movedFiles=true;       
                                     }
