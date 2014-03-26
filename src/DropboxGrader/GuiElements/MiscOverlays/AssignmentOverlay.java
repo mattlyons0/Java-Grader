@@ -39,7 +39,8 @@ public class AssignmentOverlay extends ContentOverlay{
 
     @Override
     public void setup() {
-        setTitle("Edit Assignment");
+        if(getTitle().equals(""))
+            setTitle("Edit Assignment");
         setLayout(new GridBagLayout());
         
         assignmentNumField=new JTextField(10);

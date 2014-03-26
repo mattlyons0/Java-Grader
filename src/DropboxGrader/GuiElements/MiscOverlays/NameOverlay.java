@@ -38,7 +38,8 @@ public class NameOverlay extends ContentOverlay{
     
     @Override
     public void setup() {
-        setTitle("Edit Name");
+        if(getTitle().equals(""))
+            setTitle("Edit Name");
         setLayout(new GridBagLayout());
         
         firstNameField=new JTextField(20);

@@ -17,44 +17,20 @@ import java.util.logging.Logger;
 public class WorkerThread implements Runnable{
     private Gui gui;
     private FileManager manager;
-    private ArrayList<DbxFile> fileQueue;
-    private ArrayList<DbxFile> deleteQueue;
-    private ArrayList<Runnable> actionQueue;
-    private boolean graderAfter;
-    private DbxFile fileToRun;
-    private int timesToRun;
-    private boolean refreshNeeded;
+    private ArrayList<Runnable> queue;
+    private boolean closeAfterDone;
+    
     public WorkerThread(Gui gui){
         this.gui=gui;
-        fileQueue=new ArrayList();
-        deleteQueue=new ArrayList();
-        actionQueue=new ArrayList();
-        refreshNeeded=true;
+        queue=new ArrayList();
+        closeAfterDone=false;
     }
     @Override
     public void run() {
         while(true){
             try{
-                int size=fileQueue.size();
-                for(int x=0;x<size;x++){
-                    DbxFile f=fileQueue.remove(0);
-                    if(f!=null){
-                        gui.setStatus("Downloading "+f.getFileName());
-                        f.download();
-                        int progress=(int)((double)(x+1)/size*100);
-                        gui.updateProgress(progress);
-                        if(size==1){
-                            gui.updateProgress(50);
-                        }
-                        gui.repaintTable();
-                    }
-                }
-                for(DbxFile f:deleteQueue){
-                    if(f!=null)
-                        f.delete();
-                }
-                for(int i=0;i<actionQueue.size();i++){
-                    Runnable r=actionQueue.remove(i);
+                while(!queue.isEmpty()){
+                    Runnable r=queue.remove(0);
                     try{
                         r.run();
                     } catch(Exception e){
@@ -62,36 +38,13 @@ public class WorkerThread implements Runnable{
                         e.printStackTrace();
                     }
                 }
-                if(!deleteQueue.isEmpty()){
-                    deleteQueue.clear();
-                    gui.refreshTable();
-                }
-                if(graderAfter){
-                    gui.setupGraderGui();
-                    graderAfter=false;
-                }
-                if(fileToRun!=null){
-                    boolean success=fileToRun.run(timesToRun,gui.getCodeBrowser());
-                    if(!success){
-                        gui.proccessEnded();
-                    }
-                    fileToRun=null;
-                    timesToRun=0;
-                }
-                if(refreshNeeded&&manager!=null){
-                    manager.refresh();
-                    gui.refreshFinished();
-                    if(gui.getGrader()!=null){
-                        gui.getGrader().refresh();
-                        gui.repaint();
-                    }
-
-                    refreshNeeded=false;
-                }
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(WorkerThread.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if(closeAfterDone){
+                    gui.getListener().windowClosing(null);
                 }
             } catch(Exception e){
                 System.err.println("An exception occured on the background thread and it was caught from crashing.");
@@ -100,46 +53,135 @@ public class WorkerThread implements Runnable{
         }
     }
     public void downloadAll(){
-        fileQueue.addAll(manager.getFiles());
+        queue.add(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<DbxFile> files=manager.getFiles();
+                for(int i=0;i<files.size();i++){
+                    DbxFile f=files.get(i);
+                    if(f!=null){
+                        gui.setStatus("Downloading "+f.getFileName());
+                        int progress=(int)((double)(i+1)/files.size()*100);
+                        gui.updateProgress(progress);
+                        if(files.size()==1){
+                            gui.updateProgress(50);
+                        }
+                        f.download();
+                        gui.repaintTable();
+                    }
+                }
+            }
+        });
     }
-    public void download(int index,boolean graderAfter){
-        fileQueue.add(manager.getFile(index));
-        setGradeAfter(graderAfter);
+    public void download(final int index,final boolean gradeAfter){
+        final DbxFile f=manager.getFile(index);
+        queue.add(new Runnable() {
+            @Override
+            public void run() {
+                if(f!=null){
+                    gui.updateProgress(50);
+                    f.download();
+                    gui.repaintTable();
+                }
+                if(gradeAfter){
+                    gui.setupGraderGui();
+                }
+            }
+        });
     }
-    public void download(ArrayList<Integer> fileIndexes,boolean gradeAfter){
-        for(Integer i:fileIndexes){
-            fileQueue.add(manager.getFile(i));
+    public void download(ArrayList<Integer> fileIndexes,final boolean gradeAfter){
+        final ArrayList<DbxFile> files=new ArrayList();
+        for(int i=0;i<fileIndexes.size();i++){
+            files.add(manager.getFile(fileIndexes.get(i)));
         }
-        setGradeAfter(gradeAfter);
+        queue.add(new Runnable() {
+            @Override
+            public void run() {
+                for(int i=0;i<files.size();i++){
+                    DbxFile f=files.get(i);
+                    if(f!=null){
+                        gui.setStatus("Downloading "+f.getFileName());
+                        int progress=(int)((double)(i+1)/files.size()*100);
+                        gui.updateProgress(progress);
+                        if(files.size()==1){
+                            gui.updateProgress(50);
+                        }
+                        f.download();
+                        gui.repaintTable();
+                    }
+                }
+                if(gradeAfter){
+                    gui.setupGraderGui();
+                }
+            }
+        });
     }
-    private void setGradeAfter(boolean g){
-        if(g){
-            graderAfter=true;
+    public void runFile(int file,final int times){
+        final DbxFile f=manager.getFile(file);
+        queue.add(new Runnable() {
+            @Override
+            public void run() {
+                boolean success=f.run(times,gui.getCodeBrowser());
+                if(!success){
+                    gui.proccessEnded();
+                }
+            }
+        });
+    }
+    public void delete(ArrayList<Integer> fileIndexes){
+        final ArrayList<DbxFile> files=new ArrayList();
+        for(int i=0;i<fileIndexes.size();i++){
+            files.add(manager.getFile(fileIndexes.get(i)));
         }
-    }
-    public void runFile(int file,int times){
-        fileToRun=manager.getFile(file);
-        timesToRun=times;
-    }
-    public void delete(ArrayList<Integer> files){
-        for(int x=0;x<files.size();x++){
-            deleteQueue.add(manager.getFile(files.get(x)));
-        }
+        queue.add(new Runnable() {
+            @Override
+            public void run() {
+                for(DbxFile f:files){
+                    if(f!=null)
+                        f.delete();
+                }
+            }
+        });
     }
     public void delete(Integer file){
         if(file==null){
             return;
         }
-        deleteQueue.add(manager.getFile(file));
+        final DbxFile f=manager.getFile(file);
+        queue.add(new Runnable() {
+            @Override
+            public void run() {
+                if(f!=null){
+                    f.delete();
+                }
+            }
+        });
     }
     public void invokeLater(Runnable run){
-        actionQueue.add(run);
+        queue.add(run);
     }
     public void refreshData(){
-        refreshNeeded=true;
+        queue.add(new Runnable() {
+            @Override
+            public void run() {
+                if(manager!=null){
+                    manager.refresh();
+                    gui.refreshFinished();
+                    if(gui.getGrader()!=null){
+                        gui.getGrader().refresh();
+                        gui.repaint();
+                    }
+                }
+            }
+        });
     }
     public void setFileManager(FileManager man){
         manager=man;
     }
-    
+    public boolean hasWork(){
+        return !queue.isEmpty();
+    }
+    public void setCloseAfterDone(boolean close){
+        closeAfterDone=close;
+    }
 }

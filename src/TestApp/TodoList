@@ -8,7 +8,6 @@ button to change dropbox login in config
 Custom sorting in browser table
     Sort assignments by numbers (2 before 1000)
     Sort submitDate by actual date
-Make code run from its own folder (so accessing resource won't fail). http://stackoverflow.com/questions/8405723/how-to-set-working-directory-with-processbuilder
 Surpress exception when refreshing sometimes with swing repainting.
 Delete local files option in settings menu.
 Count lines of code?
@@ -18,7 +17,6 @@ Config to read text files by default
 Update checker
 Optional libraries to compile with setting.
 Ability to close code tabs with right click.
-Encrypt grade sheet
 Store email
 Store graded date
 Store grade total
@@ -71,38 +69,31 @@ Bulk options
 Read RTF and Word files as well as text files.
     apache word library
 Configurable colors for gradebook as well as browser (inIC,late..)
-Remember window position and size each session
 Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
     Review memory management (profile)
 Fix guis on smaller window sizes
 When prompted for fixed name, rename file to that name.
 Remove old resubmit thing, replace it with date based resubmits/late
-Confirmation for closing while a assignment is being run
 Option to show assignments in subdirectories
 Auto search for grades spreadsheet
 Auto search for class period with grades
-Thread back button in config gui.
-Wait until background thread isnt busy to terminate proccess
-Refactor everything that uses workerThread to use the new fancy runnable anon method way
 Progress spinner displayed on all views that says what it is doing and spins when something is happening.
     More detailed status when initially loading, and downloading/opening files
 Check return values when changing data in gradebook
-Put gui helper on the EDT
 Really, no grading should be done on the main thread since that could mess things up pretty bad if it is modified on two threads at once.
 Use contentOverlay instead of GuiHelper and JOptionPane
-right click menu for adding a grade in gradebook
 Mode to switch names/assignments axis
 Assignment Status at the top instead of filename
 Horizontal scroll wheel support
 Make code sort take up less space (maybe put it in an overlay)
 Ctrl Z in gradebook
-Store last used code sorting method in config
+Stop threads instead of System.exit(0) in guiListener.
+Determine if previous location is off the screen, if it is use 0,0
 Printing Modes:
     Only Print One Person's Report
     Print All Reports
 Gradebook mode:
     View grade percentage per person
-Fix window internal padding changing upon clicking something on linux gtk L&F
 Do multiple runs faster, investigate why the delays are needed now that we aren't using files.
 Paste into terminal and code panel
 demo mode

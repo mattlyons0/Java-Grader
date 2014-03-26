@@ -323,6 +323,8 @@ public class GraderView extends ContentView{
         codeOutputArea.setText("");
         runButton.setText("Run");
         
+        javaCode.setSort(Config.codeSortMode,Config.codeSortOrder);
+        
         if(Config.autoRun&&!gui.getSelectedFiles().isEmpty()){
             //If it should autorun, go autorun on the other thread.
             runButton.setText("Stop Running");

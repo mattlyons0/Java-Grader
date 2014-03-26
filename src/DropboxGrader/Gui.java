@@ -14,10 +14,8 @@ import DropboxGrader.GuiElements.GradebookBrowser.GradebookView;
 import DropboxGrader.GuiElements.Grader.GraderView;
 import DropboxGrader.GuiElements.Grader.JTerminal;
 import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
-import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscViews.AuthView;
 import DropboxGrader.GuiElements.MiscViews.ConfigView;
-import DropboxGrader.Printing.Print;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
@@ -82,10 +80,9 @@ public class Gui extends JFrame implements ActionListener{
         viewManager.addView(configView);
     }
     private void init(){
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize((int)(screenSize.width*0.95),(int)(screenSize.height*0.9));
-        setLocation(screenSize.width/2-this.getSize().width/2, screenSize.height/2-this.getSize().height/2);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        setSize(Config.screenWidth,Config.screenHeight);
+        setLocation(Config.screenCoordX,Config.screenCoordY);
         
         setContentPane(viewManager);
         
@@ -222,5 +219,8 @@ public class Gui extends JFrame implements ActionListener{
         if(graderView!=null)
             return graderView.getCodeBrowser();
         return null;
+    }
+    public GuiListener getListener(){
+        return listener;
     }
 }

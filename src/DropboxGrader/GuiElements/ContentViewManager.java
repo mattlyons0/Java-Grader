@@ -59,6 +59,11 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         v.setup();
         views.add(v);
     }
+    /**
+     * Changes current background view to another which has already been added.
+     * Thread Safe
+     * @param viewName name of view to be changed to
+     */
     public void changeView(final String viewName){
         SwingUtilities.invokeLater(new Runnable() {
             @Override

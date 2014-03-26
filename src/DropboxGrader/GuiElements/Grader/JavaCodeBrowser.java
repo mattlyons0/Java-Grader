@@ -4,6 +4,7 @@
  */
 package DropboxGrader.GuiElements.Grader;
 
+import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
 import DropboxGrader.RunCompileJava.JavaFile;
 import java.awt.BorderLayout;
@@ -285,8 +286,21 @@ public class JavaCodeBrowser extends JPanel{
             }
         }
     }
+    public void setSort(int mode,int order){
+        sortMode=mode;
+        sortOrder=order;
+        Config.codeSortMode=sortMode;
+        Config.codeSortOrder=sortOrder;
+        
+        sort();
+        init();
+        setRunningFile(currentlyRunning);
+        revalidate();
+        repaint();
+    }
     public void setSortMode(int mode){
         sortMode=mode;
+        Config.codeSortMode=sortMode;
         
         sort();
         init();
@@ -296,6 +310,7 @@ public class JavaCodeBrowser extends JPanel{
     }
     public void setSortOrder(int order){
         sortOrder=order;
+        Config.codeSortOrder=sortOrder;
         
         sort();
         init();

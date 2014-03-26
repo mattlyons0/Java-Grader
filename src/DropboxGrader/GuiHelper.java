@@ -3,6 +3,7 @@ package DropboxGrader;
 import javax.swing.JOptionPane;
 import java.util.Random;
 import java.util.Arrays;
+import javax.swing.SwingUtilities;
 
 public class GuiHelper{
     /**
@@ -17,32 +18,16 @@ public class GuiHelper{
                 choices,-1);
     }
     /**
-     * Creates input dialog
-     * @param question text to display above text box.
-     * @return input
-     */
-    public static String inputDialog(String question){
-        String choice=JOptionPane.showInputDialog(question);
-        //Can't seem to get rid of cancel, so this'll do...
-        if(choice!=null){
-            return choice;
-        }
-        else{
-            String[] yesno={"Yes","No"};
-            int close=multiOptionPane("Are you sure?",yesno);
-            if(close==0){
-                System.exit(0);
-            }
-            return inputDialog(question);
-        }
-
-    }
-    /**
      * Puts text in JOptionPane
      * @param message text to display in pane.
      */
-    public static void alertDialog(String message){
-        JOptionPane.showMessageDialog(null,message);
+    public static void alertDialog(final String message){
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(null,message);
+            }
+        });
     }
 
     public static boolean yesNoDialog(String question) {

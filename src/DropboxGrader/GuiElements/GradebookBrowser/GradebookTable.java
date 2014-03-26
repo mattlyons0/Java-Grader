@@ -6,9 +6,9 @@
 
 package DropboxGrader.GuiElements.GradebookBrowser;
 
-import DropboxGrader.Config;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
+import DropboxGrader.GuiElements.MiscOverlays.GradeOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextAssignment;
@@ -17,38 +17,24 @@ import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.DropMode;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -278,23 +264,29 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         int col=getSelectedColumn();
         if(col!=0){
             TextGrade grade=sheet.getGradeAt(col-1, row);
-            if(grade==null){
-                return null;
-            }
             JPopupMenu m=new JPopupMenu();
-            JMenuItem m1=new JMenuItem("Toggle Gradebook Status");
-            m1.setActionCommand("Toggle Gradebook Status"+row+","+col);
-            m1.addActionListener(this);
-            JMenuItem m2=new JMenuItem("Edit");
-            m2.setActionCommand("Edit Grade"+row+","+col);
-            m2.addActionListener(this);
-            JMenuItem m3=new JMenuItem("Delete");
-            m3.setActionCommand("Delete Grade"+row+","+col);
-            m3.addActionListener(this);
-            m.add(m1);
-            m.add(m2);
-            m.add(m3);
-            return m;
+            if(grade==null){
+                JMenuItem m1=new JMenuItem("Create Grade");
+                m1.setActionCommand("Create Grade"+row+","+col);
+                m1.addActionListener(this);
+                m.add(m1);
+                return m;
+            }
+            else{
+                JMenuItem m1=new JMenuItem("Toggle Gradebook Status");
+                m1.setActionCommand("Toggle Gradebook Status"+row+","+col);
+                m1.addActionListener(this);
+                JMenuItem m2=new JMenuItem("Edit");
+                m2.setActionCommand("Edit Grade"+row+","+col);
+                m2.addActionListener(this);
+                JMenuItem m3=new JMenuItem("Delete");
+                m3.setActionCommand("Delete Grade"+row+","+col);
+                m3.addActionListener(this);
+                m.add(m1);
+                m.add(m2);
+                m.add(m3);
+                return m;
+            }
         }
         else{ //if its a name
             TextName name=sheet.getNameAt(row);
@@ -345,7 +337,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         }
         else if(e.getActionCommand().startsWith("Edit Grade")){
             int[] coords=extractCoords("Edit Grade",e.getActionCommand());
-            changeGrade(coords[0],coords[1]);
+            changeGrade(coords[0],coords[1],true);
         }
         else if(e.getActionCommand().startsWith("Delete Grade")){
             int[] coords=extractCoords("Delete Grade",e.getActionCommand());
@@ -367,26 +359,28 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             int col=extractNumber("Delete Assignment",e.getActionCommand());
             deleteAssignment(col);
         }
+        else if(e.getActionCommand().startsWith("Create Grade")){
+            int[] coords=extractCoords("Create Grade",e.getActionCommand());
+            changeGrade(coords[0],coords[1],false);
+        }
     }
-    private void changeGrade(int row,int col){
+    private void changeGrade(int row,int col,final boolean overwrite){
         TextGrade grade=sheet.getGradeAt(col-1, row);
-        if(grade!=null){
-            final String gradeChoice=JOptionPane.showInputDialog("What would you like to change the grade to?",grade.grade);
-            final String commentChoice=JOptionPane.showInputDialog("What would you like to change the comment to?",grade.comment);
-            if(gradeChoice==null||commentChoice==null){
-                return;
-            }
-            final String name=sheet.getNameAt(row).firstName+sheet.getNameAt(row).lastName;
-            final int assignment=sheet.getAssignmentAt(col-1).number;
-            gui.getBackgroundThread().invokeLater(new Runnable() {
+        final String name=sheet.getNameAt(row).firstName+sheet.getNameAt(row).lastName;
+        final int assignment=sheet.getAssignmentAt(col-1).number;
+        final GradeOverlay overlay=new GradeOverlay(gui);
+        if(grade!=null)
+            overlay.setData(grade.grade,grade.comment,name,assignment);
+        else
+            overlay.setData("","",name,assignment);
+        overlay.setCallback(new Runnable() {
             @Override
             public void run() {
-                gui.getGrader().setGrade(name, assignment, gradeChoice, commentChoice, true);
-                repaint();
-                gui.fileBrowserDataChanged();
+                String[] results=overlay.getData();
+                gui.getGrader().setGrade(name,assignment,results[0], results[1], overwrite);
             }
         });
-        }
+        gui.getViewManager().addOverlay(overlay);
     }
     private void changeName(final int row){
         final TextName name=sheet.getNameAt(row);

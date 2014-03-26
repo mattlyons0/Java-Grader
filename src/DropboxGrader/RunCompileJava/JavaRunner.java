@@ -317,9 +317,6 @@ public class JavaRunner implements Runnable{
     public InputRelayer getRelay(){
         return relay;
     }
-    public boolean isRunning(){
-        return running!=null;
-    }
     private ArrayList<JavaFile> calcDependencies(JavaFile mainFile,JavaFile[] files){
         ArrayList<JavaFile> depFiles=new ArrayList();
         String[] fileDeps=mainFile.getDependencies();
@@ -344,5 +341,11 @@ public class JavaRunner implements Runnable{
         }
         
         return depFiles;
+    }
+    public boolean isRunning(){
+        if(numRunsLeft>0||running!=null){
+            return true;
+        }
+        return false;
     }
 }
