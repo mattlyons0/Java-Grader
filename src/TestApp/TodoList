@@ -88,7 +88,6 @@ Horizontal scroll wheel support
 Make code sort take up less space (maybe put it in an overlay)
 Ctrl Z in gradebook
 Stop threads instead of System.exit(0) in guiListener.
-Determine if previous location is off the screen, if it is use 0,0
 Printing Modes:
     Only Print One Person's Report
     Print All Reports

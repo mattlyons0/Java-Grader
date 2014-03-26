@@ -4,8 +4,10 @@
  */
 package DropboxGrader;
 
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.io.File;
+import javax.swing.JFrame;
 
 /**
  *
@@ -22,6 +24,7 @@ public class Config {
     public static int screenCoordY;
     public static int screenWidth;
     public static int screenHeight;
+    public static int screenState;
     //FileBrowser
     public static String columnOrder;
     public static String columnWidth;
@@ -44,6 +47,7 @@ public class Config {
         screenCoordY=0;
         screenWidth=(int)(Toolkit.getDefaultToolkit().getScreenSize().width*0.95);
         screenHeight=(int)(Toolkit.getDefaultToolkit().getScreenSize().height*0.9);
+        screenState=JFrame.NORMAL;
         //FileBrowser
         columnOrder="0,1,2,3,4";
         columnWidth="75,75,75,75,75"; //75=default
@@ -80,6 +84,7 @@ public class Config {
             screenCoordY=Integer.parseInt(vars[14]);
             screenWidth=Integer.parseInt(vars[15]);
             screenHeight=Integer.parseInt(vars[16]);
+            screenState=Integer.parseInt(vars[17]);
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
@@ -102,6 +107,7 @@ public class Config {
         config=append(config,screenCoordY);
         config=append(config,screenWidth);
         config=append(config,screenHeight);
+        config=append(config,screenState);
         
         DbxSession.writeToFile(CONFIGFILE, config);
     }

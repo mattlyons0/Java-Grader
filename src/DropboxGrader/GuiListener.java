@@ -75,6 +75,7 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
                 Dimension size=gui.getSize();
                 Config.screenWidth=size.width;
                 Config.screenHeight=size.height;
+                Config.screenState=gui.getExtendedState();
                 gui.setVisible(false);
             }
 

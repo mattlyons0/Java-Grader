@@ -21,6 +21,10 @@ import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -81,9 +85,27 @@ public class Gui extends JFrame implements ActionListener{
     }
     private void init(){
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setSize(Config.screenWidth,Config.screenHeight);
-        setLocation(Config.screenCoordX,Config.screenCoordY);
-        
+        if(!isOnScreen(new Point(Config.screenCoordX,Config.screenCoordY))){
+            setLocation(0,0);
+            Config.screenCoordX=0;
+            Config.screenCoordY=0;
+            setExtendedState(JFrame.NORMAL);
+        }
+        else{
+            setLocation(Config.screenCoordX,Config.screenCoordY);
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+        }
+        if(!isLargerThanScreen(new Point(Config.screenWidth,Config.screenHeight))){
+           Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
+           setSize((int)(d.width*0.95),(int)(d.height*0.9));
+           Config.screenWidth=(int)(d.width*0.95);
+           Config.screenHeight=(int)(d.height*0.9);
+           setExtendedState(JFrame.NORMAL);
+        }
+        else{
+            setSize(Config.screenWidth,Config.screenHeight);
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+        }
         setContentPane(viewManager);
         
         setVisible(true);
@@ -222,5 +244,29 @@ public class Gui extends JFrame implements ActionListener{
     }
     public GuiListener getListener(){
         return listener;
+    }
+    public boolean isOnScreen(Point windowLoc){
+        GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] devices = graphicsEnvironment.getScreenDevices();
+        
+        for(GraphicsDevice g:devices){
+            Rectangle screenBounds=g.getDefaultConfiguration().getBounds();
+            if(screenBounds.contains(windowLoc)){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean isLargerThanScreen(Point windowSize){
+        GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] devices = graphicsEnvironment.getScreenDevices();
+        
+        for(GraphicsDevice g:devices){
+            Rectangle screenBounds=g.getDefaultConfiguration().getBounds();
+            if(windowSize.x>screenBounds.width||windowSize.y>screenBounds.height){
+                return true;
+            }
+        }
+        return false;
     }
 }
