@@ -22,6 +22,7 @@ import java.awt.print.PageFormat;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -39,6 +40,7 @@ public class PrintOverlay extends ContentOverlay{
     
     private JLabel iconLabel;
     private JButton print;
+    private JComboBox mode;
     private JButton backButton;
     private JButton forwardButton;
     private JLabel pageLabel;
@@ -61,6 +63,7 @@ public class PrintOverlay extends ContentOverlay{
         iconLabel=new JLabel(icon);
         print=new JButton("Print");
         print.addActionListener(this);
+        mode=new JComboBox(Print.modes);
         backButton=new JButton("Back");
         backButton.addActionListener(this);
         forwardButton=new JButton("Forward");

@@ -25,6 +25,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Print implements Printable {
+    public static String[] modes={"All Student Reports"};
+    
     private Gui gui;
     private Pageable pageable;
     private PrinterJob job;
