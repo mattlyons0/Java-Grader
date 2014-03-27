@@ -29,6 +29,7 @@ public class JavaFile extends File{
     private String code;
     private String[] otherClassNames;
     private ArrayList<String> classDependencies;
+    private boolean moved;
     
     public JavaFile(File f,DbxFile dbx){
         super(f.getPath());
@@ -198,7 +199,7 @@ public class JavaFile extends File{
             reader.close();
             //check if initial package is wrong and attempt to fix that
             if(!dbxFile.changedFolder()){
-                boolean movedFiles=false;
+                moved=false;
                 File parent=getParentFile();
                 if(packageFolder!=null&&parent!=null&&parent.isDirectory()){
                         //get the package folders
@@ -217,7 +218,7 @@ public class JavaFile extends File{
                                     System.out.println("Renamed "+parent.getPath()+" to "+parent.getPath().substring(0,parent.getPath().length()-parent.getName().length())+folders[i]);
                                     File dest=new File(parent.getPath().substring(0,parent.getPath().length()-parent.getName().length())+folders[i]);
                                     parent.renameTo(dest);
-                                    movedFiles=true;
+                                    moved=true;
                                 }
                                 else{ //upper folder isnt the right name and parent is the zip folder
                                     File currentFolder;
@@ -232,22 +233,23 @@ public class JavaFile extends File{
                                     }
                                     newFolder.mkdir();
                                     System.out.println("Made new folder "+newFolder.getPath());
-                                    if(currentFolder.listFiles()!=null){
-                                        for(File files:currentFolder.listFiles()){
+                                    File[] filesInFolder=currentFolder.listFiles();
+                                    if(filesInFolder!=null){
+                                        for(File files:filesInFolder){
                                             File newFile=new File(newFolder.getPath()+files.getPath().replace(parent.getPath(), ""));
-                                            if(!newFile.equals(currentFolder)){
+                                            if(!newFile.getPath().equals(newFolder.getPath())){
                                                 System.out.println("Renamed "+files.getPath()+" to "+newFile.getPath());
                                                 files.renameTo(newFile);
                                             }
                                         }
-                                        movedFiles=true;       
+                                        moved=true;       
                                     }
                                 }
                                 parent=parent.getParentFile();
                             }
                         }
                     }
-                if(movedFiles){
+                if(moved){
                     dbxFile.movedFiles();
                 }
             }
@@ -475,5 +477,8 @@ public class JavaFile extends File{
     @Override
     public String toString(){
         return getName();
+    }
+    public boolean moved(){
+        return moved;
     }
 }

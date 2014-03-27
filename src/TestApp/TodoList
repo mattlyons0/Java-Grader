@@ -96,8 +96,6 @@ Gradebook mode:
     View grade percentage per person
 Do multiple runs faster, investigate why the delays are needed now that we aren't using files.
 Fix deleting lots of files not refreshing.
-Fix moving into package folder potentially duplicating files if there is a lock on the file
-    trying to be deleted because it is running (ben's mergesort)
 
 Paste into terminal and code panel
 demo mode

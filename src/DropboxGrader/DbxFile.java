@@ -239,6 +239,9 @@ public class DbxFile {
     }
     private void searchJavaFiles(){
         File[] newArr=searchForFiles(downloadedFile.getPath()+"/",".java");
+        if(newArr==null){
+            return;
+        }
         javaFiles=new JavaFile[newArr.length];
         for(int x=0;x<newArr.length;x++){
             javaFiles[x]=(JavaFile)newArr[x];
@@ -249,6 +252,9 @@ public class DbxFile {
     }
     private void searchTextFiles(){
         File[] newArr=searchForFiles(downloadedFile.getPath()+"/",".txt");
+        if(newArr==null){
+            return;
+        }
         textFiles=new TextFile[newArr.length];
         for(int x=0;x<newArr.length;x++){
             textFiles[x]=(TextFile)newArr[x];
@@ -275,8 +281,12 @@ public class DbxFile {
             if(f.isFile()){
                 if(f.getName().endsWith(fileType.toLowerCase())||f.getName().endsWith(fileType.toUpperCase())){
                     //if file is .Java it wont get added, but that is stupid capitalization that nothing would save as anyway.
-                    if(fileType.equalsIgnoreCase(".java"))
+                    if(fileType.equalsIgnoreCase(".java")){
                         f=new JavaFile(f,this);
+                        if(((JavaFile)f).moved()){ // if we moved it this proccess is irrelivant now
+                            return null;
+                        }
+                    }
                     else if(fileType.equalsIgnoreCase(".txt"))
                         f=new TextFile(f);
                     filesWithType.add(f);
