@@ -96,7 +96,10 @@ Gradebook mode:
     View grade percentage per person
 Do multiple runs faster, investigate why the delays are needed now that we aren't using files.
 Fix deleting lots of files not refreshing.
-
+Bulk file handling for gradebook
+Fix allowing cursor to type above the bottom of output
+Fix printing per person with the first and last name
+Fix page numbers for selective person print
 Paste into terminal and code panel
 demo mode
     Log them into a test dropbox with some test code and files

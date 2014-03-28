@@ -9,6 +9,7 @@ import DropboxGrader.Gui;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import java.awt.Color;
 import java.awt.Font;
@@ -18,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Pageable;
 import java.awt.print.Printable;
+import static java.awt.print.Printable.NO_SUCH_PAGE;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.Date;
@@ -25,11 +27,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Print implements Printable {
-    public static String[] modes={"All Student Reports"};
+    public static String[] modes={"All Student Reports","Specific Student Report"};
     
     private Gui gui;
     private Pageable pageable;
     private PrinterJob job;
+    private int printMode;
+    private String specifiedStudent;
     
     private int cachedPages;
     
@@ -101,34 +105,86 @@ public class Print implements Printable {
         Graphics2D g2d = (Graphics2D)g;
         g2d.translate(pf.getImageableX(), pf.getImageableY());
         /* Now we perform our rendering */
-        if(previousMultiPageIndex<1){
-            if(previousStudent==-1){
-                previousStudent++;
+        if(modes[printMode].equals("All Student Reports")){
+            if(previousMultiPageIndex<1){
+                if(previousStudent==-1){
+                    previousStudent++;
+                }
+                boolean finished=renderStudent(g2d,previousStudent,grader,pf,0);
+                if(!finished){
+                    previousMultiPageIndex=1;
+                }
+                else{
+                    previousStudent++;
+                    previousMultiPageIndex=0;
+                    previousAssignmentIndex=-1;
+                    previousAssignmentLine=0;
+                }
             }
-            boolean finished=renderStudent(g2d,previousStudent,grader,pf,0);
-            if(!finished){
-                previousMultiPageIndex=1;
+            else if(previousPage==pageNum-1){
+                boolean finished=renderStudent(g2d,previousStudent,grader,pf,previousMultiPageIndex);
+                if(!finished){
+                    previousMultiPageIndex++;
+                }
+                else{
+                    previousStudent++;
+                    previousMultiPageIndex=0;
+                    previousAssignmentIndex=-1;
+                    previousAssignmentLine=0;
+                }
+            }
+            previousPage=pageNum;
+        }
+        else if(modes[printMode].equals("Specific Student Report")){
+            int studentIndex=0;
+            if(specifiedStudent==null){
+                g2d.drawString("No Student Specified.", 0, 0);
+                return NO_SUCH_PAGE;
             }
             else{
-                previousStudent++;
-                previousMultiPageIndex=0;
-                previousAssignmentIndex=-1;
-                previousAssignmentLine=0;
+                TextName[] textNames=grader.getSpreadsheet().indexesOfName(specifiedStudent);
+                if(textNames.length==0){
+                    g2d.drawString("Student "+specifiedStudent+" does not exist.",0,0);
+                    return NO_SUCH_PAGE;
+                }
+                else if(textNames.length>1){
+                    g2d.drawString("Found multiple names:",0,0);
+                    String namesFound="";
+                    for(int i=0;i<textNames.length;i++){
+                        namesFound+=textNames[i];
+                        if(i!=textNames.length-1){
+                            namesFound+=", ";
+                        }
+                    }
+                    String[] lines=lineWrap(namesFound,(int)pf.getImageableWidth(),g2d);
+                    int y=15;
+                    for(String line:lines){
+                        g2d.drawString(line,0,y);
+                        y+=15;
+                    }
+                    return NO_SUCH_PAGE;
+                }
+                else{
+                    studentIndex=grader.getSpreadsheet().indexOfName(specifiedStudent);
+                }
+                if(studentIndex==-1){
+                    studentIndex=grader.getSpreadsheet().indexOfName(textNames[0].firstName+textNames[0].lastName);
+                }
+                if(previousMultiPageIndex<1){
+                    boolean finished=renderStudent(g2d,studentIndex,grader,pf,0);
+                    if(!finished){
+                        previousMultiPageIndex=1;
+                    }
+                    
+                }
+                else if(previousPage==pageNum-1){
+                    boolean finished=renderStudent(g2d,studentIndex,grader,pf,previousMultiPageIndex);
+                    if(!finished){
+                        previousMultiPageIndex++;
+                    }
+                }
             }
         }
-        else if(previousPage==pageNum-1){
-            boolean finished=renderStudent(g2d,previousStudent,grader,pf,previousMultiPageIndex);
-            if(!finished){
-                previousMultiPageIndex++;
-            }
-            else{
-                previousStudent++;
-                previousMultiPageIndex=0;
-                previousAssignmentIndex=-1;
-                previousAssignmentLine=0;
-            }
-        }
-        previousPage=pageNum;
         /* tell the caller that this page is part of the printed document */
         return PAGE_EXISTS;
     }
@@ -277,5 +333,21 @@ public class Print implements Printable {
             }
         }
         cachedPages=pages;
+    }
+    public void setMode(int mode){
+        if(mode!=printMode){
+            previousAssignmentIndex=-1;
+            previousMultiPageIndex=-1;
+            previousStudent=-1;
+            previousAssignmentLine=0;
+            previousAssignmentIndex=0;
+        }
+        printMode=mode;
+        if(!modes[mode].equals("Specific Student Report")){
+            specifiedStudent=null;
+        }
+    }
+    public void setStudent(String student){
+        specifiedStudent=student;
     }
 }

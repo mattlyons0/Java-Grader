@@ -10,6 +10,8 @@ import DropboxGrader.DbxSession;
 import DropboxGrader.GuiHelper;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  *
@@ -192,6 +194,37 @@ public class TextSpreadsheet {
             }
         }
         return null;
+    }
+    public int indexOfName(String name){
+        for(int i=0;i<names.size();i++){
+            TextName tName=names.get(i);
+            if(name.toLowerCase().contains(tName.firstName.toLowerCase())&&name.toLowerCase().contains(tName.lastName.toLowerCase())){
+                return i;
+            }
+        }
+        return -1;
+    }
+    public TextName[] indexesOfName(String name){
+        String[] split={name};
+        if(name.contains(" ")){
+            split=name.split(" ");
+        }
+        HashSet<TextName> names=new HashSet();
+        for(String s:split){
+            for(TextName tName:this.names){
+                if(tName.firstName.toLowerCase().contains(s.toLowerCase())){
+                    names.add(tName);
+                }
+                if(tName.lastName.toLowerCase().contains(s.toLowerCase())){
+                    names.add(tName);
+                }
+                if(name.toLowerCase().contains(tName.firstName.toLowerCase())&&
+                        name.toLowerCase().contains(tName.lastName.toLowerCase())){
+                    names.add(tName);
+                }
+            }
+        }
+        return names.toArray(new TextName[names.size()]);
     }
     public TextAssignment getAssignment(int assignmentNum){
         for(TextAssignment tAssignment:assignments){

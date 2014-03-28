@@ -8,8 +8,10 @@ package DropboxGrader.GuiElements.GradebookBrowser;
 
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
-import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
 import DropboxGrader.GuiElements.MiscOverlays.PrintOverlay;
+import DropboxGrader.TextGrader.TextGrade;
+import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextSpreadsheet;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -32,6 +34,7 @@ public class GradebookView extends ContentView{
     private JButton backToFileBrowser;
     private JComboBox gradebookMode;
     private JButton printButton;
+    private JButton markGraded;
     
     public GradebookView(Gui gui){
         super("GradebookView");
@@ -70,10 +73,10 @@ public class GradebookView extends ContentView{
         cons.weightx=2;
         add(statusLabel,cons);
         cons.anchor=GridBagConstraints.EAST;
-        cons.gridx=2;
-        cons.weightx=1;
-        add(modeSelector,cons);
         cons.gridx=3;
+        cons.weightx=0.1;
+        add(modeSelector,cons);
+        cons.gridx=4;
         cons.weightx=0.1;
         add(printButton,cons);
         cons.weightx=1;
@@ -82,7 +85,7 @@ public class GradebookView extends ContentView{
         cons.gridy=1;
         cons.gridx=0;
         cons.weighty=95;
-        cons.gridwidth=4;
+        cons.gridwidth=5;
         cons.gridheight=1;
         cons.insets=new Insets(0,5,5,5);
         add(gradebookScroll,cons);
@@ -102,12 +105,47 @@ public class GradebookView extends ContentView{
         }
         else if(e.getSource().equals(gradebookMode)){
             gradebookTable.setMode(gradebookMode.getSelectedIndex());
+            if(GradebookTable.MODES[gradebookMode.getSelectedIndex()].equals("Copy")&&markGraded==null){
+                markGraded=new JButton("Mark All Graded");
+                markGraded.addActionListener(this);
+                GridBagConstraints cons=new GridBagConstraints();
+                cons.anchor=GridBagConstraints.EAST;
+                cons.gridx=2;
+                cons.gridy=0;
+                cons.weightx=1;
+                add(markGraded,cons);
+                revalidate();
+            }
+            else if(!GradebookTable.MODES[gradebookMode.getSelectedIndex()].equals("Copy")&&markGraded!=null){
+                remove(markGraded);
+                markGraded=null;
+                revalidate();
+            }
         }
         else if(e.getSource().equals(printButton)){
             //gui.getPrinter().print();
             PrintOverlay overlay=new PrintOverlay(gui);
             gui.getViewManager().addOverlay(overlay);
-            
+        }
+        else if(e.getSource().equals(markGraded)){
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    TextGrader grader=gui.getGrader();
+                    grader.downloadSheet();
+                    TextSpreadsheet sheet=grader.getSpreadsheet();
+                    for(int student=0;student<sheet.numNames();student++){
+                        for(int assign=0;assign<sheet.numAssignments();assign++){
+                            TextGrade grade=sheet.getGradeAt(assign, student);
+                            if(grade!=null){
+                                grade.inGradebook=true;
+                            }
+                        }
+                    }
+                    grader.uploadTable();
+                    repaint();
+                }
+            });
         }
     }
     public void dataChanged(){
