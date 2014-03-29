@@ -1,8 +1,9 @@
 package DropboxGrader;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.swing.JOptionPane;
-import java.util.Random;
-import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 public class GuiHelper{
@@ -22,12 +23,16 @@ public class GuiHelper{
      * @param message text to display in pane.
      */
     public static void alertDialog(final String message){
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JOptionPane.showMessageDialog(null,message);
-            }
-        });
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    JOptionPane.showMessageDialog(null,message);
+                }
+            });
+        } catch (InterruptedException | InvocationTargetException ex) {
+            Logger.getLogger(GuiHelper.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public static boolean yesNoDialog(String question) {

@@ -12,11 +12,10 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * I hate this class
@@ -28,13 +27,14 @@ public class JavaFile extends File{
     private String packageFolder;
     private String code;
     private String[] otherClassNames;
-    private ArrayList<String> classDependencies;
+    private String[] otherClassPackages;
+    private HashSet<String> classDependencies;
     private boolean moved;
     
     public JavaFile(File f,DbxFile dbx){
         super(f.getPath());
         dbxFile=dbx;
-        classDependencies=new ArrayList();
+        classDependencies=new HashSet();
         
         validateFile(f);
         
@@ -71,101 +71,6 @@ public class JavaFile extends File{
     }
     public void setMainMethod(boolean hasMain){
         mainMethod=hasMain;
-        
-        if(hasMain){
-            PrintWriter writer=null;
-            int braces=0;
-            boolean didFirstInject=false;
-            boolean didLastInject=false;
-            try {
-                //inject code
-                String inject="	//DROPBOXGRADERCODESTART\n" +
-"        java.io.FileInputStream iDropbox=null;\n" +
-"        java.io.PrintStream printDropbox=null;\n" +
-"        try{	\n" +
-"            int x=0;\n" +
-"            java.io.File f=new java.io.File(\"runtimeFiles/input\"+x+\".log\");\n" +
-"            while(f.exists()){\n" +
-"                f=new java.io.File(\"runtimeFiles/input\"+x+\".log\");\n" +
-"                x++;\n" +
-"            }\n" +
-"            x-=2;\n" +
-"            f=new java.io.File(\"runtimeFiles/input\"+x+\".log\");\n" +
-"            iDropbox=new java.io.FileInputStream(f){\n" +
-"            //int runNum=0; //requires everything to be written twice, for stupid reasons.\n" +
-"                @Override\n" +
-"                public int read(byte[] b, int off, int len) throws java.io.IOException {\n" +
-"                    int read=super.read(b, off, len);\n" +
-"                    while(read==-1){ //every 2nd call is for caching and doesnt matter\n" +
-"                        read=super.read(b, off, len);\n" +
-"                    }\n" +
-"                    return read;\n" +
-"                }\n" +
-"            };\n" +
-"        System.setIn(iDropbox);\n" +
-"        printDropbox=new java.io.PrintStream(new java.io.FileOutputStream(\"runtimeFiles/output\"+x+\".log\"));\n" +
-"        System.setOut(printDropbox);\n" +
-"        System.setErr(printDropbox);\n" +
-"        } catch(java.io.IOException e){\n" +
-"            System.out.println(\"Injection code has failed. \"+e);\n" +
-"        }\n" +
-"        //DROPBOXGRADERCODEEND\n";
-                String inject2="";
-                Scanner s=new Scanner(this);
-                s.useDelimiter("\n");
-                String currentFile="";
-                while(s.hasNext()){
-                    String line=s.next()+"\n";
-                    if(line.contains("{")||line.contains("}")){
-                        char[] chars=line.toCharArray();
-                        for(char c:chars){
-                            if(c=='{'){
-                                braces++;
-                            }
-                            else if(c=='}'){
-                                braces--;
-                            }
-                        }
-                    }
-                    if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String[]")){
-                        if(s.hasNext()){
-                            String lineAfter=s.next();
-                            if(!line.contains("{")){
-                                line+=lineAfter;
-                                lineAfter=s.next();
-                            }
-                            if(lineAfter.contains("//DROPBOXGRADERCODESTART")){
-                                return;
-                            }
-                            int index=line.indexOf("{")+1; 
-                            //if someone is an idiot and puts a sout on the same line as the main method header it will catch it.
-                            currentFile+=line.substring(0, index)+"\n";
-                            //System.out.println("Injecting after "+line.substring(0, index));
-                            //currentFile+=inject; //we no longer need to inject code since we use pipes now.
-                            currentFile+=line.substring(index);
-                            currentFile+=lineAfter+"\n";
-                            didFirstInject=true;
-                        }
-                    }
-                    else if(braces==0&&didFirstInject&&!didLastInject){
-                        currentFile+=inject2;
-                        currentFile+=line;
-                        didLastInject=true;
-                    }
-                    else{
-                        currentFile+=line;
-                    }
-                }
-                s.close();
-                
-                writer = new PrintWriter(new FileWriter(this,false));
-                writer.write(currentFile);
-                writer.close();
-                
-            } catch (IOException ex) {
-                Logger.getLogger(JavaFile.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
     private void validateFile(File f){
         try {
@@ -258,95 +163,18 @@ public class JavaFile extends File{
         }
     }
     public String getCode(){
-        String c="";
-        boolean inInject=false;
-        for(String line:code.split("\n")){
-            if(line.contains("//DROPBOXGRADERCODESTART")){
-                inInject=true;
-            }
-            else if(inInject){
-                if(line.contains("//DROPBOXGRADERCODEEND")){
-                    inInject=false;
-                }
-            }
-            else{
-                c+=line+"\n";
-            }
-        }
-        return c;
-    }
-    private String readCode(){
-        try {
-            Scanner reader=new Scanner(this);
-            reader.useDelimiter("\n");
-            boolean inDropboxInjected=false;
-            String read="";
-            while(reader.hasNext()){
-                String line=reader.next();
-                if(!inDropboxInjected&&line.contains("//DROPBOXGRADERCODESTART")){
-                    inDropboxInjected=true;
-                }
-                else if(inDropboxInjected&&line.contains("//DROPBOXGRADERCODEEND")){
-                    inDropboxInjected=false;
-                }
-                else if(!inDropboxInjected){
-                    read+=line+"\n";
-                }
-            }
-            reader.close();
-//            if(packageDir!=null){
-//                System.out.println("Package at "+packageDir);
-//                if(packageFolder==null){
-//                    packageFolder=packageDir;
-//                }
-//                else{
-//                    //determine which is higher level
-//                    if(!packageFolder.equals(packageDir)){
-//                        String path=f.getPath();
-//                        path=path.replace("\\", "="); //cant split a \ for whatever reason
-//                        String[] pathFolders= path.split("=");
-//                        for(int x=0;x<pathFolders.length;x++){
-//                            pathFolders[x]=pathFolders[x].replace("=", "");
-//
-//                            if(pathFolders[x].equals(packageFolder)){
-//                                return read;
-//                            }
-//                            if(pathFolders[x].equals(packageDir)){
-//                                packageFolder=packageDir;
-//                                return read;
-//                            }
-//                        }
-//                    }
-//                    else{
-//                        return read;
-//                    }
-//                }
-//                if(!f.getParent().endsWith(packageDir)){
-//                    //need to move file into directory with packageName
-//                    File f2=new File(f.getParent()+"\\"+packageDir);
-//                    f2.mkdir();
-//                    
-//                    File movedF=new File(f2.getPath()+f.getName());
-//                    BufferedWriter writer=new BufferedWriter(new FileWriter(f));
-//                    writer.write(read);
-//                    writer.close();
-//                    f.delete();
-//                }
-//            }
-            
-            return read;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+        return code;
     }
     public void setOtherClasses(JavaFile[] javaFiles){
         otherClassNames=new String[javaFiles.length];
+        otherClassPackages=new String[javaFiles.length];
         for(int i=0;i<javaFiles.length;i++){
             JavaFile jf=javaFiles[i];
             String name=jf.getName();
             name=name.substring(0,name.length()-5); //get rid of .java
             otherClassNames[i]=name;
+            
+            otherClassPackages[i]=jf.packageFolder();
         }
         calculateDependencies();
     }
@@ -429,22 +257,31 @@ public class JavaFile extends File{
         String thisClassName=getName().substring(0,getName().length()-5); //remove .java
         for(String otherClass:otherClassNames){
             line=line.replaceAll("\t", " ").replaceAll("\n", " ").replaceAll("\r", " "); //so we can check for spaces
-            if(!otherClass.equals(thisClassName)&&(containsClass(otherClass,line))){
-                if(!classDependencies.contains(otherClass)){
-                    classDependencies.add(otherClass);
+            if(line.contains("import ")&&line.contains(".*")&&line.contains(";")){ //if they are importing something.*
+                int importIndex=line.indexOf("import ");
+                int importIndexEnd=line.indexOf(".*");
+                String sub=line.substring(importIndex+"import ".length(),importIndexEnd);
+                for(String packag:otherClassPackages){ //if they are * importing something they wrote we gotta compile every class
+                    if(packag!=null&&packag.contains(sub)){
+                        classDependencies.addAll(Arrays.asList(otherClassNames));
+                        return;
+                    }
                 }
+            }
+            if(!otherClass.equals(thisClassName)&&(containsClass(otherClass,line))){
+                classDependencies.add(otherClass);
             }
         }
     }
-    private boolean containsClass(String other,String current){
-        if(current.contains(" "+other+" ")||current.contains(" "+other+"(")||
-                current.contains(" "+other+".")||current.contains("."+other+" ")||
-                current.contains("."+other+";")||current.contains("."+other+".")||
-                current.contains("("+other+" ")||current.contains("<"+other+">")||
-                current.contains("("+other+".")||current.contains("("+other+"(")||
-                current.contains("."+other+"(")||current.contains("."+other+")")||
-                current.contains(" "+other+"{")||current.contains(" "+other+",")||
-                current.contains(","+other+"{")||current.contains(","+other+",")){
+    private boolean containsClass(String other,String line){
+        if(line.contains(" "+other+" ")||line.contains(" "+other+"(")||
+                line.contains(" "+other+".")||line.contains("."+other+" ")||
+                line.contains("."+other+";")||line.contains("."+other+".")||
+                line.contains("("+other+" ")||line.contains("<"+other+">")||
+                line.contains("("+other+".")||line.contains("("+other+"(")||
+                line.contains("."+other+"(")||line.contains("."+other+")")||
+                line.contains(" "+other+"{")||line.contains(" "+other+",")||
+                line.contains(","+other+"{")||line.contains(","+other+",")){
             return true;
         }
         return false;
@@ -480,5 +317,8 @@ public class JavaFile extends File{
     }
     public boolean moved(){
         return moved;
+    }
+    public DbxFile getDbx(){
+        return dbxFile;
     }
 }

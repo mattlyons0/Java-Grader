@@ -9,6 +9,7 @@ package DropboxGrader.GuiElements.MiscOverlays;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
 import DropboxGrader.Printing.Print;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -38,8 +39,8 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
     private PageFormat format;
     
     private JLabel iconLabel;
-    private JButton print;
-    private JComboBox mode;
+    private JButton printButton;
+    private JComboBox modeField;
     private JButton backButton;
     private JButton forwardButton;
     private JLabel pageLabel;
@@ -61,12 +62,13 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
         
         JPanel panel=new JPanel();
         panel.setLayout(new GridBagLayout());
+        panel.setBackground(Color.LIGHT_GRAY);
         ImageIcon icon=new ImageIcon(image);
         iconLabel=new JLabel(icon);
-        print=new JButton("Print");
-        print.addActionListener(this);
-        mode=new JComboBox(Print.modes);
-        mode.addActionListener(this);
+        printButton=new JButton("Print");
+        printButton.addActionListener(this);
+        modeField=new JComboBox(Print.modes);
+        modeField.addActionListener(this);
         backButton=new JButton("Back");
         backButton.addActionListener(this);
         forwardButton=new JButton("Forward");
@@ -85,6 +87,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
         panel.add(iconLabel,cons);
         
         scroll=new JScrollPane(panel);
+        
         cons.gridx=0;
         cons.gridy=0;
         cons.weighty=99;
@@ -98,11 +101,11 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
         cons.weighty=1;
         cons.anchor=GridBagConstraints.NORTHWEST;
         cons.weightx=5;
-        add(print,cons);
+        add(printButton,cons);
         cons.anchor=GridBagConstraints.NORTH;
         cons.weightx=1;
         cons.gridx=1;
-        add(mode,cons);
+        add(modeField,cons);
         cons.gridx=2;
         add(backButton,cons);
         cons.gridx=3;
@@ -134,15 +137,15 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
         printer.printPreview(image.getGraphics(), currentPage);
         iconLabel.setIcon(new ImageIcon(image));
-        pageLabel.setText("Page "+(currentPage+1)+"/"+printer.getNumPages());
+        int numPages=printer.getNumPages();
+        pageLabel.setText("Page "+(currentPage+1)+"/"+numPages);
         if(currentPage==0){
             backButton.setEnabled(false);
         }
         else{
             backButton.setEnabled(true);
         }
-        int numPages=printer.getNumPages();
-        if(currentPage==numPages-1){
+        if(currentPage==numPages-1||numPages==0){
             forwardButton.setEnabled(false);
         }
         else{
@@ -154,11 +157,13 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(print)){
+        if(e.getSource().equals(printButton)){
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     Print p=new Print(gui);
+                    p.setMode(printer.getMode());
+                    p.setStudent(printer.getStudent());
                     p.print();
                 }
             });
@@ -169,13 +174,15 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
         else if(e.getSource().equals(forwardButton)){
             changePage(currentPage+1);
         }
-        else if(e.getSource().equals(mode)){
-            printer.setMode(mode.getSelectedIndex());
+        else if(e.getSource().equals(modeField)){
+            printer.setMode(modeField.getSelectedIndex());
+            currentPage=0;
             changePage(currentPage);
-            if(Print.modes[mode.getSelectedIndex()].equals("Specific Student Report")&&
+            if(Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")&&
                     nameField==null){
                 nameField=new JTextField(10);
                 nameField.setText(initialText);
+                nameField.setForeground(Color.GRAY);
                 nameField.setHorizontalAlignment(JTextField.CENTER);
                 nameField.getDocument().addDocumentListener(this);
                 nameField.addFocusListener(this);
@@ -189,7 +196,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
                 add(nameField,cons);
                 revalidate();
             }
-            else if(!Print.modes[mode.getSelectedIndex()].equals("Specific Student Report")&&
+            else if(!Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")&&
                     nameField!=null){
                 remove(nameField);
                 nameField=null;
@@ -210,7 +217,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-        if(Print.modes[mode.getSelectedIndex()].equals("Specific Student Report")){
+        if(Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")){
             printer.setStudent(nameField.getText());
             changePage(currentPage);                
         }
@@ -220,13 +227,20 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
     public void focusGained(FocusEvent e) {
         if(e.getSource().equals(nameField)){
             if(nameField.getText().equals(initialText)){
-                nameField.setSelectionStart(0);
-                nameField.setSelectionEnd(initialText.length());
+                nameField.setText("");
+                nameField.setForeground(Color.BLACK);
             }
         }
     }
 
     @Override
-    public void focusLost(FocusEvent e) {}
+    public void focusLost(FocusEvent e) {
+        if(e.getSource().equals(nameField)){
+            if(nameField.getText().replaceAll(" ","").equals("")){
+                nameField.setText(initialText);
+                nameField.setForeground(Color.GRAY);
+            }
+        }
+    }
     
 }

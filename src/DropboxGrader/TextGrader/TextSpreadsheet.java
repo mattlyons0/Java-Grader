@@ -209,22 +209,17 @@ public class TextSpreadsheet {
         if(name.contains(" ")){
             split=name.split(" ");
         }
-        HashSet<TextName> names=new HashSet();
-        for(String s:split){
-            for(TextName tName:this.names){
-                if(tName.firstName.toLowerCase().contains(s.toLowerCase())){
-                    names.add(tName);
-                }
-                if(tName.lastName.toLowerCase().contains(s.toLowerCase())){
-                    names.add(tName);
-                }
-                if(name.toLowerCase().contains(tName.firstName.toLowerCase())&&
-                        name.toLowerCase().contains(tName.lastName.toLowerCase())){
-                    names.add(tName);
+        HashSet<TextName> namesFound=new HashSet();
+        for(TextName tName:names){
+            if(split.length==1){
+                if(tName.firstName.toLowerCase().contains(split[0].toLowerCase())||
+                        tName.lastName.toLowerCase().contains(split[0].toLowerCase())||
+                        (tName.firstName+tName.lastName).toLowerCase().contains(split[0])){
+                    namesFound.add(tName);
                 }
             }
         }
-        return names.toArray(new TextName[names.size()]);
+        return namesFound.toArray(new TextName[namesFound.size()]);
     }
     public TextAssignment getAssignment(int assignmentNum){
         for(TextAssignment tAssignment:assignments){

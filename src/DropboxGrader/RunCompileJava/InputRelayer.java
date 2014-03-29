@@ -89,9 +89,11 @@ public class InputRelayer implements Runnable{
                 }
             }
             try{
-                if(output!=null&&error!=null&&!looping){
-                    output.close();
-                    error.close();
+                if(!looping){
+                    if(output!=null)
+                        output.close();
+                    if(error!=null)
+                        error.close();
                     output=null;
                     error=null;
                 }

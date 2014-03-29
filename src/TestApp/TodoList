@@ -88,19 +88,18 @@ Horizontal scroll wheel support
 Make code sort take up less space (maybe put it in an overlay)
 Ctrl Z in gradebook
 Stop threads instead of System.exit(0) in guiListener.
+    stop threads in general when they arent needed
+    fix 15% cpu usage for doing nothing
 Printing Modes:
-    Only Print One Person's Report
-    Print All Reports
     Print table
+    Print overall grade/percentage
 Gradebook mode:
     View grade percentage per person
 Do multiple runs faster, investigate why the delays are needed now that we aren't using files.
 Fix deleting lots of files not refreshing.
 Bulk file handling for gradebook
-Fix allowing cursor to type above the bottom of output
-Fix printing per person with the first and last name
-Fix page numbers for selective person print
-Paste into terminal and code panel
+Window state remembering is glitchy
+Editing text files doesn't save
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

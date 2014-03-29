@@ -35,7 +35,8 @@ public class Print implements Printable {
     private int printMode;
     private String specifiedStudent;
     
-    private int cachedPages;
+    private int cachedTotalPages;
+    private int cachedStudentPages;
     
     private int previousPage=-1;
     private int previousStudent=-1;
@@ -47,11 +48,16 @@ public class Print implements Printable {
         this.gui=gui;
         
         job=PrinterJob.getPrinterJob();
-        calcTotalPages();
+        cachedTotalPages=calcTotalPages();
         pageable=new Pageable() {
             @Override
             public int getNumberOfPages() {
-                return cachedPages;
+                if(modes[printMode].equals("All Student Reports"))
+                    return cachedTotalPages;
+                if(modes[printMode].equals("Specific Student Report")){
+                    return cachedStudentPages;
+                }
+                return 0;                
             }
             @Override
             public PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
@@ -63,8 +69,17 @@ public class Print implements Printable {
             }
         };
     }
-    public Print(Gui gui,boolean needPages){
+    /**
+     * TO ONLY BE USED INTERNALLY
+     * Creates Printer that doesn't generate how many pages (used to calculate how many pages)
+     * @param gui used to access gradebook data that will be printed
+     * @param mode print mode (default is 0)
+     * @param student specified student to print (if any, can be null)
+     */
+    public Print(Gui gui,int mode,String student){
         this.gui=gui;
+        printMode=mode;
+        specifiedStudent=student;
         job=PrinterJob.getPrinterJob();
     }
     @Override
@@ -94,7 +109,7 @@ public class Print implements Printable {
             previousStudent=-1;
             previousAssignmentLine=0;
             previousAssignmentIndex=0;
-            if(pageNum!=pageNum-1){
+            if(previousPage!=pageNum-1){
                 BufferedImage i=new BufferedImage(1,1,BufferedImage.TYPE_3BYTE_BGR);
                 printData(i.getGraphics(),pf,pageNum-1);
             }
@@ -136,6 +151,10 @@ public class Print implements Printable {
             previousPage=pageNum;
         }
         else if(modes[printMode].equals("Specific Student Report")){
+            if(previousStudent==-2){
+                previousStudent=-1;
+                return NO_SUCH_PAGE;
+            }
             int studentIndex=0;
             if(specifiedStudent==null){
                 g2d.drawString("No Student Specified.", 0, 0);
@@ -175,13 +194,20 @@ public class Print implements Printable {
                     if(!finished){
                         previousMultiPageIndex=1;
                     }
-                    
+                    else{
+                        previousStudent=-2;
+                    }
+                    previousPage=pageNum;
                 }
                 else if(previousPage==pageNum-1){
                     boolean finished=renderStudent(g2d,studentIndex,grader,pf,previousMultiPageIndex);
                     if(!finished){
                         previousMultiPageIndex++;
                     }
+                    else{
+                        previousStudent=-2;
+                    }
+                    previousPage=pageNum;
                 }
             }
         }
@@ -314,11 +340,11 @@ public class Print implements Printable {
     public int getNumPages(){
         return pageable.getNumberOfPages();
     }
-    private void calcTotalPages(){
+    private int calcTotalPages(){
         int pages=0;
         BufferedImage i=new BufferedImage(1,1,BufferedImage.TYPE_3BYTE_BGR);
         boolean done=false;
-        Print p=new Print(gui,false);
+        Print p=new Print(gui,printMode,specifiedStudent);
         while(!done){
             try {
                 int value=p.printData(i.getGraphics(),job.defaultPage(),pages);
@@ -332,7 +358,7 @@ public class Print implements Printable {
                 Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        cachedPages=pages;
+        return pages;
     }
     public void setMode(int mode){
         if(mode!=printMode){
@@ -345,9 +371,17 @@ public class Print implements Printable {
         printMode=mode;
         if(!modes[mode].equals("Specific Student Report")){
             specifiedStudent=null;
+            cachedStudentPages=calcTotalPages();
         }
     }
     public void setStudent(String student){
         specifiedStudent=student;
+        cachedStudentPages=calcTotalPages();
+    }
+    public int getMode(){
+        return printMode;
+    }
+    public String getStudent(){
+        return specifiedStudent;
     }
 }

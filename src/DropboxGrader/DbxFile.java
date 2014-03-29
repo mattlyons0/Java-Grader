@@ -295,7 +295,9 @@ public class DbxFile {
             }
             else if(f.isDirectory()){
                 if(!f.getName().endsWith(".git")&&!f.getName().equals("__MACOSX")){ //skip git folder for performance, skip mac cache folder in zips
-                    filesWithType.addAll(Arrays.asList(searchForFiles(directory+"/"+f.getName(),fileType)));
+                    File[] returned=searchForFiles(directory+"/"+f.getName(),fileType);
+                    if(returned!=null)
+                        filesWithType.addAll(Arrays.asList(returned));
                 }
             }
         }

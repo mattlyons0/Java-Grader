@@ -38,6 +38,7 @@ public class DbxSession {
     private DbxClient client;
     private DbxWebAuthNoRedirect webAuth;
     private DbxRequestConfig config;
+    private String webUrl;
     
     private AuthView gui;
     
@@ -79,6 +80,13 @@ public class DbxSession {
                     invalidToken=true;
                     codeHandled=true;
                 }
+                else if(ex.getMessage().equals("unexpected response code: 400")){ //stored token is invalid
+                    invalidToken=true;
+                    codeHandled=true;
+                }
+                else if(ex.getMessage().equals("unexpected response code: 403")){ //bad oauth request
+                    GuiHelper.alertDialog("Error in login request. Is the time set correctly?");
+                }
                 if(!codeHandled)
                     GuiHelper.alertDialog("Dropbox Servers are currently responding with error:\n"+ex.getMessage());
             }
@@ -99,8 +107,9 @@ public class DbxSession {
     }
     private String getToken(boolean newKey){
         if(newKey){
+            webUrl=webAuth.start();
             gui.promptKey();
-            openWebsite(webAuth.start());
+            openWebsite(webUrl);
 
             return null;
         }
@@ -188,5 +197,8 @@ public class DbxSession {
             }
         }
         return out;
+    }
+    public String getURL(){
+        return webUrl;
     }
 }

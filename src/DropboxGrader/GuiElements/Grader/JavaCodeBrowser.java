@@ -6,18 +6,30 @@ package DropboxGrader.GuiElements.Grader;
 
 import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
+import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
+import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaFile;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.swing.JEditorPane;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import jsyntaxpane.DefaultSyntaxKit;
@@ -26,7 +38,7 @@ import jsyntaxpane.DefaultSyntaxKit;
  *
  * @author 141lyonsm
  */
-public class JavaCodeBrowser extends JPanel{
+public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListener{
     private JScrollPane [] scrolls;
     private JEditorPane[] browserArea;
     private JPanel[] fileWindows;
@@ -121,6 +133,7 @@ public class JavaCodeBrowser extends JPanel{
                 else if(files[x] instanceof TextFile){
                     TextFile tf=(TextFile)files[x];
                     browserArea[x].setText(tf.getText());
+                    browserArea[x].addMouseListener(this);
                 }
             }
             browserArea[x].setCaretPosition(0);
@@ -316,5 +329,98 @@ public class JavaCodeBrowser extends JPanel{
         init();
         revalidate();
         repaint();
+    }
+
+    private JPopupMenu createRightClickMenu(int panelNum){
+        JPopupMenu m=new JPopupMenu();
+        JMenuItem m1=new JMenuItem("Cut");
+        JMenuItem m2=new JMenuItem("Copy");
+        JMenuItem m3=new JMenuItem("Paste");
+        m1.setActionCommand("Cut "+panelNum);
+        m2.setActionCommand("Copy "+panelNum);
+        m3.setActionCommand("Paste "+panelNum);
+        m1.addActionListener(this);
+        m2.addActionListener(this);
+        m3.addActionListener(this);
+        m.add(m1);
+        m.add(m2);
+        m.add(m3);
+        return m;
+    }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if(e.getButton()==MouseEvent.BUTTON3){
+            int panelNum=-1;
+            for(int i=0;i<browserArea.length;i++){
+                if(browserArea[i]==e.getSource()){ //checking for instance equality (pointers same)
+                    panelNum=i;
+                    break;
+                }
+            }
+            if(panelNum!=-1){
+                JPopupMenu popup = createRightClickMenu(panelNum);
+                popup.show(e.getComponent(), e.getX(), e.getY());
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Clipboard clip=Toolkit.getDefaultToolkit().getSystemClipboard();
+        JEditorPane editor;
+        if(e.getActionCommand().startsWith("Cut ")){
+            editor=browserArea[GradebookTable.extractNumber("Cut ", e.getActionCommand())];
+            try{
+                int start=editor.getSelectionStart();
+                int end=editor.getSelectionEnd();
+                clip.setContents(new StringSelection(editor.getSelectedText()+editor.getText().substring(end,end)),null);
+                String cut=editor.getText().substring(0,start)+editor.getText().substring(end+1);
+                editor.setText(cut);
+                editor.setCaretPosition(start);
+            } catch(IllegalStateException ex){
+                GuiHelper.alertDialog("Error Accessing Clipboard.");
+                System.err.println("Error Cutting into TextTab.");
+                ex.printStackTrace();
+            }
+        }
+        else if(e.getActionCommand().startsWith("Copy ")){
+            editor=browserArea[GradebookTable.extractNumber("Copy ", e.getActionCommand())];
+            try{
+                int end=editor.getSelectionEnd();
+                clip.setContents(new StringSelection(editor.getSelectedText()+editor.getText().substring(end,end)),null);
+            } catch(IllegalStateException ex){
+                GuiHelper.alertDialog("Error Accessing Clipboard.");
+                System.err.println("Error Copying into TextTab.");
+                ex.printStackTrace();
+            }
+        }
+        else if(e.getActionCommand().startsWith("Paste ")){
+            editor=browserArea[GradebookTable.extractNumber("Paste ", e.getActionCommand())];
+            try{
+                Object clipData=clip.getData(DataFlavor.stringFlavor);
+                if(clipData instanceof String){
+                    int cursorLoc=editor.getCaretPosition();
+                    String combined=editor.getText().substring(0,cursorLoc)+
+                            (String)clipData+editor.getText().substring(cursorLoc,editor.getText().length());
+                    editor.setText(combined);
+                    editor.setCaretPosition(cursorLoc);
+                }
+            } catch(Exception ex){ //its a risky operation to assume the data ont he clipboard is a string, so we are ok if that fails
+                System.err.println("Error Pasting into TextTab.");
+                ex.printStackTrace();
+            }
+        }
     }
 }

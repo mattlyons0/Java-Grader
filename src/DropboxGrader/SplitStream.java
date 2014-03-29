@@ -6,7 +6,6 @@
 
 package DropboxGrader;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -34,7 +33,7 @@ public class SplitStream extends PrintStream{
 
     @Override
     public void println(Object x) {
-        relay.println(x);
+        //relay.println(x);
         super.println(x); //To change body of generated methods, choose Tools | Templates.
     }
     @Override
@@ -55,19 +54,19 @@ public class SplitStream extends PrintStream{
     }
     @Override
     public void write(byte[] buff,int off,int len){
-        relay.println(new String(buff,off,len));
+        relay.write(buff, off, len);
         super.write(buff, off, len);
     }
 
     @Override
     public void write(byte[] b) throws IOException {
-        relay.println(new String(b));
+        relay.write(b);
         super.write(b); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void write(int b) {
-        relay.print((char)b+"");
+        relay.write(b);
         super.write(b); //To change body of generated methods, choose Tools | Templates.
     }
 }

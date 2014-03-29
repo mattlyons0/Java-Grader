@@ -9,19 +9,17 @@ import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 /**
  *
@@ -42,6 +40,8 @@ public class AuthView extends ContentView{
     private JButton submitKeyField;
     private JButton demoButton;
     private JButton openBrowserButton;
+    private JLabel urlFieldLabel;
+    private JTextField urlField;
     
     private GridBagConstraints cons;
     
@@ -74,8 +74,8 @@ public class AuthView extends ContentView{
         descriptionLabel.setText("<html><center>In order to use "+DbxSession.APPNAME+" must authenticate with your Dropbox account."
                 + "<br/>A webpage will open asking you to authenticate, then it will give you a code."
                 + "<br/>Copy that code.</center></html>"); //funny java supports html in jlabels because the center tag is really outdated
-        statusLabel.setText("Click Authenticate to open Dropbox authentication in your browser.");
-        authButton=new JButton("Authenticate");
+        statusLabel.setText("Click to open Dropbox authentication in your browser.");
+        authButton=new JButton("Open Authentication Request Page");
         authButton.addActionListener(this);
         demoLabel=new JLabel("Alernatively if you just want to try "+DbxSession.APPNAME+", you can try demo mode.");
         demoButton=new JButton("Demo Mode");
@@ -127,7 +127,7 @@ public class AuthView extends ContentView{
             add(helpLabel,cons);
         }
         if(keyField==null){
-            keyField=new JTextField(30);
+            keyField=new JTextField(20);
             keyField.addActionListener(this);
             cons.gridy=4;
             add(keyField,cons);
@@ -143,6 +143,27 @@ public class AuthView extends ContentView{
             openBrowserButton.addActionListener(this);
             cons.gridy=6;
             add(openBrowserButton,cons);
+        }
+        if(urlFieldLabel==null){
+            urlFieldLabel=new JLabel("Or you can type the url in your browser manually.");
+            cons.gridy=7;
+            add(urlFieldLabel,cons);
+        }
+        if(urlField==null){
+            urlField=new JTextField(session.getURL().length()/2);
+            urlField.setText(session.getURL());
+            urlField.addFocusListener(new FocusListener() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    urlField.setSelectionStart(0);
+                    urlField.setSelectionEnd(urlField.getText().length());
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {}
+            });
+            cons.gridy=8;
+            add(urlField,cons);
         }
         
         repaint();
@@ -174,6 +195,14 @@ public class AuthView extends ContentView{
         if(submitKeyField!=null){
             remove(submitKeyField);
             submitKeyField=null;
+        }
+        if(urlFieldLabel!=null){
+            remove(urlFieldLabel);
+            urlFieldLabel=null;
+        }
+        if(urlField!=null){
+            remove(urlField);
+            urlField=null;
         }
         repaint();
         gui.getBackgroundThread().invokeLater(new Runnable() {

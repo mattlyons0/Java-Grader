@@ -6,7 +6,6 @@
 
 package DropboxGrader.GuiElements.FileBrowser;
 
-import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JLabel;
@@ -36,6 +35,9 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
             l.setBackground(c);
             if(isSelected){
                 l.setBackground(c.darker());
+            }
+            else{
+                l.setForeground(Color.BLACK);
             }
         }
         

@@ -242,10 +242,11 @@ public class JavaRunner implements Runnable{
             //String directory=folder;
             //directory=directory.substring(0, directory.length()-runChoice.getName().length());
             ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
-            builder.directory(runChoice.getParentFile()); //do something like this but safer to set proper working directory
+            File runningFrom=runFrom(runChoice);
+            builder.directory(runningFrom); //do something like this but safer to set proper working directory
             //todo: verify this works with packages
             //builder.inheritIO();
-            System.out.println("Running from: "+runChoice.getParentFile());
+            System.out.println("Running from: "+runningFrom);
             if(compile)
                 terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();
@@ -341,6 +342,37 @@ public class JavaRunner implements Runnable{
         }
         
         return depFiles;
+    }
+    private File runFrom(JavaFile mainFile){
+        String parent=mainFile.getDbx().getFileName();
+        parent=parent.substring(0,parent.length()-4); //get rid of .zip
+        String[] folders=mainFile.getPath().split("/");
+        int parentIndex=-1;
+        for(int i=0;i<folders.length;i++){
+            if(parentIndex==-1){
+                if(folders[i].equals(parent)){
+                    parentIndex=i;
+                }
+            }
+            else{ //we have found the parent
+                File file=makeFile(folders,0,i);
+                File[] files=file.listFiles();
+                if(files.length>1){
+                    return file;
+                }
+            }
+        }
+        return new File("/downloads/"+parent+"/");
+    }
+    /**
+     * Makes a file from an array of folders
+     */
+    private File makeFile(String[] folders,int offset,int length){
+        String path="";
+        for(int i=offset;i<length;i++){
+            path+=folders[i]+"/";
+        }
+        return new File(path);
     }
     public boolean isRunning(){
         if(numRunsLeft>0||running!=null){

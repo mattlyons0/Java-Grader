@@ -500,7 +500,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         String[] datas=data.split("÷"); //yea no ones name will contain that
         return datas;
     }
-    private int extractNumber(String key,String data){
+    public static int extractNumber(String key,String data){
         data=data.replace(key, "");
         return Integer.parseInt(data);
     }

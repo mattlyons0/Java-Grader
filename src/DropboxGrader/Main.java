@@ -4,14 +4,12 @@
  */
 package DropboxGrader;
 
-import DropboxGrader.RunCompileJava.RelayStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 
 /**
  *
@@ -21,13 +19,12 @@ public class Main {
     public static void main(String[] args) {
         //Use operating system look. Basically makes it look better overall. Metal theme sucks
         try { 
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //uncommenting this causes the overlays to make the rest of the screen black when they are exited
-//            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            if(UIManager.getSystemLookAndFeelClassName().equals("javax.swing.plaf.metal.MetalLookAndFeel")){
+                if(System.getProperty("os.name").contains("Linux")){
+                    UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
