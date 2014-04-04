@@ -1,25 +1,6 @@
-Unit testing is now functional, has a basic UI and will grade assignments automatically upon opening
-
-Added method parsing (all java files now have their methods parsed)
-Added additional cases to check for dependencies
-Assignments now store unit tests 
-Added UI for adding unit tests when editing assignments
-Text under not INIC grades is always black now
-Assignments now store total points
-Added UI for total points per assignment (can't type letters)
-Grade now has to be a double (can't type letters)
-    Unfortunately this means any grades that aren't a decimal will disappear when updating
-Unit testing is now functional
-    It is not on another thread (so it slows down startup if there are a lot of unit tests to run)
-    There can only be 1 test per assignment at the moment (it will either give full credit or no credit)
-    Description of why tests failed is ok
-    The GUI to add tests is ok, but doesn't check for propper commas and doesn't allow specifying all things
-Fixed bug where writing code output could get stuck (although I don't think it ever occured)
-Parsing java files is slightly faster now
-    Previously injected code then reparsed the file, but since we stopped injecting code a while ago we don't need to reparse the file anymore
-Refactored evaluation of lines
-    Evaluates for dependencies and methods while taking into account comments
-    Next step is to group multi-line method declarations...
-Cleaned up running java code slightly
-Added a ton of data structures and classes for unit testing
-Fixed crash running application under certain conditions where a alert dialog would be invoked from the EDT
+Added support for multiple unit tests per assignment
+Added a better gui for unit tests that supports multiple unit tests per assignment
+    Refactored unit test gui
+Added score calculation based on tests passed/failed. Each test is worth the same amount of points
+Fixed gradeOverlay being broken from the migration to double grades instead of strings
+Improved comment when unit testing

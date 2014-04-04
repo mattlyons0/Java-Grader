@@ -30,7 +30,7 @@ public class GradeOverlay extends ContentOverlay{
     private JTextField commentField;
     private JButton submitButton;
     
-    private String grade;
+    private Double grade;
     private String comment;
     
     public GradeOverlay(Gui gui){
@@ -48,7 +48,7 @@ public class GradeOverlay extends ContentOverlay{
         commentField=new JTextField(20);
         commentField.addActionListener(this);
         if(grade!=null)
-            gradeField.setText(grade);
+            gradeField.setText(grade+"");
         if(comment!=null)
             commentField.setText(comment);
         submitButton=new JButton("Submit");
@@ -90,13 +90,18 @@ public class GradeOverlay extends ContentOverlay{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(submitButton)||e.getSource().equals(gradeField)||e.getSource().equals(commentField)){
             //validate data
-            grade=gradeField.getText();
-            comment=commentField.getText();
-            if(grade.replaceAll(" ","").equals("")){
+            if(gradeField.getText().replaceAll(" ","").equals("")){
                 gradeField.setText("");
                 GuiHelper.alertDialog("Grade cannot be empty.");
                 return;
             }
+            try{
+                grade=Double.parseDouble(gradeField.getText());
+            } catch(NumberFormatException ex){
+                GuiHelper.alertDialog("Grade must be a number (but can be a decimal).");
+                return;
+            }
+            comment=commentField.getText();
             
             if(callback!=null){
                 gui.getBackgroundThread().invokeLater(callback);
@@ -110,9 +115,9 @@ public class GradeOverlay extends ContentOverlay{
     public void setCallback(Runnable callback){
         this.callback=callback;
     }
-    public void setData(String grade,String comment,String name,int assignment){
+    public void setData(Double grade,String comment,String name,int assignment){
         if(gradeField!=null){
-            gradeField.setText(grade);
+            gradeField.setText(grade+"");
             commentField.setText(comment);
         }
         else{

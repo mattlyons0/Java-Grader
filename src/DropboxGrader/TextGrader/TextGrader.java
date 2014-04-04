@@ -176,7 +176,7 @@ public class TextGrader {
                     assign.number=(int)returned[0];
                     assign.name=(String)returned[1];
                     assign.totalPoints=(Double)returned[2];
-                    assign.unitTest=overlay.getUnitTest();
+                    assign.unitTests=overlay.getUnitTest();
                     uploadTable();
                     manager.getGui().gradebookDataChanged();
                 }

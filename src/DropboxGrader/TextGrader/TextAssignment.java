@@ -8,6 +8,7 @@ package DropboxGrader.TextGrader;
 
 import DropboxGrader.UnitTesting.UnitTest;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -17,7 +18,7 @@ public class TextAssignment {
     public int number;
     public String name;
     public int perferredWidth; //perferred width in gradebook table
-    public UnitTest unitTest;
+    public UnitTest[] unitTests;
     public double totalPoints;
     //public Date dateDue;
     
@@ -32,8 +33,18 @@ public class TextAssignment {
             number=Integer.parseInt(text[0]);
             name=text[1];
             perferredWidth=Integer.parseInt(text[2]);
-            if(!text[3].equals("null"))
-                unitTest=new UnitTest(text[3]);
+            if(!text[3].equals("null")){
+                String[] tests=text[3].split(Pattern.quote("#"));
+                if(tests.length==0||(tests.length==1&&tests[0].equals(""))){
+                    //you arent fooling us, we know theres nothing here
+                }
+                else{
+                    unitTests=new UnitTest[tests.length];
+                    for(int i=0;i<tests.length;i++){
+                        unitTests[i]=new UnitTest(tests[i]);
+                    }
+                }
+            }
             totalPoints=Double.parseDouble(text[4]);
         } catch(Exception e){
             if(name==null){
@@ -51,8 +62,14 @@ public class TextAssignment {
         text+=number+TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=name+TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=perferredWidth+TextSpreadsheet.INDIVIDUALDELIMITER;
-        if(unitTest!=null)
-            text+=unitTest.toText();
+        if(unitTests!=null){
+            for(int i=0;i<unitTests.length;i++){
+                if(unitTests[i]!=null)
+                    text+=unitTests[i].toText();
+                if(i!=unitTests.length-1)
+                    text+="#";
+            }
+        }
         else
             text+=null;
         text+=TextSpreadsheet.INDIVIDUALDELIMITER;

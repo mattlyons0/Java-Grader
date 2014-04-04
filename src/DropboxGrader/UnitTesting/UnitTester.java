@@ -12,6 +12,7 @@ import DropboxGrader.Gui;
 import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrader;
+import java.util.ArrayList;
 
 /**
  *
@@ -21,9 +22,15 @@ public class UnitTester {
     private Gui gui;
     private TextAssignment assignment;
     
+    private ArrayList<Boolean> testResults;
+    private ArrayList<String> testStatus;
+    
     public UnitTester(Gui gui,TextAssignment assign){
         this.gui=gui;
         assignment=assign;
+        
+        testResults=new ArrayList();
+        testStatus=new ArrayList();
     }
     public void runTests(){
         FileManager manager=gui.getManager();
@@ -38,14 +45,36 @@ public class UnitTester {
         for(int i=0;i<javaFiles.length;i++){
             JavaMethod[] methods=javaFiles[i].getMethods();
             for(JavaMethod m:methods){
-                if(m.getMethodName().equals(assignment.unitTest.getMethodName())){
-                    runTest(file,i);
+                for(UnitTest test:assignment.unitTests){
+                    if(m.getMethodName().equals(test.getMethodName())){
+                        runTest(file,test,i);
+                    }
                 }
+                
+                //write grade
+                double grade;
+                int successes=0;
+                for(Boolean result:testResults){
+                    if(result)
+                        successes++;
+                }
+                grade=successes/(double)testResults.size()*assignment.totalPoints;
+                String status="(Unit Tested) "+successes+" Passed of "+testResults.size()+", ";
+                for(int testNum=0;testNum<testStatus.size();testNum++){
+                    status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" ";
+                }
+                TextGrader grader=gui.getGrader();
+                if(grader.getGradeNum(file.getFirstLastName(), assignment.number)!=grade){
+                    grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, true);
+                }
+                
+                //reset test data for the next person
+                testResults.clear();
+                testStatus.clear();
             }
         }
     }
-    private void runTest(DbxFile file,int javaFileIndex){
-        UnitTest unitTest=assignment.unitTest;
+    private void runTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
         JavaFile testFile=file.getJavaFiles()[javaFileIndex];
         String code=testFile.getCode();
         int lastIndex=code.lastIndexOf("}");
@@ -63,25 +92,21 @@ public class UnitTester {
         String oldCode=testFile.getCode();
         testFile.changeCode(code);
         String value=gui.getRunner().runTest(file.getJavaFiles(),testFile);
-        System.out.println("Unit Test on "+file.getFileName()+" returned "+value+" Expected: "+unitTest.getExpectedReturnValue());
+        System.out.println("Unit Test on "+file.getFileName()+" returned "+value+" Expected: "+
+                (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim()));
         
-        String status;
-        double grade;
-        TextGrader grader=gui.getGrader();
+        String status="";
         if(value!=null&&unitTest.getExpectedReturnValue()!=null&&value.trim().equals(unitTest.getExpectedReturnValue().trim())){
-            status="Unit Test Passed";
-            grade=assignment.totalPoints;            
-            if(grader.getGradeNum(file.getFirstLastName(), assignment.number)!=grade){
-                grader.setGrade(file.getFirstLastName(), assignment.number, assignment.totalPoints,status, true);
-            }
+            testResults.add(true);
+            status="Passed";
+            testStatus.add(status);          
         }
         else{
-            status="Unit Test Failed while testing method: "+unitTest.getMethodName()+" Expected: "+unitTest.getExpectedReturnValue()
-                    +" Actual: "+value==null?value:value.trim();
-            grade=0;
-            if(grader.getGradeNum(file.getFirstLastName(), assignment.number)!=grade){
-                grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, true);
-            }
+            testResults.add(false);
+            status="Failed while testing method: "+unitTest.getMethodName()+" Expected: "+
+                    (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim())
+                    +" Actual: "+(value==null?null:value.trim());
+            testStatus.add(status);
         }
         testFile.changeCode(oldCode);
     }

@@ -370,9 +370,9 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         final int assignment=sheet.getAssignmentAt(col-1).number;
         final GradeOverlay overlay=new GradeOverlay(gui);
         if(grade!=null)
-            overlay.setData(grade.grade+"",grade.comment,name,assignment);
+            overlay.setData(grade.grade,grade.comment,name,assignment);
         else
-            overlay.setData("","",name,assignment);
+            overlay.setData(null,"",name,assignment);
         overlay.setCallback(new Runnable() {
             @Override
             public void run() {
@@ -419,7 +419,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 assign.number=(int)data[0];
                 assign.name=(String)data[1];
                 assign.totalPoints=(Double)data[2];
-                assign.unitTest=overlay.getUnitTest();
+                assign.unitTests=overlay.getUnitTest();
                 gui.getGrader().uploadTable();
                 dataChanged();
                 gui.fileBrowserDataChanged();

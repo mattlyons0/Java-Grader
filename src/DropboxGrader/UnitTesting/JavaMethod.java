@@ -161,6 +161,18 @@ public class JavaMethod {
     public String getMethodName(){
         return methodName;
     }
+    public MethodAccessType getAccessType(){
+        return accessType;
+    }
+    public String[] getArguments(){
+        if(arguments==null)
+            return null;
+        String[] args=new String[arguments.length];
+        for(int i=0;i<arguments.length;i++){
+            args[i]=arguments[i].toText();
+        }
+        return args;
+    }
     @Override
     public String toString(){
         return "Access: "+accessType+" Modifiers: "+modifiers+"Returns: "+returnType+" Name: "+methodName+" Args: "+Arrays.toString(arguments);

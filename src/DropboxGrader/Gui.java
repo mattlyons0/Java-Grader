@@ -128,7 +128,7 @@ public class Gui extends JFrame implements ActionListener{
         //MOVE THIS TO ANOTHER THREAD
         TextAssignment[] assignments=grader.getSpreadsheet().getAllAssignments();
         for(int i=0;i<assignments.length;i++){
-            if(assignments[i].unitTest!=null){
+            if(assignments[i].unitTests!=null){
                 UnitTester tester=new UnitTester(this,assignments[i]);
                 tester.runTests();
             }
