@@ -17,7 +17,9 @@ import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
 import DropboxGrader.GuiElements.MiscViews.AuthView;
 import DropboxGrader.GuiElements.MiscViews.ConfigView;
 import DropboxGrader.RunCompileJava.JavaRunner;
+import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.UnitTesting.UnitTester;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -122,6 +124,15 @@ public class Gui extends JFrame implements ActionListener{
         viewManager.addView(graderView);
         gradebookView=new GradebookView(this);
         viewManager.addView(gradebookView);
+        
+        //MOVE THIS TO ANOTHER THREAD
+        TextAssignment[] assignments=grader.getSpreadsheet().getAllAssignments();
+        for(int i=0;i<assignments.length;i++){
+            if(assignments[i].unitTest!=null){
+                UnitTester tester=new UnitTester(this,assignments[i]);
+                tester.runTests();
+            }
+        }
     }
     
     public void setupFileBrowserGui(){

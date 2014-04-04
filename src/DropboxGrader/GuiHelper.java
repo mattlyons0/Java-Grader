@@ -23,16 +23,12 @@ public class GuiHelper{
      * @param message text to display in pane.
      */
     public static void alertDialog(final String message){
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    JOptionPane.showMessageDialog(null,message);
-                }
-            });
-        } catch (InterruptedException | InvocationTargetException ex) {
-            Logger.getLogger(GuiHelper.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(null,message);
+            }
+        });
     }
 
     public static boolean yesNoDialog(String question) {

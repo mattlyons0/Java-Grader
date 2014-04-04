@@ -7,6 +7,7 @@
 package DropboxGrader.RunCompileJava;
 
 import DropboxGrader.DbxFile;
+import DropboxGrader.UnitTesting.JavaMethod;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -29,12 +30,14 @@ public class JavaFile extends File{
     private String[] otherClassNames;
     private String[] otherClassPackages;
     private HashSet<String> classDependencies;
+    private HashSet<JavaMethod> methods;
     private boolean moved;
     
     public JavaFile(File f,DbxFile dbx){
         super(f.getPath());
         dbxFile=dbx;
         classDependencies=new HashSet();
+        methods=new HashSet();
         
         validateFile(f);
         
@@ -94,10 +97,7 @@ public class JavaFile extends File{
                 
                 if(line.contains("public")&&line.contains("static")&&line.contains("void")&&line.replace(" ", "").contains("main(String")&&line.replace(" ", "").contains("[]")){ //if it contains a main method
                     if(!mainMethod){
-                        reader.close();
                         setMainMethod(true);
-                        validateFile(f);
-                        return;
                     }
                 }
             }
@@ -161,6 +161,20 @@ public class JavaFile extends File{
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
+        parseMethods();
+    }
+    private void parseMethods(){
+        methods.clear();
+        
+        evaluateNotComments(new Evaluable() {
+            @Override
+            public void evaluate(String line) {
+                if(isMethod(line)){
+                    JavaMethod method=new JavaMethod(line);
+                    methods.add(method);
+                }
+            }
+        });
     }
     public String getCode(){
         return code;
@@ -185,40 +199,48 @@ public class JavaFile extends File{
         }
         classDependencies.clear();
 
+        evaluateNotComments(new Evaluable() {
+            @Override
+            public void evaluate(String line) {
+                addDependencies(line);
+            }
+        });
+    }
+    private void evaluateNotComments(Evaluable e){
         String[] lines=code.split("\n");
         boolean inComment=false; //for multiline comments
         for(String line:lines){
             if(!inComment&&!line.contains("//")&&!line.contains("/*")){
-                addDependencies(line);
+                e.evaluate(line);
             }
             if(line.contains("/*")&&!line.contains("//")&&!inComment){
                 String subLine=line.substring(0,line.indexOf("/*"));
-                addDependencies(subLine);
+                e.evaluate(subLine);
                 inComment=true;
             }
             else if(line.contains("//")&&!inComment&&!line.contains("*/")){
                 String subLine=line.substring(0,line.indexOf("//"));
-                addDependencies(subLine);
+                e.evaluate(subLine);
             }
             else if(line.contains("//")&&line.contains("/*")&&!inComment){
                 String subLine=line.substring(0,line.indexOf("//"));
                 if(subLine.contains("/*")&&!subLine.contains("*/")){ //if the /* is before the // ignore the //
-                    addDependencies(subLine);
+                    e.evaluate(subLine);
                     inComment=true;
                 }
                 else if(subLine.contains("/*")&&subLine.contains("*/")){
                     String subLine1=subLine.substring(0,subLine.indexOf("/*"));
                     String subLine2=subLine.substring(subLine.indexOf("*/"));
-                    addDependencies(subLine1);
-                    addDependencies(subLine2);
+                    e.evaluate(subLine1);
+                    e.evaluate(subLine2);
                 }
                 else if(subLine.contains("/*")&&line.contains("*/")){ //if there is a */ later in the line, after the //
                     String subLine1=line.substring(line.indexOf("*/"));
-                    addDependencies(subLine1);
+                    e.evaluate(subLine1);
                     inComment=false;
                 }
                 else if(!subLine.contains("/*")){ //if // comes before /*
-                    addDependencies(subLine);
+                    e.evaluate(subLine);
                 }
                 else{
                     System.err.println("Error, there is something with the comments that is not accounted for in line: "+line);
@@ -229,18 +251,18 @@ public class JavaFile extends File{
                 if(inComment){
                     if(subLine.contains("*/")){
                         String subLine1=subLine.substring(subLine.indexOf("*/"));
-                        addDependencies(subLine1);
+                        e.evaluate(subLine1);
                         inComment=false;
                     }
                 }
                 else{ //not in a comment
-                    addDependencies(subLine);                    
+                    e.evaluate(subLine);                    
                 }
             }
             //not else if since it would not catch /* and */ in the same line without a //
             if(line.contains("*/")&&inComment&&!line.contains("//")){
                 String subLine=line.substring(line.indexOf("*/"));
-                addDependencies(subLine);
+                e.evaluate(subLine);
                 inComment=false;
             }
         }
@@ -273,9 +295,20 @@ public class JavaFile extends File{
             }
         }
     }
-    private boolean containsClass(String other,String line){
+    /**
+     * All of the cases to check if a line possibly references a class
+     * @param other class to check
+     * @param line line to check in
+     * @return true if other is found to be used in this line.
+     */
+    private boolean containsClass(String other,String line){ /*unfortunately we need to have this list of possible uses of classes 
+        because if we just checked for a class without the surrounding characters we would find a lot of classes that didn't exist
+        ex: MyClass2 would come up when searching for MyClass...*/
+        line=" "+line+" ";
         if(line.contains(" "+other+" ")||line.contains(" "+other+"(")||
                 line.contains(" "+other+".")||line.contains("."+other+" ")||
+                line.contains("="+other+".")||line.contains("="+other+";")||
+                line.contains("="+other+" ")||line.contains("("+other+")")||
                 line.contains("."+other+";")||line.contains("."+other+".")||
                 line.contains("("+other+" ")||line.contains("<"+other+">")||
                 line.contains("("+other+".")||line.contains("("+other+"(")||
@@ -290,7 +323,46 @@ public class JavaFile extends File{
         String[] arr=new String[0];
         return classDependencies.toArray(arr);
     }
-
+    private boolean isMethod(String line){
+        line=" "+line+" ";
+        
+        if(line.contains(" if ")||line.contains("=")||line.contains(" new ")||line.contains(" for ")||line.contains(" for(")||
+                line.contains(" try ")||line.contains(" try{")||line.contains(" catch (")||line.contains("}catch (")||line.contains("}catch(")||
+                line.contains("} catch(")||line.contains(" while ")||line.contains(" while(")){
+            return false;
+        }
+        if(line.contains("{")&&line.contains("(")&&line.contains(")")){
+            if(line.contains(" void ")){
+                JavaMethod m=new JavaMethod(line); //constructors can be void
+                if(m.getMethodName().equals(getName().substring(0,getName().length()-5))){ //if the method name is the same as the class name
+                    return false;
+                }
+                return true;
+            }
+            else{ //we need to check if there is a return type
+                int endIndex=line.indexOf("(");
+                String s=line.substring(0,endIndex);
+                if(s==null)
+                    return false;
+                String word=JavaMethod.readNextWord(s, ' ', ' ');
+                if(word==null)
+                    return false;
+                s=s.substring(s.indexOf(word)+word.length(),s.length());
+                word=JavaMethod.readNextWord(s, ' ', ' ');
+                if(word==null)
+                    return false;
+                s=s.substring(s.indexOf(word)+word.length(),s.length());
+                word=JavaMethod.readNextWord(s, ' ', ' ');
+                if(word!=null&&!word.replaceAll(" ", "").equals(""))
+                    return true;
+                return false;
+            }
+        }
+        return false;
+    }
+    public JavaMethod[] getMethods(){
+        return methods.toArray(new JavaMethod[0]);
+    }
     @Override
     public boolean equals(Object obj) {
         if(obj==this){

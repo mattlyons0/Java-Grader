@@ -100,6 +100,16 @@ Fix deleting lots of files not refreshing.
 Bulk file handling for gradebook
 Window state remembering is glitchy
 Editing text files doesn't save
+Listen to mouse scroll value in scrollpane to edit code
+Multi-line method detection
+Snap names to left in gradebook
+Unit tests need a propper gui (in its own class)
+Input reads entire bottom line instead of just input
+View deleted items (or maybe move things to a deleted folder then delete them after a month or so (configureable))
+Default total points configurable
+More ghost jtextfields and less jlabels (class for that)
+Class for JTextFields for doubles only (less duplicated code)
+Improve first/last name searching
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

@@ -6,6 +6,7 @@
 
 package DropboxGrader.TextGrader;
 
+import DropboxGrader.UnitTesting.UnitTest;
 import java.util.Objects;
 
 /**
@@ -16,6 +17,8 @@ public class TextAssignment {
     public int number;
     public String name;
     public int perferredWidth; //perferred width in gradebook table
+    public UnitTest unitTest;
+    public double totalPoints;
     //public Date dateDue;
     
     public TextAssignment(int number,String name){
@@ -29,6 +32,9 @@ public class TextAssignment {
             number=Integer.parseInt(text[0]);
             name=text[1];
             perferredWidth=Integer.parseInt(text[2]);
+            if(!text[3].equals("null"))
+                unitTest=new UnitTest(text[3]);
+            totalPoints=Double.parseDouble(text[4]);
         } catch(Exception e){
             if(name==null){
                 name="";
@@ -44,7 +50,13 @@ public class TextAssignment {
         String text="";
         text+=number+TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=name+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=perferredWidth;
+        text+=perferredWidth+TextSpreadsheet.INDIVIDUALDELIMITER;
+        if(unitTest!=null)
+            text+=unitTest.toText();
+        else
+            text+=null;
+        text+=TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=totalPoints;
         
         return text;
     }

@@ -104,8 +104,8 @@ public class GradeOverlay extends ContentOverlay{
             }
         }
     }
-    public String[] getData(){
-        return new String[]{grade,comment};
+    public Object[] getData(){
+        return new Object[]{grade,comment};
     }
     public void setCallback(Runnable callback){
         this.callback=callback;

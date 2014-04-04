@@ -138,8 +138,7 @@ public class TextSpreadsheet {
             grades.get(nameIndex).add(null);
         }
     }
-    public boolean setGrade(TextName name,TextAssignment assignment,String grade,String comment, boolean overwrite){
-        grade=validateString(grade);
+    public boolean setGrade(TextName name,TextAssignment assignment,double grade,String comment, boolean overwrite){
         comment=validateString(comment);
         int assignmentIndex=assignments.indexOf(assignment);
         int nameIndex=names.indexOf(name);
@@ -150,7 +149,7 @@ public class TextSpreadsheet {
         }
         TextGrade currentGrade=grades.get(nameIndex).get(assignmentIndex);
         if(currentGrade!=null){
-            if(currentGrade.grade.equals(grade)&&currentGrade.comment.equals(comment)){ //if they have the same data
+            if(currentGrade.grade==grade&&currentGrade.comment.equals(comment)){ //if they have the same data
                 return true; //we can say we are done because there is nothing to change.
             }
             if(!overwrite){
@@ -163,8 +162,7 @@ public class TextSpreadsheet {
         grades.get(nameIndex).set(assignmentIndex,new TextGrade(grade,comment)); //TODO: record date and timestamp with this.
         return true;
     }
-    public boolean setGradeAt(int nameIndex,int assignmentIndex,String grade,String comment,boolean overwrite){
-        grade=validateString(grade);
+    public boolean setGradeAt(int nameIndex,int assignmentIndex,double grade,String comment,boolean overwrite){
         comment=validateString(comment);
         if(getGradeAt(nameIndex,assignmentIndex)!=null&&!overwrite){
             overwrite=GuiHelper.yesNoDialog("There is already a grade written: "+getGradeAt(nameIndex,assignmentIndex)+"\nWould you like to overwrite this grade?");
@@ -186,6 +184,9 @@ public class TextSpreadsheet {
     public TextGrade[] getAllGrades(int nameIndex){
         TextGrade[] g=new TextGrade[0];
         return grades.get(nameIndex).toArray(g);        
+    }
+    public TextAssignment[] getAllAssignments(){
+        return assignments.toArray(new TextAssignment[0]);
     }
     public TextName getName(String name){
         for(TextName tName:names){

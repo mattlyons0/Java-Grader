@@ -11,7 +11,6 @@ import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -32,6 +31,7 @@ public class GradebookTableRenderer extends DefaultTableCellRenderer{
                 TextGrade grade=(TextGrade)value;
                 if(!grade.inGradebook){
                     l.setBackground(Color.ORANGE);
+                    l.setForeground(Color.BLACK);
                     if(isSelected)
                         l.setBackground(l.getBackground().darker());
                 }

@@ -13,12 +13,12 @@ import java.util.Objects;
  * @author Matt
  */
 public class TextGrade {
-    public String grade;
+    public double grade;
     public String comment="";
     //public final Date DATEGRADED;
     public boolean inGradebook=false;
     
-    public TextGrade(String grade,String comment){
+    public TextGrade(double grade,String comment){
         this.grade=grade;
         this.comment=comment;
         inGradebook=false;
@@ -26,7 +26,7 @@ public class TextGrade {
     public TextGrade(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
         try{
-            grade=text[0];
+            grade=Double.parseDouble(text[0]);
             comment=text[1];
             inGradebook=Boolean.parseBoolean(text[2]);
         } catch(Exception e){
@@ -50,7 +50,7 @@ public class TextGrade {
         }
         if(o instanceof TextGrade){
             TextGrade g=(TextGrade)o;
-            if(g.grade.equals(grade)&&g.comment.equals(comment)&&g.inGradebook==inGradebook){
+            if(g.grade==grade&&g.comment.equals(comment)&&g.inGradebook==inGradebook){
                 return true;
             }
         }

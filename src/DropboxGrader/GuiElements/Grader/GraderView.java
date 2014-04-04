@@ -29,6 +29,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
 /**
  *
@@ -145,6 +148,22 @@ public class GraderView extends ContentView{
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
         gradeNumber.setMinimumSize(new Dimension(30,30));
         gradeNumber.addActionListener(this);
+        gradeNumber.setDocument(new PlainDocument(){
+            @Override
+            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+                for(int i=0;i<str.length();i++){
+                    char c=str.charAt(i);
+                    if(Character.isDigit(c)||c=='.'){
+                        if(c=='.'){
+                            if(gradeNumber.getText().contains(".")){
+                                return;
+                            }
+                        }
+                        super.insertString(offs, str, a);
+                    }
+                }
+            }
+        });
         JLabel gradeLabel2=new JLabel(" Comment: ");
         gradeComment=new JTextField(25);
         gradeComment.setText("");
@@ -248,6 +267,10 @@ public class GraderView extends ContentView{
             gui.setupFileBrowserGui();
         }
         else if(e.getSource().equals(recordGradeButton)){
+            if(gradeNumber.getText().equals("")){
+                gradeStatus.setText("No grade has been entered.");
+                return;
+            }
             TextGrader grader=gui.getGrader();
             DbxFile currentFile=gui.getCurrentFile();
             ArrayList<Integer> selectedFiles=gui.getSelectedFiles();
@@ -259,7 +282,7 @@ public class GraderView extends ContentView{
             try{
                 int assign=currentFile.getAssignmentNumber();
                 boolean success=grader.setGrade(currentFile.getFirstLastName(), 
-                        assign, gradeNumber.getText(),gradeComment.getText(),
+                        assign, Double.parseDouble(gradeNumber.getText()),gradeComment.getText(),
                         grader.gradeWritten(currentFile.getFirstLastName(), assign));
                 if(success){
                     gradeStatus.setText("Graded");
@@ -298,23 +321,22 @@ public class GraderView extends ContentView{
             GuiHelper.alertDialog("Invalid File");
             return;
         }
-        String grade=null,comment=null;
+        Double grade=null;
+        String comment=null;
         if(gui.getGrader()!=null){
             grade=gui.getGrader().getGradeNum(file.getFirstLastName(), file.getAssignmentNumber());
             comment=gui.getGrader().getComment(file.getFirstLastName(), file.getAssignmentNumber());
         }
-        if(grade==null){
-            grade="";
-        }
         if(comment==null){
             comment="";
         }
-        //if the divider somehow gets hidden lets make it small
+        //if the divider somehow gets completely hidden lets make it small
         if(graderDivider.getDividerLocation()>gui.getRootPane().getSize().width-50){
             graderDivider.setDividerLocation(gui.getRootPane().getSize().width-50);
             Config.dividerLocation=gui.getRootPane().getSize().width-50;
         }
-        gradeNumber.setText(grade);
+        if(grade!=null)
+            gradeNumber.setText(grade+"");
         gradeComment.setText(comment);
         
         javaCode.setFile(file);

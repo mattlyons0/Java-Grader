@@ -4,16 +4,21 @@
  */
 package TestApp;
 
-import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.UnitTesting.JavaMethod;
 
 /**
  *
  * @author 141lyonsm
  */
 public class TestMethods {
-    public static void main(String[] args) {
-        String str="hello there my name is matt";
-        int index=TextGrader.indexOf("my name", str);
-        System.out.println(index);
+    public static void main (String[] args) {
+        JavaMethod m=new JavaMethod("public static String toString(String[] args,   Object    o   ,String s,Object a){");
+        System.out.println(m);
+        JavaMethod m2=new JavaMethod("public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {");
+        System.out.println(m2);
+        
+    }
+    static void test(String s){
+        s+="!";
     }
 }

@@ -108,7 +108,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         grade=(TextGrade) data;
         String copyData;
         if(mouseButton==MouseEvent.BUTTON1){
-            copyData=grade.grade;
+            copyData=grade.grade+"";
         }
         else if(mouseButton==MouseEvent.BUTTON3){
             copyData=grade.comment;
@@ -370,14 +370,14 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         final int assignment=sheet.getAssignmentAt(col-1).number;
         final GradeOverlay overlay=new GradeOverlay(gui);
         if(grade!=null)
-            overlay.setData(grade.grade,grade.comment,name,assignment);
+            overlay.setData(grade.grade+"",grade.comment,name,assignment);
         else
             overlay.setData("","",name,assignment);
         overlay.setCallback(new Runnable() {
             @Override
             public void run() {
-                String[] results=overlay.getData();
-                gui.getGrader().setGrade(name,assignment,results[0], results[1], overwrite);
+                Object[] results=overlay.getData();
+                gui.getGrader().setGrade(name,assignment,(double)results[0], (String)results[1], overwrite);
             }
         });
         gui.getViewManager().addOverlay(overlay);
@@ -409,7 +409,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
     private void changeAssignment(final int col){
         TextAssignment assign=sheet.getAssignmentAt(col);
         final AssignmentOverlay overlay=new AssignmentOverlay(gui);
-        overlay.setData(assign.number, assign.name);
+        overlay.setData(assign);
         overlay.setCallback(new Runnable() {
             @Override
             public void run() {
@@ -418,6 +418,8 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 TextAssignment assign=sheet.getAssignmentAt(col);
                 assign.number=(int)data[0];
                 assign.name=(String)data[1];
+                assign.totalPoints=(Double)data[2];
+                assign.unitTest=overlay.getUnitTest();
                 gui.getGrader().uploadTable();
                 dataChanged();
                 gui.fileBrowserDataChanged();

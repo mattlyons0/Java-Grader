@@ -7,7 +7,6 @@ package DropboxGrader.TextGrader;
 import DropboxGrader.Config;
 import DropboxGrader.DbxSession;
 import DropboxGrader.FileManager;
-import static DropboxGrader.Config.CONFIGFILE;
 import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
@@ -20,13 +19,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -160,12 +154,7 @@ public class TextGrader {
         }
         return -1;
     }
-    public boolean setGrade(String name,final int assignmentNum,final String gradeNum,final String comment,final boolean overwrite){
-        if(gradeNum.equals("")||gradeNum.equals(" ")){
-            GuiHelper.alertDialog("No grade was entered.");
-            return false;
-        }
-        
+    public boolean setGrade(String name,final int assignmentNum,final double gradeNum,final String comment,final boolean overwrite){        
         downloadSheet();
         if(!data.nameDefined(name)){ //need to put name in gradebook
             String[] nameParts=splitName(name,assignmentNum,gradeNum,comment,overwrite);
@@ -176,9 +165,8 @@ public class TextGrader {
             name=nameParts[0]+nameParts[1];
         }
         if(!data.assignmentDefined(assignmentNum)){ //need to create assignment in table
-            final String fName=name;
             final AssignmentOverlay overlay=new AssignmentOverlay(manager.getGui());
-            overlay.setData(assignmentNum, "");
+            overlay.setData(new TextAssignment(assignmentNum,""));
             overlay.setCallback(new Runnable() {
                 @Override
                 public void run() {
@@ -187,6 +175,8 @@ public class TextGrader {
                     TextAssignment assign=data.getAssignment(assignmentNum);
                     assign.number=(int)returned[0];
                     assign.name=(String)returned[1];
+                    assign.totalPoints=(Double)returned[2];
+                    assign.unitTest=overlay.getUnitTest();
                     uploadTable();
                     manager.getGui().gradebookDataChanged();
                 }
@@ -214,7 +204,7 @@ public class TextGrader {
     public TextGrade getGrade(String name,int assignmentNum){
         return data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
     }
-    public String getGradeNum(String name,int assignmentNum){
+    public Double getGradeNum(String name,int assignmentNum){
         TextGrade grade=data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
         return grade==null? null:grade.grade;
     }
@@ -232,7 +222,7 @@ public class TextGrader {
     public TextSpreadsheet getSpreadsheet(){
         return data;
     }
-    private String[] splitName(String name,final int assignmentNum,final String gradeNum,final String comment,final boolean overwrite){
+    private String[] splitName(String name,final int assignmentNum,final double gradeNum,final String comment,final boolean overwrite){
         String firstName,lastName;
         int upercaseIndex=-1;
         char c;
