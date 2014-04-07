@@ -117,6 +117,11 @@ Warn if grade is larger than total points given to assignment
 Color gradient from red to green in filebrowser and gradebook browser based on grade/totalpoints
 Tests dont work in classes that contain main methods
 Choose better deliniators for the unit testing things
+Add a visual way to run unit tests
+    Open overlay asking if unit tests should be run and run them on another thread (but grade them on the background thread)
+        Upon changing the test
+        Upon startup
+    Download tests when doing this
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

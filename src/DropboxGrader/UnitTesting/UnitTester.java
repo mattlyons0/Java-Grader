@@ -42,6 +42,10 @@ public class UnitTester {
     }
     private void prepareTest(DbxFile file){
         JavaFile[] javaFiles=file.getJavaFiles();
+        if(javaFiles==null){
+            //we need to download the file
+            return;
+        }
         for(int i=0;i<javaFiles.length;i++){
             JavaMethod[] methods=javaFiles[i].getMethods();
             for(JavaMethod m:methods){
@@ -64,7 +68,8 @@ public class UnitTester {
                     status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" ";
                 }
                 TextGrader grader=gui.getGrader();
-                if(grader.getGradeNum(file.getFirstLastName(), assignment.number)!=grade){
+                Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
+                if(gradeNum==null||gradeNum!=grade){
                     grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, true);
                 }
                 

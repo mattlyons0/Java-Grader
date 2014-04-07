@@ -465,11 +465,11 @@ public class JavaRunner implements Runnable{
                 File file=makeFile(folders,0,i);
                 File[] files=file.listFiles();
                 if(files.length>1){
-                    return file;
+                    return file.getAbsoluteFile();
                 }
             }
         }
-        return new File("/downloads/"+parent+"/");
+        return new File("/downloads/"+parent+"/").getAbsoluteFile();
     }
     /**
      * Makes a file from an array of folders
