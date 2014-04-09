@@ -89,6 +89,9 @@ public class JTerminal extends JTextPane implements KeyListener,MouseListener,Ac
        char c=e.getKeyChar();
        if(c==KeyEvent.VK_ENTER){
            String[] lines=getText().split("\n");
+           if(lines.length==0){
+               return;
+           }
            String call=lines[lines.length-1].trim();
            if(writer==null){
                return;

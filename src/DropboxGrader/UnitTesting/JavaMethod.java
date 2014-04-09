@@ -16,11 +16,11 @@ import java.util.Arrays;
  * @author matt
  */
 public class JavaMethod {
-    private MethodAccessType accessType=MethodAccessType.PACKAGEPRIVATE; //default access type
-    private MethodModifiers modifiers;
-    private JavaClass returnType; //null==void
-    private String methodName;
-    private JavaClass[] arguments; //need to think about how to deal with objects created in provided classes
+    public MethodAccessType accessType=MethodAccessType.PACKAGEPRIVATE; //default access type
+    public MethodModifiers modifiers;
+    public JavaClass returnType; //null==void
+    public String methodName;
+    public JavaClass[] arguments; //need to think about how to deal with objects created in provided classes
     
     /**
      * Takes in the source code declaring a method and populates data structures based on that
@@ -33,7 +33,7 @@ public class JavaMethod {
     }
     private void extractData(String method){
         //misc cleanup
-        String s=readNextWord(method,'@',' ');
+        String s=readNextWord(method,'@',' '); //if it has an annotation remove it
         if(s!=null){
             method=method.replace("@"+s, "");
         }
@@ -157,12 +157,6 @@ public class JavaMethod {
                 }
             }
         return read;
-    }
-    public String getMethodName(){
-        return methodName;
-    }
-    public MethodAccessType getAccessType(){
-        return accessType;
     }
     public String[] getArguments(){
         if(arguments==null)

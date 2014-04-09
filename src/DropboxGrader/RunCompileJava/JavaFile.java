@@ -43,6 +43,9 @@ public class JavaFile extends File{
         
     }
     public String changeCode(String newCode){
+        if(newCode==null){
+            return "No code was supplied to save.";
+        }
         mainMethod=false;
         try {
             PrintWriter writer=new PrintWriter(new FileWriter(this));
@@ -210,6 +213,7 @@ public class JavaFile extends File{
         String[] lines=code.split("\n");
         boolean inComment=false; //for multiline comments
         for(String line:lines){
+            line=line.replaceAll("\t", " ");
             if(!inComment&&!line.contains("//")&&!line.contains("/*")){
                 e.evaluate(line);
             }
@@ -334,7 +338,7 @@ public class JavaFile extends File{
         if(line.contains("{")&&line.contains("(")&&line.contains(")")){
             if(line.contains(" void ")){
                 JavaMethod m=new JavaMethod(line); //constructors can be void
-                if(m.getMethodName().equals(getName().substring(0,getName().length()-5))){ //if the method name is the same as the class name
+                if(m.methodName.equals(getName().substring(0,getName().length()-5))){ //if the method name is the same as the class name
                     return false;
                 }
                 return true;

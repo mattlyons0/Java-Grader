@@ -11,6 +11,8 @@ package DropboxGrader.UnitTesting.MethodData;
  * @author matt
  */
 public class MethodModifiers {
+    public static final int MODS=4;
+    
     public boolean staticMod;
     public boolean finalMod;
     public boolean abstractMod;

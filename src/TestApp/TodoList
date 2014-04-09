@@ -110,13 +110,14 @@ Default total points configurable
 More ghost jtextfields and less jlabels (class for that)
 Class for JTextFields for doubles only (less duplicated code)
 Improve first/last name searching
-Check for all method characteristics instead of just the name when running unit tests
 Add a weight % for each unit test (score wise)
 Make it more clear that elements are separated by commas (maybe make a component to add more terms)
 Warn if grade is larger than total points given to assignment
 Color gradient from red to green in filebrowser and gradebook browser based on grade/totalpoints
 Tests dont work in classes that contain main methods
 Choose better deliniators for the unit testing things
+Round decimals in grading, configurable place to round to.
+Add gui for method access type/method mods
 Add a visual way to run unit tests
     Open overlay asking if unit tests should be run and run them on another thread (but grade them on the background thread)
         Upon changing the test

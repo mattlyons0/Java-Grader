@@ -111,8 +111,8 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 UnitTest unitTest=unitTests.get(i);
                 if(unitTest!=null){
                     methodNameField.setText(unitTest.getMethodName());
-                    returnTypeField.setText(unitTest.getReturnType());
-                    String argsTypes=unitTest.getArgumentTypes();
+                    returnTypeField.setText(unitTest.getReturnTypeString());
+                    String argsTypes=unitTest.getArgumentTypesString();
                     if(argsTypes!=null)
                         argumentTypesField.setText(argsTypes);
                     if(unitTest.getArgumentData()!=null)

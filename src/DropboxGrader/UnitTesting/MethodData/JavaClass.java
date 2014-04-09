@@ -37,14 +37,13 @@ public class JavaClass {
     }
     @Override
     public boolean equals(Object o){
-        if(o==className){
+        if(o==this){
             return true;
         }
-        if(o instanceof String){
-            String s=(String)o;
-            if(s.equals(className)){
+        if(o instanceof JavaClass){
+            JavaClass c=(JavaClass)o;
+            if(toText().equals(c.toText()))
                 return true;
-            }
         }
         
         return false;

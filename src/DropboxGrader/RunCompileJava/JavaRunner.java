@@ -6,6 +6,7 @@ package DropboxGrader.RunCompileJava;
 
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Grader.JTerminal;
+import DropboxGrader.UnitTesting.UnitTester;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -111,7 +112,7 @@ public class JavaRunner implements Runnable{
         running=null;     
     }
     //this has a lot of code copied from runFile() In the future merge them...
-    public String runTest(JavaFile[] files,JavaFile testFile){
+    public String runTest(JavaFile[] files,JavaFile testFile,UnitTester tester){
         boolean containsPackages=false;
         for(JavaFile f: files){
             if(f.hasPackage()){
@@ -190,6 +191,7 @@ public class JavaRunner implements Runnable{
             if(result!=0){
                 return null;
             }
+            tester.compileFinished();
         } catch(Exception e){
             System.err.println("Error logged when compiling "+e);
         }
@@ -212,10 +214,10 @@ public class JavaRunner implements Runnable{
             builder.directory(runningFrom); //do something like this but safer to set proper working directory
             //todo: verify this works with packages
             //builder.inheritIO();
-            System.out.println("Running from: "+runningFrom);
-            running=builder.start();
-            StringRelayer relayer=new StringRelayer(running.getInputStream());
-            running.waitFor();
+            //System.out.println("Running from: "+runningFrom);
+            Process testProc=builder.start();
+            StringRelayer relayer=new StringRelayer(testProc.getInputStream());
+            testProc.waitFor();
             relayer.stop();
             return relayer.getOutput();
             //}

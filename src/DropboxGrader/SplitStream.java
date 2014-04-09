@@ -38,8 +38,8 @@ public class SplitStream extends PrintStream{
     }
     @Override
     public void print(char[] s) {
-        relay.print(s);
-        super.print(s); //To change body of generated methods, choose Tools | Templates.
+        relay.print(new String(s));
+        super.print(new String(s)); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

@@ -19,15 +19,15 @@ import java.util.regex.Pattern;
  */
 public class UnitTest {
     //Access
-    private CheckboxStatus accessPublic;
-    private CheckboxStatus accessProtected;
-    private CheckboxStatus accessPrivate;
-    private CheckboxStatus accessPackagePrivate;
+    public CheckboxStatus accessPublic;
+    public CheckboxStatus accessProtected;
+    public CheckboxStatus accessPrivate;
+    public CheckboxStatus accessPackagePrivate;
     //Modifiers
-    private CheckboxStatus modStatic;
-    private CheckboxStatus modFinal;
-    private CheckboxStatus modAbstract;
-    private CheckboxStatus modSynchronized;
+    public CheckboxStatus modStatic;
+    public CheckboxStatus modFinal;
+    public CheckboxStatus modAbstract;
+    public CheckboxStatus modSynchronized;
     //Return Type
     private JavaClass returnType; //Must be a specific type
     //Method Name
@@ -105,7 +105,10 @@ public class UnitTest {
     public String getMethodName(){
         return methodName;
     }
-    public String getReturnType(){
+    public JavaClass getReturnType(){
+        return returnType;
+    }
+    public String getReturnTypeString(){
         return returnType==null? null:returnType.toText();
     }
     public String getArgumentData(){
@@ -119,7 +122,10 @@ public class UnitTest {
         }
         return str;
     }
-    public String getArgumentTypes(){
+    public JavaClass[] getArgumentTypes(){
+        return argumentTypes;
+    }
+    public String getArgumentTypesString(){
         if(argumentTypes==null)
             return null;
         String str="";
