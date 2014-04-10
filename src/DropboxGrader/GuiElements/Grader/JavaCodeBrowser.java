@@ -160,11 +160,13 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
             return;
         }
         if(files==null){
-            files=new ArrayList(Arrays.asList(file.getJavaFiles()));
+            if(file.getJavaFiles()!=null)
+                files=new ArrayList(Arrays.asList(file.getJavaFiles()));
         }
         else{
             files.clear();
-            files.addAll(Arrays.asList(file.getJavaFiles()));
+            if(file.getJavaFiles()!=null)
+                files.addAll(Arrays.asList(file.getJavaFiles()));
         }
         if(sortMode==0){ //default order
             //we already did it in the else statement above
@@ -312,6 +314,8 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         repaint();
     }
     public void setSortMode(int mode){
+        if(sortMode==mode)
+            return;
         sortMode=mode;
         Config.codeSortMode=sortMode;
         
@@ -322,6 +326,8 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         repaint();
     }
     public void setSortOrder(int order){
+        if(sortOrder==order)
+            return;
         sortOrder=order;
         Config.codeSortOrder=sortOrder;
         

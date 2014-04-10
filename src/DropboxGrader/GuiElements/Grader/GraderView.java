@@ -337,6 +337,8 @@ public class GraderView extends ContentView{
         }
         if(grade!=null)
             gradeNumber.setText(grade+"");
+        else
+            gradeNumber.setText("");
         gradeComment.setText(comment);
         
         javaCode.setFile(file);
@@ -346,6 +348,8 @@ public class GraderView extends ContentView{
         runButton.setText("Run");
         
         javaCode.setSort(Config.codeSortMode,Config.codeSortOrder);
+        codeSortMode.setSelectedIndex(Config.codeSortMode);
+        codeSortOrder.setSelectedIndex(Config.codeSortOrder);
         
         if(Config.autoRun&&!gui.getSelectedFiles().isEmpty()){
             //If it should autorun, go autorun on the other thread.

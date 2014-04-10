@@ -1,0 +1,7 @@
+Started storing jars for junit
+
+Stores junit jars in config now
+Fixed sticking grade num
+Fixed NPE
+Fixed previous sort mode not being selected even though it was used.
+Fixed bug where code was sorting more times than it was needed to be upon opening a new file (2 extra times)

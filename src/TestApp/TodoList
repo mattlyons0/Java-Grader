@@ -123,6 +123,11 @@ Add a visual way to run unit tests
         Upon changing the test
         Upon startup
     Download tests when doing this
+Show number of background tasks left when waiting for them
+Show progress deleting files when deleting files.
+JFileChooser to set JUnit jars in config
+Alert if a JUnit test needs to be run but there isn't a jar downloaded.
+Run JUnit Tests
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

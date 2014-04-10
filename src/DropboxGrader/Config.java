@@ -37,6 +37,10 @@ public class Config {
     public static int dividerLocation;
     public static int codeSortMode;
     public static int codeSortOrder;
+    
+    //UnitTests
+    public static String jUnitJarLocation;
+    public static String jUnitHamcrestJarLocation;
     public static void init(){
         //Preinit
         spreadsheetName="APCS Period 1 Assignments";
@@ -60,6 +64,10 @@ public class Config {
         dividerLocation=(int)(Toolkit.getDefaultToolkit().getScreenSize().width*2.0/3); //2/3rds
         codeSortMode=0;
         codeSortOrder=0;
+        
+        //UnitTests
+        jUnitJarLocation="";
+        jUnitHamcrestJarLocation="";
     }
     public static void readConfig(){
         if(!CONFIGFILE.exists()){
@@ -85,6 +93,8 @@ public class Config {
             screenWidth=Integer.parseInt(vars[15]);
             screenHeight=Integer.parseInt(vars[16]);
             screenState=Integer.parseInt(vars[17]);
+            jUnitJarLocation=vars[18];
+            jUnitHamcrestJarLocation=vars[19];
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
@@ -108,6 +118,8 @@ public class Config {
         config=append(config,screenWidth);
         config=append(config,screenHeight);
         config=append(config,screenState);
+        config=append(config,jUnitJarLocation);
+        config=append(config,jUnitHamcrestJarLocation);
         
         DbxSession.writeToFile(CONFIGFILE, config);
     }
