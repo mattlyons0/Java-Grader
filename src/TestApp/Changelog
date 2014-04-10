@@ -1,8 +1,0 @@
-Fixed issue printing certain errors.
-Fixed crash (that would be recovered) typing in terminal when there was no output
-Fixed parsing tabs (\t) in code
-Fixed not using all method/test data when determining if a method fits a test
-Fixed when a method to be tested is not found
-Fixed saying a proccess was running when unitTestCode was being run.
-Added error logging if unit test file cannot be written.
-Unit tests now revert code to previous state as soon as possible.

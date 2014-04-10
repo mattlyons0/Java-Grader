@@ -127,7 +127,11 @@ demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled
 
-Frontend app for submitting. Teacher distributes jar and file that has dropbox key
+Frontend app for submitting. Teacher distributes jar and file that has dropbox key (probably has to be web based)
     Put in name and assignment. Will autocomplete assignment name from those submitted
     View your own grades
     Run tests on assignments with unit tests
+    How it works:
+        Dropboxgrader on close uploads data to the server that contains the frontend
+        students have logins for the site
+        php
