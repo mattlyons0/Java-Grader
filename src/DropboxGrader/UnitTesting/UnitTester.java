@@ -83,13 +83,17 @@ public class UnitTester {
                     status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" ";
                 }
                 else{
-                    status+="Test "+(testNum+1)+": Failed, Method "+assignment.unitTests[testNum].getMethodName()+" does not exist ";
+                    String argTypes=assignment.unitTests[testNum].getArgumentTypesString();
+                    if(argTypes==null)
+                        argTypes="";
+                    String method=assignment.unitTests[testNum].getMethodName()+"("+argTypes+")";
+                    status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist ";
                 }
             }
             TextGrader grader=gui.getGrader();
             Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
             if(gradeNum==null||gradeNum!=grade){
-                grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, true);
+                grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, (gradeNum!=null));
             }
 
             //reset test data for the next person
@@ -98,12 +102,16 @@ public class UnitTester {
         }
     }
     private void runTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
+        String types=unitTest.getArgumentTypesString();
+        if(types==null)
+            types="";
+        String method=unitTest.getMethodName()+"("+types+")";
         currentFile=file.getJavaFiles()[javaFileIndex];
         String code=currentFile.getCode();
-        int lastIndex=code.lastIndexOf("}");
         String args=unitTest.getArgumentData();
         if(args==null)
             args="";
+        int lastIndex=code.lastIndexOf("}");
         String inject="//INJECTED-FOR-UNIT-TEST\n"
                 + "public static void main(String[] args){";
         inject+="System.out.println("+unitTest.getMethodName()+"("+args+"));";
@@ -131,7 +139,7 @@ public class UnitTester {
         }
         else{
             testResults.add(false);
-            status="Failed while testing method "+unitTest.getMethodName()+" Expected: "+
+            status="Failed while testing method "+method+" Expected: "+
                     (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim())
                     +" Actual: "+(value==null?null:value.trim());
             testStatus.add(status);
