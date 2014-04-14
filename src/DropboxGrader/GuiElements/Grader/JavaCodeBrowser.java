@@ -61,7 +61,7 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         init();
     }
     public void init(){
-        if(files==null){
+        if(files==null||file==null){
             return;
         }
         layout=new CardLayout(10,5);
@@ -76,7 +76,7 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         File[] files=this.files.toArray(new File[0]);
         int numFiles=1;
         boolean noJavaFiles=true;
-        if(files!=null){
+        if(files!=null&&file.getJavaFiles()!=null){
             numFiles=file.getJavaFiles().length;
             noJavaFiles=false;
         }
@@ -159,6 +159,8 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         if(file==null){
             return;
         }
+        if(files==null)
+            files=new ArrayList();
         if(files==null){
             if(file.getJavaFiles()!=null)
                 files=new ArrayList(Arrays.asList(file.getJavaFiles()));
@@ -173,9 +175,9 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         }
         else if(sortMode==1){ //most important (most dependencies)
             ArrayList<JavaFile> files=new ArrayList();
-            for(JavaFile f:this.files){ //we don't want to mutate files as this method might get threaded in the future
-                files.add(f);
-            }
+                for(JavaFile f:this.files){ //we don't want to mutate files as this method might get threaded in the future
+                    files.add(f);
+                }
             ArrayList<JavaFile> sorted=new ArrayList();
             int size=files.size();
             JavaFile largest=null;

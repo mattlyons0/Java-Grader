@@ -16,8 +16,8 @@ import net.lingala.zip4j.exception.ZipException;
  */
 public class Unzip {
     public static void unzip(String source, String dest) throws ZipException{
-     dest+=source.substring(0, source.length()-4);
-     ZipFile zipFile = new ZipFile(source);
-     zipFile.extractAll(dest);
+        dest+=source.substring(0, source.length()-4);
+        ZipFile zipFile = new ZipFile(source);
+        zipFile.extractAll(dest);
     }
 }
