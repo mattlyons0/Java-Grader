@@ -53,7 +53,7 @@ public class StringRelayer implements Runnable{
                 if(line!=null){
                     output+=line;
                 }
-            } catch(IOException e){
+            } catch(Exception e){
                 Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, e);
             }
         }

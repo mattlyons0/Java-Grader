@@ -7,25 +7,21 @@
 package DropboxGrader.GuiElements.MiscViews;
 
 import DropboxGrader.Config;
-import DropboxGrader.DbxFile;
 import DropboxGrader.DbxSession;
-import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
-import DropboxGrader.GuiElements.ContentView;
-import DropboxGrader.GuiHelper;
-import DropboxGrader.WorkerThread;
+import DropboxGrader.RunCompileJava.JavaRunner;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -44,6 +40,14 @@ public class ConfigView extends ContentView implements FocusListener{
     private JButton backToBrowser;
     private JLabel statusLabel;
     private JLabel errorLabel;
+    private JLabel jUnitJarLabel;
+    private JLabel jUnitHamcrestLabel;
+    private JButton setJUnitJar;
+    private JButton setJUnitHamcrestJar;
+    
+    private String jUnitString="JUnit Jar Location:  ";
+    private String jUnitHamcrestString="JUnit Hamcrest Jar Location: ";
+    
     
     public ConfigView(Gui gui){
         super("ConfigView");
@@ -74,6 +78,16 @@ public class ConfigView extends ContentView implements FocusListener{
         autoRun.addFocusListener(this);
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
+        String jUnitFilename="";
+        if(JavaRunner.onWindows)
+            jUnitFilename=Config.jUnitJarLocation.split("\\")
+        jUnitJarLabel=new JLabel(jUnitString);
+        setJUnitJar=new JButton("Browse");
+        setJUnitJar.addActionListener(this);
+        String hamcrestFilename=
+        jUnitHamcrestLabel=new JLabel(jUnitHamcrestString);
+        setJUnitHamcrestJar=new JButton("Browse");
+        setJUnitHamcrestJar.addActionListener(this);
         JLabel creditsLabel=new JLabel(DbxSession.APPNAME+" V"+DbxSession.getVersion()+" Created by Matt Lyons");
         creditsLabel.setHorizontalTextPosition(JLabel.CENTER);
         
@@ -122,6 +136,15 @@ public class ConfigView extends ContentView implements FocusListener{
         add(autoRun,cons);
         cons.gridy=6;
         cons.gridx=0;
+        add(jUnitJarLabel,cons);
+        cons.gridx=1;
+        add(setJUnitJar,cons);
+        cons.gridx=2;
+        add(jUnitHamcrestLabel,cons);
+        cons.gridx=3;
+        add(setJUnitHamcrestJar,cons);
+        cons.gridy=7;
+        cons.gridx=0;
         cons.gridwidth=4;
         add(creditsLabel,cons);
         
@@ -136,6 +159,40 @@ public class ConfigView extends ContentView implements FocusListener{
             gui.refreshTable();
 
             gui.setupFileBrowserGui();
+        }
+        else if(e.getSource().equals(setJUnitJar)){
+            JFileChooser fc=new JFileChooser(System.getProperty("user.dir"));
+            int returnVal = fc.showOpenDialog(this);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                if(file.getName().toLowerCase().contains("junit")&&
+                        file.getName().toLowerCase().endsWith(".jar")){
+                    statusLabel.setText("");
+                    Config.jUnitJarLocation=file.getAbsolutePath();
+                    jUnitJarLabel.setText(jUnitString+file.getName());
+                }
+                else{
+                    statusLabel.setText("The selected file is not the JUnit Jar.");
+                }
+            }
+        }
+        else if(e.getSource().equals(setJUnitHamcrestJar)){
+            JFileChooser fc=new JFileChooser(System.getProperty("user.dir"));
+            int returnVal = fc.showOpenDialog(this);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                if(file.getName().toLowerCase().contains("hamcrest")&&
+                        file.getName().toLowerCase().endsWith(".jar")){
+                    statusLabel.setText("");
+                    Config.jUnitHamcrestJarLocation=file.getAbsolutePath();
+                    jUnitJarLabel.setText(jUnitHamcrestString+file.getName());
+                }
+                else{
+                    statusLabel.setText("The selected file is not the Hamcrest Jar.");
+                }
+            }
         }
     }
 
