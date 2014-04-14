@@ -19,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -78,14 +79,21 @@ public class ConfigView extends ContentView implements FocusListener{
         autoRun.addFocusListener(this);
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
-        String jUnitFilename="";
+        String[] paths;
         if(JavaRunner.onWindows)
-            jUnitFilename=Config.jUnitJarLocation.split("\\")
-        jUnitJarLabel=new JLabel(jUnitString);
+            paths=Config.jUnitJarLocation.split(Pattern.quote("\\"));
+        else
+            paths=Config.jUnitJarLocation.split(Pattern.quote("/"));
+        String jUnitFilename=paths[paths.length-1];
+        jUnitJarLabel=new JLabel(jUnitString+jUnitFilename);
         setJUnitJar=new JButton("Browse");
         setJUnitJar.addActionListener(this);
-        String hamcrestFilename=
-        jUnitHamcrestLabel=new JLabel(jUnitHamcrestString);
+        if(JavaRunner.onWindows)
+            paths=Config.jUnitHamcrestJarLocation.split(Pattern.quote("\\"));
+        else
+            paths=Config.jUnitHamcrestJarLocation.split(Pattern.quote("/"));
+        String hamcrestFilename=paths[paths.length-1];
+        jUnitHamcrestLabel=new JLabel(jUnitHamcrestString+hamcrestFilename);
         setJUnitHamcrestJar=new JButton("Browse");
         setJUnitHamcrestJar.addActionListener(this);
         JLabel creditsLabel=new JLabel(DbxSession.APPNAME+" V"+DbxSession.getVersion()+" Created by Matt Lyons");
@@ -171,9 +179,11 @@ public class ConfigView extends ContentView implements FocusListener{
                     statusLabel.setText("");
                     Config.jUnitJarLocation=file.getAbsolutePath();
                     jUnitJarLabel.setText(jUnitString+file.getName());
+                    statusLabel.setForeground(Color.black);
                 }
                 else{
-                    statusLabel.setText("The selected file is not the JUnit Jar.");
+                    statusLabel.setText("The file '"+file.getName()+"' is not the JUnit Jar.");
+                    statusLabel.setForeground(Color.red);
                 }
             }
         }
@@ -188,9 +198,11 @@ public class ConfigView extends ContentView implements FocusListener{
                     statusLabel.setText("");
                     Config.jUnitHamcrestJarLocation=file.getAbsolutePath();
                     jUnitJarLabel.setText(jUnitHamcrestString+file.getName());
+                    statusLabel.setForeground(Color.black);
                 }
                 else{
-                    statusLabel.setText("The selected file is not the Hamcrest Jar.");
+                    statusLabel.setText("The file '"+file.getName()+"' is not the Hamcrest Jar.");
+                    statusLabel.setForeground(Color.red);
                 }
             }
         }
@@ -208,6 +220,7 @@ public class ConfigView extends ContentView implements FocusListener{
     }
     @Override
     public void focusGained(FocusEvent e) {
+        statusLabel.setForeground(Color.black);
         if(e.getComponent().equals(autoRun)){
             statusLabel.setText("Determines if code will automatically run when opened.");
         }
