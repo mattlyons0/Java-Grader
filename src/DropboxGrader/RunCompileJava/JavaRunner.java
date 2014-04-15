@@ -4,9 +4,12 @@
  */
 package DropboxGrader.RunCompileJava;
 
+import DropboxGrader.Config;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Grader.JTerminal;
+import DropboxGrader.UnitTesting.JUnit.JUnitTest;
 import DropboxGrader.UnitTesting.UnitTester;
+import TestApp.TestMethods;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -110,6 +113,138 @@ public class JavaRunner implements Runnable{
             }
         }
         running=null;     
+    }
+    //this has even more copied code from runTest() I really need to merge these...
+    public String runJUnit(JUnitTest test){
+        String[] args={"java","-cp",Config.jUnitJarLocation+":"
+                +Config.jUnitHamcrestJarLocation+":"+test.testDirectory()+":"+
+                test.testedFileDirectory(),
+                "org.junit.runner.JUnitCore",test.testedFilename()};
+                ToolProvider.getSystemJavaCompiler().run(null, System.out, System.err,
+                        args[1],args[2],args[4]+".java"
+                                ,test.testFile());
+        ProcessBuilder builder=new ProcessBuilder(args);
+        File dir=new File("/home/matt/NetBeansProjects/Java-Grader/test/");
+            builder.directory(dir);
+            builder.inheritIO();
+            System.out.println("Running from: "+dir+"\nArgs: "+Arrays.toString(args));
+        try {
+            builder.start();
+        } catch (IOException ex) {
+            Logger.getLogger(TestMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        boolean containsPackages=false;
+        for(JavaFile f: files){
+            if(f.hasPackage()){
+                containsPackages=true;
+                break;
+            }
+        }
+        int manualArgNum=4;
+        ArrayList<JavaFile> dependentFiles=calcDependencies(testFile,Arrays.copyOf(files, files.length));
+        dependentFiles.add(testFile);
+        String[] filePaths=new String[dependentFiles.size()+manualArgNum];
+
+        filePaths[0]="-cp";
+        String path=testFile.getAbsolutePath();
+        if(path.length()!=0){
+            if(onWindows)
+                path=path.replace("\\", "="); //windows uses stupid slashes when everything else doesnt
+            else
+                path=path.replace("/","=");
+            String[] pathPart=path.split("="); //cant split \ for whatever reason (regex strikes again!)..
+            path=path.replace("=", "/");
+            path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
+            if(containsPackages){
+                if(testFile.hasPackage()){
+                    
+                    String firstPackage;
+                    if(testFile.packageFolder().contains("/")){
+                        firstPackage=testFile.packageFolder().substring(0,testFile.packageFolder().indexOf("/"));
+                    }
+                    else{
+                        firstPackage=testFile.packageFolder();
+                    }
+                    int partIndex=-1;
+                    for(int i=0;i<pathPart.length;i++){
+                        if(pathPart[i].equals(firstPackage)){
+                            partIndex=i;
+                            //don't break because we want the most recent one that equals it
+                            //i could go backwards and then break but whatever
+                        }
+                    }
+                    if(partIndex==-1){
+                        System.err.println("Error determining package to compile for "+path+" with package "+testFile.packageFolder()
+                            +"\nFile: "+testFile.getPath());
+                    }
+                    path="";
+                    for(int i=0;i<partIndex;i++){
+                        path+=pathPart[i];
+                        if(i<=partIndex){
+                            path+="/";
+                        }
+                    }
+                }
+            }
+            if(pathPart.length==1){
+                path="";
+            }
+        }
+        filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
+        filePaths[2]="-sourcepath";
+        filePaths[3]=filePaths[1];
+        for(int i=manualArgNum;i<filePaths.length;i++){
+            filePaths[i]=dependentFiles.get(i-manualArgNum).getAbsolutePath();
+        }
+        //System.out.println("Compiling "+Arrays.toString(filePaths));
+        try {
+            //System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_25\\jre");
+            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            if(compiler==null){
+                if(!fixedPath){
+                    fixJavaPath();
+                    compiler=ToolProvider.getSystemJavaCompiler();
+                }
+            }
+            String javaVersion=Runtime.class.getPackage().getImplementationVersion();
+            int result=compiler.run(null, System.out, null, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            if(result!=0){
+                return null;
+            }
+            tester.compileFinished();
+        } catch(Exception e){
+            System.err.println("Error logged when compiling "+e);
+        }
+        try{
+            //for(int x=0;x<files.length;x++){
+            String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+            String className="";
+            if(testFile.hasPackage()){
+                className+=testFile.packageFolder()+"/";
+            }
+            className+=testFile.getName();
+            className=className.substring(0,className.length()-5); //removes .java
+            String javaExe=System.getProperty("java.home")+"/bin/java.exe";
+            //System.out.println(javaExe);
+            javaExe="java"; //since we set the java.home the keyword java will go to the right place
+            //String directory=folder;
+            //directory=directory.substring(0, directory.length()-runChoice.getName().length());
+            ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
+            File runningFrom=runFrom(testFile);
+            builder.directory(runningFrom); //do something like this but safer to set proper working directory
+            //todo: verify this works with packages
+            //builder.inheritIO();
+            //System.out.println("Running from: "+runningFrom);
+            Process testProc=builder.start();
+            StringRelayer relayer=new StringRelayer(testProc.getInputStream());
+            testProc.waitFor();
+            relayer.stop();
+            return relayer.getOutput();
+            //}
+        } catch (IOException|InterruptedException ex) {
+           Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
+           return null;
+        }
     }
     //this has a lot of code copied from runFile() In the future merge them...
     public String runTest(JavaFile[] files,JavaFile testFile,UnitTester tester){

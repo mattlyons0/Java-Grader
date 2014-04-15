@@ -129,6 +129,7 @@ JFileChooser to set JUnit jars in config
 Alert if a JUnit test needs to be run but there isn't a jar downloaded.
 Run JUnit Tests
 Redownload is broken
+Add ability to change directory it is run from.
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled
