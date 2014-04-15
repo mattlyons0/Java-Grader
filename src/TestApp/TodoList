@@ -128,6 +128,7 @@ Show progress deleting files when deleting files.
 JFileChooser to set JUnit jars in config
 Alert if a JUnit test needs to be run but there isn't a jar downloaded.
 Run JUnit Tests
+Redownload is broken
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

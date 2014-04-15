@@ -2,20 +2,29 @@
 public static void main(String[] args){System.out.println(method1(new Integer(2)));}
                    ^
 \\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:16: error: method main(String[]) is already defined in class UnitTest1
-public static void main(String[] args){System.out.println(method1(new Integer(2)));}
+public static void main(String[] args){System.out.println(method1(10,  20));}
                    ^
-2 errors
-\\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:14: error: method main(String[]) is already defined in class UnitTest1
-public static void main(String[] args){System.out.println(method1(new Integer(2)));}
+\\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:18: error: method main(String[]) is already defined in class UnitTest1
+public static void main(String[] args){System.out.println(method1(10,  20));}
                    ^
-\\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:16: error: method main(String[]) is already defined in class UnitTest1
-public static void main(String[] args){System.out.println(method1());}
-                   ^
-2 errors
+3 errors
 \\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:14: error: method main(String[]) is already defined in class UnitTest1
 public static void main(String[] args){System.out.println(method1(new Integer(2)));}
                    ^
 \\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:16: error: method main(String[]) is already defined in class UnitTest1
 public static void main(String[] args){System.out.println(method1(10,  20));}
                    ^
-2 errors
+\\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:18: error: method main(String[]) is already defined in class UnitTest1
+public static void main(String[] args){System.out.println(method1());}
+                   ^
+3 errors
+\\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:14: error: method main(String[]) is already defined in class UnitTest1
+public static void main(String[] args){System.out.println(method1(new Integer(2)));}
+                   ^
+\\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:16: error: method main(String[]) is already defined in class UnitTest1
+public static void main(String[] args){System.out.println(method1(10,  20));}
+                   ^
+\\dist113\dhs_stud\DHSStudent14\141lyonsm\My Documents\NetBeansProjects\Java-Grader\downloads\P2_MattLyons_25_UnitTestTest\P2_MattLyons_25_UnitTestTest\UnitTest1.java:18: error: method main(String[]) is already defined in class UnitTest1
+public static void main(String[] args){System.out.println(method1(new Integer(2)));}
+                   ^
+3 errors

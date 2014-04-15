@@ -5,6 +5,7 @@
 package TestApp;
 
 //import DropboxGrader.UnitTesting.JavaMethod;
+import DropboxGrader.UnitTesting.JavaMethod;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,18 +20,17 @@ import javax.tools.ToolProvider;
 public class TestMethods {
     public static void main (String[] args) {
         testJUnit();
-        
     }
     public static String test(String s){
         s+="!";
         return s;
     }
-//    public static void testUnitTest(){
-//        JavaMethod m=new JavaMethod("public static String toString(String[] args,   Object    o   ,String s,Object a){");
-//        System.out.println(m);
-//        JavaMethod m2=new JavaMethod("public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {");
-//        System.out.println(m2);
-//    }
+    public static void testUnitTest(){
+        JavaMethod m=new JavaMethod("public static String toString(String[] args,   Object    o   ,String s,Object a){");
+        System.out.println(m);
+        JavaMethod m2=new JavaMethod("public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {");
+        System.out.println(m2);
+    }
     public static void testJUnit(){
         String[] args={"java","-cp","/home/matt/Downloads/junit-4.11.jar:"
                 + "/home/matt/Downloads/hamcrest-core-1.3.jar:/home/matt/NetBeansProjects/Java-Grader/test/:"

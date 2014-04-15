@@ -25,6 +25,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
 
 /**
  *
@@ -45,15 +46,30 @@ public class ConfigView extends ContentView implements FocusListener{
     private JLabel jUnitHamcrestLabel;
     private JButton setJUnitJar;
     private JButton setJUnitHamcrestJar;
+    private JButton downloadJUnitButton;
     
     private String jUnitString="JUnit Jar Location:  ";
     private String jUnitHamcrestString="JUnit Hamcrest Jar Location: ";
+    private FileFilter jarFilter;
     
     
     public ConfigView(Gui gui){
         super("ConfigView");
         
         this.gui=gui;
+        
+        jarFilter=new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                if(file.getName().toLowerCase().endsWith(".jar"))
+                    return true;
+                return false;
+            }
+            @Override
+            public String getDescription() {
+                return ".jar";
+            }
+        };
     }
     @Override
     public void setup() {
@@ -79,21 +95,14 @@ public class ConfigView extends ContentView implements FocusListener{
         autoRun.addFocusListener(this);
         backToBrowser=new JButton("Back");
         backToBrowser.addActionListener(this);
-        String[] paths;
-        if(JavaRunner.onWindows)
-            paths=Config.jUnitJarLocation.split(Pattern.quote("\\"));
-        else
-            paths=Config.jUnitJarLocation.split(Pattern.quote("/"));
-        String jUnitFilename=paths[paths.length-1];
-        jUnitJarLabel=new JLabel(jUnitString+jUnitFilename);
+        JLabel junitLabel=new JLabel("<html><b>JUnit</b> Download the Jar Files from </html>");
+        junitLabel.setHorizontalAlignment(JLabel.RIGHT);
+        downloadJUnitButton=new JButton("JUnit.org");
+        downloadJUnitButton.addActionListener(this);
+        jUnitJarLabel=new JLabel(jUnitString);
         setJUnitJar=new JButton("Browse");
         setJUnitJar.addActionListener(this);
-        if(JavaRunner.onWindows)
-            paths=Config.jUnitHamcrestJarLocation.split(Pattern.quote("\\"));
-        else
-            paths=Config.jUnitHamcrestJarLocation.split(Pattern.quote("/"));
-        String hamcrestFilename=paths[paths.length-1];
-        jUnitHamcrestLabel=new JLabel(jUnitHamcrestString+hamcrestFilename);
+        jUnitHamcrestLabel=new JLabel(jUnitHamcrestString);
         setJUnitHamcrestJar=new JButton("Browse");
         setJUnitHamcrestJar.addActionListener(this);
         JLabel creditsLabel=new JLabel(DbxSession.APPNAME+" V"+DbxSession.getVersion()+" Created by Matt Lyons");
@@ -144,21 +153,51 @@ public class ConfigView extends ContentView implements FocusListener{
         add(autoRun,cons);
         cons.gridy=6;
         cons.gridx=0;
+        cons.gridwidth=2;
+        cons.anchor=GridBagConstraints.EAST;
+        add(junitLabel,cons);
+        cons.gridx=2;
+        cons.gridwidth=1;
+        cons.anchor=GridBagConstraints.WEST;
+        add(downloadJUnitButton,cons);
+        cons.anchor=GridBagConstraints.EAST;
+        cons.gridy=7;
+        cons.gridx=0;
         add(jUnitJarLabel,cons);
         cons.gridx=1;
+        cons.anchor=GridBagConstraints.WEST;
         add(setJUnitJar,cons);
         cons.gridx=2;
+        cons.anchor=GridBagConstraints.EAST;
         add(jUnitHamcrestLabel,cons);
         cons.gridx=3;
+        cons.anchor=GridBagConstraints.WEST;
         add(setJUnitHamcrestJar,cons);
-        cons.gridy=7;
+        cons.anchor=GridBagConstraints.CENTER;
+        cons.gridy=8;
         cons.gridx=0;
         cons.gridwidth=4;
         add(creditsLabel,cons);
         
         revalidate();
     }
-
+        @Override
+    public void switchedTo() {
+        File junit=new File(Config.jUnitJarLocation);
+        File jhamcrest=new File(Config.jUnitHamcrestJarLocation);
+        if(!junit.exists()){
+            Config.jUnitJarLocation="";
+            jUnitJarLabel.setText(jUnitString);
+        }
+        else
+            jUnitJarLabel.setText(jUnitString+junit.getName());
+        if(!jhamcrest.exists()){
+            Config.jUnitHamcrestJarLocation="";
+            jUnitHamcrestLabel.setText(jUnitHamcrestString);
+        }
+        else
+            jUnitHamcrestLabel.setText(jUnitHamcrestString+jhamcrest.getName());
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(backToBrowser)){
@@ -170,8 +209,9 @@ public class ConfigView extends ContentView implements FocusListener{
         }
         else if(e.getSource().equals(setJUnitJar)){
             JFileChooser fc=new JFileChooser(System.getProperty("user.dir"));
+            fc.setFileFilter(jarFilter);
             int returnVal = fc.showOpenDialog(this);
-
+            
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 if(file.getName().toLowerCase().contains("junit")&&
@@ -189,15 +229,15 @@ public class ConfigView extends ContentView implements FocusListener{
         }
         else if(e.getSource().equals(setJUnitHamcrestJar)){
             JFileChooser fc=new JFileChooser(System.getProperty("user.dir"));
+            fc.setFileFilter(jarFilter);
             int returnVal = fc.showOpenDialog(this);
-
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 if(file.getName().toLowerCase().contains("hamcrest")&&
                         file.getName().toLowerCase().endsWith(".jar")){
                     statusLabel.setText("");
                     Config.jUnitHamcrestJarLocation=file.getAbsolutePath();
-                    jUnitJarLabel.setText(jUnitHamcrestString+file.getName());
+                    jUnitHamcrestLabel.setText(jUnitHamcrestString+file.getName());
                     statusLabel.setForeground(Color.black);
                 }
                 else{
@@ -206,11 +246,9 @@ public class ConfigView extends ContentView implements FocusListener{
                 }
             }
         }
-    }
-
-    @Override
-    public void switchedTo() {
-
+        else if(e.getSource().equals(downloadJUnitButton)){
+            DbxSession.openWebsite("http://junit.org");
+        }
     }
     public void saveData(){
         for(Component c:getComponents()){
