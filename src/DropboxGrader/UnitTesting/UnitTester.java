@@ -6,17 +6,27 @@
 
 package DropboxGrader.UnitTesting;
 
+import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.RunCompileJava.JavaFile;
+import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrader;
-import DropboxGrader.UnitTesting.MethodData.CheckboxStatus;
-import DropboxGrader.UnitTesting.MethodData.MethodAccessType;
+import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
+import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
+import com.dropbox.core.DbxException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -41,30 +51,63 @@ public class UnitTester {
     public void runTests(){
         while(currentFile!=null){
             try {
-                Thread.sleep(50); //this isn't really good, but at the same time we can't run the tests concurrently to eachother
+                Thread.sleep(50); //this isn't really good, but at the same time we can't run the tests concurrently to eachother if someone calls the method twice
             } catch (InterruptedException ex) {
                 Logger.getLogger(UnitTester.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         FileManager manager=gui.getManager();
         DbxFile[] files=manager.getFiles().toArray(new DbxFile[0]);
+        
         for(int i=0;i<files.length;i++){
-            if(files[i].getAssignmentNumber()==assignment.number)
+            if(files[i].getAssignmentNumber()==assignment.number){
                 prepareTest(files[i]);
+            }
         }
     }
     private void prepareTest(DbxFile file){
         JavaFile[] javaFiles=file.getJavaFiles();
         if(javaFiles==null){
             //we need to download the file
+            System.err.println("There are files that need to be downloaded in order to be unit tested.");
             return;
         }
         for(int i=0;i<javaFiles.length;i++){
             JavaMethod[] methods=javaFiles[i].getMethods();
             for(JavaMethod m:methods){
-                for(UnitTest test:assignment.unitTests){
-                    if(testMatch(m,test)){
-                        runTest(file,test,i);
+                if(assignment.simpleUnitTests!=null){
+                    for(UnitTest test:assignment.simpleUnitTests){
+                        if(testMatch(m,test)){
+                            runSimpleTest(file,test,i);
+                        }
+                    }
+                }
+            }
+            if(assignment.junitTests!=null){
+                for(String testLoc:assignment.junitTests){
+                    try {
+                        if(!testLoc.equals("")&&gui.getDbxSession().getClient().getMetadata(testLoc)!=null){
+                            String[] testPaths=testLoc.split(Pattern.quote("/"));
+                            String testName;
+                            if(testPaths.length==0)
+                                testName=testLoc;
+                            else
+                                testName=testPaths[testPaths.length-1];
+                            String localTestLoc=gui.getManager().getDownloadFolder()+"/"+testName;
+                            try{
+                                FileOutputStream f = new FileOutputStream(localTestLoc);
+                                System.out.println(testLoc);
+                                gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
+                                f.close();
+                                runJUnitTest(file,new File(localTestLoc));
+                            } catch(IOException ex){
+                                System.err.println("Error downloading unit test file.\n"+ex);
+                                ex.printStackTrace();
+                            }
+                        }
+                    } catch (DbxException ex) {
+                        System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);
+                        ex.printStackTrace();
                     }
                 }
             }
@@ -76,18 +119,26 @@ public class UnitTester {
                 if(result)
                     successes++;
             }
-            grade=successes/(double)assignment.unitTests.length*assignment.totalPoints;
-            String status="(Unit Tested) "+successes+" Passed of "+assignment.unitTests.length+", ";
-            for(int testNum=0;testNum<assignment.unitTests.length;testNum++){
+            int totalTests=0;
+            if(assignment.simpleUnitTests!=null)
+                totalTests+=assignment.simpleUnitTests.length;
+            if(assignment.junitTests!=null)
+                totalTests+=assignment.junitTests.length;
+            grade=successes/(double)totalTests*assignment.totalPoints;
+            String status="(Unit Tested) "+successes+" Passed of "+totalTests+", ";
+            for(int testNum=0;testNum<totalTests;testNum++){
                 if(testNum<testStatus.size()){
                     status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" ";
                 }
-                else{
-                    String argTypes=assignment.unitTests[testNum].getArgumentTypesString();
+                else if(assignment.simpleUnitTests!=null&&testNum<assignment.simpleUnitTests.length){
+                    String argTypes=assignment.simpleUnitTests[testNum].getArgumentTypesString();
                     if(argTypes==null)
                         argTypes="";
-                    String method=assignment.unitTests[testNum].getMethodName()+"("+argTypes+")";
+                    String method=assignment.simpleUnitTests[testNum].getMethodName()+"("+argTypes+")";
                     status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist ";
+                }
+                else if(assignment.junitTests!=null&&(assignment.simpleUnitTests==null||testNum>=assignment.simpleUnitTests.length)){
+                    
                 }
             }
             TextGrader grader=gui.getGrader();
@@ -101,7 +152,12 @@ public class UnitTester {
             testStatus.clear();
         }
     }
-    private void runTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
+    private void runJUnitTest(DbxFile file,File unitTest){
+        JavaRunner runner=gui.getRunner();
+        String results=runner.runJUnit(unitTest,file);
+        System.out.println(results);
+    }
+    private void runSimpleTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
         String types=unitTest.getArgumentTypesString();
         if(types==null)
             types="";

@@ -10,7 +10,6 @@ import DropboxGrader.Config;
 import DropboxGrader.DbxSession;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
-import DropboxGrader.RunCompileJava.JavaRunner;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -19,7 +18,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
-import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -61,13 +59,13 @@ public class ConfigView extends ContentView implements FocusListener{
         jarFilter=new FileFilter() {
             @Override
             public boolean accept(File file) {
-                if(file.getName().toLowerCase().endsWith(".jar"))
+                if(file.getName().toLowerCase().endsWith(".jar")||file.isDirectory())
                     return true;
                 return false;
             }
             @Override
             public String getDescription() {
-                return ".jar";
+                return "*.jar";
             }
         };
     }
@@ -217,7 +215,7 @@ public class ConfigView extends ContentView implements FocusListener{
                 if(file.getName().toLowerCase().contains("junit")&&
                         file.getName().toLowerCase().endsWith(".jar")){
                     statusLabel.setText("");
-                    Config.jUnitJarLocation=file.getAbsolutePath();
+                    Config.jUnitJarLocation=new File(System.getProperty("user.dir")).toURI().relativize(file.toURI()).getPath(); //relative location
                     jUnitJarLabel.setText(jUnitString+file.getName());
                     statusLabel.setForeground(Color.black);
                 }
@@ -236,7 +234,7 @@ public class ConfigView extends ContentView implements FocusListener{
                 if(file.getName().toLowerCase().contains("hamcrest")&&
                         file.getName().toLowerCase().endsWith(".jar")){
                     statusLabel.setText("");
-                    Config.jUnitHamcrestJarLocation=file.getAbsolutePath();
+                    Config.jUnitHamcrestJarLocation=new File(System.getProperty("user.dir")).toURI().relativize(file.toURI()).getPath(); //relative location
                     jUnitHamcrestLabel.setText(jUnitHamcrestString+file.getName());
                     statusLabel.setForeground(Color.black);
                 }

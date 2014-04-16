@@ -5,11 +5,10 @@
 package DropboxGrader.RunCompileJava;
 
 import DropboxGrader.Config;
+import DropboxGrader.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Grader.JTerminal;
-import DropboxGrader.UnitTesting.JUnit.JUnitTest;
 import DropboxGrader.UnitTesting.UnitTester;
-import TestApp.TestMethods;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -81,7 +81,7 @@ public class JavaRunner implements Runnable{
                     
                 }
                 catch(IllegalThreadStateException e){
-                    
+                    e.printStackTrace();
                 }
             }
             try {
@@ -115,24 +115,19 @@ public class JavaRunner implements Runnable{
         running=null;     
     }
     //this has even more copied code from runTest() I really need to merge these...
-    public String runJUnit(JUnitTest test){
-        String[] args={"java","-cp",Config.jUnitJarLocation+":"
-                +Config.jUnitHamcrestJarLocation+":"+test.testDirectory()+":"+
-                test.testedFileDirectory(),
-                "org.junit.runner.JUnitCore",test.testedFilename()};
-                ToolProvider.getSystemJavaCompiler().run(null, System.out, System.err,
-                        args[1],args[2],args[4]+".java"
-                                ,test.testFile());
-        ProcessBuilder builder=new ProcessBuilder(args);
-        File dir=new File("/home/matt/NetBeansProjects/Java-Grader/test/");
-            builder.directory(dir);
-            builder.inheritIO();
-            System.out.println("Running from: "+dir+"\nArgs: "+Arrays.toString(args));
-        try {
-            builder.start();
-        } catch (IOException ex) {
-            Logger.getLogger(TestMethods.class.getName()).log(Level.SEVERE, null, ex);
+    public String runJUnit(File unitTest,DbxFile testedFile){
+        if(!new File(Config.jUnitHamcrestJarLocation).exists()||!new File(Config.jUnitJarLocation).exists()){
+            System.err.println("Error when JUnit testing. Hamcrest or JUnit Jar is missing.");
+            return null;
         }
+        char sym=onWindows?';':':'; //unix : windows ;
+        String unitTestName=unitTest.getName().substring(0,unitTest.getName().length()-5); //remove .java
+        String[] args={"java","-cp",new File(Config.jUnitJarLocation).getAbsolutePath()+sym+
+                new File(Config.jUnitHamcrestJarLocation).getAbsolutePath()+sym+
+                testedFile.getFile().getAbsolutePath()+sym+unitTest.getParentFile().getAbsolutePath(),
+                "org.junit.runner.JUnitCore",unitTestName};
+        
+        JavaFile[] files=testedFile.getJavaFiles();
         boolean containsPackages=false;
         for(JavaFile f: files){
             if(f.hasPackage()){
@@ -140,13 +135,11 @@ public class JavaRunner implements Runnable{
                 break;
             }
         }
-        int manualArgNum=4;
-        ArrayList<JavaFile> dependentFiles=calcDependencies(testFile,Arrays.copyOf(files, files.length));
-        dependentFiles.add(testFile);
-        String[] filePaths=new String[dependentFiles.size()+manualArgNum];
+        int manualArgNum=5;
+        String[] filePaths=new String[files.length+manualArgNum];
 
         filePaths[0]="-cp";
-        String path=testFile.getAbsolutePath();
+        String path=files[0].getAbsolutePath();
         if(path.length()!=0){
             if(onWindows)
                 path=path.replace("\\", "="); //windows uses stupid slashes when everything else doesnt
@@ -156,14 +149,14 @@ public class JavaRunner implements Runnable{
             path=path.replace("=", "/");
             path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
             if(containsPackages){
-                if(testFile.hasPackage()){
+                if(files[0].hasPackage()){
                     
                     String firstPackage;
-                    if(testFile.packageFolder().contains("/")){
-                        firstPackage=testFile.packageFolder().substring(0,testFile.packageFolder().indexOf("/"));
+                    if(files[0].packageFolder().contains("/")){
+                        firstPackage=files[0].packageFolder().substring(0,files[0].packageFolder().indexOf("/"));
                     }
                     else{
-                        firstPackage=testFile.packageFolder();
+                        firstPackage=files[0].packageFolder();
                     }
                     int partIndex=-1;
                     for(int i=0;i<pathPart.length;i++){
@@ -174,8 +167,8 @@ public class JavaRunner implements Runnable{
                         }
                     }
                     if(partIndex==-1){
-                        System.err.println("Error determining package to compile for "+path+" with package "+testFile.packageFolder()
-                            +"\nFile: "+testFile.getPath());
+                        System.err.println("Error determining package to compile for "+path+" with package "+files[0].packageFolder()
+                            +"\nFile: "+files[0].getPath());
                     }
                     path="";
                     for(int i=0;i<partIndex;i++){
@@ -190,11 +183,12 @@ public class JavaRunner implements Runnable{
                 path="";
             }
         }
-        filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
+        filePaths[1]=args[2]; //careful if removed, referenced in the run loop.
         filePaths[2]="-sourcepath";
         filePaths[3]=filePaths[1];
+        filePaths[2]=unitTest.getAbsolutePath();
         for(int i=manualArgNum;i<filePaths.length;i++){
-            filePaths[i]=dependentFiles.get(i-manualArgNum).getAbsolutePath();
+            filePaths[i]=files[i-manualArgNum].getAbsolutePath();
         }
         //System.out.println("Compiling "+Arrays.toString(filePaths));
         try {
@@ -207,40 +201,22 @@ public class JavaRunner implements Runnable{
                 }
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
-            int result=compiler.run(null, System.out, null, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            int result=compiler.run(System.in, System.out, System.err, filePaths); //if the compiler couldnt be found it will crash here. NPE
             if(result!=0){
                 return null;
             }
-            tester.compileFinished();
         } catch(Exception e){
             System.err.println("Error logged when compiling "+e);
+            e.printStackTrace();
         }
         try{
-            //for(int x=0;x<files.length;x++){
-            String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
-            String className="";
-            if(testFile.hasPackage()){
-                className+=testFile.packageFolder()+"/";
-            }
-            className+=testFile.getName();
-            className=className.substring(0,className.length()-5); //removes .java
-            String javaExe=System.getProperty("java.home")+"/bin/java.exe";
-            //System.out.println(javaExe);
-            javaExe="java"; //since we set the java.home the keyword java will go to the right place
-            //String directory=folder;
-            //directory=directory.substring(0, directory.length()-runChoice.getName().length());
-            ProcessBuilder builder=new ProcessBuilder(javaExe,"-cp",classpath,className);
-            File runningFrom=runFrom(testFile);
-            builder.directory(runningFrom); //do something like this but safer to set proper working directory
-            //todo: verify this works with packages
-            //builder.inheritIO();
-            //System.out.println("Running from: "+runningFrom);
+            System.out.println("Running with commands: "+Arrays.toString(args));
+            ProcessBuilder builder=new ProcessBuilder(args);
             Process testProc=builder.start();
             StringRelayer relayer=new StringRelayer(testProc.getInputStream());
             testProc.waitFor();
             relayer.stop();
             return relayer.getOutput();
-            //}
         } catch (IOException|InterruptedException ex) {
            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
            return null;
@@ -329,6 +305,7 @@ public class JavaRunner implements Runnable{
             tester.compileFinished();
         } catch(Exception e){
             System.err.println("Error logged when compiling "+e);
+            e.printStackTrace();
         }
         try{
             //for(int x=0;x<files.length;x++){
@@ -469,6 +446,7 @@ public class JavaRunner implements Runnable{
                 
             } catch(Exception e){
                 System.err.println("Error logged when compiling "+e);
+                e.printStackTrace();
             }
         }
         try{
@@ -590,7 +568,11 @@ public class JavaRunner implements Runnable{
     private File runFrom(JavaFile mainFile){
         String parent=mainFile.getDbx().getFileName();
         parent=parent.substring(0,parent.length()-4); //get rid of .zip
-        String[] folders=mainFile.getPath().split("/");
+        String[] folders;
+        if(onWindows)
+            folders=mainFile.getAbsolutePath().split(Pattern.quote("\\"));
+        else
+            folders=mainFile.getAbsolutePath().split(Pattern.quote("/"));
         int parentIndex=-1;
         for(int i=0;i<folders.length;i++){
             if(parentIndex==-1){

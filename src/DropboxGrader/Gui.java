@@ -125,14 +125,14 @@ public class Gui extends JFrame implements ActionListener{
         gradebookView=new GradebookView(this);
         viewManager.addView(gradebookView);
         
-        //MOVE THIS TO ANOTHER THREAD
+        //TODO: MOVE THIS TO ANOTHER THREAD
         TextAssignment[] assignments=grader.getSpreadsheet().getAllAssignments();
         for(int i=0;i<assignments.length;i++){
-            if(assignments[i].unitTests!=null){
+            if(assignments[i].simpleUnitTests!=null||assignments[i].junitTests!=null){
                 UnitTester tester=new UnitTester(this,assignments[i]);
                 tester.runTests();
             }
-        }
+        }        
     }
     
     public void setupFileBrowserGui(){

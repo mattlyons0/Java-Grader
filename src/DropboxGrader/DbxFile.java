@@ -123,6 +123,7 @@ public class DbxFile {
             else if(ex instanceof IOException){
                 GuiHelper.alertDialog("Writing file to disk failed, You probably don't have permission to download here.\n"+ex);
             }
+            ex.printStackTrace();
             return null;
         }
     }
@@ -550,6 +551,9 @@ public class DbxFile {
                 }
             }
         }
+    }
+    public File getFile(){
+        return downloadedFile;
     }
     
 }

@@ -89,6 +89,7 @@ public class DbxSession {
                 }
                 if(!codeHandled)
                     GuiHelper.alertDialog("Dropbox Servers are currently responding with error:\n"+ex.getMessage());
+                ex.printStackTrace();
             }
             else{
                 GuiHelper.alertDialog("Unknown error connecting to dropbox.\n"+ex);
@@ -98,6 +99,7 @@ public class DbxSession {
                 Thread.sleep(1000);
             } catch (InterruptedException ex1) {
                 Logger.getLogger(DbxSession.class.getName()).log(Level.SEVERE, null, ex1);
+                ex.printStackTrace();
             }
             createSession();
         }
@@ -128,6 +130,8 @@ public class DbxSession {
                     return;
                 }
                 val=null;
+                System.err.println("Error setting auth key.");
+                ex.printStackTrace();
             }
             writeToFile(KEYFILE,val);
             createSession();
@@ -142,8 +146,7 @@ public class DbxSession {
             
             writer.close();
         } catch (IOException ex) {
-            GuiHelper.alertDialog("Cannot read/write files. "+ex);
-            System.exit(1); //this is um bad, because we made this into a static method.
+            GuiHelper.alertDialog("Cannot read/write files. You should probably relaunch this program."+ex);
         }
     }
     public static String readFromFile(File f){
@@ -164,6 +167,7 @@ public class DbxSession {
             reader.close();
         } catch (IOException ex) {
             GuiHelper.alertDialog("Cannot read/write files. "+ex);
+            ex.printStackTrace();
         }
         return read;
     }
@@ -175,6 +179,7 @@ public class DbxSession {
             }
             catch(URISyntaxException | IOException e){
                 System.out.println("Error opening url. "+e);
+                e.printStackTrace();
             }
         }
         else{

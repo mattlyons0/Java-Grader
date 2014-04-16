@@ -6,19 +6,34 @@
 
 package DropboxGrader.GuiElements.UnitTesting;
 
+import DropboxGrader.Config;
+import DropboxGrader.DbxFile;
+import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
-import DropboxGrader.UnitTesting.UnitTest;
+import DropboxGrader.GuiHelper;
+import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxWriteMode;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
 
 /**
  * All unit testing gui stuff should go in here
@@ -27,27 +42,58 @@ import javax.swing.JTextField;
  */
 public class UnitTestPanel extends JPanel implements ActionListener{
     
+    private Gui gui;
+    
     //Single Elements
     private JButton addTestsButton;
     private JButton addTestButton;
+    private JButton addJTestsButton;
+    private JButton addJTestButton;
     
     //Multiple Elements
+    //Simple UnitTest
     private ArrayList<JTextField> methodNames;
     private ArrayList<JTextField> returnTypes;
     private ArrayList<JTextField> argumentTypes;
     private ArrayList<JTextField> arguments;
     private ArrayList<JTextField> expectedValues;
     private ArrayList<JButton> removeTestButtons;
+    //JUnitTest
+    private ArrayList<JLabel> jFilenames;
+    private ArrayList<JButton> jFileChoosers;
+    private ArrayList<JButton> removeJTestButtons;
     
     //Data
     private ArrayList<UnitTest> unitTests;
-    public UnitTestPanel(UnitTest[] tests){
+    private ArrayList<String> junitTests;
+    
+    private FileFilter javaFilter;
+    private String jLabelText="JUnit Test:  ";
+    public UnitTestPanel(UnitTest[] tests,String[] jtests,Gui gui){
         super();
+        this.gui=gui;
         setLayout(new GridBagLayout());
+        
+        javaFilter=new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                if(file.getName().toLowerCase().endsWith(".java")||file.isDirectory())
+                    return true;
+                return false;
+            }
+            @Override
+            public String getDescription() {
+                return "*.java";
+            }
+        };
         
         unitTests=new ArrayList();
         if(tests!=null){
             unitTests.addAll(Arrays.asList(tests));
+        }
+        junitTests=new ArrayList();
+        if(jtests!=null){
+            junitTests.addAll(Arrays.asList(jtests));
         }
         
         methodNames=new ArrayList();
@@ -57,14 +103,27 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         expectedValues=new ArrayList();
         removeTestButtons=new ArrayList();
         
+        jFilenames=new ArrayList();
+        jFileChoosers=new ArrayList();
+        removeJTestButtons=new ArrayList();
+        
+        
         setup();
         setVisible(true);
     }
     
     private void setup(){
         removeAll();
+        if(addJTestsButton==null){
+            addJTestsButton=new JButton("Add JUnit Test");
+            addJTestsButton.addActionListener(this);
+        }
+        if(addTestsButton==null){
+            addTestsButton=new JButton("Add Simple Unit Test");
+            addTestsButton.addActionListener(this);
+        }
         
-        if(unitTests.isEmpty()){
+        if(unitTests.isEmpty()&&junitTests.isEmpty()){
             setupNoTests();
         }
         else{
@@ -74,18 +133,15 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         repaint();
     }
     private void setupNoTests(){
-        if(addTestsButton==null){
-            addTestsButton=new JButton("Add Unit Test");
-            addTestsButton.addActionListener(this);
-        }
 
         GridBagConstraints cons=new GridBagConstraints();
         cons.weightx=1;
         cons.weighty=1;
         cons.gridx=0;
         cons.gridy=0;
-        
         add(addTestsButton,cons);
+        cons.gridx=1;
+        add(addJTestsButton,cons);
     }
     private void setupTests(){
         GridBagConstraints cons=new GridBagConstraints();
@@ -106,7 +162,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 JButton removeButton=new JButton("-");
                 removeButton.setActionCommand("RemoveUnitTest"+i);
                 removeButton.addActionListener(this);
-                removeButton.setToolTipText("Remove this Unit Test");
+                removeButton.setToolTipText("Remove JUnit Test");
                 
                 UnitTest unitTest=unitTests.get(i);
                 if(unitTest!=null){
@@ -130,7 +186,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             if(addTestButton==null){
                 addTestButton=new JButton("+");
                 addTestButton.addActionListener(this);
-                addTestButton.setToolTipText("Add Unit Test");
+                addTestButton.setToolTipText("Add Simple Unit Test");
             }
             
             cons.gridx=0;
@@ -173,6 +229,46 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             
             cons.gridy++;
         }
+        for(int i=0;i<junitTests.size();i++){
+            if(i>=jFilenames.size()){ //if we need to add the elements
+                jFilenames.add(new JLabel(jLabelText+"Not Set"));
+                if(!junitTests.get(i).equals(""))
+                    jFilenames.get(i).setText(jLabelText+junitTests.get(i));
+                JButton chooser=new JButton("Browse");
+                chooser.setActionCommand("BrowseJUnitTest"+i);
+                chooser.addActionListener(this);
+                jFileChoosers.add(chooser);
+                JButton remove=new JButton("-");
+                remove.setToolTipText("Remove This Test");
+                remove.setActionCommand("RemoveJUnitTest"+i);
+                remove.addActionListener(this);
+                removeJTestButtons.add(remove);
+            }
+            if(addJTestButton==null){
+                addJTestButton=new JButton("+");
+                addJTestButton.setToolTipText("Add JUnit Test");
+                addJTestButton.addActionListener(this);
+            }
+            cons.gridx=0;
+            add(jFilenames.get(i),cons);
+            cons.gridx=1;
+            add(jFileChoosers.get(i),cons);
+            cons.gridx=2;
+            add(removeJTestButtons.get(i),cons);
+            if(i==junitTests.size()-1){
+                cons.gridx=3;
+                add(addJTestButton,cons);
+            }                
+            
+            cons.gridy++;
+        }
+        
+        cons.gridx=0;
+        cons.gridwidth=13;
+        if(junitTests.isEmpty())
+            add(addJTestsButton,cons);
+        else if(unitTests.isEmpty())
+            add(addTestsButton,cons);
     }
     public void setUnitTests(UnitTest[] tests){
         if(tests!=null){
@@ -180,8 +276,17 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             unitTests.addAll(Arrays.asList(tests));
         }
     }
+    public void setJUnitTests(String[] jtests){
+        if(jtests!=null){
+            junitTests.clear();
+            junitTests.addAll(Arrays.asList(jtests));
+        }
+    }
     public UnitTest[] getUnitTest(){
         return unitTests.toArray(new UnitTest[0]);
+    }
+    public String[] getJUnitTests(){
+        return junitTests.toArray(new String[0]);
     }
     public void save(){
         for(int i=0;i<unitTests.size();i++){
@@ -195,11 +300,8 @@ public class UnitTestPanel extends JPanel implements ActionListener{
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(addTestsButton)){
-            unitTests.add(new UnitTest());
-            setup();
-        }
-        else if(e.getSource().equals(addTestButton)){
+        if(e.getSource().equals(addTestsButton)||
+                e.getSource().equals(addTestButton)){
             unitTests.add(new UnitTest());
             setup();
         }
@@ -207,6 +309,89 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             int testNum=GradebookTable.extractNumber("RemoveUnitTest", e.getActionCommand());
             unitTests.remove(testNum);
             setup();
+        }
+        else if(e.getSource().equals(addJTestsButton)||
+                e.getSource().equals(addJTestButton)){
+            junitTests.add("");
+            setup();
+        }
+        else if(e.getActionCommand().startsWith("BrowseJUnitTest")){
+            final int id=GradebookTable.extractNumber("BrowseJUnitTest", e.getActionCommand());
+            JFileChooser fc=new JFileChooser(System.getProperty("userprofile"));
+            fc.setFileFilter(javaFilter);
+            int returnVal = fc.showOpenDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                final File file=fc.getSelectedFile();
+                final String oldFile=junitTests.get(id);
+                junitTests.set(id, Config.jUnitTestsLocation+"/"+file.getName());
+                jFilenames.get(id).setText(jLabelText+file.getName());
+                final String remoteNameF=junitTests.get(id);
+                gui.getBackgroundThread().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            DbxClient client=gui.getDbxSession().getClient();
+                            if(oldFile!=null&&client.getMetadata(oldFile)!=null){
+                                client.delete(oldFile);
+                            }
+                            String remoteName=remoteNameF;
+                            
+                            DbxEntry entry=client.getMetadata(remoteName);
+                            while(entry!=null){
+                                boolean changed=false;
+                                remoteName=remoteName.substring(0,remoteName.length()-5); //remove .java
+                                if(remoteName.endsWith(")")&&remoteName.contains("(")){
+                                    int endIndex=remoteName.lastIndexOf(")");
+                                    if(endIndex-1>0&&Character.isDigit(remoteName.charAt(endIndex-1))){
+                                        int startIndex=remoteName.lastIndexOf("(");
+                                        int currentNum=DbxFile.safeStringToInt(remoteName.substring(startIndex,endIndex));
+                                        currentNum++;
+                                        remoteName=remoteName.substring(0,startIndex)+"("+currentNum+")";
+                                        
+                                        changed=true;
+                                    }
+                                }
+                                if(!changed){
+                                    remoteName+="(2)";
+                                }
+                                remoteName+=".java";
+                                entry=client.getMetadata(remoteName);
+                            }
+                            if(!junitTests.get(id).equals(remoteName))
+                                junitTests.set(id, remoteName);
+                            FileInputStream sheetStream = new FileInputStream(file);
+                            client.uploadFile(remoteName, DbxWriteMode.force(), file.length(), sheetStream);
+                            sheetStream.close();
+                        } catch(DbxException|IOException e){
+                            System.err.println("Error uploading unit test.\n"+e);
+                            GuiHelper.alertDialog("<html>Error Uploading "+file.getName()+" to Dropbox.<br/>"+e+"</html>");
+                            jFilenames.get(id).setText(jLabelText);
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+        else if(e.getActionCommand().startsWith("RemoveJUnitTest")){
+            final int id=GradebookTable.extractNumber("RemoveJUnitTest", e.getActionCommand());
+            final String path=junitTests.get(id);
+            if(!path.equals("")){
+                gui.getBackgroundThread().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if(gui.getDbxSession().getClient().getMetadata(path)!=null)
+                            gui.getDbxSession().getClient().delete(path);
+                        } catch (DbxException ex) {
+                            System.err.println("Error deleting unit test from dropbox.\n"+ex);
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+            }
+            junitTests.remove(id);
+            setup();
+            
         }
     }
 }

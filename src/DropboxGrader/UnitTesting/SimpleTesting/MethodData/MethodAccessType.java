@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.UnitTesting.MethodData;
+package DropboxGrader.UnitTesting.SimpleTesting.MethodData;
 
 /**
  *

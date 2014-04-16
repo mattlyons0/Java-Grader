@@ -18,9 +18,11 @@ import java.util.HashSet;
  * @author Matt
  */
 public class TextSpreadsheet {
-    public static final String GRADEDELIMITER="¶"; //Can't use most keyboard symbols with split because of regex... So I had to get creative
+    public static final String GRADEDELIMITER="¶"; //Can't use most keyboard symbols, because I don't want someone to break everything by using it, So I had to get creative
     public static final String COMMENTDELIMITER="«"; //These symbols are banned from all forms of input dealing with the grades spreadsheet
     public static final String INDIVIDUALDELIMITER="÷"; //See validateString(String) for more info on banning them
+    public static final String INDIVIDUALDELIMITER2="☃"; //lol snowman
+    public static final String INDIVIDUALDELIMITER3="☑";
     
     private ArrayList<TextAssignment> assignments;
     private ArrayList<TextName> names;

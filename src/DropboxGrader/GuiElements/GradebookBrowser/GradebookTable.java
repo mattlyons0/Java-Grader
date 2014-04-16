@@ -131,7 +131,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             statusLabel.setText("Copied: "+copyData.toString());
             setInGradebook(row,col,true);
         } catch(IllegalStateException e){
-            statusLabel.setText("Error accessing the clipboard.");
+            statusLabel.setText("Error accessing the clipboard.\n"+e);
         }
     }
     private void setInGradebook(int row,int col,final boolean inBook){
@@ -419,7 +419,8 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 assign.number=(int)data[0];
                 assign.name=(String)data[1];
                 assign.totalPoints=(Double)data[2];
-                assign.unitTests=overlay.getUnitTest();
+                assign.simpleUnitTests=overlay.getUnitTest();
+                assign.junitTests=overlay.getJUnitTests();
                 gui.getGrader().uploadTable();
                 dataChanged();
                 gui.fileBrowserDataChanged();

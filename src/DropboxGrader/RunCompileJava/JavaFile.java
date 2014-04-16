@@ -7,7 +7,7 @@
 package DropboxGrader.RunCompileJava;
 
 import DropboxGrader.DbxFile;
-import DropboxGrader.UnitTesting.JavaMethod;
+import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;

@@ -6,7 +6,7 @@
 
 package DropboxGrader.TextGrader;
 
-import DropboxGrader.UnitTesting.UnitTest;
+import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -18,7 +18,8 @@ public class TextAssignment {
     public int number;
     public String name;
     public int perferredWidth; //perferred width in gradebook table
-    public UnitTest[] unitTests;
+    public UnitTest[] simpleUnitTests;
+    public String[] junitTests;
     public double totalPoints;
     //public Date dateDue;
     
@@ -34,19 +35,25 @@ public class TextAssignment {
             name=text[1];
             perferredWidth=Integer.parseInt(text[2]);
             if(!text[3].equals("null")){
-                String[] tests=text[3].split(Pattern.quote("#"));
-                if(tests.length==0||(tests.length==1&&tests[0].equals(""))){
-                    //you arent fooling us, we know theres nothing here
-                }
-                else{
-                    unitTests=new UnitTest[tests.length];
+                String[] tests=text[3].split(Pattern.quote(TextSpreadsheet.INDIVIDUALDELIMITER2));
+                if(tests.length!=0&&!(tests.length==1&&tests[0].equals(""))){
+                    simpleUnitTests=new UnitTest[tests.length];
                     for(int i=0;i<tests.length;i++){
-                        unitTests[i]=new UnitTest(tests[i]);
+                        simpleUnitTests[i]=new UnitTest(tests[i]);
                     }
                 }
             }
             totalPoints=Double.parseDouble(text[4]);
-        } catch(Exception e){
+            if(!text[5].equals("null")){
+                String[] tests=text[5].split(TextSpreadsheet.INDIVIDUALDELIMITER2);
+                if(tests.length!=0&&!(tests.length==1&&tests[0].equals(""))){
+                    junitTests=new String[tests.length];
+                    for(int i=0;i<tests.length;i++){
+                        junitTests[i]=tests[i];
+                    }
+                }
+            }
+        } catch(Exception e){ //catch numberformat and indexoutofbounds
             if(name==null){
                 name="";
             }
@@ -62,19 +69,26 @@ public class TextAssignment {
         text+=number+TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=name+TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=perferredWidth+TextSpreadsheet.INDIVIDUALDELIMITER;
-        if(unitTests!=null){
-            for(int i=0;i<unitTests.length;i++){
-                if(unitTests[i]!=null)
-                    text+=unitTests[i].toText();
-                if(i!=unitTests.length-1)
-                    text+="#";
+        if(simpleUnitTests!=null){
+            for(int i=0;i<simpleUnitTests.length;i++){
+                if(simpleUnitTests[i]!=null)
+                    text+=simpleUnitTests[i].toText();
+                if(i!=simpleUnitTests.length-1)
+                    text+=TextSpreadsheet.INDIVIDUALDELIMITER2;
             }
         }
         else
             text+=null;
         text+=TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=totalPoints;
-        
+        text+=totalPoints+TextSpreadsheet.INDIVIDUALDELIMITER;
+        if(junitTests!=null)
+            for(int i=0;i<junitTests.length;i++){
+                text+=junitTests[i];
+                text+=TextSpreadsheet.INDIVIDUALDELIMITER2;
+            }
+        else
+            text+=null;
+        //text+=TextSpreadsheet.INDIVIDUALDELIMITER;
         return text;
     }
     @Override

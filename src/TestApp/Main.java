@@ -57,6 +57,7 @@ public class Main {
             }
             catch(URISyntaxException | IOException e){
                 System.out.println("Error opening url. "+e);
+                e.printStackTrace();
             }
         }
         else{

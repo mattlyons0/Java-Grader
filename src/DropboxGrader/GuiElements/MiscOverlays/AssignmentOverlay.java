@@ -11,7 +11,7 @@ import DropboxGrader.GuiElements.ContentOverlay;
 import DropboxGrader.GuiElements.UnitTesting.UnitTestPanel;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextAssignment;
-import DropboxGrader.UnitTesting.UnitTest;
+import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,6 +44,7 @@ public class AssignmentOverlay extends ContentOverlay{
     private String assignmentName;
     private Double assignmentPoints;
     private UnitTest[] tests;
+    private String[] jtests;
     public AssignmentOverlay(Gui gui) {
         super("AssignmentOverlay");
         this.gui=gui;
@@ -87,7 +88,7 @@ public class AssignmentOverlay extends ContentOverlay{
         submitButton=new JButton("Submit");
         submitButton.addActionListener(this);
         if(unitTestPanel==null){
-            unitTestPanel=new UnitTestPanel(tests);
+            unitTestPanel=new UnitTestPanel(tests,jtests,gui);
         }
         unitTestScroll=new JScrollPane(unitTestPanel);
         
@@ -171,6 +172,11 @@ public class AssignmentOverlay extends ContentOverlay{
             return unitTestPanel.getUnitTest();
         return tests;
     }
+    public String[] getJUnitTests(){
+        if(unitTestPanel!=null)
+            return unitTestPanel.getJUnitTests();
+        return jtests;
+    }
     public void setCallback(Runnable callback){
         this.callback=callback;
     }
@@ -185,9 +191,12 @@ public class AssignmentOverlay extends ContentOverlay{
             assignmentName=assign.name;
             assignmentPoints=assign.totalPoints;
         }
-        tests=assign.unitTests;
+        tests=assign.simpleUnitTests;
         if(unitTestPanel!=null)
             unitTestPanel.setUnitTests(tests);
+        jtests=assign.junitTests;
+        if(unitTestPanel!=null)
+            unitTestPanel.setJUnitTests(jtests);
         setTitle("Edit Assignment: "+assign.number+" "+assign.name);
     }
     

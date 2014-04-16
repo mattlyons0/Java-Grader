@@ -59,6 +59,7 @@ public class FileBrowserTable extends JTable{
         } catch(IllegalArgumentException ex){
             System.err.println("Error initalizing order: "+ex+"\nConfig has been reset.");
             Config.reset();
+            ex.printStackTrace();
         }
     }
     private void initColWidth(){
@@ -72,6 +73,7 @@ public class FileBrowserTable extends JTable{
         } catch(IllegalArgumentException ex){
             System.err.println("Error initializing column width: "+ex+"\nConfig has been reset.");
             Config.reset();
+            ex.printStackTrace();
         }
     }
     private void initColumnChangeListener(){
@@ -89,6 +91,7 @@ public class FileBrowserTable extends JTable{
         } catch(IllegalArgumentException ex){
             System.err.println("Error sorting: "+ex+"\nConfig has been reset.");
             Config.reset();
+            ex.printStackTrace();
         }
     }
     public void reSort(){ //tried re-sorting when it changes, it didnt work.

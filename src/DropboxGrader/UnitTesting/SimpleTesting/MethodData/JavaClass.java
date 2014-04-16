@@ -4,9 +4,9 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.UnitTesting.MethodData;
+package DropboxGrader.UnitTesting.SimpleTesting.MethodData;
 
-import DropboxGrader.UnitTesting.JavaMethod;
+import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
 import java.util.Objects;
 import java.util.regex.Pattern;
 

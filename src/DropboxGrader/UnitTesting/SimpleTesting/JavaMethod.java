@@ -4,11 +4,11 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.UnitTesting;
+package DropboxGrader.UnitTesting.SimpleTesting;
 
-import DropboxGrader.UnitTesting.MethodData.JavaClass;
-import DropboxGrader.UnitTesting.MethodData.MethodAccessType;
-import DropboxGrader.UnitTesting.MethodData.MethodModifiers;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.JavaClass;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodModifiers;
 import java.util.Arrays;
 
 /**

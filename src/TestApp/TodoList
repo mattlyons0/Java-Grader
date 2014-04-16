@@ -130,6 +130,14 @@ Alert if a JUnit test needs to be run but there isn't a jar downloaded.
 Run JUnit Tests
 Redownload is broken
 Add ability to change directory it is run from.
+Sort code by lines instead of length
+Display lines somewhere
+Properly validate if downloaded folder is the same as when it was extracted (hashing? checksums?)
+Upload changed files back to dropbox (or email to students)
+Occasional no java files found when working with queues
+Double check for delimiters being used in strings (especially in method testing)
+Closing popup windows saves changes. no more submit button
+Grade JUnit Tests
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

@@ -91,6 +91,7 @@ public class Print implements Printable {
             printData(g,job.defaultPage(),page);
         } catch(PrinterException e){
             System.err.println("Error generating print preview.\n"+e);
+            e.printStackTrace();
         }
     }
     private int printData(Graphics g, PageFormat pf, int pageNum) throws PrinterException {
@@ -325,6 +326,7 @@ public class Print implements Printable {
                 job.print();
             } catch (PrinterException ex) {
                   /* The job did not successfully complete */
+                ex.printStackTrace();
                 return false;
             }
         }

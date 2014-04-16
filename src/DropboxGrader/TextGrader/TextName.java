@@ -29,6 +29,7 @@ public class TextName {
             lastName=text[1];
         } catch(Exception e){
             System.err.println("Error reading name from \""+fromText+"\": "+e);
+            e.printStackTrace();
         }
     }
     public String toText(){

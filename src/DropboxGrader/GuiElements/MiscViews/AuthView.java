@@ -49,6 +49,7 @@ public class AuthView extends ContentView{
         super("AuthView");
         this.gui=gui;
         this.session=new DbxSession(this);
+        gui.setDbxSession(session);
         clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
         
         cons=new GridBagConstraints();

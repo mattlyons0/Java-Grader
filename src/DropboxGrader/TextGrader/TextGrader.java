@@ -76,6 +76,7 @@ public class TextGrader {
             
         } catch(DbxException | IOException e){
             System.err.println("An error occured while downloading the HTML spreadsheet. "+e);
+            e.printStackTrace();
             if(e instanceof ConnectException||e instanceof DbxException.NetworkIO){
                 GuiHelper.alertDialog("Error, Connection Timed Out.");
                 try {
@@ -97,6 +98,7 @@ public class TextGrader {
             upload();
         } catch(IOException e){
             System.err.println("An error occured while creating HTML spreadsheet. "+e);
+            e.printStackTrace();
         }
     }
     public boolean uploadTable(){
@@ -122,6 +124,7 @@ public class TextGrader {
             sheetStream.close();
         } catch(DbxException | IOException e){
             System.err.println("Error uploading spreadsheet to dropbox. "+e);
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -176,7 +179,8 @@ public class TextGrader {
                     assign.number=(int)returned[0];
                     assign.name=(String)returned[1];
                     assign.totalPoints=(Double)returned[2];
-                    assign.unitTests=overlay.getUnitTest();
+                    assign.simpleUnitTests=overlay.getUnitTest();
+                    assign.junitTests=overlay.getJUnitTests();
                     uploadTable();
                     manager.getGui().gradebookDataChanged();
                 }

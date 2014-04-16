@@ -4,11 +4,12 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.UnitTesting;
+package DropboxGrader.UnitTesting.SimpleTesting;
 
-import DropboxGrader.UnitTesting.MethodData.CheckboxStatus;
-import static DropboxGrader.UnitTesting.MethodData.CheckboxStatus.*;
-import DropboxGrader.UnitTesting.MethodData.JavaClass;
+import DropboxGrader.TextGrader.TextSpreadsheet;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
+import static DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus.*;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.JavaClass;
 import java.util.regex.Pattern;
 
 
@@ -51,7 +52,7 @@ public class UnitTest {
     }
     public UnitTest(String fromText){
         super();
-        String[] s=fromText.split(Pattern.quote("|"));
+        String[] s=fromText.split(Pattern.quote(TextSpreadsheet.INDIVIDUALDELIMITER3));
         try{
             accessPublic=valueOf(s[0]);
             accessProtected=valueOf(s[1]);
@@ -162,7 +163,7 @@ public class UnitTest {
                 if(i!=argumentTypes.length-1)
                     s+=",";
             }
-            s+="|";
+            s+=TextSpreadsheet.INDIVIDUALDELIMITER3;
         }
         if(argumentData==null||argumentData.length==0||(argumentData.length==1&&argumentData[0].equals("")))
             s=append(s,null);
@@ -172,14 +173,14 @@ public class UnitTest {
                 if(i!=argumentData.length-1)
                     s+=",";
             }
-            s+="|";
+            s+=TextSpreadsheet.INDIVIDUALDELIMITER3;
         }
         s=append(s,expectedReturnValue);
         
         return s;
     }
     private String append(String string,Object append){
-        string+=append+"|";
+        string+=append+TextSpreadsheet.INDIVIDUALDELIMITER3;
         return string;
     }
 }
