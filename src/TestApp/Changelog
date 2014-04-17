@@ -1,8 +1,5 @@
-JUnit Output now gets parsed and graded based on that
-
-JUnit tests are now 100% functional and working better than non JUnit Tests
-    The only issue is the error output is kinda crap.
-Fixed bug with multiple JUnit tests and multiple simple unit tests.
-Fixed concurrency issue where unit testing threads would cut off data.
-Fixed a number being wrong with JUnit Tests.
-Fixed possible crashes on startup
+Errors running Unit Tests are now logged
+    
+    it no longer gives "free A's"
+Fixed Simple Unit Tests failing if the program was closed before the code for running it previously was removed.
+Fixed Simple Unit Tests failing if there was already a main method.

@@ -15,22 +15,22 @@ import java.io.PrintStream;
  * @author Matt
  */
 public class RelayStream extends PrintStream{
-    private PrintStream originalStream;
-    private JTerminal terminal;
-    public RelayStream(PrintStream origStream,JTerminal t){
+    private Evaluable output;
+    private Evaluable error;
+    public RelayStream(PrintStream origStream,Evaluable output,Evaluable error){
         super(origStream);
-        originalStream=origStream;
-        terminal=t;
+        this.output=output;
+        this.error=error;
     }
 
     @Override
     public void println(String x) {
-        terminal.append(x+"\n");
+        output.evaluate(x+"\n");
         super.println(x);
     }
     @Override
     public void write(byte[] buff,int off,int len){
-        terminal.append(new String(buff,off,len),Color.RED);
+        error.evaluate(new String(buff,off,len));
         super.write(buff, off, len);
     }
 

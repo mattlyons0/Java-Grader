@@ -37,12 +37,23 @@ public class JavaRunner implements Runnable{
     private boolean fixedPath=false;
     public final static boolean onWindows=System.getProperty("os.name").contains("Windows");
     
-    public JavaRunner(JTerminal t,Gui gui){
+    public JavaRunner(final JTerminal t,Gui gui){
         terminal=t;
         this.gui=gui;
         this.relay=new InputRelayer(t);
         
-        errorRelay=new RelayStream(System.out,terminal);
+        errorRelay=new RelayStream(System.err,new Evaluable() {
+            @Override
+            public void evaluate(String line) {
+                t.append(line,Color.BLACK);
+            }
+        },
+        new Evaluable() {
+            @Override
+            public void evaluate(String line) {
+                t.append(line,Color.RED);
+            }
+        });
         thread=new Thread(this);
         thread.setName("CheckProccessStateThread");
         thread.start();
@@ -115,10 +126,10 @@ public class JavaRunner implements Runnable{
         running=null;     
     }
     //this has even more copied code from runTest() I really need to merge these...
-    public String runJUnit(File unitTest,DbxFile testedFile){
+    public String[] runJUnit(File unitTest,DbxFile testedFile){
         if(!new File(Config.jUnitHamcrestJarLocation).exists()||!new File(Config.jUnitJarLocation).exists()){
             System.err.println("Error when JUnit testing. Hamcrest or JUnit Jar is missing.");
-            return null;
+            return new String[]{null,"The Hamcrest or JUnit Jar is missing, Configure their paths in the settings menu."};
         }
         char sym=onWindows?';':':'; //unix : windows ;
         String unitTestName=unitTest.getName().substring(0,unitTest.getName().length()-5); //remove .java
@@ -201,9 +212,11 @@ public class JavaRunner implements Runnable{
                 }
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
-            int result=compiler.run(System.in, System.out, System.err, filePaths); //if the compiler couldnt be found it will crash here. NPE
-            if(result!=0){
-                return null;
+            StringStream compileStream=new StringStream(System.err);
+            int result=compiler.run(System.in, System.out, compileStream, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            compileStream.close();
+            if(result!=0&&!compileStream.getOutput().equals("")){
+                return new String[]{null,compileStream.getOutput()};
             }
         } catch(Exception e){
             System.err.println("Error logged when compiling "+e);
@@ -213,18 +226,19 @@ public class JavaRunner implements Runnable{
             System.out.println("Running with commands: "+Arrays.toString(args));
             ProcessBuilder builder=new ProcessBuilder(args);
             Process testProc=builder.start();
-            StringRelayer relayer=new StringRelayer(testProc.getInputStream());
+            StringRelayer relayer=new StringRelayer(testProc.getInputStream(),testProc.getErrorStream());
             testProc.waitFor();
             relayer.stop();
             relayer.getProc().join();
-            return relayer.getOutput();
+            return new String[]{relayer.getOutput(),relayer.getError()};
         } catch (IOException|InterruptedException ex) {
            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
-           return null;
+           return new String[]{null,"Error running JUnit Tests.\n "+ex};
         }
     }
     //this has a lot of code copied from runFile() In the future merge them...
-    public String runTest(JavaFile[] files,JavaFile testFile,UnitTester tester){
+    //returns String{Output,Error}
+    public String[] runTest(JavaFile[] files,JavaFile testFile,UnitTester tester){
         boolean containsPackages=false;
         for(JavaFile f: files){
             if(f.hasPackage()){
@@ -299,9 +313,10 @@ public class JavaRunner implements Runnable{
                 }
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
-            int result=compiler.run(null, System.out, null, filePaths); //if the compiler couldnt be found it will crash here. NPE
-            if(result!=0){
-                return null;
+            StringStream compileStream=new StringStream(System.err);
+            int result=compiler.run(System.in, System.out, compileStream, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            if(result!=0&&!compileStream.getOutput().equals("")){
+                return new String[]{null,compileStream.getOutput()};
             }
             tester.compileFinished();
         } catch(Exception e){
@@ -329,15 +344,15 @@ public class JavaRunner implements Runnable{
             //builder.inheritIO();
             //System.out.println("Running from: "+runningFrom);
             Process testProc=builder.start();
-            StringRelayer relayer=new StringRelayer(testProc.getInputStream());
+            StringRelayer relayer=new StringRelayer(testProc.getInputStream(),testProc.getErrorStream());
             testProc.waitFor();
             relayer.stop();
             relayer.getProc().join();
-            return relayer.getOutput();
+            return new String[]{relayer.getOutput(),relayer.getError()};
             //}
         } catch (IOException|InterruptedException ex) {
            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
-           return null;
+           return new String[]{null,"Error running Simple Unit Tests.\n"+ex};
         }
     }
     public boolean runFile(JavaFile[] files,JavaFile runChoice,int numTimes,String folder){

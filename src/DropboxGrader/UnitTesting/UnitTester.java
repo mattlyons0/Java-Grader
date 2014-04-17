@@ -6,10 +6,10 @@
 
 package DropboxGrader.UnitTesting;
 
-import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextAssignment;
@@ -20,7 +20,6 @@ import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
 import com.dropbox.core.DbxException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,8 +114,13 @@ public class UnitTester {
             //write grade
             double grade;
             int successes=0;
+            boolean errorTesting=false;
             for(Boolean result:testResults){
-                if(result)
+                if(result==null){
+                    errorTesting=true;
+                    break;
+                }
+                else if(result)
                     successes++;
             }
             int totalTests=0;
@@ -145,7 +149,7 @@ public class UnitTester {
             }
             TextGrader grader=gui.getGrader();
             Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
-            if(gradeNum==null||gradeNum!=grade){
+            if(!errorTesting&&(gradeNum==null||gradeNum!=grade)){
                 grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, (gradeNum!=null));
             }
 
@@ -156,13 +160,20 @@ public class UnitTester {
     }
     private void runJUnitTest(DbxFile file,File unitTest){
         JavaRunner runner=gui.getRunner();
-        String results=runner.runJUnit(unitTest,file);
+        String[] results=runner.runJUnit(unitTest,file);
+        if(!results[1].equals("")){
+            System.err.println("There were errors running JUnit Test.\n"+results[1]);
+            testResults.add(null);
+            testStatus.add(null);
+            GuiHelper.alertDialog("There were errors running JUnit Test. "+results[1]);
+            return;
+        }
         System.out.println(results);
         if(results==null){
             System.err.println("Error getting results from JUnit Test, result was null.");
             return;
         }
-        String[] resultsLines=results.split("\n");
+        String[] resultsLines=results[0].split("\n");
         boolean[] passed;
         int lastIndex=-1;
         for(int i=0;i<resultsLines.length;i++){
@@ -219,6 +230,26 @@ public class UnitTester {
         String method=unitTest.getMethodName()+"("+types+")";
         currentFile=file.getJavaFiles()[javaFileIndex];
         String code=currentFile.getCode();
+        if(code.contains("//INJECTED-FOR-UNIT-TEST\npublic static void main(String[] args){")){
+            file.forceDownload();
+            runSimpleTest(file,unitTest,javaFileIndex);
+            return;
+        }
+        for(JavaMethod m:currentFile.getMethods()){
+            if(m.methodName.equals("main")){ //we need to rename a method
+                int index=code.indexOf(m.getMethodString().trim());
+                if(index!=-1){
+                    String sub=code.substring(index,index+m.getMethodString().length());
+                    int mainIndex=sub.indexOf(" main ");
+                    sub=sub.substring(0,mainIndex)+" main2 "+sub.substring(mainIndex+" main ".length());
+                    code=code.substring(0,index)+sub+code.substring(index+m.getMethodString().length());
+                } else{
+                    System.err.println("Thought there was a existing main method, but then couldn't find it.");
+                }
+                
+                break;
+            }
+        }
         String args=unitTest.getArgumentData();
         if(args==null)
             args="";
@@ -227,32 +258,34 @@ public class UnitTester {
                 + "public static void main(String[] args){";
         inject+="System.out.println("+unitTest.getMethodName()+"("+args+"));";
         inject+="}\n//INJECTED-FOR-UNIT-TEST\n";
-        if(code.contains(inject)){
-            
-        }
         code=code.substring(0,lastIndex-1)+inject+code.substring(lastIndex,code.length());
         currentPreviousCode=currentFile.getCode();
         String result=currentFile.changeCode(code);
         if(!result.equals("")){
             System.err.println("Error running unit tests. Could not modify file: "+result);
         }
-        String value=gui.getRunner().runTest(file.getJavaFiles(),currentFile,this);
-        if(value==null)
+        String[] value=gui.getRunner().runTest(file.getJavaFiles(),currentFile,this);
+        if(value[0]==null){
             compileFinished();
+            testResults.add(null);
+            testStatus.add(null);
+            GuiHelper.alertDialog("Error running Simple Unit Tests. "+value[1]);
+            System.err.println("Error running Simple Unit Tests. "+value[1]);
+        }
         System.out.println("Unit Test on "+file.getFileName()+" returned "+value+" Expected: "+
                 (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim()));
         
         String status="";
-        if(value!=null&&unitTest.getExpectedReturnValue()!=null&&value.trim().equals(unitTest.getExpectedReturnValue().trim())){
+        if(value[0]!=null&&unitTest.getExpectedReturnValue()!=null&&value[0].trim().equals(unitTest.getExpectedReturnValue().trim())){
             testResults.add(true);
             status="Passed";
             testStatus.add(status);          
         }
-        else{
+        else if(value[0]!=null){
             testResults.add(false);
             status="Failed while testing method "+method+" Expected: "+
                     (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim())
-                    +" Actual: "+(value==null?null:value.trim());
+                    +" Actual: "+(value==null?null:value[0].trim());
             testStatus.add(status);
         }
     }

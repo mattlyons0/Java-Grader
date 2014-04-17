@@ -21,6 +21,7 @@ public class JavaMethod {
     public JavaClass returnType; //null==void
     public String methodName;
     public JavaClass[] arguments; //need to think about how to deal with objects created in provided classes
+    private String methodString;
     
     /**
      * Takes in the source code declaring a method and populates data structures based on that
@@ -30,6 +31,7 @@ public class JavaMethod {
     public JavaMethod(String method){
         method=" "+method;
         extractData(method);
+        methodString=method;
     }
     private void extractData(String method){
         //misc cleanup
@@ -166,6 +168,9 @@ public class JavaMethod {
             args[i]=arguments[i].toText();
         }
         return args;
+    }
+    public String getMethodString(){
+        return methodString;
     }
     @Override
     public String toString(){
