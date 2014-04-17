@@ -1,14 +1,11 @@
 There are files that need to be downloaded in order to be unit tested.
 There are files that need to be downloaded in order to be unit tested.
-Error logged when compiling java.lang.NullPointerException
-java.lang.NullPointerException
-	at com.sun.tools.javac.api.JavacTool.run(JavacTool.java:259)
-	at DropboxGrader.RunCompileJava.JavaRunner.runJUnit(JavaRunner.java:204)
-	at DropboxGrader.UnitTesting.UnitTester.runJUnitTest(UnitTester.java:157)
-	at DropboxGrader.UnitTesting.UnitTester.prepareTest(UnitTester.java:102)
-	at DropboxGrader.UnitTesting.UnitTester.runTests(UnitTester.java:64)
-	at DropboxGrader.Gui.createSession(Gui.java:133)
-	at DropboxGrader.Gui.goodKey(Gui.java:152)
-	at DropboxGrader.GuiElements.MiscViews.AuthView$2.run(AuthView.java:213)
-	at DropboxGrader.WorkerThread.run(WorkerThread.java:35)
-	at java.lang.Thread.run(Thread.java:744)
+C:\Users\Matt\Documents\NetBeansProjects\DropboxGrader\downloads\P2_MattLyons_50_JUnitTest\TestApp\TestMethods.java:55: error: method main(String[]) is already defined in class TestMethods
+public static void main(String[] args){System.out.println(test(hi));}
+                   ^
+C:\Users\Matt\Documents\NetBeansProjects\DropboxGrader\downloads\P2_MattLyons_50_JUnitTest\TestApp\TestMethods.java:55: error: cannot find symbol
+public static void main(String[] args){System.out.println(test(hi));}
+                                                               ^
+  symbol:   variable hi
+  location: class TestMethods
+2 errors

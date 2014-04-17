@@ -123,9 +123,11 @@ public class UnitTester {
             if(assignment.simpleUnitTests!=null)
                 totalTests+=assignment.simpleUnitTests.length;
             if(assignment.junitTests!=null)
-                totalTests+=assignment.junitTests.length;
+                totalTests+=testResults.size();
+            if(assignment.junitTests!=null&&assignment.simpleUnitTests!=null)
+                totalTests-=assignment.simpleUnitTests.length;
             grade=successes/(double)totalTests*assignment.totalPoints;
-            String status="(Unit Tested) "+successes+" Passed of "+totalTests+", ";
+            String status="(Unit Tested) Passed "+successes+"/"+totalTests+", ";
             for(int testNum=0;testNum<totalTests;testNum++){
                 if(testNum<testStatus.size()){
                     status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" ";
@@ -156,6 +158,59 @@ public class UnitTester {
         JavaRunner runner=gui.getRunner();
         String results=runner.runJUnit(unitTest,file);
         System.out.println(results);
+        if(results==null){
+            System.err.println("Error getting results from JUnit Test, result was null.");
+            return;
+        }
+        String[] resultsLines=results.split("\n");
+        boolean[] passed;
+        int lastIndex=-1;
+        for(int i=0;i<resultsLines.length;i++){
+            int error=-1;
+            String line=resultsLines[i];
+            String[] passResults=line.split(Pattern.quote("."));
+            if(i==1){
+                passed=new boolean[passResults.length];
+                for(int x=1;x<passResults.length;x++){
+                    if(passResults[x].equals("")){
+                        passed[x]=true;
+                        testResults.add(true);
+                        testStatus.add("Passed");
+                    }
+                    else{
+                        passed[x]=false;
+                        testResults.add(false);
+                        testStatus.add("Failed");
+                    }
+                }
+            }
+            else if(lastIndex!=-1||junitErrorNum(line)!=-1){
+                if(lastIndex==-1){
+                    for(int z=0;z<testStatus.size();z++){
+                        if(testStatus.get(z).equals("Failed")){
+                            error=z;
+                            break;
+                        }
+                    }
+                }
+                int index=testStatus.size()-(testStatus.size()-error);
+                String statusText;
+                if(junitErrorNum(line)!=-1)
+                    statusText=" "+line.substring(line.indexOf("("));
+                else{
+                    statusText=line;
+                    index=lastIndex;
+                }
+                String currentStatus=testStatus.get(index);
+                if(!currentStatus.equals("Failed")){ //first 2 lines of error get put in the comment
+                    statusText=currentStatus+statusText;
+                    lastIndex=-1;
+                }
+                else
+                    lastIndex=index;
+                testStatus.set(index,statusText);
+            }
+        }
     }
     private void runSimpleTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
         String types=unitTest.getArgumentTypesString();
@@ -271,5 +326,33 @@ public class UnitTester {
         }
 
         return true;
+    }
+    public static int count(char c,String s){
+        int total=0;
+        for(int i=0;i<s.length();i++){
+            char current=s.charAt(i);
+            if(current==c)
+                total++;
+        }
+        return total;
+    }
+    private int junitErrorNum(String line){
+        String num="";
+        for(int i=0;i<line.length();i++){
+            char c=line.charAt(i);
+            if(i==0&&!Character.isDigit(c)){
+                return -1;
+            }
+            else if(i==0){
+                num+=c;
+            }
+            if(i!=0&&(Character.isDigit(c)&&Character.isDigit(line.charAt(i-1)))){
+                num+=c;
+            }
+            else if(i!=0&&Character.isDigit(line.charAt(i-1))&&c==')'){
+                return Integer.parseInt(num);
+            }
+        }
+        return -1;
     }
 }

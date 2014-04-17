@@ -186,7 +186,7 @@ public class JavaRunner implements Runnable{
         filePaths[1]=args[2]; //careful if removed, referenced in the run loop.
         filePaths[2]="-sourcepath";
         filePaths[3]=filePaths[1];
-        filePaths[2]=unitTest.getAbsolutePath();
+        filePaths[4]=unitTest.getAbsolutePath();
         for(int i=manualArgNum;i<filePaths.length;i++){
             filePaths[i]=files[i-manualArgNum].getAbsolutePath();
         }
@@ -216,6 +216,7 @@ public class JavaRunner implements Runnable{
             StringRelayer relayer=new StringRelayer(testProc.getInputStream());
             testProc.waitFor();
             relayer.stop();
+            relayer.getProc().join();
             return relayer.getOutput();
         } catch (IOException|InterruptedException ex) {
            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
@@ -331,6 +332,7 @@ public class JavaRunner implements Runnable{
             StringRelayer relayer=new StringRelayer(testProc.getInputStream());
             testProc.waitFor();
             relayer.stop();
+            relayer.getProc().join();
             return relayer.getOutput();
             //}
         } catch (IOException|InterruptedException ex) {

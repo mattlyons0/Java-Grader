@@ -20,24 +20,30 @@ import java.util.logging.Logger;
 public class StringRelayer implements Runnable{
     private String output;
     private BufferedReader outputStream;
+    private boolean keepRunning;
+    private Thread thread;
     
     public StringRelayer(InputStream out){
+        keepRunning=true;
         output="";
         outputStream=new BufferedReader(new InputStreamReader(out));
         
-        Thread thread=new Thread(this);
+        thread=new Thread(this);
         thread.setName("StringRelayer");
         thread.start();
     }
     public void stop(){
-        outputStream=null;
+        keepRunning=false;
     }       
     public String getOutput(){
         return output;
     }
+    public Thread getProc(){
+        return thread;
+    }
     @Override
     public void run() {
-        while(outputStream!=null){
+        while(outputStream!=null&&keepRunning){
             try{
                 String line=null;
                 int out=-2;
@@ -57,6 +63,8 @@ public class StringRelayer implements Runnable{
                 Logger.getLogger(InputRelayer.class.getName()).log(Level.SEVERE, null, e);
             }
         }
+        keepRunning=false;
+        outputStream=null;
     }
     
 }

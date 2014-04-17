@@ -44,7 +44,15 @@ public class JUnitTest {
     // public void hello() {}
     
     @Test
-    public void testMethods(){
-        assertEquals("hello",TestMethods.test("hello"));
+    public void test1(){
+        assertEquals("hello!",TestMethods.test("hello"));
+    }
+    @Test
+    public void test2(){
+        assertEquals("yea my names matt",TestMethods.test("not me"));
+    }
+    @Test
+    public void test3(){
+        assertEquals("hi!",TestMethods.test("hi"));
     }
 }

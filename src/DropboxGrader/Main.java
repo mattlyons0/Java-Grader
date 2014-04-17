@@ -27,8 +27,7 @@ public class Main {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-//        
+        }        
         try {
             File errLog=new File("error.log");
             errLog.createNewFile();

@@ -93,14 +93,23 @@ public class TextSpreadsheet {
                     code+=name.toText()+GRADEDELIMITER;
                 }
                 //grade entry
-                TextGrade g=grades.get(row).get(i);
-                if(g==null){
+                boolean ignore=false;
+                TextGrade g;
+                if(grades.get(row).size()==grades.get(0).size())
+                    g=grades.get(row).get(i);
+                else{
+                    g=null;
+                    grades.remove(row);
+                    row--;
+                    ignore=true;
+                }
+                if(g==null&&!ignore){
                     code+="null";
                 }
-                else{
+                else if(!ignore){
                     code+=g.toText();
                 }
-                if(i<grades.get(0).size()){
+                if(i<grades.get(0).size()&&!ignore){
                         code+=GRADEDELIMITER;
                 }
             }
@@ -415,6 +424,10 @@ public class TextSpreadsheet {
         s=s.replace(COMMENTDELIMITER,"");
         s=s.replace(GRADEDELIMITER, "");
         s=s.replace(INDIVIDUALDELIMITER, "");
+        s=s.replace(INDIVIDUALDELIMITER2, "");
+        s=s.replace(INDIVIDUALDELIMITER3, "");
+        s=s.replace("\n", "");
+        s=s.replace("\r", "");
         
         return s;
     }
