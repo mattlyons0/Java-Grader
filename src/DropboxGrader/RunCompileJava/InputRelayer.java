@@ -76,7 +76,7 @@ public class InputRelayer implements Runnable{
                         out=error.read();
                         if(line==null)
                             line="";
-                        if(out!=-1&&out!=-2)
+                        if(out!=-1)
                             line+=(char)out;
                         if(out==-2)
                             out=-1;

@@ -240,8 +240,14 @@ public class UnitTester {
                 int index=code.indexOf(m.getMethodString().trim());
                 if(index!=-1){
                     String sub=code.substring(index,index+m.getMethodString().length());
-                    int mainIndex=sub.indexOf(" main ");
-                    sub=sub.substring(0,mainIndex)+" main2 "+sub.substring(mainIndex+" main ".length());
+                    String checkString=" main ";
+                    int mainIndex=sub.indexOf(checkString);
+                    if(mainIndex==-1){
+                        checkString=" main(";
+                        mainIndex=sub.indexOf(checkString);
+                        checkString=checkString.substring(0,checkString.length()-1);
+                    }
+                    sub=sub.substring(0,mainIndex)+" main2 "+sub.substring(mainIndex+checkString.length());
                     code=code.substring(0,index)+sub+code.substring(index+m.getMethodString().length());
                 } else{
                     System.err.println("Thought there was a existing main method, but then couldn't find it.");
@@ -272,7 +278,7 @@ public class UnitTester {
             GuiHelper.alertDialog("Error running Simple Unit Tests. "+value[1]);
             System.err.println("Error running Simple Unit Tests. "+value[1]);
         }
-        System.out.println("Unit Test on "+file.getFileName()+" returned "+value+" Expected: "+
+        System.out.println("Unit Test on "+file.getFileName()+" returned "+value[0]+" Expected: "+
                 (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim()));
         
         String status="";
@@ -285,7 +291,7 @@ public class UnitTester {
             testResults.add(false);
             status="Failed while testing method "+method+" Expected: "+
                     (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim())
-                    +" Actual: "+(value==null?null:value[0].trim());
+                    +" Actual: "+(value[0]==null?null:value[0].trim());
             testStatus.add(status);
         }
     }

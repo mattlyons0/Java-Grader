@@ -92,7 +92,7 @@ public class JavaRunner implements Runnable{
                     
                 }
                 catch(IllegalThreadStateException e){
-                    e.printStackTrace();
+                    //if its still running thats k
                 }
             }
             try {
@@ -314,7 +314,8 @@ public class JavaRunner implements Runnable{
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
             StringStream compileStream=new StringStream(System.err);
-            int result=compiler.run(System.in, System.out, compileStream, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            int result=compiler.run(null, System.out, null, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            compileStream.close();
             if(result!=0&&!compileStream.getOutput().equals("")){
                 return new String[]{null,compileStream.getOutput()};
             }

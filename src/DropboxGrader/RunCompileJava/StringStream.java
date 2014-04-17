@@ -35,18 +35,24 @@ public class StringStream extends PrintStream{
 
     @Override
     public void print(Object obj) {
-        output+=obj;
+        if(obj!=null)
+            output+=obj.toString();
+        else
+            output+=obj;
         super.print(obj); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void println(Object x) {
-        output+=x+"\n";
+        if(x!=null)
+            output+=x.toString()+"\n";
+        else
+            output+=x+"\n";
         super.println(x); //To change body of generated methods, choose Tools | Templates.
     }
     @Override
     public void print(char[] s) {
-        output+=s;
+        output+=new String(s);
         super.print(new String(s)); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -62,7 +68,7 @@ public class StringStream extends PrintStream{
     }
     @Override
     public void write(byte[] b) throws IOException {
-        output+=b;
+        output+=new String(b);
         super.write(b); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -1,5 +1,4 @@
-Errors running Unit Tests are now logged
-    
-    it no longer gives "free A's"
-Fixed Simple Unit Tests failing if the program was closed before the code for running it previously was removed.
-Fixed Simple Unit Tests failing if there was already a main method.
+Fixed test output triplicating
+
+Other Misc Running Fixes.
+Fixed running simple tests with main methods with certain spacing.
