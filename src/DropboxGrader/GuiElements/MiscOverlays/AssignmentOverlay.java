@@ -88,7 +88,7 @@ public class AssignmentOverlay extends ContentOverlay{
         submitButton=new JButton("Submit");
         submitButton.addActionListener(this);
         if(unitTestPanel==null){
-            unitTestPanel=new UnitTestPanel(tests,jtests,gui);
+            unitTestPanel=new UnitTestPanel(tests,jtests,assignmentName,assignmentNum,gui);
         }
         unitTestScroll=new JScrollPane(unitTestPanel);
         

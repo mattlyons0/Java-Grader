@@ -139,10 +139,9 @@ Double check for delimiters being used in strings (especially in method testing)
 Closing popup windows saves changes. no more submit button
 Auto retry when there are problems with dropbox and show a message saying we are having trouble
 Allow line breaks in comments and change comment to a text area
-Fix deleting unit test on dropbox that is required by another unit test.
-    check all unit tests before deleting a unit test on dropbox
 Investigate better JUnit error output.
 State when generating print preview instead of freezing up the main thread.
+Use last directory when looking for unit tests.
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

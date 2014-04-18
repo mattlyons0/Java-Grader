@@ -1,4 +1,7 @@
-Fixed test output triplicating
+Fixed JUnit Testing when Test File has been deleted
 
-Other Misc Running Fixes.
-Fixed running simple tests with main methods with certain spacing.
+Fixed deleting JUnit tests that are used by other JUnit Tests.
+    It will still delete the test from dropbox if nothing else uses it.
+Uploading a JUnit Test now shows remote name instead of local name.
+JUnit tests will now append a number to the filename if this is already a test with the same name.
+Fixed 'ghost' data when removing and readding JUnit Tests.

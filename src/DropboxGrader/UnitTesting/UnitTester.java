@@ -68,7 +68,7 @@ public class UnitTester {
         JavaFile[] javaFiles=file.getJavaFiles();
         if(javaFiles==null){
             //we need to download the file
-            System.err.println("There are files that need to be downloaded in order to be unit tested.");
+            System.err.println("There are files that need to be downloaded in order to be unit tested. "+file.getFileName());
             return;
         }
         for(int i=0;i<javaFiles.length;i++){
@@ -103,6 +103,12 @@ public class UnitTester {
                                 System.err.println("Error downloading unit test file.\n"+ex);
                                 ex.printStackTrace();
                             }
+                        }
+                        else{
+                            System.err.println("Error, JUnit Test "+testLoc+" for assignment "+assignment.number+" does not exist!");
+                            GuiHelper.alertDialog("Error, JUnit Test "+testLoc+" for assignment "+assignment.number+" does not exist!");
+                            testResults.add(null);
+                            testStatus.add(null);
                         }
                     } catch (DbxException ex) {
                         System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);

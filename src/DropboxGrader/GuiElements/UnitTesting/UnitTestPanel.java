@@ -11,6 +11,7 @@ import DropboxGrader.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
@@ -26,8 +27,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -66,12 +65,16 @@ public class UnitTestPanel extends JPanel implements ActionListener{
     //Data
     private ArrayList<UnitTest> unitTests;
     private ArrayList<String> junitTests;
+    private String assignmentName;
+    private int assignmentNumber;
     
     private FileFilter javaFilter;
     private String jLabelText="JUnit Test:  ";
-    public UnitTestPanel(UnitTest[] tests,String[] jtests,Gui gui){
+    public UnitTestPanel(UnitTest[] tests,String[] jtests,String assignName,int assignNum,Gui gui){
         super();
         this.gui=gui;
+        assignmentNumber=assignNum;
+        assignmentName=assignName;
         setLayout(new GridBagLayout());
         
         javaFilter=new FileFilter() {
@@ -323,15 +326,16 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 final File file=fc.getSelectedFile();
                 final String oldFile=junitTests.get(id);
+                final JLabel label=jFilenames.get(id);
                 junitTests.set(id, Config.jUnitTestsLocation+"/"+file.getName());
-                jFilenames.get(id).setText(jLabelText+file.getName());
+                label.setText(jLabelText+file.getName());
                 final String remoteNameF=junitTests.get(id);
                 gui.getBackgroundThread().invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         try{
                             DbxClient client=gui.getDbxSession().getClient();
-                            if(oldFile!=null&&client.getMetadata(oldFile)!=null){
+                            if(oldFile!=null&&!oldFile.equals("")&&client.getMetadata(oldFile)!=null){
                                 client.delete(oldFile);
                             }
                             String remoteName=remoteNameF;
@@ -340,6 +344,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                             while(entry!=null){
                                 boolean changed=false;
                                 remoteName=remoteName.substring(0,remoteName.length()-5); //remove .java
+                                label.setText(jLabelText+remoteName);
                                 if(remoteName.endsWith(")")&&remoteName.contains("(")){
                                     int endIndex=remoteName.lastIndexOf(")");
                                     if(endIndex-1>0&&Character.isDigit(remoteName.charAt(endIndex-1))){
@@ -359,13 +364,14 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                             }
                             if(!junitTests.get(id).equals(remoteName))
                                 junitTests.set(id, remoteName);
+                            label.setText(jLabelText+remoteName);
                             FileInputStream sheetStream = new FileInputStream(file);
                             client.uploadFile(remoteName, DbxWriteMode.force(), file.length(), sheetStream);
                             sheetStream.close();
                         } catch(DbxException|IOException e){
                             System.err.println("Error uploading unit test.\n"+e);
                             GuiHelper.alertDialog("<html>Error Uploading "+file.getName()+" to Dropbox.<br/>"+e+"</html>");
-                            jFilenames.get(id).setText(jLabelText);
+                            label.setText(jLabelText);
                             e.printStackTrace();
                         }
                     }
@@ -375,7 +381,21 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         else if(e.getActionCommand().startsWith("RemoveJUnitTest")){
             final int id=GradebookTable.extractNumber("RemoveJUnitTest", e.getActionCommand());
             final String path=junitTests.get(id);
-            if(!path.equals("")){
+            //check if any other tests use this path
+            boolean shouldDelete=true;
+            loop:
+            for(TextAssignment assign:gui.getGrader().getSpreadsheet().getAllAssignments()){
+                if(assign.junitTests!=null){
+                    for(String test:assign.junitTests){
+                        if(test.equals(path)&&!(assign.number==assignmentNumber&&assign.name.equals(assignmentName))){
+                            shouldDelete=false;
+                            break loop;
+                        }
+                            
+                    }
+                }
+            }
+            if(shouldDelete&&!path.equals("")){
                 gui.getBackgroundThread().invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -390,6 +410,8 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 });
             }
             junitTests.remove(id);
+            jFileChoosers.remove(id);
+            jFilenames.remove(id);
             setup();
             
         }
