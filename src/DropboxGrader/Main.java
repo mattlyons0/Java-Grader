@@ -33,7 +33,7 @@ public class Main {
             errLog.createNewFile();
             PrintStream s=new PrintStream(errLog);
             SplitStream es=new SplitStream(s,System.err);  
-            System.setErr(es);
+            System.setErr(new PrintStream(es));
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }

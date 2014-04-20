@@ -1,4 +1,4 @@
-Ctrl tab in grader. also ctrl w and while we are at it ctrl enter to compile?
+Ctrl tab in grader. also ctrl w and while we are at it ctrl enter to run ctrl q to close
 Auto mark late.
     When creating new assignment ask when it was due
 Move rename to another thread
@@ -107,15 +107,11 @@ Unit tests need a propper gui (in its own class)
 Input reads entire bottom line instead of just input
 View deleted items (or maybe move things to a deleted folder then delete them after a month or so (configureable))
 Default total points configurable
-More ghost jtextfields and less jlabels (class for that)
 Class for JTextFields for doubles only (less duplicated code)
-Improve first/last name searching
+Improve first/last name searching for printing
 Add a weight % for each unit test (score wise)
-Make it more clear that elements are separated by commas (maybe make a component to add more terms)
 Warn if grade is larger than total points given to assignment
 Color gradient from red to green in filebrowser and gradebook browser based on grade/totalpoints
-Tests dont work in classes that contain main methods
-Choose better deliniators for the unit testing things
 Round decimals in grading, configurable place to round to.
 Add gui for method access type/method mods
 Add a visual way to run unit tests
@@ -125,9 +121,6 @@ Add a visual way to run unit tests
     Download tests when doing this
 Show number of background tasks left when waiting for them
 Show progress deleting files when deleting files.
-JFileChooser to set JUnit jars in config
-Alert if a JUnit test needs to be run but there isn't a jar downloaded.
-Run JUnit Tests
 Redownload is broken
 Add ability to change directory it is run from.
 Sort code by lines instead of length
@@ -137,11 +130,14 @@ Upload changed files back to dropbox (or email to students)
 Occasional no java files found when working with queues
 Double check for delimiters being used in strings (especially in method testing)
 Closing popup windows saves changes. no more submit button
+    close popups in unit test when hitting x
 Auto retry when there are problems with dropbox and show a message saying we are having trouble
 Allow line breaks in comments and change comment to a text area
 Investigate better JUnit error output.
 State when generating print preview instead of freezing up the main thread.
 Use last directory when looking for unit tests.
+Config for output text color,error color, and info color.
+Dropdown boxes in config for class periods...
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

@@ -8,14 +8,13 @@ package DropboxGrader.GuiElements.MiscOverlays;
 
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
+import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.Printing.Print;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import javax.swing.ImageIcon;
@@ -32,7 +31,7 @@ import javax.swing.event.DocumentListener;
  *
  * @author 141lyonsm
  */
-public class PrintOverlay extends ContentOverlay implements DocumentListener,FocusListener{
+public class PrintOverlay extends ContentOverlay implements DocumentListener{
     private Gui gui;
     private Print printer;
     private int currentPage;
@@ -46,8 +45,6 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
     private JLabel pageLabel;
     private JScrollPane scroll;
     private JTextField nameField;
-    
-    private final String initialText="Student Name";
     
     public PrintOverlay(Gui gui){
         super("PrintOverlay");
@@ -116,9 +113,6 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
         changePage(0);
         
         setTitle("Print Preview");
-        setResizable(true);
-        setClosable(true);
-        setMaximizable(true);
         int width=(int)(format.getWidth()*1.1f);
         int height=(int)(format.getHeight()*1.1f);
         if(height>=gui.getContentPane().getHeight()){
@@ -180,12 +174,8 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
             changePage(currentPage);
             if(Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")&&
                     nameField==null){
-                nameField=new JTextField(10);
-                nameField.setText(initialText);
-                nameField.setForeground(Color.GRAY);
-                nameField.setHorizontalAlignment(JTextField.CENTER);
+                nameField=new JGhostTextField(10,"Student Name");
                 nameField.getDocument().addDocumentListener(this);
-                nameField.addFocusListener(this);
                 GridBagConstraints cons=new GridBagConstraints();
                 cons.anchor=GridBagConstraints.NORTH;
                 cons.fill=GridBagConstraints.HORIZONTAL;
@@ -220,26 +210,6 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Foc
         if(Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")){
             printer.setStudent(nameField.getText());
             changePage(currentPage);                
-        }
-    }
-
-    @Override
-    public void focusGained(FocusEvent e) {
-        if(e.getSource().equals(nameField)){
-            if(nameField.getText().equals(initialText)){
-                nameField.setText("");
-                nameField.setForeground(Color.BLACK);
-            }
-        }
-    }
-
-    @Override
-    public void focusLost(FocusEvent e) {
-        if(e.getSource().equals(nameField)){
-            if(nameField.getText().replaceAll(" ","").equals("")){
-                nameField.setText(initialText);
-                nameField.setForeground(Color.GRAY);
-            }
         }
     }
     

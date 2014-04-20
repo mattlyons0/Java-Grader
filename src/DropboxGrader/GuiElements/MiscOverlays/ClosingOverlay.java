@@ -51,9 +51,7 @@ public class ClosingOverlay extends ContentOverlay{
         cons.weighty=10;
         add(cancelButton,cons);
         
-        setResizable(true);
         setClosable(false);
-        setMaximizable(true);
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
         Dimension size=getSize();

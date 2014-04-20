@@ -42,13 +42,7 @@ public class JavaRunner implements Runnable{
         this.gui=gui;
         this.relay=new InputRelayer(t);
         
-        errorRelay=new RelayStream(System.err,new Evaluable() {
-            @Override
-            public void evaluate(String line) {
-                t.append(line,Color.BLACK);
-            }
-        },
-        new Evaluable() {
+        errorRelay=new RelayStream(new Evaluable() {
             @Override
             public void evaluate(String line) {
                 t.append(line,Color.RED);
@@ -212,7 +206,7 @@ public class JavaRunner implements Runnable{
                 }
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
-            StringStream compileStream=new StringStream(System.err);
+            StringStream compileStream=new StringStream();
             int result=compiler.run(System.in, System.out, compileStream, filePaths); //if the compiler couldnt be found it will crash here. NPE
             compileStream.close();
             if(result!=0&&!compileStream.getOutput().equals("")){
@@ -313,7 +307,7 @@ public class JavaRunner implements Runnable{
                 }
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
-            StringStream compileStream=new StringStream(System.err);
+            StringStream compileStream=new StringStream();
             int result=compiler.run(null, System.out, null, filePaths); //if the compiler couldnt be found it will crash here. NPE
             compileStream.close();
             if(result!=0&&!compileStream.getOutput().equals("")){
@@ -456,6 +450,7 @@ public class JavaRunner implements Runnable{
                 if(result!=0){
                     terminal.append("Compile Failed\n\n",Color.RED);
                     gui.proccessEnded();
+                    numRunsLeft=0;
                     return false;
                 }
                 else{
@@ -506,6 +501,7 @@ public class JavaRunner implements Runnable{
             //}
         } catch (IOException ex) {
            Logger.getLogger(JavaRunner.class.getName()).log(Level.SEVERE, null, ex);
+           numRunsLeft=0;
            return false;
         }
     }
@@ -620,6 +616,7 @@ public class JavaRunner implements Runnable{
     }
     public boolean isRunning(){
         if(numRunsLeft>0||running!=null){
+            System.out.println("RunsLeft:"+numRunsLeft+" Proccess:"+running);
             return true;
         }
         return false;

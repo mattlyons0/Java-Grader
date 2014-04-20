@@ -73,9 +73,6 @@ public class GradeOverlay extends ContentOverlay{
         cons.gridy=1;
         add(submitButton,cons);
         
-        setResizable(true);
-        setClosable(true);
-        setMaximizable(true);
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
         Dimension size=getSize();

@@ -7,6 +7,7 @@ package DropboxGrader.GuiElements;
 import DropboxGrader.Gui;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyVetoException;
@@ -15,19 +16,22 @@ import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 /**
  *
  * @author 141lyonsm
  */
-public class ContentViewManager extends JDesktopPane implements ComponentListener{    
+public class ContentViewManager extends JDesktopPane implements ComponentListener,InternalFrameListener{    
     private Gui gui;
     private JInternalFrame backgroundPanel;
     
     private ArrayList<ContentView> views;
     private ArrayList<ContentOverlay> overlays;
     private int selectedView;
+    private long overlayID;
     private GridBagConstraints constraints;
     
     public ContentViewManager(Gui gui){
@@ -38,6 +42,7 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         views=new ArrayList();
         overlays=new ArrayList();
         selectedView=-1;
+        overlayID=0;
         backgroundPanel=new JInternalFrame("",false,false,false,false);
         componentResized(null);
         backgroundPanel.setLayout(new GridBagLayout());
@@ -97,7 +102,14 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         return false;
     }
     public void addOverlay(ContentOverlay o){
+        if(o.shouldBeCached()){
+            overlays.add(o);
+        }
+        o.addInternalFrameListener(this);
+        o.setID(overlayID);
+        overlayID++;
         o.setup();
+        setLocation(o);
         add(o,JLayeredPane.POPUP_LAYER);
         o.switchedTo();
         try {
@@ -105,6 +117,57 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         } catch (PropertyVetoException ex) {
             //oh no it cant be selected! whatever will we do!
         }
+    }
+    public boolean removeOverlay(String name){
+        boolean removed=false;
+        for(int i=0;i<overlays.size();i++){
+            ContentOverlay o=overlays.get(i);
+            if(o.getViewName().equals(name)){
+                o.dispose();
+                removed=true;
+            }
+        }
+        return removed;
+    }
+    public void setLocation(ContentOverlay frame){
+        int range=30;
+        Point loc1=frame.getLocation();
+        JInternalFrame[] frames=getAllFrames();
+        for(JInternalFrame otherFrame:frames){
+            if(otherFrame instanceof ContentOverlay && ((ContentOverlay)otherFrame).getID()!=frame.getID()){
+                Point loc2=otherFrame.getLocation();
+                int xDist=distWithinRange(loc1.x,range,loc2.x);
+                int yDist=distWithinRange(loc1.y,range,loc2.y);
+                boolean changed=false;
+                if(xDist!=-1){
+                    frame.setLocation(loc1.x+xDist, loc1.y);
+                    loc1=frame.getLocation();
+                    changed=true;
+                }
+                if(yDist!=-1){
+                    frame.setLocation(loc1.x,loc1.y+yDist);
+                    loc1=frame.getLocation();
+                    changed=true;
+                }
+                if(changed){
+                    setLocation(frame);
+                    break;
+                }
+            }
+        }
+    }
+    public static int distWithinRange(int number,int range,int desired){
+        if(number==desired||number-range==desired||number+range==desired)
+            return range;
+        if(number>desired){
+            if(number-range<desired)
+                return range-(number-range);
+        }
+        else if(number<desired){
+            if(number+range>desired)
+                return (number+range)-desired;
+        }
+        return -1;            
     }
     private void changeView(int viewNum){
         if(selectedView!=-1){
@@ -115,7 +178,6 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         componentResized(null);
         selectedView=viewNum;
     }
-
     @Override
     public void componentResized(ComponentEvent e) {
         backgroundPanel.setSize(gui.getContentPane().getSize());
@@ -129,4 +191,40 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
 
     @Override
     public void componentHidden(ComponentEvent e) {}
+
+    @Override
+    public void internalFrameOpened(InternalFrameEvent e) {}
+
+    @Override
+    public void internalFrameClosing(InternalFrameEvent e) {}
+
+    @Override
+    public void internalFrameClosed(InternalFrameEvent e) {
+        ContentOverlay overlay=(ContentOverlay)e.getInternalFrame();
+        if(overlay.shouldBeCached()){
+            for(int i=0;i<overlays.size();i++){
+                ContentOverlay o=overlays.get(i);
+                if(o.getViewName().equals(overlay.getViewName())){
+                    overlays.remove(o);
+                    o.removeInternalFrameListener(this); //I think this should get removed when invalidating or removing frame, 
+                    //but in case it doesnt I don't want this reference stopping it from GC.
+                    break;
+                }
+            }
+        }
+        remove(e.getInternalFrame());
+        e.getInternalFrame().invalidate();
+    }
+
+    @Override
+    public void internalFrameIconified(InternalFrameEvent e) {}
+
+    @Override
+    public void internalFrameDeiconified(InternalFrameEvent e) {}
+
+    @Override
+    public void internalFrameActivated(InternalFrameEvent e) {}
+
+    @Override
+    public void internalFrameDeactivated(InternalFrameEvent e) {}
 }

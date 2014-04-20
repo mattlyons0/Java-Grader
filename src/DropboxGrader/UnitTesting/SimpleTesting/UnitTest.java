@@ -94,6 +94,9 @@ public class UnitTest {
     public void setArgumentData(String[] data){
         argumentData=data;
     }
+    public void setArgumentTypes(JavaClass[] types){
+        argumentTypes=types;
+    }
     public void setArgumentTypes(String[] types){
         argumentTypes=new JavaClass[types.length]; 
         for(int i=0;i<types.length;i++){
@@ -111,6 +114,9 @@ public class UnitTest {
     }
     public String getReturnTypeString(){
         return returnType==null? null:returnType.toText();
+    }
+    public String[] getArguments(){
+        return argumentData;
     }
     public String getArgumentData(){
         if(argumentData==null)

@@ -1,7 +1,10 @@
-Fixed JUnit Testing when Test File has been deleted
+Redid Simple Unit Tests Gui
 
-Fixed deleting JUnit tests that are used by other JUnit Tests.
-    It will still delete the test from dropbox if nothing else uses it.
-Uploading a JUnit Test now shows remote name instead of local name.
-JUnit tests will now append a number to the filename if this is already a test with the same name.
-Fixed 'ghost' data when removing and readding JUnit Tests.
+Simple Unit Tests Gui now is like a method call that you define.
+    Now uses Ghost Fields instead of JLabels that take up a ton of space.
+Added Ghost Text Field Class
+Fixed a few exceptions being thrown.
+Fixed the way I was relaying streams because I was an idiot and didn't fully understand streams (and also fixed a bunch of bugs as a result of that).
+Fixed compile error causing it to think a proccess was still running.
+Fixed memory leaks where popups would never get their memory reclaimed.
+Refactored ViewManager (Now possible to close overlays from it, lots of other improvements such as window tiling...)

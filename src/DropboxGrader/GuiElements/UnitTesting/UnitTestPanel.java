@@ -10,8 +10,12 @@ import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
+import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextAssignment;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.JavaClass;
+import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
@@ -51,10 +55,11 @@ public class UnitTestPanel extends JPanel implements ActionListener{
     
     //Multiple Elements
     //Simple UnitTest
+    private ArrayList<JButton> methodAccess;
+    private ArrayList<JButton> methodModifiers;
     private ArrayList<JTextField> methodNames;
     private ArrayList<JTextField> returnTypes;
-    private ArrayList<JTextField> argumentTypes;
-    private ArrayList<JTextField> arguments;
+    private ArrayList<JButton> argumentsButtons;
     private ArrayList<JTextField> expectedValues;
     private ArrayList<JButton> removeTestButtons;
     //JUnitTest
@@ -99,10 +104,11 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             junitTests.addAll(Arrays.asList(jtests));
         }
         
+        methodAccess=new ArrayList();
+        methodModifiers=new ArrayList();
         methodNames=new ArrayList();
         returnTypes=new ArrayList();
-        argumentTypes=new ArrayList();
-        arguments=new ArrayList();
+        argumentsButtons=new ArrayList();
         expectedValues=new ArrayList();
         removeTestButtons=new ArrayList();
         
@@ -157,11 +163,20 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         
         for(int i=0;i<unitTests.size();i++){
             if(i>=methodNames.size()){ //if we don't have stored fields for this index
-                JTextField methodNameField=new JTextField(15);
-                JTextField returnTypeField=new JTextField(10);
-                JTextField argumentTypesField=new JTextField(15);
-                JTextField argumentsField=new JTextField(10);
-                JTextField expectedValueField=new JTextField(15);
+                JButton accessButton=new JButton("Method Access");
+                accessButton.addActionListener(this);
+                accessButton.setActionCommand("SetMethodAccess"+i);
+                JButton modifierButton=new JButton("Method Modifiers");
+                modifierButton.addActionListener(this);
+                modifierButton.setActionCommand("SetMethodModifiers"+i);
+                JTextField methodNameField=new JGhostTextField(15,"Method Name");
+                JTextField returnTypeField=new JGhostTextField(10,"Return Type");
+                JButton argumentsButton=new JButton("Arguments");
+                argumentsButton.setActionCommand("SetArguments"+i);
+                argumentsButton.addActionListener(this);
+                JTextField argumentTypesField=new JGhostTextField(15,"Argument Types");
+                JTextField argumentsField=new JGhostTextField(10,"Argument Data");
+                JTextField expectedValueField=new JGhostTextField(15,"Expected Return Value");
                 JButton removeButton=new JButton("-");
                 removeButton.setActionCommand("RemoveUnitTest"+i);
                 removeButton.addActionListener(this);
@@ -169,8 +184,10 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 
                 UnitTest unitTest=unitTests.get(i);
                 if(unitTest!=null){
-                    methodNameField.setText(unitTest.getMethodName());
-                    returnTypeField.setText(unitTest.getReturnTypeString());
+                    if(unitTest.getMethodName()!=null)
+                        methodNameField.setText(unitTest.getMethodName());
+                    if(unitTest.getReturnTypeString()!=null)
+                        returnTypeField.setText(unitTest.getReturnTypeString());
                     String argsTypes=unitTest.getArgumentTypesString();
                     if(argsTypes!=null)
                         argumentTypesField.setText(argsTypes);
@@ -179,12 +196,18 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                     if(unitTest.getExpectedReturnValue()!=null)
                         expectedValueField.setText(unitTest.getExpectedReturnValue());
                 }
+                methodAccess.add(accessButton);
+                methodModifiers.add(modifierButton);
                 methodNames.add(methodNameField);
                 returnTypes.add(returnTypeField);
-                argumentTypes.add(argumentTypesField);
-                arguments.add(argumentsField);
+                argumentsButtons.add(argumentsButton);
                 expectedValues.add(expectedValueField);
                 removeTestButtons.add(removeButton);
+                
+                //set buttons text to use data from test
+                setAccessType(null,null,i);
+                setModifierType(null,-1,i);
+                setArgs(null,null,i);
             }
             if(addTestButton==null){
                 addTestButton=new JButton("+");
@@ -192,41 +215,32 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 addTestButton.setToolTipText("Add Simple Unit Test");
             }
             
+            cons.weightx=10;
             cons.gridx=0;
-            cons.weightx=1;
-            add(new JLabel("Method Name: "),cons);
+            add(methodAccess.get(i),cons);
             cons.gridx=1;
-            cons.weightx=10;
-            add(methodNames.get(i),cons);
+            add(methodModifiers.get(i),cons);
             cons.gridx=2;
-            cons.weightx=1;
-            add(new JLabel("Return Type: "),cons);
+            add(methodNames.get(i),cons);
             cons.gridx=3;
-            cons.weightx=10;
             add(returnTypes.get(i),cons);
+            cons.weightx=1;
             cons.gridx=4;
-            cons.weightx=1;
-            add(new JLabel("Argument Types: "),cons);
+            add(new JLabel("("),cons);
+            cons.weightx=10;
             cons.gridx=5;
-            cons.weightx=10;
-            add(argumentTypes.get(i),cons);
+            add(argumentsButtons.get(i),cons);
+            cons.weightx=1;
             cons.gridx=6;
-            cons.weightx=1;
-            add(new JLabel("Argument Data: "),cons);
+            add(new JLabel(")    =="),cons);
+            cons.weightx=10;
             cons.gridx=7;
-            cons.weightx=10;
-            add(arguments.get(i),cons);
-            cons.gridx=8;
-            cons.weightx=1;
-            add(new JLabel("Expected Return Value: "),cons);
-            cons.gridx=9;
-            cons.weightx=10;
             add(expectedValues.get(i),cons);
-            cons.gridx=11;
             cons.weightx=1;
+            cons.gridx=8;
             add(removeTestButtons.get(i),cons);
             if(i==unitTests.size()-1){
-                cons.gridx=12;
+                cons.gridx=9;
                 add(addTestButton,cons);
             }
             
@@ -296,10 +310,106 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             UnitTest test=unitTests.get(i);
             test.setMethodName(methodNames.get(i).getText());
             test.setReturnType(returnTypes.get(i).getText());
-            test.setArgumentTypes(argumentTypes.get(i).getText().split(","));
-            test.setArgumentData(arguments.get(i).getText().split(","));
             test.setExpectedReturnValue(expectedValues.get(i).getText());
+            
+            gui.getViewManager().removeOverlay("MethodAccessOverlay"+i);
+            gui.getViewManager().removeOverlay("MethodModifiersOverlay"+i);
+            gui.getViewManager().removeOverlay("MethodArgumentsOverlay"+i);
         }
+    }
+    public void setAccessType(MethodAccessType type,CheckboxStatus status,int testIndex){
+        UnitTest test=unitTests.get(testIndex);
+        if(type!=null&&status!=null){
+            if(type.equals(MethodAccessType.PUBLIC))
+                test.accessPublic=status;
+            else if(type.equals(MethodAccessType.PROTECTED))
+                test.accessProtected=status;
+            else if(type.equals(MethodAccessType.PRIVATE))
+                test.accessPrivate=status;
+            else if(type.equals(MethodAccessType.PACKAGEPRIVATE))
+                test.accessPackagePrivate=status;
+        }
+        //write button text
+        ArrayList<String> labels=new ArrayList();
+        String typeName;
+        if(test.accessPublic!=CheckboxStatus.REQUIREDFALSE){
+            typeName="public";
+            addType(labels,typeName,test.accessPublic);
+        }
+        if(test.accessProtected!=CheckboxStatus.REQUIREDFALSE){
+            typeName="protected";
+            addType(labels,typeName,test.accessProtected);
+        }
+        if(test.accessPrivate!=CheckboxStatus.REQUIREDFALSE){
+            typeName="private";
+            addType(labels,typeName,test.accessPrivate);
+        }
+        if(test.accessPackagePrivate!=CheckboxStatus.REQUIREDFALSE){
+            typeName="<small>packageprivate</small>";
+            addType(labels,typeName,test.accessPackagePrivate);
+        }
+        String label="<html>";
+        for(int i=0;i<labels.size();i++){
+            label+=labels.get(i);
+            if(i!=labels.size()-1)
+                label+="/";
+        }
+        label+="</html>";
+        methodAccess.get(testIndex).setText(label);
+    }
+    public void setModifierType(CheckboxStatus status,int modIndex,int testIndex){
+        UnitTest test=unitTests.get(testIndex);
+        if(status!=null&&modIndex!=-1){
+            if(modIndex==0)
+                test.modStatic=status;
+            else if(modIndex==1)
+                test.modFinal=status;
+            else if(modIndex==2)
+                test.modAbstract=status;
+            else if(modIndex==3)
+                test.modSynchronized=status;
+        }
+        //write button text
+        String label="<html>";
+        ArrayList<String> labels=new ArrayList();
+        if(test.modAbstract!=CheckboxStatus.REQUIREDFALSE)
+            addType(labels,"abstract",test.modAbstract);
+        if(test.modFinal!=CheckboxStatus.REQUIREDFALSE)
+            addType(labels,"final",test.modFinal);
+        if(test.modStatic!=CheckboxStatus.REQUIREDFALSE)
+            addType(labels,"static",test.modStatic);
+        if(test.modSynchronized!=CheckboxStatus.REQUIREDFALSE)
+            addType(labels,"synchronized",test.modSynchronized);
+        for(int i=0;i<labels.size();i++){
+            label+=labels.get(i);
+            if(i!=labels.size()-1)
+                label+=" ";
+        }
+        label+="</html>";
+        methodModifiers.get(testIndex).setText(label);
+    }
+    public void setArgs(JavaClass[] types,String[] data,int testIndex){
+        UnitTest test=unitTests.get(testIndex);
+        if(types!=null&&data!=null){
+            test.setArgumentTypes(types);
+            test.setArgumentData(data);
+        }
+        
+        if(test.getArgumentTypes()!=null){
+            String label="";
+            for(int i=0;i<test.getArgumentTypes().length;i++){
+                label+=test.getArgumentTypes()[i].toText()+" "+test.getArguments()[i];
+                if(i!=test.getArgumentTypes().length-1)
+                    label+=", ";
+            }
+            argumentsButtons.get(testIndex).setText(label);
+        }
+    }
+    private void addType(ArrayList<String> ar,String typeName,CheckboxStatus status){
+        if(status==CheckboxStatus.IGNORED)
+            ar.add("<i>"+typeName+"</i>");
+        else if(status==CheckboxStatus.REQUIREDTRUE)
+            ar.add(typeName);
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -311,6 +421,18 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         else if(e.getActionCommand().startsWith("RemoveUnitTest")){
             int testNum=GradebookTable.extractNumber("RemoveUnitTest", e.getActionCommand());
             unitTests.remove(testNum);
+            
+            methodAccess.remove(testNum);
+            methodModifiers.remove(testNum);
+            methodNames.remove(testNum);
+            returnTypes.remove(testNum);
+            argumentsButtons.remove(testNum);
+            expectedValues.remove(testNum);
+            removeTestButtons.remove(testNum);
+            
+            gui.getViewManager().removeOverlay("MethodAccessOverlay"+testNum);
+            gui.getViewManager().removeOverlay("MethodModifiersOverlay"+testNum);
+            gui.getViewManager().removeOverlay("MethodArgumentsOverlay"+testNum);
             setup();
         }
         else if(e.getSource().equals(addJTestsButton)||
@@ -414,6 +536,24 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             jFilenames.remove(id);
             setup();
             
+        }
+        else if(e.getActionCommand().startsWith("SetMethodAccess")){
+            int index=GradebookTable.extractNumber("SetMethodAccess", e.getActionCommand());
+            MethodAccessOverlay overlay=new MethodAccessOverlay(gui,this,index);
+            overlay.setTest(unitTests.get(index));
+            gui.getViewManager().addOverlay(overlay);
+        }
+        else if(e.getActionCommand().startsWith("SetMethodModifiers")){
+            int index=GradebookTable.extractNumber("SetMethodModifiers", e.getActionCommand());
+            MethodModifiersOverlay overlay=new MethodModifiersOverlay(gui,this,index);
+            overlay.setTest(unitTests.get(index));
+            gui.getViewManager().addOverlay(overlay);
+        }
+        else if(e.getActionCommand().startsWith("SetArguments")){
+            int index=GradebookTable.extractNumber("SetArguments", e.getActionCommand());
+            MethodArgumentsOverlay overlay=new MethodArgumentsOverlay(gui,this,index);
+            overlay.setUnitTest(unitTests.get(index));
+            gui.getViewManager().addOverlay(overlay);
         }
     }
 }

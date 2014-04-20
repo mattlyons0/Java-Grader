@@ -8,6 +8,7 @@ package DropboxGrader.TextGrader;
 
 import DropboxGrader.DbxSession;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.Util.StaticMethods;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -392,15 +393,29 @@ public class TextSpreadsheet {
         return assignments.size();
     }
     public TextGrade getGradeAt(int assignmentIndex,int nameIndex){
-        if(nameIndex<0||assignmentIndex<0||nameIndex>names.size()||assignmentIndex>assignments.size()){
+        if(nameIndex<0||assignmentIndex<0||nameIndex>=names.size()||assignmentIndex>=assignments.size()){
+            System.err.println("Attempted to get grade out of bounds. AssignmentIndex:"+assignmentIndex+
+                    " Size:"+assignments.size()+" NameIndex:"+nameIndex+" Size:"+names.size());
+            StaticMethods.printStackTrace();
             return null;
         }
         return grades.get(nameIndex).get(assignmentIndex);
     }
     public TextAssignment getAssignmentAt(int assignmentIndex){
+        if(assignmentIndex<0||assignments.size()<=assignmentIndex){
+            System.err.println("Attempted to get assignment out of bounds. AssignmentIndex:"+assignmentIndex+
+                    " Size:"+assignments.size());
+            StaticMethods.printStackTrace();
+            return null;
+        }
         return assignments.get(assignmentIndex);
     }
     public TextName getNameAt(int nameIndex){
+        if(nameIndex<0||names.size()<=nameIndex){
+            System.err.println("Attempted to get name out of bounds. NameIndex:"+nameIndex+" Size:"+names.size());
+            StaticMethods.printStackTrace();
+            return null;
+        }
         return names.get(nameIndex);
     }
     private void clearData(){
