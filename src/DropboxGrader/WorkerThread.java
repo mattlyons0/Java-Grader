@@ -39,7 +39,7 @@ public class WorkerThread implements Runnable{
                     }
                 }
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(50);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(WorkerThread.class.getName()).log(Level.SEVERE, null, ex);
                 }

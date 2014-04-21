@@ -149,7 +149,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     @Override
     public void switchedTo() {}
     @Override
-    public void isClosing(){}
+    public boolean isClosing(){return true;}
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(printButton)){

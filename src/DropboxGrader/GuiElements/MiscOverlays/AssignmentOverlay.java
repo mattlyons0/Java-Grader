@@ -17,7 +17,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -38,7 +37,6 @@ public class AssignmentOverlay extends ContentOverlay{
     private JTextField assignmentPointsField;
     private UnitTestPanel unitTestPanel;
     private JScrollPane unitTestScroll;
-    private JButton submitButton;
     
     private Integer assignmentNum;
     private String assignmentName;
@@ -85,8 +83,6 @@ public class AssignmentOverlay extends ContentOverlay{
         if(assignmentPoints!=null){
             assignmentPointsField.setText(assignmentPoints+"");
         }
-        submitButton=new JButton("Submit");
-        submitButton.addActionListener(this);
         if(unitTestPanel==null){
             unitTestPanel=new UnitTestPanel(tests,jtests,assignmentName,assignmentNum,gui);
         }
@@ -121,11 +117,6 @@ public class AssignmentOverlay extends ContentOverlay{
         cons.gridx=0;
         cons.gridwidth=6;
         add(unitTestScroll,cons);
-        cons.fill=GridBagConstraints.NONE;
-        cons.anchor=GridBagConstraints.SOUTHEAST;
-        cons.weighty=1;
-        cons.gridy=2;
-        add(submitButton,cons);
         
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
@@ -136,32 +127,36 @@ public class AssignmentOverlay extends ContentOverlay{
     @Override
     public void switchedTo() {}
     @Override
-    public void isClosing(){
-        actionPerformed(new ActionEvent(submitButton,0,null));
+    public boolean isClosing(){
+        return save();
+    }
+    private boolean save(){
+        //validate data
+        try{
+            assignmentNum=Integer.parseInt(assignmentNumField.getText().replace(" ", ""));
+        } catch(NumberFormatException ex){
+            GuiHelper.alertDialog("Assignment Number must be a number.");
+            return false;
+        }
+        assignmentName=assignmentNameField.getText();
+        if(assignmentPointsField.getText().equals("")){
+            GuiHelper.alertDialog("Total points need to be specified.");
+            return false;
+        }
+        assignmentPoints=Double.parseDouble(assignmentPointsField.getText());
+        unitTestPanel.save();
+
+        if(callback!=null){
+            gui.getBackgroundThread().invokeLater(callback);
+        }
+        return true;
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(submitButton)||e.getSource().equals(assignmentNumField)||e.getSource().equals(assignmentNameField)||
+        if(e.getSource().equals(assignmentNumField)||e.getSource().equals(assignmentNameField)||
                 e.getSource().equals(assignmentPointsField)){
-            //validate data
-            try{
-                assignmentNum=Integer.parseInt(assignmentNumField.getText().replace(" ", ""));
-            } catch(NumberFormatException ex){
-                GuiHelper.alertDialog("Assignment Number must be a number.");
-                return;
-            }
-            assignmentName=assignmentNameField.getText();
-            if(assignmentPointsField.getText().equals("")){
-                GuiHelper.alertDialog("Total points need to be specified.");
-                return;
-            }
-            assignmentPoints=Double.parseDouble(assignmentPointsField.getText());
-            unitTestPanel.save();
-            
-            if(callback!=null){
-                gui.getBackgroundThread().invokeLater(callback);
+            if(save())
                 dispose();
-            }
         }
     }
     public Object[] getData(){

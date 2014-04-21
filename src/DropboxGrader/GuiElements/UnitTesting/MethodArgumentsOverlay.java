@@ -126,7 +126,7 @@ public class MethodArgumentsOverlay extends ContentOverlay implements CaretListe
     @Override
     public void switchedTo() {}
     @Override
-    public void isClosing(){}
+    public boolean isClosing(){return true;}
     public void setUnitTest(UnitTest unitTest){
         test=unitTest;
         

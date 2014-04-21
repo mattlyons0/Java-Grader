@@ -11,7 +11,6 @@ import DropboxGrader.GuiHelper;
 import DropboxGrader.Util.StaticMethods;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -33,6 +32,10 @@ public class TextSpreadsheet {
         
     }
     public void parse(File f){
+        if(f==null){
+            clearData();
+            return;
+        }
         String code=DbxSession.readFromFile(f);
         
         //Clear current data and initialize everything except grades
@@ -118,6 +121,9 @@ public class TextSpreadsheet {
         }
         
         DbxSession.writeToFile(f, code);
+    }
+    public boolean isInitialized(){
+        return assignments!=null;
     }
     public void addAssignment(int assignmentNum,String assignmentName){ //TODO: store due date
         assignmentName=validateString(assignmentName);

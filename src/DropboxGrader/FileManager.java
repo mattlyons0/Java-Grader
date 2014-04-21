@@ -9,7 +9,6 @@ import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
-import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -40,12 +39,9 @@ public class FileManager {
         
         File dlDirectory=new File(DOWNLOADFOLDER);
         dlDirectory.mkdir();
-        File exDirectory=new File(DOWNLOADFOLDER);
-        exDirectory.mkdir();
         
-        init();
     }
-    private void init(){
+    public void postInit(){
         try {
             DbxEntry.WithChildren folderList=client.getMetadataWithChildren("/"+dropboxFolder);
             DbxFile file;
@@ -66,6 +62,7 @@ public class FileManager {
                     }
                 }
             }
+            gui.fileBrowserDataChanged();
         } catch (DbxException ex) {
             Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -130,7 +127,7 @@ public class FileManager {
         dropboxFolder=Config.dropboxFolder;
         classPeriod=Config.dropboxPeriod;
         
-        init();
+        postInit();
         if(tableData!=null)
             tableData.refresh();
     }

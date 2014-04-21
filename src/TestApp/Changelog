@@ -1,5 +1,15 @@
-Started work on removing Submit Buttons and using the X instead.
+Improved startup time by about 50%
 
-Still need to remove submit buttons.
-Fixed not reading description when loading Unit Test Gui.
-Fixed not updating in realtime from arguments under certain conditions.
+Removed submit buttons (now the exit button submits)
+Fixed screen position/size saving.
+Fixed crashes starting up.
+JFrame opens faster.
+    Now opens blank, to shave off 100ms on a fast computer.
+Startup time greatly improved
+    Loading views and determining window size is now done in parallel
+    50% speed increase in loading time (excluding things happening after dropbox connection)
+    Threaded downloading of grades on startup (saves about 700ms on a fast computer)
+    Entire startup now takes about half the time it did before (1.7 seconds instead of 4).
+        And there are several states where it now shows the progress of opening.
+    Filebrowser now shows before data is populated
+    Grades are now recived and parsed in the background (and don't hold up filebrowser).

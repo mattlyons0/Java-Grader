@@ -39,7 +39,7 @@ public abstract class ContentOverlay extends JInternalFrame implements ActionLis
     }
     public abstract void setup();
     public abstract void switchedTo();
-    public abstract void isClosing();
+    public abstract boolean isClosing(); //true to proceed, false otherwise
     public boolean shouldBeCached(){
         return cached;
     }
@@ -59,13 +59,15 @@ public abstract class ContentOverlay extends JInternalFrame implements ActionLis
 
     @Override
     public void internalFrameClosing(InternalFrameEvent ife){
-        isClosing();
-        dispose();
-        removeInternalFrameListener(this);
+        if(isClosing()){
+            dispose();
+        }
     }
 
     @Override
-    public void internalFrameClosed(InternalFrameEvent ife){}
+    public void internalFrameClosed(InternalFrameEvent ife){
+        removeInternalFrameListener(this);
+    }
 
     @Override
     public void internalFrameIconified(InternalFrameEvent ife){}

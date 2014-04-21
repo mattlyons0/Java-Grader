@@ -7,6 +7,7 @@ package DropboxGrader.TextGrader;
 import DropboxGrader.Config;
 import DropboxGrader.DbxSession;
 import DropboxGrader.FileManager;
+import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
@@ -34,9 +35,13 @@ public class TextGrader {
     private String filenameLocal;
     private File sheet;
     private TextSpreadsheet data;
-    public TextGrader(FileManager manager,DbxClient client){
+    private Gui gui;
+    
+    private boolean doneLoading=false;
+    public TextGrader(FileManager manager,DbxClient client,Gui gui){
         this.client=client;
         this.manager=manager;
+        this.gui=gui;
         data=new TextSpreadsheet();
         init();
     }
@@ -48,7 +53,16 @@ public class TextGrader {
         filenameRemote="/"+Config.dropboxSpreadsheetFolder+"/"+filenameLocal;
         filenameLocal=manager.getDownloadFolder()+"/"+filenameLocal;
         sheet=new File(filenameLocal);
-        downloadSheet();
+        if(!data.isInitialized())
+            data.parse(null);
+        gui.getBackgroundThread().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                downloadSheet();
+                gui.repaint();
+                doneLoading=true;
+            }
+        });
     }
     public void forceDownloadSheet(){
         downloadSheet(true);
@@ -168,7 +182,7 @@ public class TextGrader {
             name=nameParts[0]+nameParts[1];
         }
         if(!data.assignmentDefined(assignmentNum)){ //need to create assignment in table
-            final AssignmentOverlay overlay=new AssignmentOverlay(manager.getGui());
+            final AssignmentOverlay overlay=new AssignmentOverlay(gui);
             overlay.setData(new TextAssignment(assignmentNum,""));
             overlay.setCallback(new Runnable() {
                 @Override
@@ -182,10 +196,10 @@ public class TextGrader {
                     assign.simpleUnitTests=overlay.getUnitTest();
                     assign.junitTests=overlay.getJUnitTests();
                     uploadTable();
-                    manager.getGui().gradebookDataChanged();
+                    gui.gradebookDataChanged();
                 }
             });
-            manager.getGui().getViewManager().addOverlay(overlay);
+            gui.getViewManager().addOverlay(overlay);
             data.addAssignment(assignmentNum, "");
         }
         boolean gradeSet=data.setGrade(data.getName(name),data.getAssignment(assignmentNum), gradeNum, comment,overwrite);
@@ -193,7 +207,7 @@ public class TextGrader {
             return false;
         }
         //convert to code, write and upload
-        manager.getGui().gradebookDataChanged();
+        gui.gradebookDataChanged();
         return uploadTable();
     }
     public boolean setInGradebook(String name,int assignmentNum,boolean inGradebook){
@@ -206,6 +220,8 @@ public class TextGrader {
         return uploadTable();
     }
     public TextGrade getGrade(String name,int assignmentNum){
+        if(!doneLoading)
+            return null;
         return data.getGrade(data.getName(name), data.getAssignment(assignmentNum));
     }
     public Double getGradeNum(String name,int assignmentNum){
@@ -222,6 +238,7 @@ public class TextGrader {
     
     public void refresh(){
         init();
+        
     }
     public TextSpreadsheet getSpreadsheet(){
         return data;
@@ -240,7 +257,7 @@ public class TextGrader {
             }
         }
         if(upercaseIndex==-1){
-            final NameOverlay overlay=new NameOverlay(manager.getGui());
+            final NameOverlay overlay=new NameOverlay(gui);
             overlay.setData(name, name);
             overlay.setCallback(new Runnable() {
                 @Override
@@ -250,7 +267,7 @@ public class TextGrader {
                     setGrade(firstName+lastName,assignmentNum,gradeNum,comment,overwrite);
                 }
             });
-            manager.getGui().getViewManager().addOverlay(overlay);
+            gui.getViewManager().addOverlay(overlay);
             return null;
         }
         else{

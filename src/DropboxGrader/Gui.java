@@ -22,7 +22,6 @@ import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.UnitTesting.UnitTester;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
@@ -33,6 +32,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -60,25 +60,27 @@ public class Gui extends JFrame implements ActionListener{
     
     public Gui(){
         super("Dropbox Grader");
-        //UIManager.put("ProgressBar.foreground", new Color(120,200,55)); //color the progressbar green.
         setBackground(Color.lightGray);
         viewManager=new ContentViewManager(this);
         selectedFiles=new ArrayList();        
         listener=new GuiListener(this);
         addWindowListener(listener);
-        getContentPane().addComponentListener(listener);
+        addComponentListener(listener);
         addWindowStateListener(listener);
-        
-        init();
-        
         workerThread=new WorkerThread(this);
         Thread thread=new Thread(workerThread);
         thread.setName("WorkerThread");
         thread.start();
-        
-        initViewMan();
+        workerThread.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+               initViewMan(); 
+            }
+        });
+        init();
     }
     private void initViewMan(){
+        viewManager.postInit();
         authView=new AuthView(this);
         viewManager.addView(authView);
         viewManager.changeView("AuthView");
@@ -87,52 +89,74 @@ public class Gui extends JFrame implements ActionListener{
     }
     private void init(){
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        if(!isOnScreen(new Point(Config.screenCoordX,Config.screenCoordY))){
-            setLocation(0,0);
+        setContentPane(viewManager);
+        Point location=new Point(Config.screenCoordX,Config.screenCoordY);
+        if(!isOnScreen(location)){
+            setLocation(defaultLocation());
             Config.screenCoordX=0;
             Config.screenCoordY=0;
-            setExtendedState(JFrame.NORMAL);
         }
         else{
             setLocation(Config.screenCoordX,Config.screenCoordY);
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
-        if(!isLargerThanScreen(new Point(Config.screenWidth,Config.screenHeight))){
-           Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
-           setSize((int)(d.width*0.95),(int)(d.height*0.9));
-           Config.screenWidth=(int)(d.width*0.95);
-           Config.screenHeight=(int)(d.height*0.9);
-           setExtendedState(JFrame.NORMAL);
+        boolean[] exceedsSize=isLargerThanScreen(new Point(Config.screenWidth,Config.screenHeight));
+        if((exceedsSize[0]||exceedsSize[1])){
+            Rectangle size=maxBounds();
+            int sizeX=size.width;
+            int sizeY=size.height;
+            if(exceedsSize[0]&&getExtendedState()!=JFrame.MAXIMIZED_BOTH)
+                sizeY=Config.screenHeight;
+            if(exceedsSize[1])
+                sizeX=Config.screenWidth;
+            System.out.println(sizeX+","+sizeY);
+            
+            setSize(sizeX,sizeY);
         }
         else{
             setSize(Config.screenWidth,Config.screenHeight);
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
-        setContentPane(viewManager);
+        if(supportsState(Config.screenState))
+            setExtendedState(Config.screenState);
+        else
+            setExtendedState(JFrame.NORMAL);
         
-        setVisible(true);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                setVisible(true);
+            }
+        });
     }
     private void createSession(){
         fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
         workerThread.setFileManager(fileManager);
-        grader=new TextGrader(fileManager,client);
-        fileManager.setGrader(grader);
-        
-        browserView=new BrowserView(this,fileManager);
-        viewManager.addView(browserView);
-        graderView=new GraderView(this,fileManager);
-        viewManager.addView(graderView);
-        gradebookView=new GradebookView(this);
-        viewManager.addView(gradebookView);
-        
-        //TODO: MOVE THIS TO ANOTHER THREAD
-        TextAssignment[] assignments=grader.getSpreadsheet().getAllAssignments();
-        for(int i=0;i<assignments.length;i++){
-            if(assignments[i].simpleUnitTests!=null||assignments[i].junitTests!=null){
-                UnitTester tester=new UnitTester(this,assignments[i]);
-                tester.runTests();
+        workerThread.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                grader=new TextGrader(fileManager,client,Gui.this);
+                fileManager.setGrader(grader);
+
+                gradebookView=new GradebookView(Gui.this);
+                viewManager.addView(gradebookView);
+
+                //TODO: Ask before doing this (and have a config for it too)
+                TextAssignment[] assignments=grader.getSpreadsheet().getAllAssignments();
+                for(int i=0;i<assignments.length;i++){
+                    if(assignments[i].simpleUnitTests!=null||assignments[i].junitTests!=null){
+                        UnitTester tester=new UnitTester(Gui.this,assignments[i]);
+                        tester.runTests();
+                    }
+                }
             }
-        }        
+        });
+        browserView=new BrowserView(Gui.this,fileManager);
+        viewManager.addView(browserView);
+        setupFileBrowserGui();
+        
+        graderView=new GraderView(Gui.this,fileManager);
+        viewManager.addView(graderView);
+        
+        fileManager.postInit();
     }
     
     public void setupFileBrowserGui(){
@@ -150,8 +174,6 @@ public class Gui extends JFrame implements ActionListener{
     public void goodKey(DbxClient client){
         this.client=client;
         createSession();
-
-        setupFileBrowserGui();
     }
     public TextGrader getGrader(){
         return grader;
@@ -256,9 +278,9 @@ public class Gui extends JFrame implements ActionListener{
     public GuiListener getListener(){
         return listener;
     }
-    public boolean isOnScreen(Point windowLoc){
-        GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] devices = graphicsEnvironment.getScreenDevices();
+    private boolean isOnScreen(Point windowLoc){
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] devices = env.getScreenDevices();
         
         for(GraphicsDevice g:devices){
             Rectangle screenBounds=g.getDefaultConfiguration().getBounds();
@@ -268,16 +290,28 @@ public class Gui extends JFrame implements ActionListener{
         }
         return false;
     }
-    public boolean isLargerThanScreen(Point windowSize){
-        GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] devices = graphicsEnvironment.getScreenDevices();
-        
-        for(GraphicsDevice g:devices){
-            Rectangle screenBounds=g.getDefaultConfiguration().getBounds();
-            if(windowSize.x>screenBounds.width||windowSize.y>screenBounds.height){
-                return true;
-            }
-        }
-        return false;
+    private boolean supportsState(int state){
+        return Toolkit.getDefaultToolkit().isFrameStateSupported(state);
+    }
+    private Point defaultLocation(){
+        Rectangle bounds=defaultSize();
+        return new Point(bounds.x,bounds.y);
+    }
+    private Rectangle defaultSize(){
+        return GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().getBounds();
+    }
+    private Rectangle maxBounds(){
+        return GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+    }
+    private boolean[] isLargerThanScreen(Point windowSize){
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Rectangle max=env.getMaximumWindowBounds();
+        boolean x=false;
+        boolean y=false;
+        if(windowSize.x>max.width)
+            x=true;
+        if(windowSize.y>max.height)
+            y=true;
+        return new boolean[]{x,y};
     }
 }

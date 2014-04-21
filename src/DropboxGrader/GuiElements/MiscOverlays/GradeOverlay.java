@@ -14,7 +14,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -28,7 +27,6 @@ public class GradeOverlay extends ContentOverlay{
     
     private JTextField gradeField;
     private JTextField commentField;
-    private JButton submitButton;
     
     private Double grade;
     private String comment;
@@ -51,8 +49,6 @@ public class GradeOverlay extends ContentOverlay{
             gradeField.setText(grade+"");
         if(comment!=null)
             commentField.setText(comment);
-        submitButton=new JButton("Submit");
-        submitButton.addActionListener(this);
         
         GridBagConstraints cons=new GridBagConstraints(); 
         cons.insets=new Insets(5,5,5,5);
@@ -69,9 +65,6 @@ public class GradeOverlay extends ContentOverlay{
         cons.weighty=10;
         cons.gridx=3;
         add(commentField,cons);
-        cons.anchor=GridBagConstraints.SOUTHEAST;
-        cons.gridy=1;
-        add(submitButton,cons);
         
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
@@ -83,30 +76,34 @@ public class GradeOverlay extends ContentOverlay{
     @Override
     public void switchedTo() {}
     @Override
-    public void isClosing(){
-        actionPerformed(new ActionEvent(submitButton,0,null));
+    public boolean isClosing(){
+        return save();
+    }
+    private boolean save(){
+        //validate data
+        if(gradeField.getText().replaceAll(" ","").equals("")){
+            gradeField.setText("");
+            GuiHelper.alertDialog("Grade cannot be empty.");
+            return false;
+        }
+        try{
+            grade=Double.parseDouble(gradeField.getText());
+        } catch(NumberFormatException ex){
+            GuiHelper.alertDialog("Grade must be a number (but can be a decimal).");
+            return false;
+        }
+        comment=commentField.getText();
+
+        if(callback!=null){
+            gui.getBackgroundThread().invokeLater(callback);
+        }
+        return true;
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(submitButton)||e.getSource().equals(gradeField)||e.getSource().equals(commentField)){
-            //validate data
-            if(gradeField.getText().replaceAll(" ","").equals("")){
-                gradeField.setText("");
-                GuiHelper.alertDialog("Grade cannot be empty.");
-                return;
-            }
-            try{
-                grade=Double.parseDouble(gradeField.getText());
-            } catch(NumberFormatException ex){
-                GuiHelper.alertDialog("Grade must be a number (but can be a decimal).");
-                return;
-            }
-            comment=commentField.getText();
-            
-            if(callback!=null){
-                gui.getBackgroundThread().invokeLater(callback);
+        if(e.getSource().equals(gradeField)||e.getSource().equals(commentField)){
+            if(save())
                 dispose();
-            }
         }
     }
     public Object[] getData(){

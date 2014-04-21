@@ -9,6 +9,8 @@ package DropboxGrader;
 import DropboxGrader.GuiElements.MiscOverlays.ClosingOverlay;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.IllegalComponentStateException;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -16,6 +18,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.File;
+import javax.swing.JFrame;
 
 /**
  *
@@ -67,24 +70,9 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
                 gui.getTerminal().stop();
             }
             if(gui!=null){
-                Point coords=gui.getLocationOnScreen();
-                Config.screenCoordX=coords.x;
-                Config.screenCoordY=coords.y;
-                Dimension size=gui.getSize();
-                Config.screenWidth=size.width;
-                Config.screenHeight=size.height;
                 Config.screenState=gui.getExtendedState();
                 gui.setVisible(false);
             }
-
-            File inputFolder=new File("runtimeFiles/");
-            File[] inputFiles=inputFolder.listFiles();
-            if(inputFiles!=null){
-                for(File f:inputFiles){
-                    f.delete();
-                }
-            }
-            inputFolder.delete();
             if(gui!=null)
                 gui.isClosing();
 
@@ -119,11 +107,23 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
 
     @Override
     public void componentResized(ComponentEvent e) {
+        componentMoved(e);
     }
 
     @Override
-    public void componentMoved(ComponentEvent e) {
-
+    public void componentMoved(ComponentEvent e) { //need to store before it is maximized, values once its maximised are incorrect.
+        if(gui.getExtendedState()!=JFrame.MAXIMIZED_BOTH){
+            try{
+                Point coords=gui.getLocationOnScreen();
+                Config.screenCoordX=coords.x;
+                Config.screenCoordY=coords.y;
+                Dimension size=gui.getSize();
+                Config.screenWidth=size.width;
+                Config.screenHeight=size.height;
+            } catch(IllegalComponentStateException ex){
+                //we tried to get the location too early, before it was visible
+            }
+        }
     }
 
     @Override
@@ -138,6 +138,7 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
 
     @Override
     public void windowStateChanged(WindowEvent e) {
+        
     }
     
 }

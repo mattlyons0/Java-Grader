@@ -10,9 +10,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -26,7 +24,6 @@ public class NameOverlay extends ContentOverlay{
     
     private JTextField firstNameField;
     private JTextField lastNameField;
-    private JButton submitButton;
     
     private String firstName;
     private String lastName;
@@ -49,8 +46,6 @@ public class NameOverlay extends ContentOverlay{
             firstNameField.setText(firstName);
         if(lastName!=null)
             lastNameField.setText(lastName);
-        submitButton=new JButton("Submit");
-        submitButton.addActionListener(this);
         
         GridBagConstraints cons=new GridBagConstraints(); 
         cons.insets=new Insets(5,5,5,5);
@@ -67,9 +62,6 @@ public class NameOverlay extends ContentOverlay{
         cons.weighty=10;
         cons.gridx=3;
         add(lastNameField,cons);
-        cons.anchor=GridBagConstraints.SOUTHEAST;
-        cons.gridy=1;
-        add(submitButton,cons);
         
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
@@ -81,34 +73,37 @@ public class NameOverlay extends ContentOverlay{
     @Override
     public void switchedTo() {}
     @Override
-    public void isClosing(){
-        actionPerformed(new ActionEvent(submitButton,0,null));
+    public boolean isClosing(){
+        return save();
     }
-
+    private boolean save(){
+        //validate data
+        if(firstNameField.getText().equals("")||firstNameField.getText().equals(" ")){
+            return false;
+        }
+        if(lastNameField.getText().equals("")||lastNameField.getText().equals(" ")){
+            return false;
+        }
+        firstName=firstNameField.getText();
+        lastName=lastNameField.getText();
+        if(Character.isLowerCase(firstName.charAt(0))){
+            firstName=Character.toUpperCase(firstName.charAt(0))+firstName.substring(1);
+            firstNameField.setText(firstName);
+        }
+        if(Character.isLowerCase(lastName.charAt(0))){
+            lastName=Character.toUpperCase(lastName.charAt(0))+lastName.substring(1);
+            lastNameField.setText(lastName);
+        }
+        if(callback!=null){
+            gui.getBackgroundThread().invokeLater(callback);
+        }
+        return true;
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(submitButton)||e.getSource().equals(lastNameField)){
-            //validate data
-            if(firstNameField.getText().equals("")||firstNameField.getText().equals(" ")){
-                return;
-            }
-            if(lastNameField.getText().equals("")||lastNameField.getText().equals(" ")){
-                return;
-            }
-            firstName=firstNameField.getText();
-            lastName=lastNameField.getText();
-            if(Character.isLowerCase(firstName.charAt(0))){
-                firstName=Character.toUpperCase(firstName.charAt(0))+firstName.substring(1);
-                firstNameField.setText(firstName);
-            }
-            if(Character.isLowerCase(lastName.charAt(0))){
-                lastName=Character.toUpperCase(lastName.charAt(0))+lastName.substring(1);
-                lastNameField.setText(lastName);
-            }
-            if(callback!=null){
-                gui.getBackgroundThread().invokeLater(callback);
+        if(e.getSource().equals(lastNameField)){
+            if(save())
                 dispose();
-            }
         }
     }
     public String[] getNames(){

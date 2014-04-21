@@ -199,6 +199,7 @@ public class ConfigView extends ContentView implements FocusListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(backToBrowser)){
+            if(gui.getGrader()!=null)
             gui.getGrader().refresh();
             gui.getManager().refresh();
             gui.refreshTable();

@@ -15,7 +15,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 /**
  *
@@ -62,7 +61,7 @@ public class ClosingOverlay extends ContentOverlay{
     @Override
     public void switchedTo() {}
     @Override
-    public void isClosing(){}
+    public boolean isClosing(){return false;}
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(cancelButton)){

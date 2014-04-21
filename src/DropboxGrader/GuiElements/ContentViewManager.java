@@ -43,6 +43,18 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         overlays=new ArrayList();
         selectedView=-1;
         overlayID=0;
+        
+        removeAll(); //removes taskbar added on linux (gtk) l&f
+    }
+    /**
+     * Lengthy init operations required for view manager.
+     * Takes around 100ms on a good computer.
+     * Should only be called once and must be called before using manager.
+     * 
+     * Used to set the contentPane of the JFrame and make it popup without displaying anything
+     * until postInit is called.
+     */
+    public void postInit(){
         backgroundPanel=new JInternalFrame("",false,false,false,false);
         componentResized(null);
         backgroundPanel.setLayout(new GridBagLayout());
@@ -50,15 +62,12 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         BasicInternalFrameUI ui=(BasicInternalFrameUI) backgroundPanel.getUI();
         ui.setNorthPane(null);
         backgroundPanel.setVisible(true);
-        removeAll(); //removes taskbar added on linux (gtk) l&f
         
         add(backgroundPanel,JLayeredPane.DEFAULT_LAYER);
         constraints=new GridBagConstraints();
         constraints.weightx=1;
         constraints.weighty=1;
         constraints.fill=GridBagConstraints.BOTH;
-        
-        setVisible(true);
     }
     public void addView(ContentView v){
         v.setup();
@@ -181,7 +190,8 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
     }
     @Override
     public void componentResized(ComponentEvent e) {
-        backgroundPanel.setSize(gui.getContentPane().getSize());
+        if(backgroundPanel!=null)
+            backgroundPanel.setSize(gui.getContentPane().getSize());
     }
 
     @Override
