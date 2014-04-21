@@ -295,7 +295,11 @@ public class UnitTester {
         }
         else if(value[0]!=null){
             testResults.add(false);
-            status="Failed while testing method "+method+" Expected: "+
+            String description=unitTest.getDescription();
+            status="Failed while running test ";
+            if(description!=null)
+                status+="'"+description+"' ";
+            status+="on method "+method+" Expected: "+
                     (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim())
                     +" Actual: "+(value[0]==null?null:value[0].trim());
             testStatus.add(status);

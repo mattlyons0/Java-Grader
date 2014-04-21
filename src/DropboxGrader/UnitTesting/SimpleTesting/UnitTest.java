@@ -38,6 +38,8 @@ public class UnitTest {
     private String[] argumentData;
     //Expected Return Values
     private String expectedReturnValue;
+    //description
+    private String testDescription;
     
     public UnitTest(){
         accessPublic=IGNORED;
@@ -81,6 +83,8 @@ public class UnitTest {
             }
             if(!s[12].equals("null"))
                 expectedReturnValue=s[12];
+            if(!s[13].equals("null"))
+                testDescription=s[13];
         } catch(Exception e){
             
         }
@@ -146,6 +150,13 @@ public class UnitTest {
     public String getExpectedReturnValue(){
         return expectedReturnValue;
     }
+    public String getDescription(){
+        return testDescription;
+    }
+    public void setDescription(String s){
+        if(!s.equals(""))
+            testDescription=s;
+    }
     public String toText(){
         String s="";
         s=append(s,accessPublic);
@@ -182,6 +193,7 @@ public class UnitTest {
             s+=TextSpreadsheet.INDIVIDUALDELIMITER3;
         }
         s=append(s,expectedReturnValue);
+        s=append(s,testDescription);
         
         return s;
     }

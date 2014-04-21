@@ -138,6 +138,7 @@ State when generating print preview instead of freezing up the main thread.
 Use last directory when looking for unit tests.
 Config for output text color,error color, and info color.
 Dropdown boxes in config for class periods...
+
 demo mode
     Log them into a test dropbox with some test code and files
     Don't allow renaming or deleting, but everything else is enabled

@@ -71,7 +71,7 @@ public class MethodArgumentsOverlay extends ContentOverlay implements CaretListe
         }
         Component[] comps=getComponents();
         for(int i=0;i<comps.length;i++){ //cant use removeAll because it crashes, because we need to keep the first 2 components
-            if(i>1&&comps[i]!=null&&comps[i].getName()!=null&&!comps[i].getName().contains("InternalFrame")){
+            if(i>1){
                 remove(comps[i]);
             }
         }
@@ -154,6 +154,10 @@ public class MethodArgumentsOverlay extends ContentOverlay implements CaretListe
             int index=GradebookTable.extractNumber("RemoveArgument", e.getActionCommand());
             argumentsT.remove(index);
             argumentsV.remove(index);
+            
+            remove(argumentTypes.get(index));
+            remove(argumentValues.get(index));
+            remove(removeArguments.get(index));
             
             argumentTypes.remove(index);
             argumentValues.remove(index);

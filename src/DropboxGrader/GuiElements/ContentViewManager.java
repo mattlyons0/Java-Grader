@@ -113,6 +113,7 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         add(o,JLayeredPane.POPUP_LAYER);
         o.switchedTo();
         try {
+            o.setMaximum(false);
             o.setSelected(true);
         } catch (PropertyVetoException ex) {
             //oh no it cant be selected! whatever will we do!

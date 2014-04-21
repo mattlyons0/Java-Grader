@@ -62,6 +62,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
     private ArrayList<JButton> argumentsButtons;
     private ArrayList<JTextField> expectedValues;
     private ArrayList<JButton> removeTestButtons;
+    private ArrayList<JTextField> descriptionValues;
     //JUnitTest
     private ArrayList<JLabel> jFilenames;
     private ArrayList<JButton> jFileChoosers;
@@ -110,6 +111,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         returnTypes=new ArrayList();
         argumentsButtons=new ArrayList();
         expectedValues=new ArrayList();
+        descriptionValues=new ArrayList();
         removeTestButtons=new ArrayList();
         
         jFilenames=new ArrayList();
@@ -172,11 +174,14 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 JTextField methodNameField=new JGhostTextField(15,"Method Name");
                 JTextField returnTypeField=new JGhostTextField(10,"Return Type");
                 JButton argumentsButton=new JButton("Arguments");
+                argumentsButton.setToolTipText("Method Arguments");
                 argumentsButton.setActionCommand("SetArguments"+i);
                 argumentsButton.addActionListener(this);
                 JTextField argumentTypesField=new JGhostTextField(15,"Argument Types");
                 JTextField argumentsField=new JGhostTextField(10,"Argument Data");
                 JTextField expectedValueField=new JGhostTextField(15,"Expected Return Value");
+                JTextField descriptionField=new JGhostTextField(30,"Test Description");
+                descriptionField.setToolTipText("This will be shown when a test fails.");
                 JButton removeButton=new JButton("-");
                 removeButton.setActionCommand("RemoveUnitTest"+i);
                 removeButton.addActionListener(this);
@@ -202,6 +207,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 returnTypes.add(returnTypeField);
                 argumentsButtons.add(argumentsButton);
                 expectedValues.add(expectedValueField);
+                descriptionValues.add(descriptionField);
                 removeTestButtons.add(removeButton);
                 
                 //set buttons text to use data from test
@@ -232,15 +238,19 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             add(argumentsButtons.get(i),cons);
             cons.weightx=1;
             cons.gridx=6;
-            add(new JLabel(")    =="),cons);
-            cons.weightx=10;
+            add(new JLabel(")"),cons);
             cons.gridx=7;
-            add(expectedValues.get(i),cons);
-            cons.weightx=1;
+            add(new JLabel("=="),cons);
+            cons.weightx=10;
             cons.gridx=8;
+            add(expectedValues.get(i),cons);
+            cons.gridx=9;
+            add(descriptionValues.get(i),cons);
+            cons.weightx=1;
+            cons.gridx=10;
             add(removeTestButtons.get(i),cons);
             if(i==unitTests.size()-1){
-                cons.gridx=9;
+                cons.gridx=11;
                 add(addTestButton,cons);
             }
             
@@ -311,6 +321,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             test.setMethodName(methodNames.get(i).getText());
             test.setReturnType(returnTypes.get(i).getText());
             test.setExpectedReturnValue(expectedValues.get(i).getText());
+            test.setDescription(descriptionValues.get(i).getText());
             
             gui.getViewManager().removeOverlay("MethodAccessOverlay"+i);
             gui.getViewManager().removeOverlay("MethodModifiersOverlay"+i);
@@ -398,10 +409,14 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         if(test.getArgumentTypes()!=null){
             String label="";
             for(int i=0;i<test.getArgumentTypes().length;i++){
-                label+=test.getArgumentTypes()[i].toText()+" "+test.getArguments()[i];
-                if(i!=test.getArgumentTypes().length-1)
-                    label+=", ";
+                if(test.getArgumentTypes()[i]!=null&&test.getArguments()[i]!=null){
+                    label+=test.getArgumentTypes()[i].toText()+" "+test.getArguments()[i];
+                    if(i!=test.getArgumentTypes().length-1)
+                        label+=", ";
+                }
             }
+            if(label.equals(""))
+                label=" ";
             argumentsButtons.get(testIndex).setText(label);
         }
     }
@@ -429,6 +444,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             argumentsButtons.remove(testNum);
             expectedValues.remove(testNum);
             removeTestButtons.remove(testNum);
+            descriptionValues.remove(testNum);
             
             gui.getViewManager().removeOverlay("MethodAccessOverlay"+testNum);
             gui.getViewManager().removeOverlay("MethodModifiersOverlay"+testNum);
