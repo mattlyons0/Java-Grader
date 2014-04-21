@@ -135,7 +135,10 @@ public class AssignmentOverlay extends ContentOverlay{
     }
     @Override
     public void switchedTo() {}
-
+    @Override
+    public void isClosing(){
+        actionPerformed(new ActionEvent(submitButton,0,null));
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(submitButton)||e.getSource().equals(assignmentNumField)||e.getSource().equals(assignmentNameField)||

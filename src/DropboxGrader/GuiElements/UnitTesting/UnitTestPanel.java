@@ -200,6 +200,8 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                         argumentsField.setText(unitTest.getArgumentData());
                     if(unitTest.getExpectedReturnValue()!=null)
                         expectedValueField.setText(unitTest.getExpectedReturnValue());
+                    if(unitTest.getDescription()!=null)
+                        descriptionField.setText(unitTest.getDescription());
                 }
                 methodAccess.add(accessButton);
                 methodModifiers.add(modifierButton);
@@ -409,11 +411,14 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         if(test.getArgumentTypes()!=null){
             String label="";
             for(int i=0;i<test.getArgumentTypes().length;i++){
-                if(test.getArgumentTypes()[i]!=null&&test.getArguments()[i]!=null){
-                    label+=test.getArgumentTypes()[i].toText()+" "+test.getArguments()[i];
-                    if(i!=test.getArgumentTypes().length-1)
-                        label+=", ";
-                }
+                String argTypes="",args="";
+                if(test.getArgumentTypes()[i]!=null)
+                    argTypes=test.getArgumentTypes()[i].toText();
+                if(test.getArguments()[i]!=null)
+                    args=test.getArguments()[i];
+                label+=argTypes+" "+args;
+                if(i!=test.getArgumentTypes().length-1)
+                    label+=", ";
             }
             if(label.equals(""))
                 label=" ";

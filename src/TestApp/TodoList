@@ -129,8 +129,6 @@ Properly validate if downloaded folder is the same as when it was extracted (has
 Upload changed files back to dropbox (or email to students)
 Occasional no java files found when working with queues
 Double check for delimiters being used in strings (especially in method testing)
-Closing popup windows saves changes. no more submit button
-    close popups in unit test when hitting x
 Auto retry when there are problems with dropbox and show a message saying we are having trouble
 Allow line breaks in comments and change comment to a text area
 Investigate better JUnit error output.
@@ -138,6 +136,7 @@ State when generating print preview instead of freezing up the main thread.
 Use last directory when looking for unit tests.
 Config for output text color,error color, and info color.
 Dropdown boxes in config for class periods...
+Remove all submit buttons
 
 demo mode
     Log them into a test dropbox with some test code and files

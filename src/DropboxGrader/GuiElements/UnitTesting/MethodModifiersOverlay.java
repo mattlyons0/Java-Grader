@@ -97,7 +97,8 @@ public class MethodModifiersOverlay extends ContentOverlay{
     }
     @Override
     public void switchedTo() {}
-
+    @Override
+    public void isClosing(){}
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(staticMod)){

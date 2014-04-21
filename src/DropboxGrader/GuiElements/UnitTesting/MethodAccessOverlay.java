@@ -95,7 +95,8 @@ public class MethodAccessOverlay extends ContentOverlay{
     }
     @Override
     public void switchedTo() {}
-
+    @Override
+    public void isClosing(){}
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(publicAccess))

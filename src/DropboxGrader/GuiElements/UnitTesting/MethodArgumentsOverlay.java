@@ -87,10 +87,12 @@ public class MethodArgumentsOverlay extends ContentOverlay implements CaretListe
                 type.setActionCommand("ObjectType"+i);
                 type.addCaretListener(this);
                 type.addActionListener(this);
+                //type.addKeyListener(this);
                 JTextField data=new JGhostTextField(25,"Parameter Value");
                 data.setActionCommand("DataType"+i);
                 data.addCaretListener(this);
                 data.addActionListener(this);
+                //data.addKeyListener(this);
                 JButton remove=new JButton("-");
                 remove.setToolTipText("Remove This Argument");
                 remove.setActionCommand("RemoveArgument"+i);
@@ -123,7 +125,8 @@ public class MethodArgumentsOverlay extends ContentOverlay implements CaretListe
 
     @Override
     public void switchedTo() {}
-    
+    @Override
+    public void isClosing(){}
     public void setUnitTest(UnitTest unitTest){
         test=unitTest;
         
@@ -178,7 +181,7 @@ public class MethodArgumentsOverlay extends ContentOverlay implements CaretListe
 
     @Override
     public void caretUpdate(CaretEvent e) {
-        ((JTextField)e.getSource()).postActionEvent();
-    }
-    
+        if(e.getSource() instanceof JTextField)
+            ((JTextField)e.getSource()).postActionEvent();
+    }    
 }

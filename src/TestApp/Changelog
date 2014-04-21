@@ -1,10 +1,5 @@
-Redid Simple Unit Tests Gui
+Started work on removing Submit Buttons and using the X instead.
 
-Simple Unit Tests Gui now is like a method call that you define.
-    Now uses Ghost Fields instead of JLabels that take up a ton of space.
-Added Ghost Text Field Class
-Fixed a few exceptions being thrown.
-Fixed the way I was relaying streams because I was an idiot and didn't fully understand streams (and also fixed a bunch of bugs as a result of that).
-Fixed compile error causing it to think a proccess was still running.
-Fixed memory leaks where popups would never get their memory reclaimed.
-Refactored ViewManager (Now possible to close overlays from it, lots of other improvements such as window tiling...)
+Still need to remove submit buttons.
+Fixed not reading description when loading Unit Test Gui.
+Fixed not updating in realtime from arguments under certain conditions.

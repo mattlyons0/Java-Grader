@@ -79,8 +79,10 @@ public class NameOverlay extends ContentOverlay{
     }
 
     @Override
-    public void switchedTo() {
-        
+    public void switchedTo() {}
+    @Override
+    public void isClosing(){
+        actionPerformed(new ActionEvent(submitButton,0,null));
     }
 
     @Override
