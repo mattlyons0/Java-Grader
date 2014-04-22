@@ -1,6 +1,3 @@
-Grade comments now supports multiple lines
+Fixed JUnit Test Error Logging
 
-Fixed unit testing not running.
-JUnit Tests now show method name and exception description if an error occurs.
-Unit testing now goes on multiple lines.
-Fixed a thread infinately looping after running a program, it now stops after the program stops like it should.
+JUnits are broken on windows Could not find class: JUnitTest

@@ -134,6 +134,7 @@ Use last directory when looking for unit tests.
 Config for output text color,error color, and info color.
 Dropdown boxes in config for class periods...
 Config for size http://docs.oracle.com/javase/tutorial/uiswing/lookandfeel/size.html
+Work with junit tests with packages
 
 demo mode
     Log them into a test dropbox with some test code and files

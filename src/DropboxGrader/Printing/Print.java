@@ -291,7 +291,6 @@ public class Print implements Printable {
                 if(split[index].contains("\n")){
                     int newLineIndex=split[index].indexOf("\n");
                     combined+=split[index].substring(0,newLineIndex+1)+" "; //space to add another character so the \n gets substringed out
-                    System.out.println("newline in "+split[index]);
                     break;
                 }
                 else if(index!=0){

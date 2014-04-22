@@ -1,0 +1,10 @@
+There were errors running JUnit Test 
+Errors: '' 
+Output: 'JUnit version 4.10
+Could not find class: JUnitTest
+
+Time: 0.001
+
+OK (0 tests)
+
+'

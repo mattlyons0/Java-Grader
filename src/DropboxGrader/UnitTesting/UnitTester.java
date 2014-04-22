@@ -169,11 +169,12 @@ public class UnitTester {
     private void runJUnitTest(DbxFile file,File unitTest){
         JavaRunner runner=gui.getRunner();
         String[] results=runner.runJUnit(unitTest,file);
-        if(!results[1].equals("")){
-            System.err.println("There were errors running JUnit Test.\n"+results[1]);
+        if(!results[1].equals("")||results[0].contains("Could not find class:")){
+            String error="There were errors running JUnit Test \nErrors: '"+results[1]+"' \nOutput: '"+results[0]+"'";
+            System.err.println(error);
             testResults.add(null);
             testStatus.add(null);
-            GuiHelper.alertDialog("There were errors running JUnit Test. "+results[1]);
+            GuiHelper.alertDialog(error);
             return;
         }
         System.out.println(Arrays.toString(results));
