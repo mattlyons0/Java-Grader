@@ -157,7 +157,7 @@ public class TextSpreadsheet {
         }
     }
     public boolean setGrade(TextName name,TextAssignment assignment,double grade,String comment, boolean overwrite){
-        comment=validateString(comment);
+        comment=validateString(comment,true);
         int assignmentIndex=assignments.indexOf(assignment);
         int nameIndex=names.indexOf(name);
         if(assignmentIndex==-1||nameIndex==-1){
@@ -181,7 +181,7 @@ public class TextSpreadsheet {
         return true;
     }
     public boolean setGradeAt(int nameIndex,int assignmentIndex,double grade,String comment,boolean overwrite){
-        comment=validateString(comment);
+        comment=validateString(comment,true);
         if(getGradeAt(nameIndex,assignmentIndex)!=null&&!overwrite){
             overwrite=GuiHelper.yesNoDialog("There is already a grade written: "+getGradeAt(nameIndex,assignmentIndex)+"\nWould you like to overwrite this grade?");
             if(!overwrite){
@@ -442,13 +442,18 @@ public class TextSpreadsheet {
         grades.add(new ArrayList());
     }
     private String validateString(String s){
+        return validateString(s,false);
+    }
+    private String validateString(String s,boolean returns){
         s=s.replace(COMMENTDELIMITER,"");
         s=s.replace(GRADEDELIMITER, "");
         s=s.replace(INDIVIDUALDELIMITER, "");
         s=s.replace(INDIVIDUALDELIMITER2, "");
         s=s.replace(INDIVIDUALDELIMITER3, "");
-        s=s.replace("\n", "");
-        s=s.replace("\r", "");
+        if(!returns){
+            s=s.replace("\n", "");
+            s=s.replace("\r", "");
+        }
         
         return s;
     }

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -137,17 +138,17 @@ public class UnitTester {
             if(assignment.junitTests!=null&&assignment.simpleUnitTests!=null)
                 totalTests-=assignment.simpleUnitTests.length;
             grade=successes/(double)totalTests*assignment.totalPoints;
-            String status="(Unit Tested) Passed "+successes+"/"+totalTests+", ";
+            String status="(Unit Tested) Passed "+successes+"/"+totalTests+", \n";
             for(int testNum=0;testNum<totalTests;testNum++){
                 if(testNum<testStatus.size()){
-                    status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" ";
+                    status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" \n";
                 }
                 else if(assignment.simpleUnitTests!=null&&testNum<assignment.simpleUnitTests.length){
                     String argTypes=assignment.simpleUnitTests[testNum].getArgumentTypesString();
                     if(argTypes==null)
                         argTypes="";
                     String method=assignment.simpleUnitTests[testNum].getMethodName()+"("+argTypes+")";
-                    status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist ";
+                    status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist \n";
                 }
                 else if(assignment.junitTests!=null&&(assignment.simpleUnitTests==null||testNum>=assignment.simpleUnitTests.length)){
                     
@@ -157,6 +158,7 @@ public class UnitTester {
             Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
             if(!errorTesting&&(gradeNum==null||gradeNum!=grade)){
                 grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, (gradeNum!=null));
+                gui.repaint();
             }
 
             //reset test data for the next person
@@ -174,7 +176,7 @@ public class UnitTester {
             GuiHelper.alertDialog("There were errors running JUnit Test. "+results[1]);
             return;
         }
-        System.out.println(results);
+        System.out.println(Arrays.toString(results));
         if(results==null){
             System.err.println("Error getting results from JUnit Test, result was null.");
             return;
@@ -213,19 +215,20 @@ public class UnitTester {
                 int index=testStatus.size()-(testStatus.size()-error);
                 String statusText;
                 if(junitErrorNum(line)!=-1)
-                    statusText=" "+line.substring(line.indexOf("("));
+                    statusText=" while running test '"+line.substring(line.indexOf(") ")+2,line.indexOf("("))+"'"; //extract test method name
                 else{
-                    statusText=line;
+                    statusText=line.substring(line.indexOf(":")+1); //extract exception
                     index=lastIndex;
                 }
                 String currentStatus=testStatus.get(index);
                 if(!currentStatus.equals("Failed")){ //first 2 lines of error get put in the comment
-                    statusText=currentStatus+statusText;
                     lastIndex=-1;
                 }
                 else
                     lastIndex=index;
+                statusText=currentStatus+statusText;
                 testStatus.set(index,statusText);
+                System.out.println("Junit: "+statusText);
             }
         }
     }

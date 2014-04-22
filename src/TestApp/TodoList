@@ -89,7 +89,6 @@ Make code sort take up less space (maybe put it in an overlay)
 Ctrl Z in gradebook
 Stop threads instead of System.exit(0) in guiListener.
     stop threads in general when they arent needed
-    fix 15% cpu usage for doing nothing
 Printing Modes:
     Print table
     Print overall grade/percentage
@@ -130,14 +129,11 @@ Upload changed files back to dropbox (or email to students)
 Occasional no java files found when working with queues
 Double check for delimiters being used in strings (especially in method testing)
 Auto retry when there are problems with dropbox and show a message saying we are having trouble
-Allow line breaks in comments and change comment to a text area
-Investigate better JUnit error output.
-State when generating print preview instead of freezing up the main thread.
+State when generating print preview instead of freezing up the gui thread.
 Use last directory when looking for unit tests.
 Config for output text color,error color, and info color.
 Dropdown boxes in config for class periods...
-Remove all submit buttons
-Convert workerthread into threadpool
+Config for size http://docs.oracle.com/javase/tutorial/uiswing/lookandfeel/size.html
 
 demo mode
     Log them into a test dropbox with some test code and files

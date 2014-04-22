@@ -15,7 +15,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 
 /**
  *
@@ -26,7 +28,7 @@ public class GradeOverlay extends ContentOverlay{
     private Runnable callback;
     
     private JTextField gradeField;
-    private JTextField commentField;
+    private JTextPane commentField;
     
     private Double grade;
     private String comment;
@@ -43,8 +45,9 @@ public class GradeOverlay extends ContentOverlay{
         
         gradeField=new JTextField(10);
         gradeField.addActionListener(this);
-        commentField=new JTextField(20);
-        commentField.addActionListener(this);
+        commentField=new JTextPane();
+        JScrollPane scrollComment=new JScrollPane(commentField);
+        scrollComment.setMinimumSize(new Dimension(200,100));
         if(grade!=null)
             gradeField.setText(grade+"");
         if(comment!=null)
@@ -64,7 +67,7 @@ public class GradeOverlay extends ContentOverlay{
         add(new JLabel("Comment: "),cons);
         cons.weighty=10;
         cons.gridx=3;
-        add(commentField,cons);
+        add(scrollComment,cons);
         
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));

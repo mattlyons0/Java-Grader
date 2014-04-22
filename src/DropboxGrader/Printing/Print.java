@@ -275,6 +275,8 @@ public class Print implements Printable {
         return true;
     }
     private String[] lineWrap(String str,int width,Graphics2D g){
+        str=str.replaceAll("\r", "\n");
+        
         int lineWidth=g.getFontMetrics().stringWidth(str);
         double lines=lineWidth/(double)width;
         if(lines<=1){
@@ -286,14 +288,25 @@ public class Print implements Printable {
         for(int i=0;i<split.length;i++){
             String combined="";
             for(int index=0;index<i;index++){
-                if(index!=0){
+                if(split[index].contains("\n")){
+                    int newLineIndex=split[index].indexOf("\n");
+                    combined+=split[index].substring(0,newLineIndex+1)+" "; //space to add another character so the \n gets substringed out
+                    System.out.println("newline in "+split[index]);
+                    break;
+                }
+                else if(index!=0){
                     combined+=" ";
                 }
+                if(!split[index].contains("\n"))
                 combined+=split[index];
             }
             int curWidth=g.getFontMetrics().stringWidth(combined);
-            if(curWidth<=width){
+            if(curWidth<=width&&!combined.contains("\n")){
                 lastString=combined;
+            }
+            else if(combined.contains("\n")){
+                lastString=combined;
+                break;
             }
             else{
                 if(lastString==null){ //there were no spaces so we will just cut it off
@@ -301,7 +314,7 @@ public class Print implements Printable {
                 }
                 break;
             }
-        }
+       }
         String[] otherLines=lineWrap(str.substring(lastString.length()),width,g);
         String[] merged=new String[otherLines.length+1];
         for(int i=0;i<merged.length;i++){
@@ -312,8 +325,7 @@ public class Print implements Printable {
                 merged[i]=otherLines[i-1];
             }
         }
-        return merged;
-        
+        return merged;       
     }
     public boolean print(){
         job.setPrintable(this);

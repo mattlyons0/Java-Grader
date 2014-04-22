@@ -28,6 +28,7 @@ public class TextGrade {
         try{
             grade=Double.parseDouble(text[0]);
             comment=text[1];
+            comment=comment.replaceAll(TextSpreadsheet.INDIVIDUALDELIMITER2, "\n");
             inGradebook=Boolean.parseBoolean(text[2]);
         } catch(Exception e){
             //System.err.println("Error reading grade from \""+fromText+"\": "+e);
@@ -38,7 +39,8 @@ public class TextGrade {
     public String toText(){
         String text="";
         text+=grade+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=comment+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=comment.replaceAll("\n", TextSpreadsheet.INDIVIDUALDELIMITER2).replaceAll("\r", TextSpreadsheet.INDIVIDUALDELIMITER2)
+                +TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=inGradebook;
         
         return text;

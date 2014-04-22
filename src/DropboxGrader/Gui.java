@@ -130,12 +130,11 @@ public class Gui extends JFrame implements ActionListener{
     private void createSession(){
         fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
         workerThread.setFileManager(fileManager);
+        grader=new TextGrader(fileManager,client,Gui.this);
+        fileManager.setGrader(grader);
         workerThread.invokeLater(new Runnable() {
             @Override
             public void run() {
-                grader=new TextGrader(fileManager,client,Gui.this);
-                fileManager.setGrader(grader);
-
                 gradebookView=new GradebookView(Gui.this);
                 viewManager.addView(gradebookView);
 
@@ -220,6 +219,9 @@ public class Gui extends JFrame implements ActionListener{
             JSplitPane graderDivider=graderView.getDivider();
             if(graderDivider!=null)
                 Config.dividerLocation=graderDivider.getDividerLocation();
+            JSplitPane bottomDivider=graderView.getBottomDivider();
+            if(bottomDivider!=null)
+                Config.bottomDividerLocation=bottomDivider.getDividerLocation();
         }
         if(viewManager!=null){
             if(viewManager.selectedViewNameEquals("ConfigView")){

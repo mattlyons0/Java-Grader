@@ -11,6 +11,7 @@ import DropboxGrader.DbxFile;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
+import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrader;
@@ -29,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -51,10 +53,11 @@ public class GraderView extends ContentView{
     private JTerminal codeOutputArea;
     private JScrollPane codeOutputScroll;
     private JTextField gradeNumber;
-    private JTextField gradeComment;
+    private JTextPane gradeComment;
     private JButton recordGradeButton;
     private JLabel gradeStatus;
     private JSplitPane graderDivider;
+    private JSplitPane gradeWriteDivider;
     private JPanel codeSortPanel;
     private JComboBox codeSortMode;
     private JComboBox codeSortOrder;
@@ -140,10 +143,8 @@ public class GraderView extends ContentView{
         cons.gridx=1;
         cons.ipadx=10;
         runPanel.add(iterationsField,cons);
-        JPanel gradePanel=new JPanel();
-        gradePanel.setLayout(new GridBagLayout());
-        JLabel gradeLabel1=new JLabel("Grade: ");
-        gradeNumber=new JTextField(3);
+        
+        gradeNumber=new JGhostTextField(6,"Grade");
         gradeNumber.setText("");
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
         gradeNumber.setMinimumSize(new Dimension(30,30));
@@ -165,27 +166,47 @@ public class GraderView extends ContentView{
             }
         });
         JLabel gradeLabel2=new JLabel(" Comment: ");
-        gradeComment=new JTextField(25);
+        gradeComment=new JTextPane();
         gradeComment.setText("");
-        gradeComment.setHorizontalAlignment(JTextField.CENTER);
         gradeComment.setMinimumSize(new Dimension(250,30));
-        gradeComment.addActionListener(this);
+        JScrollPane gradeCommentScroll=new JScrollPane(gradeComment);
+        
+        JPanel gradePanel=new JPanel();
+        gradePanel.setLayout(new GridBagLayout());
         cons=new GridBagConstraints();
+        cons.fill=GridBagConstraints.NONE;
+        cons.anchor=GridBagConstraints.WEST;
+        cons.weightx=0.01;
+        cons.weighty=1;
+        cons.gridx=0;
+        cons.gridy=0;
+        gradePanel.add(new JLabel("Grade: "),cons);
+        cons.gridx++;
+        gradePanel.add(gradeNumber,cons);
+        cons.gridx++;
+        gradePanel.add(gradeLabel2,cons);
+        cons.gridx++;
+        cons.weighty=99;
         cons.fill=GridBagConstraints.BOTH;
         cons.weightx=1;
-        gradePanel.add(gradeLabel1,cons);
-        cons.gridx=1;
-        gradePanel.add(gradeNumber,cons);
-        cons.gridx=2;
-        gradePanel.add(gradeLabel2,cons);
-        cons.gridx=3;
-        gradePanel.add(gradeComment,cons);
-        JPanel gradeButtonPanel=new JPanel();
-        gradeButtonPanel.setLayout(new FlowLayout());
+        gradePanel.add(gradeCommentScroll,cons);
+        cons.gridx++;
+        cons.weightx=1000;
+        gradePanel.add(new JLabel(" "));
+        cons.weightx=0.01;
+        cons.fill=GridBagConstraints.NONE;
+        cons.gridx++;
+        cons.anchor=GridBagConstraints.EAST;
+        cons.weightx=1;
         recordGradeButton=new JButton("Grade");
         recordGradeButton.addActionListener(this);
-        gradeButtonPanel.add(gradeStatus);
-        gradeButtonPanel.add(recordGradeButton);
+        gradePanel.add(gradeStatus,cons);
+        cons.gridx++;
+        gradePanel.add(recordGradeButton,cons);
+        
+        gradeWriteDivider=new JSplitPane(JSplitPane.VERTICAL_SPLIT,graderDivider,gradePanel);
+        gradeWriteDivider.setDividerLocation(Config.bottomDividerLocation);
+        gradeWriteDivider.setContinuousLayout(true);
         
         cons.fill=GridBagConstraints.NONE;
         cons.anchor=GridBagConstraints.WEST;
@@ -217,19 +238,7 @@ public class GraderView extends ContentView{
         cons.gridx=0;
         cons.gridy=1;
         cons.weighty=0.66;
-        add(graderDivider,cons);
-        
-        cons.fill=GridBagConstraints.NONE;
-        cons.anchor=GridBagConstraints.WEST;
-        cons.gridx=0;
-        cons.gridy=2;
-        cons.weighty=GridBagConstraints.RELATIVE;
-        cons.gridwidth=1;
-        add(gradePanel,cons);
-        
-        cons.anchor=GridBagConstraints.EAST;
-        cons.gridx=1;
-        add(gradeButtonPanel,cons);
+        add(gradeWriteDivider,cons);
     }
 
     @Override
@@ -335,6 +344,10 @@ public class GraderView extends ContentView{
             graderDivider.setDividerLocation(gui.getRootPane().getSize().width-50);
             Config.dividerLocation=gui.getRootPane().getSize().width-50;
         }
+        if(gradeWriteDivider.getDividerLocation()>gui.getRootPane().getSize().height-50){
+            gradeWriteDivider.setDividerLocation(gui.getRootPane().getSize().height-50);
+            Config.bottomDividerLocation=gui.getRootPane().getSize().height-50;
+        }
         if(grade!=null)
             gradeNumber.setText(grade+"");
         else
@@ -368,6 +381,9 @@ public class GraderView extends ContentView{
     }
     public JSplitPane getDivider(){
         return graderDivider;
+    }
+    public JSplitPane getBottomDivider(){
+        return gradeWriteDivider;
     }
     public JavaCodeBrowser getCodeBrowser(){
         return javaCode;

@@ -1,15 +1,6 @@
-Improved startup time by about 50%
+Grade comments now supports multiple lines
 
-Removed submit buttons (now the exit button submits)
-Fixed screen position/size saving.
-Fixed crashes starting up.
-JFrame opens faster.
-    Now opens blank, to shave off 100ms on a fast computer.
-Startup time greatly improved
-    Loading views and determining window size is now done in parallel
-    50% speed increase in loading time (excluding things happening after dropbox connection)
-    Threaded downloading of grades on startup (saves about 700ms on a fast computer)
-    Entire startup now takes about half the time it did before (1.7 seconds instead of 4).
-        And there are several states where it now shows the progress of opening.
-    Filebrowser now shows before data is populated
-    Grades are now recived and parsed in the background (and don't hold up filebrowser).
+Fixed unit testing not running.
+JUnit Tests now show method name and exception description if an error occurs.
+Unit testing now goes on multiple lines.
+Fixed a thread infinately looping after running a program, it now stops after the program stops like it should.

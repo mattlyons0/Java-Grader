@@ -59,7 +59,7 @@ public class JavaRunner implements Runnable{
             if(running!=null){
                 try{
                     int code=running.exitValue();
-                    
+                    relay.stop();
                     try {
                         //otherwise output goes after run finished.
                         Thread.sleep(1000); //otherwise output goes after run finished.

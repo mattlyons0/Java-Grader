@@ -27,7 +27,9 @@ public class InputRelayer implements Runnable{
     public InputRelayer(JTerminal t){
         terminal=t;
         looping=false;
-        new Thread(this).start();
+        Thread thread=new Thread(this);
+        thread.setName("Input Relayer");
+        thread.start();
     }
     public void stop(){
         looping=false;

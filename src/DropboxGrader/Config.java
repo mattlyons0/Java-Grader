@@ -35,6 +35,7 @@ public class Config {
     public static boolean autoRun;
     public static int runTimes;
     public static int dividerLocation;
+    public static int bottomDividerLocation;
     public static int codeSortMode;
     public static int codeSortOrder;
     
@@ -62,6 +63,7 @@ public class Config {
         //GradingPanel
         autoRun=false;
         runTimes=1;
+        bottomDividerLocation=(int)(Toolkit.getDefaultToolkit().getScreenSize().height*5.0/6); //5/6ths
         dividerLocation=(int)(Toolkit.getDefaultToolkit().getScreenSize().width*2.0/3); //2/3rds
         codeSortMode=0;
         codeSortOrder=0;
@@ -98,6 +100,7 @@ public class Config {
             jUnitJarLocation=vars[18];
             jUnitHamcrestJarLocation=vars[19];
             jUnitTestsLocation=vars[20];
+            bottomDividerLocation=Integer.parseInt(vars[21]);
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
@@ -124,6 +127,7 @@ public class Config {
         config=append(config,jUnitJarLocation);
         config=append(config,jUnitHamcrestJarLocation);
         config=append(config,jUnitTestsLocation);
+        config=append(config,bottomDividerLocation);
         
         DbxSession.writeToFile(CONFIGFILE, config);
     }
