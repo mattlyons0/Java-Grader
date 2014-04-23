@@ -31,16 +31,17 @@ public class TestMethods {
 //        System.out.println(m2);
 //    }
     public static void testJUnit(){
-        String[] args={"java","-cp","/home/matt/Downloads/junit-4.11.jar:"
-                + "/home/matt/Downloads/hamcrest-core-1.3.jar:/home/matt/NetBeansProjects/Java-Grader/test/:"
-                + "/home/matt/NetBeansProjects/Java-Grader/build/classes/",
+        String[] args={"java","-cp","\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\hamcrest-core-1.3.jar;"+
+                "\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\junit-4.11.jar;\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\TestMethods.class;\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\JUnitTest.class",
+//                + "downloads\\JUnitTests\\;"
+//                + "downloads\\P2_MattLyons_50_JUnitTest\\",
                 "org.junit.runner.JUnitCore","JUnitTest"};
-                ToolProvider.getSystemJavaCompiler().run(null, System.out, System.err,
-                        args[1],args[2],"/home/matt/NetBeansProjects/Java-Grader/test/"+args[4]+".java"
-                                ,"/home/matt/NetBeansProjects/Java-Grader/src/TestApp/TestMethods.java");
+//                ToolProvider.getSystemJavaCompiler().run(null, System.out, System.err,
+//                        args[1],args[2],"/home/matt/NetBeansProjects/Java-Grader/test/"+args[4]+".java"
+//                                ,"/home/matt/NetBeansProjects/Java-Grader/src/TestApp/TestMethods.java");
         ProcessBuilder builder=new ProcessBuilder(args);
-        File dir=new File("/home/matt/NetBeansProjects/Java-Grader/test/");
-            builder.directory(dir);
+        File dir=new File("\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\");
+            //builder.directory(dir);
             builder.inheritIO();
             System.out.println("Running from: "+dir+"\nArgs: "+Arrays.toString(args));
         try {
