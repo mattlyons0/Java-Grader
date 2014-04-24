@@ -1,3 +1,7 @@
-Fixed JUnit Test Error Logging
+Added way to download and modify JUnit Test (and even listens for modifications and uploads when modifications exist)
 
-JUnits are broken on windows Could not find class: JUnitTest
+    The JUnit modification is really really fancy.
+Now handles JUnit tests with packages
+Closing the main application now submits data from all open overlays
+Realized JUnit only fails under certain configurations
+    Need to test more under those configurations

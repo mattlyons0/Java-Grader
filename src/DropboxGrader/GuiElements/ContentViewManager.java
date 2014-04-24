@@ -69,6 +69,15 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         constraints.weighty=1;
         constraints.fill=GridBagConstraints.BOTH;
     }
+    public void isClosing(){
+        for(JInternalFrame frame:getAllFramesInLayer(JLayeredPane.POPUP_LAYER)){
+            if(frame instanceof ContentOverlay){
+                ContentOverlay overlay=(ContentOverlay) frame;
+                overlay.isClosing();
+                overlay.dispose();
+            }
+        }
+    }
     public void addView(ContentView v){
         v.setup();
         views.add(v);

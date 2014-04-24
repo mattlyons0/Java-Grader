@@ -120,17 +120,24 @@ public class JavaRunner implements Runnable{
         running=null;     
     }
     //this has even more copied code from runTest() I really need to merge these...
-    public String[] runJUnit(File unitTest,DbxFile testedFile){
+    public String[] runJUnit(JavaFile compileTest,JavaFile runTest,DbxFile testedFile){
         if(!new File(Config.jUnitHamcrestJarLocation).exists()||!new File(Config.jUnitJarLocation).exists()){
             System.err.println("Error when JUnit testing. Hamcrest or JUnit Jar is missing.");
             return new String[]{null,"The Hamcrest or JUnit Jar is missing, Configure their paths in the settings menu."};
         }
-        char sym=onWindows?';':':'; //unix : windows ;
-        String unitTestName=unitTest.getName().substring(0,unitTest.getName().length()-5); //remove .java
+        char sym=onWindows?';':':'; //unix : windows ; (used to seperate classpaths)
+        String unitTestName=runTest.getName().substring(0,runTest.getName().length()-5); //remove .java
+        String unitTestPackage=runTest.packageFolder();
+        if(unitTestPackage!=null){
+            unitTestName=unitTestPackage.replaceAll(Pattern.quote("/"),".")+"."+unitTestName;
+        }
         String[] args={"java","-cp",new File(Config.jUnitJarLocation).getAbsolutePath()+sym+
                 new File(Config.jUnitHamcrestJarLocation).getAbsolutePath()+sym+
-                testedFile.getFile().getAbsolutePath()+sym+unitTest.getParentFile().getAbsolutePath(),
+                testedFile.getFile().getAbsolutePath()+sym+runTest.getParentFile().getAbsolutePath(),
                 "org.junit.runner.JUnitCore",unitTestName};
+        String compileArgs=new File(Config.jUnitJarLocation).getAbsolutePath()+sym+
+                new File(Config.jUnitHamcrestJarLocation).getAbsolutePath()+sym+
+                testedFile.getFile().getAbsolutePath()+sym+compileTest.getParentFile().getAbsolutePath();
         
         JavaFile[] files=testedFile.getJavaFiles();
         boolean containsPackages=false;
@@ -188,10 +195,10 @@ public class JavaRunner implements Runnable{
                 path="";
             }
         }
-        filePaths[1]=args[2]; //careful if removed, referenced in the run loop.
+        filePaths[1]=compileArgs; //careful if removed, referenced in the run loop.
         filePaths[2]="-sourcepath";
         filePaths[3]=filePaths[1];
-        filePaths[4]=unitTest.getAbsolutePath();
+        filePaths[4]=compileTest.getAbsolutePath();
         for(int i=manualArgNum;i<filePaths.length;i++){
             filePaths[i]=files[i-manualArgNum].getAbsolutePath();
         }

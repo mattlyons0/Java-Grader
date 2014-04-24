@@ -12,15 +12,18 @@ import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.JavaClass;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
+import DropboxGrader.UnitTesting.UnitTester;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxWriteMode;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -28,9 +31,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -66,7 +78,10 @@ public class UnitTestPanel extends JPanel implements ActionListener{
     //JUnitTest
     private ArrayList<JLabel> jFilenames;
     private ArrayList<JButton> jFileChoosers;
+    private ArrayList<JButton> downloadJTests;
     private ArrayList<JButton> removeJTestButtons;
+    
+    private ArrayList<WatchKey> watchKeys;
     
     //Data
     private ArrayList<UnitTest> unitTests;
@@ -114,8 +129,11 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         descriptionValues=new ArrayList();
         removeTestButtons=new ArrayList();
         
+        watchKeys=new ArrayList();
+        
         jFilenames=new ArrayList();
         jFileChoosers=new ArrayList();
+        downloadJTests=new ArrayList();
         removeJTestButtons=new ArrayList();
         
         
@@ -212,6 +230,9 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 descriptionValues.add(descriptionField);
                 removeTestButtons.add(removeButton);
                 
+                if(watchKeys.size()<=i)
+                    watchKeys.add(null);
+                
                 //set buttons text to use data from test
                 setAccessType(null,null,i);
                 setModifierType(null,-1,i);
@@ -267,6 +288,14 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 chooser.setActionCommand("BrowseJUnitTest"+i);
                 chooser.addActionListener(this);
                 jFileChoosers.add(chooser);
+                JButton download=new JButton("Edit");
+                download.setToolTipText("Download JUnit test file so it can be changed.\nThe test will automatically be uploaded after it is modified.");
+                download.setActionCommand("DownloadJUnitTest"+i);
+                download.addActionListener(this);
+                download.setEnabled(false);
+                downloadJTests.add(download);
+                if(!junitTests.get(i).equals(""))
+                    download.setEnabled(true);
                 JButton remove=new JButton("-");
                 remove.setToolTipText("Remove This Test");
                 remove.setActionCommand("RemoveJUnitTest"+i);
@@ -283,9 +312,11 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             cons.gridx=1;
             add(jFileChoosers.get(i),cons);
             cons.gridx=2;
+            add(downloadJTests.get(i),cons);
+            cons.gridx=3;
             add(removeJTestButtons.get(i),cons);
             if(i==junitTests.size()-1){
-                cons.gridx=3;
+                cons.gridx=4;
                 add(addJTestButton,cons);
             }                
             
@@ -328,6 +359,49 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             gui.getViewManager().removeOverlay("MethodAccessOverlay"+i);
             gui.getViewManager().removeOverlay("MethodModifiersOverlay"+i);
             gui.getViewManager().removeOverlay("MethodArgumentsOverlay"+i);
+        }
+        for(int i=0;i<junitTests.size();i++){
+            final String remoteTestName=junitTests.get(i);
+            WatchKey key=watchKeys.get(i);
+            if(key!=null){
+                List<WatchEvent<?>> events=key.pollEvents();
+                if(events!=null&&!events.isEmpty()){
+                    for(WatchEvent<?> event:events){
+                        final File localFile;
+                        String[] testPaths=remoteTestName.split(Pattern.quote("/"));
+                        String testName;
+                        if(testPaths.length==0)
+                            testName=remoteTestName;
+                        else
+                            testName=testPaths[testPaths.length-1];
+                        localFile=new File(UnitTester.unitTestDirectory+"/"+testName);
+                        final Path changed = (Path) event.context();
+                        if (changed.endsWith(localFile.getName())) {
+                            gui.getBackgroundThread().invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try{
+                                        DbxClient client=gui.getDbxSession().getClient();
+                                        if(!remoteTestName.equals("")&&client.getMetadata(remoteTestName)!=null){
+                                            client.delete(remoteTestName);
+                                        }
+                                        FileInputStream sheetStream = new FileInputStream(localFile);
+                                        client.uploadFile(remoteTestName, DbxWriteMode.force(), localFile.length(), sheetStream);
+                                        sheetStream.close();
+                                    } catch(DbxException|IOException e){
+                                        System.err.println("Error uploading unit test. "+(localFile!=null?localFile.getName():null)+"\n");
+                                        GuiHelper.alertDialog("<html>Error Uploading "+(localFile!=null?localFile.getName():null)+" to Dropbox.<br/>"
+                                                + "Dropbox is probably under heavy load or down.<br/>"+e.getMessage()+"</html>");
+                                        e.printStackTrace();
+                                    }
+                                    System.out.println("upload complete");
+                                }
+                            });
+                        }
+                    }
+                }
+                key.cancel();
+            }
         }
     }
     public void setAccessType(MethodAccessType type,CheckboxStatus status,int testIndex){
@@ -450,6 +524,9 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             expectedValues.remove(testNum);
             removeTestButtons.remove(testNum);
             descriptionValues.remove(testNum);
+            if(watchKeys.get(testNum)!=null)
+                watchKeys.get(testNum).cancel();
+            watchKeys.remove(testNum);
             
             gui.getViewManager().removeOverlay("MethodAccessOverlay"+testNum);
             gui.getViewManager().removeOverlay("MethodModifiersOverlay"+testNum);
@@ -470,6 +547,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 final File file=fc.getSelectedFile();
                 final String oldFile=junitTests.get(id);
                 final JLabel label=jFilenames.get(id);
+                final JButton downloadButton=downloadJTests.get(id);
                 junitTests.set(id, Config.jUnitTestsLocation+"/"+file.getName());
                 label.setText(jLabelText+file.getName());
                 final String remoteNameF=junitTests.get(id);
@@ -508,6 +586,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                             if(!junitTests.get(id).equals(remoteName))
                                 junitTests.set(id, remoteName);
                             label.setText(jLabelText+remoteName);
+                            downloadButton.setEnabled(true);
                             FileInputStream sheetStream = new FileInputStream(file);
                             client.uploadFile(remoteName, DbxWriteMode.force(), file.length(), sheetStream);
                             sheetStream.close();
@@ -515,6 +594,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                             System.err.println("Error uploading unit test.\n"+e);
                             GuiHelper.alertDialog("<html>Error Uploading "+file.getName()+" to Dropbox.<br/>"+e+"</html>");
                             label.setText(jLabelText);
+                            downloadButton.setEnabled(false);
                             e.printStackTrace();
                         }
                     }
@@ -524,6 +604,10 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         else if(e.getActionCommand().startsWith("RemoveJUnitTest")){
             final int id=GradebookTable.extractNumber("RemoveJUnitTest", e.getActionCommand());
             final String path=junitTests.get(id);
+            jFilenames.remove(id);
+            jFileChoosers.remove(id);
+            downloadJTests.remove(id);
+            removeJTestButtons.remove(id);
             //check if any other tests use this path
             boolean shouldDelete=true;
             loop:
@@ -575,6 +659,116 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             MethodArgumentsOverlay overlay=new MethodArgumentsOverlay(gui,this,index);
             overlay.setUnitTest(unitTests.get(index));
             gui.getViewManager().addOverlay(overlay);
+        }
+        else if(e.getActionCommand().startsWith("DownloadJUnitTest")){
+            final int index=GradebookTable.extractNumber("DownloadJUnitTest",e.getActionCommand());
+            if(watchKeys.get(index)==null){
+                gui.getBackgroundThread().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String testLoc=junitTests.get(index);
+                            if(!testLoc.equals("")&&gui.getDbxSession().getClient().getMetadata(testLoc)!=null){
+                                String[] testPaths=testLoc.split(Pattern.quote("/"));
+                                String testName;
+                                if(testPaths.length==0)
+                                    testName=testLoc;
+                                else
+                                    testName=testPaths[testPaths.length-1];
+                                String localTestLoc=UnitTester.unitTestDirectory+"/"+testName;
+                                try{
+                                    FileOutputStream f = new FileOutputStream(localTestLoc);
+                                    gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
+                                    f.close();
+
+                                    File testFile=new File(localTestLoc);
+                                    try{
+                                        Path testPath=testFile.getParentFile().toPath();
+                                        WatchService watcher=FileSystems.getDefault().newWatchService();
+                                        WatchKey key=testPath.register(watcher, ENTRY_MODIFY);
+                                        if(watchKeys.get(index)==null)
+                                            watchKeys.set(index, key);
+                                        else{
+                                            save();
+                                            watchKeys.set(index, key);
+                                        }
+                                    } catch(IOException e){
+                                        System.err.println("Error attaching watch proccess to "+testFile);
+                                        e.printStackTrace();
+                                        GuiHelper.alertDialog("Error watching file for changes.\nYou will have to re-upload the test after making modifications to it.");
+                                    }
+
+                                    if(Desktop.isDesktopSupported()){
+                                        Desktop desk=Desktop.getDesktop();
+                                        int choice=-2;
+                                        if(desk.isSupported(Desktop.Action.OPEN)&&desk.isSupported(Desktop.Action.BROWSE))
+                                            choice=GuiHelper.multiOptionPane("How would you like to edit the JUnit Test?",new String[]{"Open","Open Directory"});
+                                        else if(desk.isSupported(Desktop.Action.OPEN))
+                                            choice=0;
+                                        else if(desk.isSupported(Desktop.Action.BROWSE))
+                                            choice=1;
+
+                                        if(choice==0)
+                                            desk.browse(testFile.toURI());
+                                        else if(choice==1)
+                                            desk.browse(testFile.getParentFile().toURI());
+                                        else if(choice==-1){//dont show more stuff
+                                            watchKeys.get(index).cancel();
+                                            watchKeys.set(index, null);
+                                        }
+                                        else
+                                            GuiHelper.alertDialog("Test was downloaded to "+new File(localTestLoc).getAbsolutePath());
+                                    } else
+                                        GuiHelper.alertDialog("Test was downloaded to "+new File(localTestLoc).getAbsolutePath());
+                                } catch(IOException ex){
+                                    System.err.println("Error downloading unit test file.\n");
+                                    ex.printStackTrace();
+                                    GuiHelper.alertDialog("Error downloading the unit test file.\n\n"+ex);
+                                }
+                            }
+                            else{
+                                GuiHelper.alertDialog("JUnit Test Doesn't Exist!");
+                            }
+                        } catch (DbxException ex) {
+                            System.err.println("Error communicating with dropbox when downloading unit test file.\n");
+                            ex.printStackTrace();
+                            GuiHelper.alertDialog("Error communicating with dropbox.\nDropbox may be under heavy load or down.");
+                        }
+                    }
+                });
+            } else{ //we already downloaded it
+                String testLoc=junitTests.get(index);
+                String[] testPaths=testLoc.split(Pattern.quote("/"));
+                String testName;
+                if(testPaths.length==0)
+                    testName=testLoc;
+                else
+                    testName=testPaths[testPaths.length-1];
+                String localTestLoc=UnitTester.unitTestDirectory+"/"+testName;
+                File testFile=new File(localTestLoc);
+                Desktop desk=Desktop.getDesktop();
+                int choice=-2;
+                if(desk.isSupported(Desktop.Action.OPEN)&&desk.isSupported(Desktop.Action.BROWSE))
+                    choice=GuiHelper.multiOptionPane("How would you like to edit the JUnit Test?",new String[]{"Open","Open Directory"});
+                else if(desk.isSupported(Desktop.Action.OPEN))
+                    choice=0;
+                else if(desk.isSupported(Desktop.Action.BROWSE))
+                    choice=1;
+                try{
+                    if(choice==0)
+                        desk.browse(testFile.toURI());
+                    else if(choice==1)
+                        desk.browse(testFile.getParentFile().toURI());
+                    else if(choice==-1){//dont show more stuff
+                        watchKeys.get(index).cancel();
+                        watchKeys.set(index, null);
+                    }
+                    else
+                        GuiHelper.alertDialog("Test was downloaded to "+new File(localTestLoc).getAbsolutePath());
+                } catch(IOException ex){
+                    GuiHelper.alertDialog("Test was downloaded to "+new File(localTestLoc).getAbsolutePath());
+                }
+            }
         }
     }
 }

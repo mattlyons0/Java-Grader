@@ -1,10 +1,2 @@
-There were errors running JUnit Test 
-Errors: '' 
-Output: 'JUnit version 4.10
-Could not find class: JUnitTest
-
-Time: 0.001
-
-OK (0 tests)
-
-'
+There are files that need to be downloaded in order to be unit tested. P2_BenRichards_25_UnitTestTest.zip
+There are files that need to be downloaded in order to be unit tested. P2_MattLyons_25_UnitTestTest.zip

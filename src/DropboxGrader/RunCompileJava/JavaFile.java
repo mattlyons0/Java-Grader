@@ -106,7 +106,7 @@ public class JavaFile extends File{
             }
             reader.close();
             //check if initial package is wrong and attempt to fix that
-            if(!dbxFile.changedFolder()){
+            if(dbxFile!=null&&!dbxFile.changedFolder()){
                 moved=false;
                 File parent=getParentFile();
                 if(packageFolder!=null&&parent!=null&&parent.isDirectory()){
@@ -157,7 +157,7 @@ public class JavaFile extends File{
                             }
                         }
                     }
-                if(moved){
+                if(moved&&dbxFile!=null){
                     dbxFile.movedFiles();
                 }
             }

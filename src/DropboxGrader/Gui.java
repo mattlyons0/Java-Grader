@@ -224,9 +224,9 @@ public class Gui extends JFrame implements ActionListener{
                 Config.bottomDividerLocation=bottomDivider.getDividerLocation();
         }
         if(viewManager!=null){
-            if(viewManager.selectedViewNameEquals("ConfigView")){
+            if(viewManager.selectedViewNameEquals("ConfigView"))
                 configView.saveData();
-            }
+            viewManager.isClosing();
         }
     }
     public WorkerThread getBackgroundThread(){

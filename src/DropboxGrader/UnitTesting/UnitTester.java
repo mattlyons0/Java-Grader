@@ -41,12 +41,17 @@ public class UnitTester {
     private ArrayList<Boolean> testResults;
     private ArrayList<String> testStatus;
     
+    public static String unitTestDirectory;
+    
     public UnitTester(Gui gui,TextAssignment assign){
         this.gui=gui;
         assignment=assign;
         
         testResults=new ArrayList();
         testStatus=new ArrayList();
+        
+        unitTestDirectory=gui.getManager().getDownloadFolder()+"/JUnitTests/";
+        new File(unitTestDirectory).mkdir();
     }
     public void runTests(){
         while(currentFile!=null){
@@ -93,13 +98,18 @@ public class UnitTester {
                                 testName=testLoc;
                             else
                                 testName=testPaths[testPaths.length-1];
-                            String localTestLoc=gui.getManager().getDownloadFolder()+"/"+testName;
+                            String localTestLoc=unitTestDirectory+"/"+testName;
                             try{
                                 FileOutputStream f = new FileOutputStream(localTestLoc);
                                 System.out.println(testLoc);
                                 gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
                                 f.close();
-                                runJUnitTest(file,new File(localTestLoc));
+                                JavaFile runFile=new JavaFile(new File(localTestLoc),null);
+                                JavaFile compileFile=runFile;
+                                if(runFile.packageFolder()!=null){ //we gotta verify its in the right directory
+                                    compileFile=validateDirectory(runFile,null); //moves it to the right directory, but doesnt update pointer so that it gets called correctly
+                                }
+                                runJUnitTest(file,compileFile,runFile);
                             } catch(IOException ex){
                                 System.err.println("Error downloading unit test file.\n"+ex);
                                 ex.printStackTrace();
@@ -166,9 +176,9 @@ public class UnitTester {
             testStatus.clear();
         }
     }
-    private void runJUnitTest(DbxFile file,File unitTest){
+    private void runJUnitTest(DbxFile file,JavaFile compileTest,JavaFile runTest){
         JavaRunner runner=gui.getRunner();
-        String[] results=runner.runJUnit(unitTest,file);
+        String[] results=runner.runJUnit(compileTest,runTest,file);
         if(!results[1].equals("")||results[0].contains("Could not find class:")){
             String error="There were errors running JUnit Test \nErrors: '"+results[1]+"' \nOutput: '"+results[0]+"'";
             System.err.println(error);
@@ -407,5 +417,44 @@ public class UnitTester {
             }
         }
         return -1;
+    }
+    private JavaFile validateDirectory(JavaFile file,String packageDir){
+        if(packageDir==null)
+            packageDir=file.packageFolder();
+        if(packageDir==null||packageDir.equals(""))
+            return file;
+        String[] packages=packageDir.split(Pattern.quote("/"));
+        File parent=file.getParentFile();
+        if(parent.getName().equals(packages[0]))
+            return validateDirectory(file,arrayToString(1,packages.length,packages,"/"));
+        //move into the last package directory
+        File[] currentFiles=parent.listFiles();
+        if(currentFiles!=null){
+            for(File f:currentFiles){ //check if we already have the folder made and somethings in it because we cant overwrite with renameTo
+                if(f.getName().equals(packages[0])&&f.isDirectory()){
+                    File[] newFiles=f.listFiles();
+                    if(newFiles!=null){
+                        for(File ff:newFiles){
+                            if(ff.getName().equals(file.getName()))
+                                ff.delete();
+                        }
+                    }
+                }
+            }
+        }
+        File newFolder=new File(parent.getAbsolutePath()+"/"+packages[0]);
+        newFolder.mkdir();
+        File newFile=new File(newFolder.getAbsolutePath()+"/"+file.getName());
+        file.renameTo(newFile);
+        return validateDirectory(new JavaFile(newFile,null),arrayToString(1,packages.length,packages,"/"));
+    }
+    public static String arrayToString(int offset,int length,String[] arr,String delim){
+        String ret="";
+        for(int i=offset;i<length;i++){
+            ret+=arr[i];
+            if(i!=length-1)
+                ret+=delim;
+        }
+        return ret;
     }
 }

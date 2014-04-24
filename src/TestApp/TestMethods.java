@@ -11,14 +11,18 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.ToolProvider;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 
 /**
  *
  * @author 141lyonsm
  */
 public class TestMethods {
-    public static void main (String[] args) {
-        testJUnit();
+    public static void main (String[] args) throws ClassNotFoundException {
+        Result r=JUnitCore.runClasses(Class.forName("JUnitTest"),Class.forName("TestApp.TestMethods"));
+        System.out.println(r.getFailures().get(0));
+        //testJUnit();
     }
     public static String test(String s){
         s+="!";
