@@ -10,19 +10,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.tools.ToolProvider;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 
 /**
  *
  * @author 141lyonsm
  */
 public class TestMethods {
-    public static void main (String[] args) throws ClassNotFoundException {
-        Result r=JUnitCore.runClasses(Class.forName("JUnitTest"),Class.forName("TestApp.TestMethods"));
-        System.out.println(r.getFailures().get(0));
-        //testJUnit();
+    public static void main (String[] args) throws ClassNotFoundException, InterruptedException {
+//        Result r=JUnitCore.runClasses(Class.forName("JUnitTest"),Class.forName("TestApp.TestMethods"));
+//        System.out.println(r.getFailures().get(0));
+//        testJUnitJar();
+        //Thread.sleep(1000);
+        //System.out.println();
+        testJUnitJar();
     }
     public static String test(String s){
         s+="!";
@@ -36,7 +36,27 @@ public class TestMethods {
 //    }
     public static void testJUnit(){
         String[] args={"java","-cp","\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\hamcrest-core-1.3.jar;"+
-                "\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\junit-4.11.jar;\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\TestMethods.class;\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\JUnitTest.class",
+                "\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\junit-4.11.jar;\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader",
+//                + "downloads\\JUnitTests\\;"
+//                + "downloads\\P2_MattLyons_50_JUnitTest\\",
+                "org.junit.runner.JUnitCore","JUnitTest"};
+//                ToolProvider.getSystemJavaCompiler().run(null, System.out, System.err,
+//                        args[1],args[2],"/home/matt/NetBeansProjects/Java-Grader/test/"+args[4]+".java"
+//                                ,"/home/matt/NetBeansProjects/Java-Grader/src/TestApp/TestMethods.java");
+        ProcessBuilder builder=new ProcessBuilder(args);
+        File dir=new File("\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\");
+            //builder.directory(dir);
+            builder.inheritIO();
+            System.out.println("Running from: "+dir+"\nArgs: "+Arrays.toString(args));
+        try {
+            builder.start();
+        } catch (IOException ex) {
+            Logger.getLogger(TestMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public static void testJUnitJar(){
+        String[] args={"java","-cp","\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\hamcrest-core-1.3.jar;"+
+                "\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\junit-4.11.jar;\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\downloads\\JUnitTests;\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\downloads\\P2_MattLyons_50_JUnitTest",
 //                + "downloads\\JUnitTests\\;"
 //                + "downloads\\P2_MattLyons_50_JUnitTest\\",
                 "org.junit.runner.JUnitCore","JUnitTest"};
