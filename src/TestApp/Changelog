@@ -1,6 +1,6 @@
-Unit tests now run when they are edited or data is refreshed.
+Added 'Create Assignment'
+    It doesn't really work yet.
 
-Threaded redownload
-Threaded rename
-No more exceptions when changing data on browser table. (its now on swing thread)
-Simple unit tests now work with non-static methods.
+Fixed Input reads entire bottom line instead of just input
+Fixed exception when clicking on a header that doesnt exist in gradebook.
+Changed some grammar and text formatting.

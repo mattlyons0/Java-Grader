@@ -49,7 +49,7 @@ public class AssignmentOverlay extends ContentOverlay{
     }
 
     @Override
-    public void setup() {
+    public void setup() {        
         if(getTitle().equals(""))
             setTitle("Edit Assignment");
         setLayout(new GridBagLayout());

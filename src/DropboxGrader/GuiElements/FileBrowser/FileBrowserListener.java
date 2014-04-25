@@ -7,15 +7,11 @@ package DropboxGrader.GuiElements.FileBrowser;
 import DropboxGrader.Config;
 import DropboxGrader.DbxFile;
 import DropboxGrader.Gui;
-import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
-import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -61,7 +57,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
         JPopupMenu m=new JPopupMenu();
         JMenuItem m1=new JMenuItem("Hide");
         if(table.colIsHidden(col))
-            m1.setText("UnHide");
+            m1.setText("Unhide");
         m1.setActionCommand("Hide"+col);
         m1.addActionListener(this);
         m.add(m1);

@@ -87,11 +87,11 @@ public class UnitTestPanel extends JPanel implements ActionListener{
     private ArrayList<UnitTest> unitTests;
     private ArrayList<String> junitTests;
     private String assignmentName;
-    private int assignmentNumber;
+    private Integer assignmentNumber;
     
     private FileFilter javaFilter;
     private String jLabelText="JUnit Test:  ";
-    public UnitTestPanel(UnitTest[] tests,String[] jtests,String assignName,int assignNum,Gui gui){
+    public UnitTestPanel(UnitTest[] tests,String[] jtests,String assignName,Integer assignNum,Gui gui){
         super();
         this.gui=gui;
         assignmentNumber=assignNum;

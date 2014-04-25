@@ -108,7 +108,7 @@ public class UnitTester {
                     for(UnitTest test:assignment.simpleUnitTests){
                         if((overlay==null||!overlay.isCanceled())&&(test!=null&&testMatch(m,test))){
                             if(overlay!=null)
-                                overlay.setDescription("Method: "+m.getMethodString()+" Unit Test: "+test.getDescription()+" Assignment: "+assignment+" File: "+file.getFileName());
+                                overlay.setDescription("Method: "+m.getMethodString()+" Unit Test: "+(test.getDescription()==null?test.getMethodName():("'"+test.getDescription()+"'"))+" Assignment: "+assignment+" File: "+file.getFileName());
                             runSimpleTest(file,test,i);
                             if(overlay!=null)
                                 overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
@@ -306,12 +306,12 @@ public class UnitTester {
         }
     }
     private void runSimpleTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
-        if(overlay!=null)
-            overlay.append("Running Unit Test: "+unitTest.getDescription()+" on "+file.getFileName());
         String types=unitTest.getArgumentTypesString();
         if(types==null)
             types="";
         String method=unitTest.getMethodName()+"("+types+")";
+        if(overlay!=null)
+            overlay.append("Running Unit Test: "+(unitTest.getDescription()==null?method:("'"+unitTest.getDescription()+"'"))+" on "+file.getFileName());
         currentFile=file.getJavaFiles()[javaFileIndex];
         String code=currentFile.getCode();
         if(code.contains("//INJECTED-FOR-UNIT-TEST\npublic static void main(String[] args){")){

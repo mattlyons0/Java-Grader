@@ -35,13 +35,13 @@ import javax.swing.text.StyleContext;
  * @author Matt
  */
 public class JTerminal extends JTextPane implements KeyListener,MouseListener,ActionListener{
-    private Gui gui;
     private PrintWriter writer;
-    public JTerminal(Gui gui){
+    private String input;
+    public JTerminal(){
         super();
-        this.gui=gui;
         addKeyListener(this);
         addMouseListener(this);
+        input="";
         
         setMargin(new Insets(5,5,5,5));
     }
@@ -72,6 +72,10 @@ public class JTerminal extends JTextPane implements KeyListener,MouseListener,Ac
 
     @Override
     public void keyTyped(KeyEvent e) {
+        if(e.getKeyChar()=='\n'||e.getKeyChar()=='\r')
+            return;
+        
+        input+=e.getKeyChar();
     }
 
     @Override
@@ -92,12 +96,12 @@ public class JTerminal extends JTextPane implements KeyListener,MouseListener,Ac
            if(lines.length==0){
                return;
            }
-           String call=lines[lines.length-1].trim();
            if(writer==null){
                return;
            }
-           writer.append(call+"\n");
+           writer.append(input+"\n");
            writer.flush();
+           input="";
            //writer.write("");
            //writer.flush();
        }

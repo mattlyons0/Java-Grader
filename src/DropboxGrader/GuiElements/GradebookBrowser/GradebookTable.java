@@ -308,7 +308,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
     }
     private JPopupMenu createColHeaderRightClickMenu(int col){
         col--;
-        if(col==-1){
+        if(col==-1||col==-2){
             return null;
         }
         TextAssignment assign=sheet.getAssignmentAt(col);
@@ -322,9 +322,12 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         JMenuItem m2=new JMenuItem("Delete");
         m2.setActionCommand("Delete Assignment"+col);
         m2.addActionListener(this);
+        JMenuItem m3=new JMenuItem("Create New Assignment");
+        m3.setActionCommand("Create Assignment"+col);
+        m3.addActionListener(this);
         m.add(m1);
         m.add(m2);
-        
+        m.add(m3);        
         return m;
     }
     @Override
@@ -363,6 +366,10 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         else if(e.getActionCommand().startsWith("Create Grade")){
             int[] coords=extractCoords("Create Grade",e.getActionCommand());
             changeGrade(coords[0],coords[1],false);
+        }
+        else if(e.getActionCommand().startsWith("Create Assignment")){
+            int col=extractNumber("Create Assignment",e.getActionCommand());
+            createAssignment(col);
         }
     }
     private void changeGrade(int row,int col,final boolean overwrite){
@@ -403,6 +410,21 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 else{
                     gui.getGrader().forceDownloadSheet(); //revert our changes
                 }
+            }
+        });
+        gui.getViewManager().addOverlay(overlay);
+    }
+    private void createAssignment(final int col){
+        final AssignmentOverlay overlay=new AssignmentOverlay(gui);
+        overlay.setCallback(new Runnable() {
+            @Override
+            public void run() {
+                gui.getGrader().downloadSheet();
+                Object[] data=overlay.getData();
+                TextAssignment assign=new TextAssignment((int)data[0],(String)data[1]);
+                assign.totalPoints=(Double)data[2];
+                gui.getGrader().uploadTable();
+                dataChanged();
             }
         });
         gui.getViewManager().addOverlay(overlay);
