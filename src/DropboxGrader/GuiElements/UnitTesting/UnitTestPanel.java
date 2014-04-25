@@ -772,4 +772,9 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             }
         }
     }
+    public boolean hasTests(){
+        if(junitTests.isEmpty()&&unitTests.isEmpty())
+            return false;
+        return true;
+    }
 }

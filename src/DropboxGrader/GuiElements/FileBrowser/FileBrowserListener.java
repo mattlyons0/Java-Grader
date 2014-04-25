@@ -14,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -44,7 +46,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
     private JPopupMenu createRightClickMenu(int row){
         JPopupMenu m=new JPopupMenu();
         JMenuItem m1=new JMenuItem("Rename");
-        JMenuItem m2=new JMenuItem("ReDownload");
+        JMenuItem m2=new JMenuItem("Redownload");
         m1.setActionCommand("Rename"+row);
         m1.addActionListener(this);
         m2.setActionCommand("ReDownload"+row);
@@ -131,29 +133,43 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(final ActionEvent e) {
         if(!table.getRowSelectionAllowed())
             return;
         if(e.getActionCommand().contains("Rename")){
             table.setRowSelectionAllowed(false);
             int f=Integer.parseInt(e.getActionCommand().replace("Rename", ""));
-            DbxFile file=gui.getManager().getFile(f);
-            String choice=JOptionPane.showInputDialog("What would you like to name the file?",file.getFileName());
-            if(choice!=null){
-                file.rename(choice);
-                gui.setupFileBrowserGui();
-            }
-            else{
-                table.setRowSelectionAllowed(true);
-            }
-            table.dataChanged();
+            final DbxFile file=gui.getManager().getFile(f);
+            gui.setStatus("Renaming "+file.getFileName());
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    String choice=JOptionPane.showInputDialog("What would you like to name the file?",file.getFileName());
+                    if(choice!=null&&!choice.equals(file.getFileName())){
+                        gui.setStatus("Renaming "+file.getFileName()+" to "+choice);
+                        file.rename(choice);
+                        gui.setupFileBrowserGui();
+                        table.dataChanged();
+                    }
+                    else{
+                        table.setRowSelectionAllowed(true);
+                    }
+                    gui.setStatus("");
+                }
+            });
         }
         else if(e.getActionCommand().contains("ReDownload")){
             int f=Integer.parseInt(e.getActionCommand().replace("ReDownload", ""));
-            DbxFile file=gui.getManager().getFile(f);
-            file.forceDownload();
-            
-            table.dataChanged();
+            final DbxFile file=gui.getManager().getFile(f);
+            gui.setStatus("Redownloading "+file.getFileName());
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    file.forceDownload();
+                    table.dataChanged();
+                    gui.setStatus("");
+                }
+            });
         }
         else if(e.getActionCommand().contains("Hide")){
             int col=Integer.parseInt(e.getActionCommand().replace("Hide", ""));

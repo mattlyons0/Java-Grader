@@ -13,6 +13,7 @@ import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
 /**
@@ -41,9 +42,11 @@ public class FileBrowserTable extends JTable{
         dataChanged();
     } 
     public void dataChanged(){
-        model.fireTableStructureChanged();
-        model.fireTableDataChanged();
-        initSort();
+        SwingUtilities.invokeLater(new Runnable(){public void run(){
+            model.fireTableStructureChanged();
+            model.fireTableDataChanged();
+            initSort();
+        }});
     }
     @Override
     public TableCellRenderer getDefaultRenderer(Class<?> columnClass){

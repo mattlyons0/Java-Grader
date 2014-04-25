@@ -33,6 +33,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableModelEvent;
@@ -160,12 +161,12 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
     public void dataChanged(){
         setDragEnabled(false);
         getTableHeader().setReorderingAllowed(false);
-        
-        sheetData.fireTableStructureChanged();
-        sheetData.fireTableDataChanged();
-        
-        setDragEnabled(true);
-        getTableHeader().setReorderingAllowed(true);
+        SwingUtilities.invokeLater(new Runnable(){public void run(){
+            sheetData.fireTableStructureChanged();
+            sheetData.fireTableDataChanged();
+            setDragEnabled(true);
+            getTableHeader().setReorderingAllowed(true);
+        }});
     }
     @Override
     public void mouseEntered(MouseEvent e) {}

@@ -344,9 +344,20 @@ public class UnitTester {
         if(args==null)
             args="";
         int lastIndex=code.lastIndexOf("}");
+        String methodCallString=unitTest.getMethodName();
+        if(unitTest.modStatic==CheckboxStatus.IGNORED||unitTest.modStatic==CheckboxStatus.REQUIREDFALSE){
+            //if we might need to use a constructor to access it
+            String className=currentFile.getName().substring(0,currentFile.getName().length()-5); //remove .java
+            methodCallString="new "+className+"()."+methodCallString;
+        }
+        if(unitTest.accessPackagePrivate==CheckboxStatus.IGNORED||unitTest.accessPackagePrivate==CheckboxStatus.REQUIREDTRUE||
+                unitTest.accessPrivate==CheckboxStatus.IGNORED||unitTest.accessPrivate==CheckboxStatus.REQUIREDTRUE||
+                unitTest.accessProtected==CheckboxStatus.IGNORED||unitTest.accessProtected==CheckboxStatus.REQUIREDTRUE){
+            //we need to inject a method to make it work.
+        }
         String inject="//INJECTED-FOR-UNIT-TEST\n"
                 + "public static void main(String[] args){";
-        inject+="System.out.println("+unitTest.getMethodName()+"("+args+"));";
+        inject+="System.out.println("+methodCallString+"("+args+"));";
         inject+="}\n//INJECTED-FOR-UNIT-TEST\n";
         code=code.substring(0,lastIndex-1)+inject+code.substring(lastIndex,code.length());
         currentPreviousCode=currentFile.getCode();

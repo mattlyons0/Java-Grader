@@ -149,6 +149,8 @@ public class AssignmentOverlay extends ContentOverlay{
         if(callback!=null){
             gui.getBackgroundThread().invokeLater(callback);
         }
+        if(unitTestPanel.hasTests())
+            gui.getTestManager().test();
         return true;
     }
     @Override

@@ -253,6 +253,7 @@ public class Gui extends JFrame implements ActionListener{
     public void refreshFinished(){
         if(browserView!=null)
             browserView.refreshFinished();
+        unitMan.test();
     }
     public void fileBrowserDataChanged(){
         if(browserView!=null){

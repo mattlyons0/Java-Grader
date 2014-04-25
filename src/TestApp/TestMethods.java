@@ -7,7 +7,9 @@ package TestApp;
 //import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,9 +65,16 @@ public class TestMethods {
 //                ToolProvider.getSystemJavaCompiler().run(null, System.out, System.err,
 //                        args[1],args[2],"/home/matt/NetBeansProjects/Java-Grader/test/"+args[4]+".java"
 //                                ,"/home/matt/NetBeansProjects/Java-Grader/src/TestApp/TestMethods.java");
-        ProcessBuilder builder=new ProcessBuilder(args);
-        File dir=new File("\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\");
-            //builder.directory(dir);
+        System.setProperty("java.class.path", args[2]);
+        List<String> argList=new ArrayList();
+        argList.add(args[0]);
+        argList.add(args[3]);
+        argList.add(args[4]);
+        ProcessBuilder builder=new ProcessBuilder(argList);
+        builder.environment().put("CLASSPATH", args[2]);
+        File dir=new File("\\\\dist113\\dhs_stud\\DHSStudent14\\141lyonsm\\My Documents\\NetBeansProjects\\Java-Grader\\downloads\\JUnitTests");
+            builder.directory(dir);
+            
             builder.inheritIO();
             System.out.println("Running from: "+dir+"\nArgs: "+Arrays.toString(args));
         try {

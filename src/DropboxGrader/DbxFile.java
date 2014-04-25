@@ -442,7 +442,7 @@ public class DbxFile {
         new File(directory).delete();
     }
     private void rename(String newName,boolean onInit){
-        System.out.println(entry.path);
+        //System.out.println(entry.path);
         String directory=entry.path;
         String[] split=directory.split("/");
         int len=split[split.length-1].length();
