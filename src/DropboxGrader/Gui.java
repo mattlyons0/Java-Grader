@@ -16,9 +16,11 @@ import DropboxGrader.GuiElements.Grader.JTerminal;
 import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
 import DropboxGrader.GuiElements.MiscViews.AuthView;
 import DropboxGrader.GuiElements.MiscViews.ConfigView;
+import DropboxGrader.GuiElements.UnitTesting.UnitTestOverlay;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.UnitTesting.UnitTestManager;
 import DropboxGrader.UnitTesting.UnitTester;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
@@ -48,6 +50,7 @@ public class Gui extends JFrame implements ActionListener{
     private GuiListener listener;
     private ArrayList<Integer> selectedFiles;
     private DbxFile currentFile;
+    private UnitTestManager unitMan;
     
     //View Manager
     private ContentViewManager viewManager;
@@ -68,9 +71,6 @@ public class Gui extends JFrame implements ActionListener{
         addComponentListener(listener);
         addWindowStateListener(listener);
         workerThread=new WorkerThread(this);
-        Thread thread=new Thread(workerThread);
-        thread.setName("WorkerThread");
-        thread.start();
         workerThread.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -138,14 +138,9 @@ public class Gui extends JFrame implements ActionListener{
                 gradebookView=new GradebookView(Gui.this);
                 viewManager.addView(gradebookView);
 
-                //TODO: Ask before doing this (and have a config for it too)
-                TextAssignment[] assignments=grader.getSpreadsheet().getAllAssignments();
-                for(int i=0;i<assignments.length;i++){
-                    if(assignments[i].simpleUnitTests!=null||assignments[i].junitTests!=null){
-                        UnitTester tester=new UnitTester(Gui.this,assignments[i]);
-                        tester.runTests();
-                    }
-                }
+                
+                unitMan=new UnitTestManager(Gui.this);
+                unitMan.test();
             }
         });
         browserView=new BrowserView(Gui.this,fileManager);
@@ -315,5 +310,8 @@ public class Gui extends JFrame implements ActionListener{
         if(windowSize.y>max.height)
             y=true;
         return new boolean[]{x,y};
+    }
+    public UnitTestManager getTestManager(){
+        return unitMan;
     }
 }

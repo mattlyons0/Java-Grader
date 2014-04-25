@@ -604,12 +604,19 @@ public class JavaRunner implements Runnable{
             else{ //we have found the parent
                 File file=makeFile(folders,0,i);
                 File[] files=file.listFiles();
-                if(files.length>1){
+                if((files.length>0&&containsFile(files))||files.length>1){
                     return file.getAbsoluteFile();
                 }
             }
         }
         return new File("/downloads/"+parent+"/").getAbsoluteFile();
+    }
+    private boolean containsFile(File[] files){
+        for(File f:files){
+            if(f.isFile())
+                return true;
+        }
+        return false;
     }
     /**
      * Makes a file from an array of folders

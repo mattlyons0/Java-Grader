@@ -9,6 +9,7 @@ package DropboxGrader.UnitTesting;
 import DropboxGrader.DbxFile;
 import DropboxGrader.FileManager;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.UnitTesting.UnitTestOverlay;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.RunCompileJava.JavaRunner;
@@ -19,6 +20,7 @@ import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
 import com.dropbox.core.DbxException;
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,6 +37,7 @@ import java.util.regex.Pattern;
 public class UnitTester {
     private Gui gui;
     private TextAssignment assignment;
+    private UnitTestOverlay overlay;
     JavaFile currentFile;
     String currentPreviousCode;
     
@@ -53,130 +56,182 @@ public class UnitTester {
         unitTestDirectory=gui.getManager().getDownloadFolder()+"/JUnitTests/";
         new File(unitTestDirectory).mkdir();
     }
+    public UnitTester(Gui gui,TextAssignment assign,UnitTestOverlay overlay){
+        this(gui,assign);
+        this.overlay=overlay;
+    }
     public void runTests(){
         while(currentFile!=null){
+            System.err.println("Something tried to run tests while we are running tests.");
             try {
                 Thread.sleep(50); //this isn't really good, but at the same time we can't run the tests concurrently to eachother if someone calls the method twice
             } catch (InterruptedException ex) {
                 Logger.getLogger(UnitTester.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        if(overlay!=null)
+            overlay.setStatus("Searching for Tests");
         FileManager manager=gui.getManager();
         DbxFile[] files=manager.getFiles().toArray(new DbxFile[0]);
         
         for(int i=0;i<files.length;i++){
-            if(files[i].getAssignmentNumber()==assignment.number){
+            if((overlay==null||!overlay.isCanceled())&&files[i].getAssignmentNumber()==assignment.number){
                 prepareTest(files[i]);
             }
         }
+        if(overlay!=null){
+            overlay.setStatus("Unit Tests Finished");
+            overlay.setDescription("Assignment: "+assignment);
+        }
     }
-    private void prepareTest(DbxFile file){
+    private void prepareTest(final DbxFile file){
+        if(overlay!=null){
+            overlay.setStatus("Running Tests");
+            overlay.setDescription("File: "+file.getFileName());
+        }
         JavaFile[] javaFiles=file.getJavaFiles();
         if(javaFiles==null){
             //we need to download the file
-            System.err.println("There are files that need to be downloaded in order to be unit tested. "+file.getFileName());
+            if(overlay!=null)
+                overlay.setStatus("Downloading File to be Tested");
+            file.download();
             return;
         }
+        if(overlay!=null)
+            overlay.setStatus("Running Unit Tests");
         for(int i=0;i<javaFiles.length;i++){
             JavaMethod[] methods=javaFiles[i].getMethods();
             for(JavaMethod m:methods){
-                if(assignment.simpleUnitTests!=null){
+                if((overlay==null||!overlay.isCanceled())&&assignment.simpleUnitTests!=null){
+                    if(overlay!=null)
+                        overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
                     for(UnitTest test:assignment.simpleUnitTests){
-                        if(testMatch(m,test)){
+                        if((overlay==null||!overlay.isCanceled())&&(test!=null&&testMatch(m,test))){
+                            if(overlay!=null)
+                                overlay.setDescription("Method: "+m.getMethodString()+" Unit Test: "+test.getDescription()+" Assignment: "+assignment+" File: "+file.getFileName());
                             runSimpleTest(file,test,i);
+                            if(overlay!=null)
+                                overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
                         }
                     }
                 }
+                if(overlay!=null)
+                    overlay.setDescription("File: "+file.getFileName());
             }
-            if(assignment.junitTests!=null){
-                for(String testLoc:assignment.junitTests){
-                    try {
-                        if(!testLoc.equals("")&&gui.getDbxSession().getClient().getMetadata(testLoc)!=null){
-                            String[] testPaths=testLoc.split(Pattern.quote("/"));
-                            String testName;
-                            if(testPaths.length==0)
-                                testName=testLoc;
-                            else
-                                testName=testPaths[testPaths.length-1];
-                            String localTestLoc=unitTestDirectory+"/"+testName;
-                            try{
-                                FileOutputStream f = new FileOutputStream(localTestLoc);
-                                System.out.println(testLoc);
-                                gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
-                                f.close();
-                                JavaFile runFile=new JavaFile(new File(localTestLoc),null);
-                                JavaFile compileFile=runFile;
-                                if(runFile.packageFolder()!=null){ //we gotta verify its in the right directory
-                                    compileFile=validateDirectory(runFile,null); //moves it to the right directory, but doesnt update pointer so that it gets called correctly
-                                }
-                                runJUnitTest(file,compileFile,runFile);
-                            } catch(IOException ex){
-                                System.err.println("Error downloading unit test file.\n"+ex);
-                                ex.printStackTrace();
-                            }
-                        }
-                        else{
-                            System.err.println("Error, JUnit Test "+testLoc+" for assignment "+assignment.number+" does not exist!");
-                            GuiHelper.alertDialog("Error, JUnit Test "+testLoc+" for assignment "+assignment.number+" does not exist!");
-                            testResults.add(null);
-                            testStatus.add(null);
-                        }
-                    } catch (DbxException ex) {
-                        System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);
-                        ex.printStackTrace();
-                    }
-                }
-            }
-
-            //write grade
-            double grade;
-            int successes=0;
-            boolean errorTesting=false;
-            for(Boolean result:testResults){
-                if(result==null){
-                    errorTesting=true;
-                    break;
-                }
-                else if(result)
-                    successes++;
-            }
-            int totalTests=0;
-            if(assignment.simpleUnitTests!=null)
-                totalTests+=assignment.simpleUnitTests.length;
-            if(assignment.junitTests!=null)
-                totalTests+=testResults.size();
-            if(assignment.junitTests!=null&&assignment.simpleUnitTests!=null)
-                totalTests-=assignment.simpleUnitTests.length;
-            grade=successes/(double)totalTests*assignment.totalPoints;
-            String status="(Unit Tested) Passed "+successes+"/"+totalTests+", \n";
-            for(int testNum=0;testNum<totalTests;testNum++){
-                if(testNum<testStatus.size()){
-                    status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" \n";
-                }
-                else if(assignment.simpleUnitTests!=null&&testNum<assignment.simpleUnitTests.length){
-                    String argTypes=assignment.simpleUnitTests[testNum].getArgumentTypesString();
-                    if(argTypes==null)
-                        argTypes="";
-                    String method=assignment.simpleUnitTests[testNum].getMethodName()+"("+argTypes+")";
-                    status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist \n";
-                }
-                else if(assignment.junitTests!=null&&(assignment.simpleUnitTests==null||testNum>=assignment.simpleUnitTests.length)){
-                    
-                }
-            }
-            TextGrader grader=gui.getGrader();
-            Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
-            if(!errorTesting&&(gradeNum==null||gradeNum!=grade)){
-                grader.setGrade(file.getFirstLastName(), assignment.number, grade,status, (gradeNum!=null));
-                gui.repaint();
-            }
-
-            //reset test data for the next person
-            testResults.clear();
-            testStatus.clear();
         }
+        if(overlay!=null)
+            overlay.setStatus("Running JUnit Tests");
+        if((overlay==null||!overlay.isCanceled())&&assignment.junitTests!=null){
+            for(String testLoc:assignment.junitTests){
+                try {
+                    if(overlay!=null)
+                        overlay.setStatus("Downloading JUnit Test File");
+                    if(!testLoc.equals("")&&gui.getDbxSession().getClient().getMetadata(testLoc)!=null){
+                        String[] testPaths=testLoc.split(Pattern.quote("/"));
+                        String testName;
+                        if(testPaths.length==0)
+                            testName=testLoc;
+                        else
+                            testName=testPaths[testPaths.length-1];
+                        if(overlay!=null)
+                            overlay.setDescription("JUnit Test: "+testName+" File: "+file.getFileName());
+                        String localTestLoc=unitTestDirectory+"/"+testName;
+                        try{
+                            FileOutputStream f = new FileOutputStream(localTestLoc);
+                            gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
+                            f.close();
+                            JavaFile runFile=new JavaFile(new File(localTestLoc),null);
+                            JavaFile compileFile=runFile;
+                            if(runFile.packageFolder()!=null){ //we gotta verify its in the right directory
+                                compileFile=validateDirectory(runFile,null); //moves it to the right directory, but doesnt update pointer so that it gets called correctly
+                            }
+                            if(overlay!=null)
+                                overlay.setStatus("Running JUnit Tests");
+                            runJUnitTest(file,compileFile,runFile);
+                        } catch(IOException ex){
+                            System.err.println("Error downloading unit test file.\n"+ex);
+                            if(overlay!=null)
+                                overlay.append("Error downloading JUnit Test: "+testLoc+" from dropbox!",Color.RED);
+                            ex.printStackTrace();
+                        }
+                    }
+                    else{
+                        String errorS="Error, JUnit Test "+testLoc+" for assignment "+assignment.number+" does not exist on Dropbox Servers!";
+                        System.err.println(errorS);
+                        if(overlay!=null)
+                            overlay.append(errorS,Color.red);
+                        else
+                            GuiHelper.alertDialog(errorS);
+                        testResults.add(null);
+                        testStatus.add(null);
+                    }
+                    if(overlay!=null)
+                        overlay.setDescription("File: "+file.getFileName());
+                } catch (DbxException ex) {
+                    System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);
+                    if(overlay!=null)
+                        overlay.append("Error downloading JUnit Test: "+testLoc+" from dropbox!",Color.RED);
+                    ex.printStackTrace();
+                }
+                if(overlay!=null&&overlay.isCanceled())
+                    break;
+            }
+        }
+        if(overlay!=null)
+            overlay.setStatus("Grading Unit Tests");
+        //write grade
+        final double grade;
+        int successes=0;
+        boolean errorTesting=false;
+        for(Boolean result:testResults){
+            if(result==null){
+                errorTesting=true;
+                break;
+            }
+            else if(result)
+                successes++;
+        }
+        int totalTests=0;
+        if(assignment.simpleUnitTests!=null)
+            totalTests+=assignment.simpleUnitTests.length;
+        if(assignment.junitTests!=null)
+            totalTests+=testResults.size();
+        if(assignment.junitTests!=null&&assignment.simpleUnitTests!=null)
+            totalTests-=assignment.simpleUnitTests.length;
+        grade=successes/(double)totalTests*assignment.totalPoints;
+        String status="(Unit Tested) Passed "+successes+"/"+totalTests+", \n";
+        for(int testNum=0;testNum<totalTests;testNum++){
+            if(testNum<testStatus.size()){
+                status+="Test "+(testNum+1)+": "+testStatus.get(testNum)+" \n";
+            }
+            else if(assignment.simpleUnitTests!=null&&testNum<assignment.simpleUnitTests.length){
+                String argTypes=assignment.simpleUnitTests[testNum].getArgumentTypesString();
+                if(argTypes==null)
+                    argTypes="";
+                String method=assignment.simpleUnitTests[testNum].getMethodName()+"("+argTypes+")";
+                status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist \n";
+            }
+        }
+        final TextGrader grader=gui.getGrader();
+        final Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
+        final String fStatus=status;
+        if(!errorTesting&&(gradeNum==null||gradeNum!=grade)){
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    grader.setGrade(file.getFirstLastName(), assignment.number, grade,fStatus, (gradeNum!=null));
+                    gui.repaint();
+                }
+            });
+        }
+
+        //reset test data for the next person
+        testResults.clear();
+        testStatus.clear();
     }
     private void runJUnitTest(DbxFile file,JavaFile compileTest,JavaFile runTest){
+        if(overlay!=null)
+            overlay.append("Running JUnit Test on "+file.getFileName());
         JavaRunner runner=gui.getRunner();
         String[] results=runner.runJUnit(compileTest,runTest,file);
         if(!results[1].equals("")||results[0].contains("Could not find class:")){
@@ -184,12 +239,16 @@ public class UnitTester {
             System.err.println(error);
             testResults.add(null);
             testStatus.add(null);
-            GuiHelper.alertDialog(error);
+            if(overlay!=null)
+                overlay.append(error,Color.RED);
+            else
+                GuiHelper.alertDialog(error);
             return;
         }
-        System.out.println(Arrays.toString(results));
         if(results==null){
             System.err.println("Error getting results from JUnit Test, result was null.");
+            if(overlay!=null)
+                overlay.append("Unknown error running JUnitTest.",Color.RED);
             return;
         }
         String[] resultsLines=results[0].split("\n");
@@ -206,11 +265,15 @@ public class UnitTester {
                         passed[x]=true;
                         testResults.add(true);
                         testStatus.add("Passed");
+                        if(overlay!=null)
+                            overlay.append("Passed Test "+x);
                     }
                     else{
                         passed[x]=false;
                         testResults.add(false);
                         testStatus.add("Failed");
+                        if(overlay!=null)
+                            overlay.append("Failed Test "+x);
                     }
                 }
             }
@@ -239,11 +302,12 @@ public class UnitTester {
                     lastIndex=index;
                 statusText=currentStatus+statusText;
                 testStatus.set(index,statusText);
-                System.out.println("Junit: "+statusText);
             }
         }
     }
     private void runSimpleTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
+        if(overlay!=null)
+            overlay.append("Running Unit Test: "+unitTest.getDescription()+" on "+file.getFileName());
         String types=unitTest.getArgumentTypesString();
         if(types==null)
             types="";
@@ -298,14 +362,14 @@ public class UnitTester {
             GuiHelper.alertDialog("Error running Simple Unit Tests. "+value[1]);
             System.err.println("Error running Simple Unit Tests. "+value[1]);
         }
-        System.out.println("Unit Test on "+file.getFileName()+" returned "+value[0]+" Expected: "+
-                (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim()));
         
         String status="";
         if(value[0]!=null&&unitTest.getExpectedReturnValue()!=null&&value[0].trim().equals(unitTest.getExpectedReturnValue().trim())){
             testResults.add(true);
             status="Passed";
-            testStatus.add(status);          
+            testStatus.add(status);    
+            if(overlay!=null)
+                overlay.append("Test Passed");
         }
         else if(value[0]!=null){
             testResults.add(false);
@@ -317,12 +381,16 @@ public class UnitTester {
                     (unitTest.getExpectedReturnValue()==null?null:unitTest.getExpectedReturnValue().trim())
                     +" Actual: "+(value[0]==null?null:value[0].trim());
             testStatus.add(status);
+            if(overlay!=null)
+                overlay.append(status);
         }
     }
     public void compileFinished(){
         String result=currentFile.changeCode(currentPreviousCode);
         if(!result.equals("")){
             System.err.println("Error restoring code to state before unit testing.\n"+result);
+            if(overlay!=null)
+                overlay.append("Error saving code. "+result,Color.RED);
         }
         currentFile=null;
         currentPreviousCode=null;

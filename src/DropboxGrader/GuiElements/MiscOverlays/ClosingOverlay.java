@@ -25,6 +25,7 @@ public class ClosingOverlay extends ContentOverlay{
     
     private JLabel statusLabel;
     private JButton cancelButton;
+    private int tasksLeft;
     
     public ClosingOverlay(Gui gui){
         super("ClosingOverlay");
@@ -36,7 +37,7 @@ public class ClosingOverlay extends ContentOverlay{
             setTitle("Edit Grade");
         setLayout(new GridBagLayout());
         
-        statusLabel=new JLabel("Finishing Background Tasks...");
+        statusLabel=new JLabel("<html>Finishing Background Tasks...<br/></html>");
         cancelButton=new JButton("Cancel Closing");
         cancelButton.addActionListener(this);
         
@@ -57,7 +58,11 @@ public class ClosingOverlay extends ContentOverlay{
         setLocation((parentSize.width-size.width)/2,(parentSize.height-size.height)/2);
         setVisible(true);
     }
-
+    public void setTasksLeft(int left){
+        tasksLeft=left+1;
+        if(statusLabel!=null)
+            statusLabel.setText("<html><center>Finishing Background Tasks...<br/>"+tasksLeft+" remaining.</center></html>");
+    }
     @Override
     public void switchedTo() {}
     @Override
@@ -66,7 +71,7 @@ public class ClosingOverlay extends ContentOverlay{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(cancelButton)){
             if(gui!=null){
-                gui.getBackgroundThread().setCloseAfterDone(false);
+                gui.getBackgroundThread().setCloseAfterDone(false,null);
                 dispose();
             }
         }

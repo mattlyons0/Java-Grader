@@ -63,7 +63,7 @@ public class Config {
         //GradingPanel
         autoRun=false;
         runTimes=1;
-        bottomDividerLocation=(int)(Toolkit.getDefaultToolkit().getScreenSize().height*5.0/6); //5/6ths
+        bottomDividerLocation=(int)(Toolkit.getDefaultToolkit().getScreenSize().height*19.0/20); //19/20ths
         dividerLocation=(int)(Toolkit.getDefaultToolkit().getScreenSize().width*2.0/3); //2/3rds
         codeSortMode=0;
         codeSortOrder=0;

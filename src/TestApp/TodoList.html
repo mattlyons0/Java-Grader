@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO LIST</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Todo List</h1>
+        <h3>Config</h3>
+        <ul>
+            <li>Use last directory when looking for unit tests</li>
+            <li>Config for output text color,error color, and info color.</li>
+            <li>Dropdown boxes in config for class periods...</li>
+            <li>Config for size http://docs.oracle.com/javase/tutorial/uiswing/lookandfeel/size.html</li>
+            <li>Config to keep unit tests results open</li>
+            <li>Config to show when running unit tests</li>
+            <li>Config to set delay for autoclose for tests gui</li>
+            <li>configurable place to round grade decimals</li>
+            <li>Default total points configurable</li>
+            <li>Option to show assignments in subdirectories</li>
+            <li>Configurable colors for gradebook as well as browser (inIC,late..)</li>
+            <li>L&AMP;F Selector NIMBUS  <a href="http://www.eclipse.org/swt/">http://www.eclipse.org/swt/</a></li>
+            <li>Upon first run open config menu first, default settings to empty/null</li>
+            <li>Config to read text files by default</li>
+            <li>button to change dropbox login in config</li>
+            <li>Delete local files option in settings menu.</li>
+        </ul>
+        <h3>Bugs</h3>
+        <ul>
+            <li>Redownload is broken</li>
+            <li>Input reads entire bottom line instead of just input (print) then input read is broken</li>
+            <li>Multi-line method detection (simple unit tests)</li>
+            <li>non static methods (simple unit tests)</li>
+            <li>private methods (simple unit test)</li>
+            <li>Fix deleting lots of files not refreshing.</li>
+            <li>Fix test no java duplicating.</li>
+            <li>Surpress exception when refreshing sometimes with swing repainting.</li>
+            <li>Catch out of memory with massive files.</li>
+            <li>Occasional no java files found when working with queues</li>
+        </ul>
+        <h3>Visual</h3>
+        <ul>
+            <li>State when generating print preview instead of freezing up the gui thread.</li>
+            <li>Display lines somewhere</li>
+            <li>Show progress deleting files when deleting files.</li>
+            <li>Color gradient from red to green in filebrowser and gradebook browser based on grade/totalpoints</li>
+            <li>Improve first/last name searching for printing</li>
+            <li>Class for JTextFields for doubles only (less duplicated code) (grade submit and edit)</li>
+            <li>Snap names to left in gradebook</li>
+            <li>Listen to mouse scroll value in scrollpane to edit code</li>
+            <li>Bulk file handling for gradebook</li>
+            <li>View grade percentage per person (gradebook)</li>
+            <li>More printing modes (overall grade/percentage,table)</li>
+            <li>Make code sort take up less space (maybe put it in an (undecorated?) overlay)</li>
+            <li>Horizontal scroll wheel support</li>
+            <li>Mode to switch names/assignments axis (gradebook)</li>
+            <li>Use contentOverlay instead of GuiHelper and JOptionPane (everywhere)</li>
+            <li>Fix guis on smaller window sizes</li>
+            <li>Icon for taskbar</li>
+            <li>Right click menu to forcefully delete things even if they arent graded</li>
+            <li>Remove columns entirely in browser via right click</li>
+            <li>Make errors in output easier to see, maybe highlight line error was in and make it clickable to go to that line.</li>
+            <li>If there are lots of things to run the JOptionPane goes past the monitor width</li>
+            <li>Percentage based downloading results.</li>
+            <li>When grade column is hidden also hide grade and comment</li>
+            <li>Ability to close code tabs with right click.</li>
+            <li>Custom sorting in browser table (2 before 1000, date by actual date)</li>
+            <li>display current fileQueue</li>
+        </ul>
+        <h3>Required Additions</h3>
+        <ul>
+            <li>Enforce no grading on any thread but the background.</li>
+            <li>Cleanup downloaded junits and grade spreadsheets</li>
+            <li>Auto retry when there are problems with dropbox and show a message saying we are having trouble</li>
+            <li>Double check for delimiters being used in strings (especially in method testing)</li>
+            <li>Add ability to change directory it is run from. (when running code)</li>
+            <li>Editing text (.txt) files doesn't save</li>
+            <li>Check return values when changing data in gradebook</li>
+            <li>Remove old resubmit thing, replace it with date based resubmits/late</li>
+            <li>Bulk operations in filebrowser (change assignment number for all...)</li>
+            <li>Filters in filebrowser (ex: name contains "" or assignment number == this)</li>
+            <li>Javadocs / more comments</li>
+            <li>Users manual</li>
+            <li>Use graded date vs date uploaded to determine if resubmits are done or not.</li>
+            <li>Store assignment due date, graded date</li>
+            <li>store student email</li>
+            <li>Auto email for invalid file structure, graded...</li>
+            <li>store student period (check for wrong class period and move it)</li>
+            <li>libraries to compile with with assignments</li>
+            <li>move rename to background thread</li>
+            <li>move redownload to background thread</li>
+            <li>use submit date and graded status to auto determine late assignments</li>
+            <li>Demo Mode</li>
+        </ul>
+    </body>
+</html>

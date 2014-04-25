@@ -397,6 +397,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                                     System.out.println("upload complete");
                                 }
                             });
+                            break;
                         }
                     }
                 }

@@ -1,0 +1,11 @@
+Added visualization of current unit tests running.
+
+Moved unit tests to their own thread (so you can do whatever while unit testing)
+Now all errors in unit testing are logged in the unit testing window console.
+Now downloads unit tests that need to be downloaded.
+When waiting for background tasks to complete, the number of queued tasks is now shown.
+Optimized thread cpu usage
+Made background thread (and unit test thread) only run when there are tasks for it.
+Organized TodoList (and made it into a html file)
+    Only kept features that don't need to be prioritized on the todolist (and renamed it accordingly)
+    TodoList.html is now organized neatly.

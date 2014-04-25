@@ -1,0 +1,43 @@
+Ctrl tab in grader. also ctrl w and while we are at it ctrl enter to run ctrl q to close
+Update checker
+Improve FileManager init method for efficiency
+Migrate dropbox app to my own account on dropbox
+auto check for javadocs
+read screenshots?
+Remove println statements
+Only log critical errors to error.log
+    Upon exiting if there are errors in the log email them to me?
+    Popup box when errors occur?
+More flexible file naming format.
+Warning upon startup when files downloaded is larger than 10MB
+Read RTF and Word files as well as text files.
+    apache word library
+Option to not cache views and save memory if it is worth it (although the new content panes seem to have lowered memory requirement dramatically)
+    Review memory management (profile)
+When prompted for fixed name, rename file to that name.
+Auto search for grades spreadsheet
+Auto search for class period with grades
+Assignment Status at the top instead of filename
+Ctrl Z in gradebook
+Stop threads instead of System.exit(0) in guiListener.
+Do multiple runs faster, investigate why the delays are needed now that we aren't using files.
+View deleted items (or maybe move things to a deleted folder then delete them after a month or so (configureable))
+Add a weight % for each unit test (score wise)
+Warn if grade is larger than total points given to assignment
+Round decimals in grading
+Sort code by lines instead of length
+Properly validate if downloaded folder is the same as when it was extracted (hashing? checksums?)
+Upload changed files back to dropbox (or email to students)
+
+demo mode
+    Log them into a test dropbox with some test code and files
+    Don't allow renaming or deleting, but everything else is enabled
+
+Frontend app for submitting. Teacher distributes jar and file that has dropbox key (probably has to be web based)
+    Put in name and assignment. Will autocomplete assignment name from those submitted
+    View your own grades
+    Run tests on assignments with unit tests
+    How it works:
+        Dropboxgrader on close uploads data to the server that contains the frontend
+        students have logins for the site
+        php
