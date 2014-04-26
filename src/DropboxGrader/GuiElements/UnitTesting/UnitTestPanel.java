@@ -638,8 +638,6 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 });
             }
             junitTests.remove(id);
-            jFileChoosers.remove(id);
-            jFilenames.remove(id);
             setup();
             
         }

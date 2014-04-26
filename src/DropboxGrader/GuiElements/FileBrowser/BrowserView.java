@@ -241,4 +241,8 @@ public class BrowserView extends ContentView{
     public void gradeRows(){
         actionPerformed(new ActionEvent(gradeButton,0,null));
     }
+
+    public JButton getGradebookButton(){
+        return spreadsheetButton;
+    }
 }

@@ -16,12 +16,9 @@ import DropboxGrader.GuiElements.Grader.JTerminal;
 import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
 import DropboxGrader.GuiElements.MiscViews.AuthView;
 import DropboxGrader.GuiElements.MiscViews.ConfigView;
-import DropboxGrader.GuiElements.UnitTesting.UnitTestOverlay;
 import DropboxGrader.RunCompileJava.JavaRunner;
-import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.UnitTesting.UnitTestManager;
-import DropboxGrader.UnitTesting.UnitTester;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
 import java.awt.GraphicsDevice;
@@ -163,7 +160,25 @@ public class Gui extends JFrame implements ActionListener{
         viewManager.changeView("ConfigView");
     }
     public void setupGradebookGui(){
-        viewManager.changeView("GradebookView");
+        if(viewManager.hasView("GradebookView")){
+            viewManager.changeView("GradebookView");
+        }
+        else{ //the gradebook has not been initialized yet
+            //since the workerthread isnt a thread pool (and I recently refactored startup) we know that it is getting started from the workerthread
+            //and the worker thread will not get to this task until it has completed initilizing the grade system (and a few milliseconds on 
+            //starting the unit test thread)
+            browserView.getGradebookButton().setEnabled(false);
+            browserView.getGradebookButton().setToolTipText("Gradebook will open once the grading system has initialized.");
+
+            workerThread.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    setupGradebookGui();
+                    browserView.getGradebookButton().setEnabled(true);
+                    browserView.getGradebookButton().setToolTipText("");
+                }
+            });
+        }
     }
     public void goodKey(DbxClient client){
         this.client=client;

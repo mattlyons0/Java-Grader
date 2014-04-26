@@ -134,7 +134,7 @@ public class UnitTestOverlay extends ContentOverlay{
                     dispose();
                 }
             }
-        }, 1000,1000);
+        }, 0,1000);
     }
     public void append(String s){
         append(s,Color.BLACK);

@@ -82,6 +82,13 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         v.setup();
         views.add(v);
     }
+    public boolean hasView(String viewName){
+        for(int i=0;i<views.size();i++){
+            if(views.get(i).getViewName().equals(viewName))
+                return true;
+        }
+        return false;
+    }
     /**
      * Changes current background view to another which has already been added.
      * Thread Safe

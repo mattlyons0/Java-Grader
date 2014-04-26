@@ -301,8 +301,12 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             JMenuItem m2=new JMenuItem("Delete");
             m2.setActionCommand("Delete Name"+row+","+col);
             m2.addActionListener(this);
+            JMenuItem m3=new JMenuItem("Create New Name");
+            m3.setActionCommand("Create Name"+row);
+            m3.addActionListener(this);
             m.add(m1);
             m.add(m2);
+            m.add(m3);
             return m;
         }
     }
@@ -368,8 +372,10 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             changeGrade(coords[0],coords[1],false);
         }
         else if(e.getActionCommand().startsWith("Create Assignment")){
-            int col=extractNumber("Create Assignment",e.getActionCommand());
-            createAssignment(col);
+            createAssignment();
+        }
+        else if(e.getActionCommand().startsWith("Create Name")){
+            createName();
         }
     }
     private void changeGrade(int row,int col,final boolean overwrite){
@@ -386,6 +392,26 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             public void run() {
                 Object[] results=overlay.getData();
                 gui.getGrader().setGrade(name,assignment,(double)results[0], (String)results[1], overwrite);
+            }
+        });
+        gui.getViewManager().addOverlay(overlay);
+    }
+    private void createName(){
+        final NameOverlay overlay=new NameOverlay(gui);
+        overlay.setCallback(new Runnable() {
+            @Override
+            public void run() {
+                gui.getGrader().downloadSheet();
+                String[] names=overlay.getNames();
+                if(sheet.getName(names[0]+" "+names[1])!=null){
+                    GuiHelper.alertDialog("Error, Name "+names[0]+" "+names[1]+" already exists!");
+                    return;
+                }
+                sheet.addName(names[0], names[1]);
+                gui.getGrader().uploadTable();
+                revalidate();
+                repaint();
+                initWidths();
             }
         });
         gui.getViewManager().addOverlay(overlay);
@@ -414,15 +440,23 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         });
         gui.getViewManager().addOverlay(overlay);
     }
-    private void createAssignment(final int col){
+    private void createAssignment(){
         final AssignmentOverlay overlay=new AssignmentOverlay(gui);
         overlay.setCallback(new Runnable() {
             @Override
             public void run() {
                 gui.getGrader().downloadSheet();
                 Object[] data=overlay.getData();
-                TextAssignment assign=new TextAssignment((int)data[0],(String)data[1]);
+                if(sheet.getAssignment((int)data[0])!=null){
+                    GuiHelper.alertDialog("Error, Assignment "+data[0]+" already exists!");
+                    return;
+                }
+                sheet.addAssignment((int)data[0], (String)data[1]);
+                TextAssignment assign=sheet.getAssignment((int)data[0]);
                 assign.totalPoints=(Double)data[2];
+                assign.junitTests=overlay.getJUnitTests();
+                assign.simpleUnitTests=overlay.getUnitTest();
+                
                 gui.getGrader().uploadTable();
                 dataChanged();
             }

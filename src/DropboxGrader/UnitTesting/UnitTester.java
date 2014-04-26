@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -350,14 +349,21 @@ public class UnitTester {
             String className=currentFile.getName().substring(0,currentFile.getName().length()-5); //remove .java
             methodCallString="new "+className+"()."+methodCallString;
         }
+        String classInjected=null;
         if(unitTest.accessPackagePrivate==CheckboxStatus.IGNORED||unitTest.accessPackagePrivate==CheckboxStatus.REQUIREDTRUE||
                 unitTest.accessPrivate==CheckboxStatus.IGNORED||unitTest.accessPrivate==CheckboxStatus.REQUIREDTRUE||
                 unitTest.accessProtected==CheckboxStatus.IGNORED||unitTest.accessProtected==CheckboxStatus.REQUIREDTRUE){
             //we need to inject a method to make it work.
+            classInjected="public static void m1(){System.out.println("+methodCallString+"("+args+"));}";
         }
-        String inject="//INJECTED-FOR-UNIT-TEST\n"
-                + "public static void main(String[] args){";
-        inject+="System.out.println("+methodCallString+"("+args+"));";
+        String inject="//INJECTED-FOR-UNIT-TEST\n";
+        if(classInjected!=null){
+            inject+=classInjected+"\n";
+            inject+="public static void main(String[] args){m1();";
+        }
+        else{
+            inject+="public static void main(String[] args){System.out.println("+methodCallString+"("+args+"));";
+        }
         inject+="}\n//INJECTED-FOR-UNIT-TEST\n";
         code=code.substring(0,lastIndex-1)+inject+code.substring(lastIndex,code.length());
         currentPreviousCode=currentFile.getCode();

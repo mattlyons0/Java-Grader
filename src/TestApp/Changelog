@@ -1,6 +1,7 @@
-Added 'Create Assignment'
-    It doesn't really work yet.
+Simple unit tests work with private and protected methods now
 
-Fixed Input reads entire bottom line instead of just input
-Fixed exception when clicking on a header that doesnt exist in gradebook.
-Changed some grammar and text formatting.
+Fixed removing junit test
+Fixed creating new assignment
+Added 'create name'
+Clicking gradebook before grades have been loaded will now queue opening it.
+Fixed create assignment not saving unit tests.
