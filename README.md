@@ -3,6 +3,8 @@ Java-Grader
 
 A program written to grade Computer Science homework submitted via dropbox.
 
-Build Server: http://ip.gamershut.net:8080
+Build Server: http://ip.gamershut.net:8080/job/DropboxGrader/
 
-More information to come soon.
+To-do List: http://gamershut.net/grader/
+
+Wiki: https://github.com/mattlyons0/Java-Grader/wiki (WIP)

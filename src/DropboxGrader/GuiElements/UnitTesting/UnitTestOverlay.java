@@ -17,7 +17,6 @@ import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 
 /**
  *
@@ -95,8 +94,10 @@ public class UnitTestOverlay extends ContentOverlay{
                 cancelButton.setToolTipText("Finishing Current Test.");
             } else{
                 cancelClose=true;
-                cancelButton.setEnabled(false);
-                cancelButton.setText("Canceled");
+                remove(cancelButton);
+                cancelButton=null;
+                revalidate();
+                repaint();
             }
         }
     }

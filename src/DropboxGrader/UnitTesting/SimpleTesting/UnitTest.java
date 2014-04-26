@@ -42,31 +42,32 @@ public class UnitTest {
     private String testDescription;
     
     public UnitTest(){
-        accessPublic=IGNORED;
-        accessProtected=IGNORED;
-        accessPrivate=IGNORED;
-        accessPackagePrivate=IGNORED;
+        accessPublic=ALLOWED;
+        accessProtected=ALLOWED;
+        accessPrivate=ALLOWED;
+        accessPackagePrivate=ALLOWED;
         
-        modStatic=IGNORED;
-        modFinal=IGNORED;
-        modAbstract=IGNORED;
-        modSynchronized=IGNORED;
+        modStatic=ALLOWED;
+        modFinal=ALLOWED;
+        modAbstract=ALLOWED;
+        modSynchronized=ALLOWED;
     }
     public UnitTest(String fromText){
-        super();
+        this();
         String[] s=fromText.split(Pattern.quote(TextSpreadsheet.INDIVIDUALDELIMITER3));
         try{
-            accessPublic=valueOf(s[0]);
-            accessProtected=valueOf(s[1]);
-            accessPrivate=valueOf(s[2]);
-            accessPackagePrivate=valueOf(s[3]);
-            modStatic=valueOf(s[4]);
-            modFinal=valueOf(s[5]);
-            modAbstract=valueOf(s[6]);
-            modSynchronized=valueOf(s[7]);
+            accessPublic=valueOf(s[0])==null?accessPublic:valueOf(s[0]);
+            accessProtected=valueOf(s[1])==null?accessProtected:valueOf(s[1]);
+            accessPrivate=valueOf(s[2])==null?accessPrivate:valueOf(s[2]);
+            accessPackagePrivate=valueOf(s[3])==null?accessPackagePrivate:valueOf(s[3]);
+            modStatic=valueOf(s[4])==null?modStatic:valueOf(s[4]);
+            modFinal=valueOf(s[5])==null?modFinal:valueOf(s[5]);
+            modAbstract=valueOf(s[6])==null?modAbstract:valueOf(s[6]);
+            modSynchronized=valueOf(s[7])==null?modSynchronized:valueOf(s[7]);
             if(!s[8].equals("null"))
                 returnType=new JavaClass(s[8]);
-            methodName=s[9];
+            if(!s[9].equals("null"))
+                methodName=s[9];
             if(!s[10].equals("null")){
                 String[] args=s[10].split(",");
                 argumentTypes=new JavaClass[args.length];
@@ -88,12 +89,13 @@ public class UnitTest {
         } catch(Exception e){
             
         }
+        
     }
     public void setMethodName(String name){
-        methodName=name;
+        methodName=validate(name);
     }
     public void setReturnType(String type){
-        returnType=new JavaClass(type);
+        returnType=new JavaClass(validate(type));
     }
     public void setArgumentData(String[] data){
         argumentData=data;
@@ -108,7 +110,7 @@ public class UnitTest {
         }
     }
     public void setExpectedReturnValue(String val){
-        expectedReturnValue=val;
+        expectedReturnValue=validate(val);
     }
     public String getMethodName(){
         return methodName;
@@ -155,7 +157,7 @@ public class UnitTest {
     }
     public void setDescription(String s){
         if(!s.equals(""))
-            testDescription=s;
+            testDescription=validate(s);
     }
     public String toText(){
         String s="";
@@ -200,5 +202,15 @@ public class UnitTest {
     private String append(String string,Object append){
         string+=append+TextSpreadsheet.INDIVIDUALDELIMITER3;
         return string;
+    }
+    private String validate(String s){
+        return TextSpreadsheet.validateString(s);
+    }
+
+    public CheckboxStatus[] getAccess() {
+        return new CheckboxStatus[]{accessPublic,accessProtected,accessPrivate,accessPackagePrivate};
+    }
+    public CheckboxStatus[] getModifiers(){
+        return new CheckboxStatus[]{modStatic,modFinal,modAbstract,modSynchronized};
     }
 }

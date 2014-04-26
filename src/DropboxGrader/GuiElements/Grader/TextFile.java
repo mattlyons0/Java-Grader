@@ -25,4 +25,8 @@ public class TextFile extends File{
     public String getText(){
         return text;
     }
+    public void save(String changedText){
+        text=changedText;
+        DbxSession.writeToFile(this, text);
+    }
 }

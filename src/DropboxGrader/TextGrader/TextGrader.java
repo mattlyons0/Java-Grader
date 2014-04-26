@@ -6,7 +6,7 @@ package DropboxGrader.TextGrader;
 
 import DropboxGrader.Config;
 import DropboxGrader.DbxSession;
-import DropboxGrader.FileManager;
+import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;

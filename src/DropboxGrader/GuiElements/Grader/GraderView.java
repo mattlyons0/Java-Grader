@@ -7,8 +7,8 @@
 package DropboxGrader.GuiElements.Grader;
 
 import DropboxGrader.Config;
-import DropboxGrader.DbxFile;
-import DropboxGrader.FileManager;
+import DropboxGrader.FileManagement.DbxFile;
+import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
@@ -238,6 +238,7 @@ public class GraderView extends ContentView{
         cons.gridx=0;
         cons.gridy=1;
         cons.weighty=0.66;
+        
         add(gradeWriteDivider,cons);
     }
 

@@ -5,7 +5,7 @@
 package DropboxGrader.GuiElements.FileBrowser;
 
 import DropboxGrader.Config;
-import DropboxGrader.DbxFile;
+import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.Gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

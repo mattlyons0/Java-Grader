@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.Util;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

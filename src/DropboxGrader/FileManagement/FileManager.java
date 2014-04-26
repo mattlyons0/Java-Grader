@@ -2,8 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package DropboxGrader;
+package DropboxGrader.FileManagement;
 
+import DropboxGrader.Config;
+import DropboxGrader.FileManagement.DbxFile;
+import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import DropboxGrader.TextGrader.TextGrader;
 import com.dropbox.core.DbxClient;

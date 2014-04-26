@@ -4,11 +4,11 @@
  */
 package DropboxGrader.GuiElements.FileBrowser;
 
-import DropboxGrader.DbxFile;
+import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserListener;
-import DropboxGrader.FileManager;
+import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.WorkerThread;

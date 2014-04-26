@@ -7,7 +7,7 @@
 package DropboxGrader.GuiElements.FileBrowser;
 
 import DropboxGrader.Config;
-import DropboxGrader.DbxFile;
+import DropboxGrader.FileManagement.DbxFile;
 import java.util.ArrayList;
 import javax.swing.JTable;
 import javax.swing.RowSorter;

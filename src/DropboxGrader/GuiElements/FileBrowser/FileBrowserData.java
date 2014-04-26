@@ -6,7 +6,7 @@
 
 package DropboxGrader.GuiElements.FileBrowser;
 
-import DropboxGrader.FileManager;
+import DropboxGrader.FileManagement.FileManager;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;

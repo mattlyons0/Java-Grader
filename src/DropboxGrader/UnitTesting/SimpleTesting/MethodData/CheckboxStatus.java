@@ -6,10 +6,32 @@
 
 package DropboxGrader.UnitTesting.SimpleTesting.MethodData;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author matt
  */
 public enum CheckboxStatus {
-    REQUIREDTRUE,REQUIREDFALSE,IGNORED
+    ALLOWED,DISALLOWED;
+    public static CheckboxStatus[] getAllowed(CheckboxStatus[] arr){
+        ArrayList<CheckboxStatus> allowed=new ArrayList();
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]==ALLOWED)
+                allowed.add(arr[i]);
+            else
+                allowed.add(null);
+        }
+        return allowed.toArray(arr);
+    }
+    public static CheckboxStatus[] getDisallowed(CheckboxStatus[] arr){
+        ArrayList<CheckboxStatus> disallowed=new ArrayList();
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]==DISALLOWED)
+                disallowed.add(arr[i]);
+            else
+                disallowed.add(null);
+        }
+        return disallowed.toArray(arr);
+    }
 }

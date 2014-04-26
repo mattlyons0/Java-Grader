@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.Util;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;

@@ -23,7 +23,7 @@ import javax.swing.JLabel;
  */
 public class MethodAccessOverlay extends ContentOverlay{
     
-    public static final String[] states={"Required","Disallowed","Optional"}; //must have same ordering is CheckboxStatus
+    public static final String[] states={"Allowed","Disallowed"}; //must have same ordering is CheckboxStatus
     
     private Gui gui;
     private UnitTestPanel panel;

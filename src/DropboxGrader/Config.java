@@ -4,6 +4,7 @@
  */
 package DropboxGrader;
 
+import DropboxGrader.FileManagement.DbxFile;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.io.File;

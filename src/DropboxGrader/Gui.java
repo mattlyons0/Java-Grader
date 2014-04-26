@@ -6,6 +6,8 @@
 
 package DropboxGrader;
 
+import DropboxGrader.FileManagement.FileManager;
+import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.GuiElements.ContentViewManager;
 import DropboxGrader.GuiElements.FileBrowser.BrowserView;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;

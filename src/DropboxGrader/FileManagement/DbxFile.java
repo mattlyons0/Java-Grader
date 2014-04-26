@@ -4,13 +4,15 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader;
+package DropboxGrader.FileManagement;
 
 import DropboxGrader.GuiElements.Grader.TextFile;
 import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
 import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.GuiElements.FileBrowser.CellLocation;
+import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextGrade;
+import DropboxGrader.Util.Unzip;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;

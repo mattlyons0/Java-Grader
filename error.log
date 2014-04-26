@@ -1,0 +1,8 @@
+/home/matt/NetBeansProjects/Java-Grader/downloads/P2_MattLyons_27_UnitPrivate/UnitTest2.java:1: error: class UnitTest1 is public, should be declared in a file named UnitTest1.java
+public class UnitTest1{
+       ^
+1 error
+/home/matt/NetBeansProjects/Java-Grader/downloads/P2_MattLyons_27_UnitPrivate/UnitTest3.java:1: error: class UnitTest1 is public, should be declared in a file named UnitTest1.java
+public class UnitTest1{
+       ^
+1 error

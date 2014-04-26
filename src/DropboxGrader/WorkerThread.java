@@ -6,6 +6,8 @@
 
 package DropboxGrader;
 
+import DropboxGrader.FileManagement.FileManager;
+import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.GuiElements.MiscOverlays.ClosingOverlay;
 import java.util.ArrayList;
 import java.util.logging.Level;

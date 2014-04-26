@@ -1,7 +1,8 @@
-Simple unit tests work with private and protected methods now
+Removed Ignored Setting for Checkboxes in Simple Unit Testing because it was redundant and confusing
 
-Fixed removing junit test
-Fixed creating new assignment
-Added 'create name'
-Clicking gradebook before grades have been loaded will now queue opening it.
-Fixed create assignment not saving unit tests.
+Updated readme.md with more direct link to builds and a bit more information.
+UnitTesting now validates strings to double check there are no delimiters in there (although it is very unlikely that there is, but its good to make sure)
+Improved method not found error in simple unit tests to include the method access and modifiers required.
+Fixed ghost text fields a bit
+Text files now save when they are modified.
+Modified JSyntaxPane package to fix an annoying popup from a broken script (which would continue to popup until you restarted your computer oddly enough).

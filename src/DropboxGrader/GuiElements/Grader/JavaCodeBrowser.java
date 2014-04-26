@@ -5,7 +5,7 @@
 package DropboxGrader.GuiElements.Grader;
 
 import DropboxGrader.Config;
-import DropboxGrader.DbxFile;
+import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaFile;
@@ -33,6 +33,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import jsyntaxpane.DefaultSyntaxKit;
+import jsyntaxpane.util.Configuration;
 
 /**
  *
@@ -55,8 +56,8 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
     
     public JavaCodeBrowser(DbxFile f){
         file=f;
-        DefaultSyntaxKit.initKit();
         currentlyRunning=null;
+        DefaultSyntaxKit.initKit();
         sort();
         init();
     }
@@ -278,7 +279,11 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         String result="";
         for(int x=0;x<files.length;x++){
             String code=browserArea[x+numTextFiles].getText();
-            result=files[x].changeCode(code)+"\n";
+            result+=files[x].changeCode(code);
+        }
+        TextFile[] textFiles=file.getTextFiles();
+        for(int i=0;i<textFiles.length;i++){
+            textFiles[i].save(browserArea[i].getText());
         }
         return result;
     }

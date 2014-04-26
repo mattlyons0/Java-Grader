@@ -7,12 +7,11 @@
 package DropboxGrader.GuiElements.UnitTesting;
 
 import DropboxGrader.Config;
-import DropboxGrader.DbxFile;
+import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
-import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.JavaClass;
@@ -394,7 +393,6 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                                                 + "Dropbox is probably under heavy load or down.<br/>"+e.getMessage()+"</html>");
                                         e.printStackTrace();
                                     }
-                                    System.out.println("upload complete");
                                 }
                             });
                             break;
@@ -420,19 +418,19 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         //write button text
         ArrayList<String> labels=new ArrayList();
         String typeName;
-        if(test.accessPublic!=CheckboxStatus.REQUIREDFALSE){
+        if(test.accessPublic!=CheckboxStatus.DISALLOWED){
             typeName="public";
             addType(labels,typeName,test.accessPublic);
         }
-        if(test.accessProtected!=CheckboxStatus.REQUIREDFALSE){
+        if(test.accessProtected!=CheckboxStatus.DISALLOWED){
             typeName="protected";
             addType(labels,typeName,test.accessProtected);
         }
-        if(test.accessPrivate!=CheckboxStatus.REQUIREDFALSE){
+        if(test.accessPrivate!=CheckboxStatus.DISALLOWED){
             typeName="private";
             addType(labels,typeName,test.accessPrivate);
         }
-        if(test.accessPackagePrivate!=CheckboxStatus.REQUIREDFALSE){
+        if(test.accessPackagePrivate!=CheckboxStatus.DISALLOWED){
             typeName="<small>packageprivate</small>";
             addType(labels,typeName,test.accessPackagePrivate);
         }
@@ -442,6 +440,8 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             if(i!=labels.size()-1)
                 label+="/";
         }
+        if(labels.isEmpty())
+            label+="<i>Access Types</i>";
         label+="</html>";
         methodAccess.get(testIndex).setText(label);
     }
@@ -460,19 +460,21 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         //write button text
         String label="<html>";
         ArrayList<String> labels=new ArrayList();
-        if(test.modAbstract!=CheckboxStatus.REQUIREDFALSE)
+        if(test.modAbstract!=CheckboxStatus.DISALLOWED)
             addType(labels,"abstract",test.modAbstract);
-        if(test.modFinal!=CheckboxStatus.REQUIREDFALSE)
+        if(test.modFinal!=CheckboxStatus.DISALLOWED)
             addType(labels,"final",test.modFinal);
-        if(test.modStatic!=CheckboxStatus.REQUIREDFALSE)
+        if(test.modStatic!=CheckboxStatus.DISALLOWED)
             addType(labels,"static",test.modStatic);
-        if(test.modSynchronized!=CheckboxStatus.REQUIREDFALSE)
+        if(test.modSynchronized!=CheckboxStatus.DISALLOWED)
             addType(labels,"synchronized",test.modSynchronized);
         for(int i=0;i<labels.size();i++){
             label+=labels.get(i);
             if(i!=labels.size()-1)
-                label+=" ";
+                label+="/";
         }
+        if(labels.isEmpty())
+            label+="<i>Modifiers</i>";
         label+="</html>";
         methodModifiers.get(testIndex).setText(label);
     }
@@ -496,14 +498,12 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                     label+=", ";
             }
             if(label.equals(""))
-                label=" ";
+                label="<html><i>Arguments</i></html>";
             argumentsButtons.get(testIndex).setText(label);
         }
     }
     private void addType(ArrayList<String> ar,String typeName,CheckboxStatus status){
-        if(status==CheckboxStatus.IGNORED)
-            ar.add("<i>"+typeName+"</i>");
-        else if(status==CheckboxStatus.REQUIREDTRUE)
+        if(status==CheckboxStatus.ALLOWED)
             ar.add(typeName);
     }
     @Override

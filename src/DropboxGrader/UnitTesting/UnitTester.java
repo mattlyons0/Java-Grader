@@ -6,8 +6,8 @@
 
 package DropboxGrader.UnitTesting;
 
-import DropboxGrader.DbxFile;
-import DropboxGrader.FileManager;
+import DropboxGrader.FileManagement.DbxFile;
+import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.UnitTesting.UnitTestOverlay;
 import DropboxGrader.GuiHelper;
@@ -208,7 +208,60 @@ public class UnitTester {
                 if(argTypes==null)
                     argTypes="";
                 String method=assignment.simpleUnitTests[testNum].getMethodName()+"("+argTypes+")";
-                status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist \n";
+                CheckboxStatus[] accesses=CheckboxStatus.getAllowed(assignment.simpleUnitTests[testNum].getAccess());
+                String access="";
+                for(int i=0;i<accesses.length;i++){
+                    if(accesses[i]!=null){
+                        if(i==0)
+                            access+="public";
+                        else if(i==1)
+                            access+="protected";
+                        else if(i==2)
+                            access+="private";
+                        else if(i==3)
+                            access+="package-private";
+                        int numMore=0;
+                        for(int x=i+1;x<accesses.length;x++){
+                            if(accesses[x]!=null)
+                                numMore++;
+                        }
+                        if(numMore>1)
+                            access+=", ";
+                        else if(numMore==1)
+                            access+=" or ";
+                        else
+                            access+=" ";
+                    }
+                }
+                CheckboxStatus[] modifierss=CheckboxStatus.getAllowed(assignment.simpleUnitTests[testNum].getModifiers());
+                String modifiers="and may be ";
+                boolean modsAllowed=false;
+                for(int i=0;i<modifierss.length;i++){
+                    if(modifierss[i]!=null){
+                        modsAllowed=true;
+                        if(i==0)
+                            modifiers+="static";
+                        else if(i==1)
+                            modifiers+="final";
+                        else if(i==2)
+                            modifiers+="abstract";
+                        else if(i==3)
+                            modifiers+="synchronized";
+                        int numMore=0;
+                        for(int x=i+1;x<modifierss.length;x++){
+                            if(accesses[x]!=null)
+                                numMore++;
+                        }
+                        if(numMore>1)
+                            modifiers+=", ";
+                        else if(numMore==1)
+                            modifiers+=" and/or ";
+                        else
+                            modifiers+=" ";
+                    }
+                }
+                status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist. It must be  "+access+(modsAllowed?modifiers:"")+
+                        "and must return a "+assignment.simpleUnitTests[testNum].getReturnTypeString()+".\n";
             }
         }
         final TextGrader grader=gui.getGrader();
@@ -344,15 +397,14 @@ public class UnitTester {
             args="";
         int lastIndex=code.lastIndexOf("}");
         String methodCallString=unitTest.getMethodName();
-        if(unitTest.modStatic==CheckboxStatus.IGNORED||unitTest.modStatic==CheckboxStatus.REQUIREDFALSE){
+        if(unitTest.modStatic==CheckboxStatus.DISALLOWED){
             //if we might need to use a constructor to access it
             String className=currentFile.getName().substring(0,currentFile.getName().length()-5); //remove .java
             methodCallString="new "+className+"()."+methodCallString;
         }
         String classInjected=null;
-        if(unitTest.accessPackagePrivate==CheckboxStatus.IGNORED||unitTest.accessPackagePrivate==CheckboxStatus.REQUIREDTRUE||
-                unitTest.accessPrivate==CheckboxStatus.IGNORED||unitTest.accessPrivate==CheckboxStatus.REQUIREDTRUE||
-                unitTest.accessProtected==CheckboxStatus.IGNORED||unitTest.accessProtected==CheckboxStatus.REQUIREDTRUE){
+        if(unitTest.accessPackagePrivate==CheckboxStatus.ALLOWED||unitTest.accessPrivate==CheckboxStatus.ALLOWED||
+                unitTest.accessProtected==CheckboxStatus.ALLOWED){
             //we need to inject a method to make it work.
             classInjected="public static void m1(){System.out.println("+methodCallString+"("+args+"));}";
         }
@@ -420,40 +472,22 @@ public class UnitTester {
         if(!method.returnType.equals(test.getReturnType()))
             return false;
         //if test requres against a certain method type
-        if(method.accessType==MethodAccessType.PACKAGEPRIVATE&&test.accessPackagePrivate==CheckboxStatus.REQUIREDFALSE)
+        if(method.accessType==MethodAccessType.PACKAGEPRIVATE&&test.accessPackagePrivate==CheckboxStatus.DISALLOWED)
             return false;
-        else if(method.accessType==MethodAccessType.PRIVATE&&test.accessPrivate==CheckboxStatus.REQUIREDFALSE) //else is there because it makes this mess feel a bit more structured
+        else if(method.accessType==MethodAccessType.PRIVATE&&test.accessPrivate==CheckboxStatus.DISALLOWED) //else is there because it makes this mess feel a bit more structured
             return false;
-        else if(method.accessType==MethodAccessType.PROTECTED&&test.accessProtected==CheckboxStatus.REQUIREDFALSE)
+        else if(method.accessType==MethodAccessType.PROTECTED&&test.accessProtected==CheckboxStatus.DISALLOWED)
             return false;
-        else if(method.accessType==MethodAccessType.PUBLIC&&test.accessPublic==CheckboxStatus.REQUIREDFALSE)
-            return false;
-        //if a test requires a certain method type
-        if(test.accessPackagePrivate==CheckboxStatus.REQUIREDTRUE&&method.accessType!=MethodAccessType.PACKAGEPRIVATE)
-            return false;
-        else if(test.accessPrivate==CheckboxStatus.REQUIREDTRUE&&method.accessType!=MethodAccessType.PRIVATE)
-            return false;
-        else if(test.accessProtected==CheckboxStatus.REQUIREDTRUE&&method.accessType!=MethodAccessType.PROTECTED)
-            return false;
-        else if(test.accessPublic==CheckboxStatus.REQUIREDTRUE&&method.accessType!=MethodAccessType.PUBLIC)
+        else if(method.accessType==MethodAccessType.PUBLIC&&test.accessPublic==CheckboxStatus.DISALLOWED)
             return false;
         //if test requires against a certain modifier
-        if(method.modifiers.abstractMod&&test.modAbstract==CheckboxStatus.REQUIREDFALSE)
+        if(method.modifiers.abstractMod&&test.modAbstract==CheckboxStatus.DISALLOWED)
             return false;
-        if(method.modifiers.finalMod&&test.modFinal==CheckboxStatus.REQUIREDFALSE)
+        if(method.modifiers.finalMod&&test.modFinal==CheckboxStatus.DISALLOWED)
             return false;
-        if(method.modifiers.staticMod&&test.modStatic==CheckboxStatus.REQUIREDFALSE)
+        if(method.modifiers.staticMod&&test.modStatic==CheckboxStatus.DISALLOWED)
             return false;
-        if(method.modifiers.synchronizedMod&&test.modSynchronized==CheckboxStatus.REQUIREDFALSE)
-            return false;
-        //if a test requres a certain modifier
-        if(!method.modifiers.abstractMod&&test.modAbstract==CheckboxStatus.REQUIREDTRUE)
-            return false;
-        if(!method.modifiers.finalMod&&test.modFinal==CheckboxStatus.REQUIREDTRUE)
-            return false;
-        if(!method.modifiers.staticMod&&test.modStatic==CheckboxStatus.REQUIREDTRUE)
-            return false;
-        if(!method.modifiers.synchronizedMod&&test.modSynchronized==CheckboxStatus.REQUIREDTRUE)
+        if(method.modifiers.synchronizedMod&&test.modSynchronized==CheckboxStatus.DISALLOWED)
             return false;
         //if arguments are the same
         if(method.arguments==null&&test.getArgumentTypes()!=null){

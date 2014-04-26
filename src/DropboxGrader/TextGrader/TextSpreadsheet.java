@@ -441,10 +441,10 @@ public class TextSpreadsheet {
         grades=new ArrayList();
         grades.add(new ArrayList());
     }
-    private String validateString(String s){
+    public static String validateString(String s){
         return validateString(s,false);
     }
-    private String validateString(String s,boolean returns){
+    public static String validateString(String s,boolean returns){
         s=s.replace(COMMENTDELIMITER,"");
         s=s.replace(GRADEDELIMITER, "");
         s=s.replace(INDIVIDUALDELIMITER, "");

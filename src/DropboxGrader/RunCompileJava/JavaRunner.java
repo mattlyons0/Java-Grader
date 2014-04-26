@@ -5,7 +5,7 @@
 package DropboxGrader.RunCompileJava;
 
 import DropboxGrader.Config;
-import DropboxGrader.DbxFile;
+import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Grader.JTerminal;
 import DropboxGrader.UnitTesting.UnitTester;
