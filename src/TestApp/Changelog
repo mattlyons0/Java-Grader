@@ -1,8 +1,6 @@
-Removed Ignored Setting for Checkboxes in Simple Unit Testing because it was redundant and confusing
+Grading is now always done on the background thread.
+    An exception will be thrown if it isnt.
 
-Updated readme.md with more direct link to builds and a bit more information.
-UnitTesting now validates strings to double check there are no delimiters in there (although it is very unlikely that there is, but its good to make sure)
-Improved method not found error in simple unit tests to include the method access and modifiers required.
-Fixed ghost text fields a bit
-Text files now save when they are modified.
-Modified JSyntaxPane package to fix an annoying popup from a broken script (which would continue to popup until you restarted your computer oddly enough).
+Fixed not being able to close if it hung on startup connecting to dropbox or something.
+Fixed all bugs with printing multi line comments
+Cleaned up border in gradebook around cells. No more border around names.

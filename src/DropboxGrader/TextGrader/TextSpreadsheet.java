@@ -453,6 +453,8 @@ public class TextSpreadsheet {
         if(!returns){
             s=s.replace("\n", "");
             s=s.replace("\r", "");
+        } else{
+            s=s.replaceAll("\r", "\n");
         }
         
         return s;

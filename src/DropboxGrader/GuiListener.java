@@ -54,7 +54,7 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
                     return;
                 }
             }
-            if(gui!=null&&gui.getBackgroundThread()!=null&&gui.getBackgroundThread().hasWork()){
+            if(gui!=null&&gui.getBackgroundThread()!=null&&gui.getBackgroundThread().hasWork()&&gui.getViewManager().hasView("GradebookView")){
                 ClosingOverlay overlay=new ClosingOverlay(gui);
                 gui.getBackgroundThread().setCloseAfterDone(true,overlay);
                 gui.getViewManager().addOverlay(overlay);

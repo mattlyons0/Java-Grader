@@ -28,6 +28,8 @@ Round decimals in grading
 Sort code by lines instead of length
 Properly validate if downloaded folder is the same as when it was extracted (hashing? checksums?)
 Upload changed files back to dropbox (or email to students)
+Remember previously used comments for this session.
+Store a list of (canned comments) which can simply be selected (or a shortcut can be assigned to them)
 
 demo mode
     Log them into a test dropbox with some test code and files

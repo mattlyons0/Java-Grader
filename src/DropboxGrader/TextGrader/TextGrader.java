@@ -11,6 +11,7 @@ import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.WorkerThread;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
@@ -171,7 +172,11 @@ public class TextGrader {
         }
         return -1;
     }
-    public boolean setGrade(String name,final int assignmentNum,final double gradeNum,final String comment,final boolean overwrite){        
+    public boolean setGrade(String name,final int assignmentNum,final double gradeNum,final String comment,final boolean overwrite){
+        if(!Thread.currentThread().getName().equals(WorkerThread.threadName)){
+            throw new IllegalStateException("Attempted to grade from thread: "+Thread.currentThread().getName()+". "
+                    + "Grading can only be done from the background thread.");
+        }
         downloadSheet();
         if(!data.nameDefined(name)){ //need to put name in gradebook
             String[] nameParts=splitName(name,assignmentNum,gradeNum,comment,overwrite);

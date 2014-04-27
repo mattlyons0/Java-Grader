@@ -22,6 +22,7 @@ import java.awt.print.Printable;
 import static java.awt.print.Printable.NO_SUCH_PAGE;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -241,15 +242,20 @@ public class Print implements Printable {
             if(grade!=null){
                 if(!grade.comment.equals("")){
                     String str="Grade: "+grade.grade+" Comment: "+grade.comment;
-                    String[] stringLines=lineWrap(str,(int)pf.getImageableWidth(),g);
-                    for(int line=previousAssignmentLine;line<stringLines.length;line++){
-                        String s=stringLines[line];
-                        g.drawString(s,0,(int)marginY);
-                        marginY+=15;
-                        if(marginY>=pf.getImageableHeight()){
-                            previousAssignmentIndex=i;
-                            previousAssignmentLine=line+1;
-                            return false;
+                    str=str.replaceAll("\r", "\n");
+                    String[] strLines=str.split("\n");
+                    for(int lineb=0;lineb<strLines.length;lineb++){
+                        String[] stringLines=lineWrap(strLines[lineb].replaceAll("\n", ""),(int)pf.getImageableWidth(),g);
+                        System.out.println(Arrays.toString(stringLines));
+                        for(int line=previousAssignmentLine;line<stringLines.length;line++){
+                            String s=stringLines[line];
+                            g.drawString(s,0,(int)marginY);
+                            marginY+=15;
+                            if(marginY>=pf.getImageableHeight()){
+                                previousAssignmentIndex=i;
+                                previousAssignmentLine=line+1;
+                                return false;
+                            }
                         }
                     }
                 } else{
@@ -274,9 +280,7 @@ public class Print implements Printable {
         previousAssignmentLine=0;
         return true;
     }
-    private String[] lineWrap(String str,int width,Graphics2D g){
-        str=str.replaceAll("\r", "\n");
-        
+    private String[] lineWrap(String str,int width,Graphics2D g){        
         int lineWidth=g.getFontMetrics().stringWidth(str);
         double lines=lineWidth/(double)width;
         if(lines<=1){
@@ -288,24 +292,14 @@ public class Print implements Printable {
         for(int i=0;i<split.length;i++){
             String combined="";
             for(int index=0;index<i;index++){
-                if(split[index].contains("\n")){
-                    int newLineIndex=split[index].indexOf("\n");
-                    combined+=split[index].substring(0,newLineIndex+1)+" "; //space to add another character so the \n gets substringed out
-                    break;
-                }
-                else if(index!=0){
+                if(index!=0){
                     combined+=" ";
                 }
-                if(!split[index].contains("\n"))
                 combined+=split[index];
             }
             int curWidth=g.getFontMetrics().stringWidth(combined);
-            if(curWidth<=width&&!combined.contains("\n")){
+            if(curWidth<=width){
                 lastString=combined;
-            }
-            else if(combined.contains("\n")){
-                lastString=combined;
-                break;
             }
             else{
                 if(lastString==null){ //there were no spaces so we will just cut it off

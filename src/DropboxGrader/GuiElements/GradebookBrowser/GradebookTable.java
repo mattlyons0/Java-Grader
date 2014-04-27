@@ -68,6 +68,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         mode=0;
         clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
         sheetData=new GradebookData(sheet);
+        setShowGrid(false);
         
         init();
     }
@@ -392,6 +393,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             public void run() {
                 Object[] results=overlay.getData();
                 gui.getGrader().setGrade(name,assignment,(double)results[0], (String)results[1], overwrite);
+                gui.repaint();
             }
         });
         gui.getViewManager().addOverlay(overlay);

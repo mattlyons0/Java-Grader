@@ -281,36 +281,45 @@ public class GraderView extends ContentView{
                 gradeStatus.setText("No grade has been entered.");
                 return;
             }
-            TextGrader grader=gui.getGrader();
-            DbxFile currentFile=gui.getCurrentFile();
-            ArrayList<Integer> selectedFiles=gui.getSelectedFiles();
+            recordGradeButton.setEnabled(false);
+            gradeStatus.setText("Grading...");
+            final TextGrader grader=gui.getGrader();
+            final DbxFile currentFile=gui.getCurrentFile();
+            final ArrayList<Integer> selectedFiles=gui.getSelectedFiles();
             
             if(grader==null){
                 gradeStatus.setText("Grader has not been initialized.");
                 return;
             }
-            try{
-                int assign=currentFile.getAssignmentNumber();
-                boolean success=grader.setGrade(currentFile.getFirstLastName(), 
-                        assign, Double.parseDouble(gradeNumber.getText()),gradeComment.getText(),
-                        grader.gradeWritten(currentFile.getFirstLastName(), assign));
-                if(success){
-                    gradeStatus.setText("Graded");
-                    if(selectedFiles.size()>1){
-                        selectedFiles.remove(0);
-                        gui.setCurrentFile(fileManager.getFile(selectedFiles.get(0)));
-                        gui.setupGraderGui();
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        int assign=currentFile.getAssignmentNumber();
+                        boolean success=grader.setGrade(currentFile.getFirstLastName(), 
+                                assign, Double.parseDouble(gradeNumber.getText()),gradeComment.getText(),
+                                grader.gradeWritten(currentFile.getFirstLastName(), assign));
+                        if(success){
+                            gui.repaint();
+                            gradeStatus.setText("Graded");
+                            if(selectedFiles.size()>1){
+                                selectedFiles.remove(0);
+                                gui.setCurrentFile(fileManager.getFile(selectedFiles.get(0)));
+                                gui.setupGraderGui();
+                            }
+                            else if(selectedFiles.size()==1){
+                                selectedFiles.clear();
+                            }
+                        }
+                        else{
+                            gradeStatus.setText("Canceled Grading");
+                        }
+                    } catch(NumberFormatException ex){
+                        gradeStatus.setText("Error reading assignment number: "+currentFile.getAssignmentNumber());
                     }
-                    else if(selectedFiles.size()==1){
-                        selectedFiles.clear();
-                    }
+                    recordGradeButton.setEnabled(true);
                 }
-                else{
-                    gradeStatus.setText("Canceled Grading");
-                }
-            } catch(NumberFormatException ex){
-                gradeStatus.setText("Error reading assignment number: "+currentFile.getAssignmentNumber());
-            }
+            });
         }
         else if(e.getSource().equals(gradeComment)||e.getSource().equals(gradeNumber)){ //return was pressed in the text field.
             actionPerformed(new ActionEvent(recordGradeButton,0,null));

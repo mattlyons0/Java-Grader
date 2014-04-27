@@ -25,6 +25,8 @@ public class WorkerThread implements Runnable{
     private ClosingOverlay closingOverlay;
     private Thread workerThread;
     
+    public static final String threadName="BackgroundTasksThread";
+    
     public WorkerThread(Gui gui){
         this.gui=gui;
         queue=new ArrayList();
@@ -33,7 +35,7 @@ public class WorkerThread implements Runnable{
     }
     private void createThread(){
         workerThread=new Thread(this);
-        workerThread.setName("BackgroundTasksThread");
+        workerThread.setName(threadName);
     }
     @Override
     public void run() {

@@ -9,8 +9,12 @@ package DropboxGrader.GuiElements.GradebookBrowser;
 import DropboxGrader.TextGrader.TextGrade;
 import java.awt.Color;
 import java.awt.Component;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -36,11 +40,13 @@ public class GradebookTableRenderer extends DefaultTableCellRenderer{
                         l.setBackground(l.getBackground().darker());
                 }
             }
+            l.setBorder(new MatteBorder(0,0,1,1,UIManager.getColor("Table.gridColor")));
             return l;
         }
         else{ //First column, we are going to render this like a header cell
             TableCellRenderer renderer = table.getTableHeader().getDefaultRenderer();
             JLabel l= (JLabel) renderer.getTableCellRendererComponent(table, value, false, false, row, column);
+            l.setBorder(BorderFactory.createEmptyBorder());
             return l;
         }
         
