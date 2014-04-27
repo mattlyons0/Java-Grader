@@ -315,12 +315,16 @@ public class DbxFile {
         if(str.equals("")){
             str="No files exist in the zip.";
         }
+        if(str.toLowerCase().contains(".java")&&(javaFiles==null||javaFiles.length==0)){
+            //we searched too early and missed some files
+            checkExists();
+            return null;
+        }
         return str;
     }
     private String getFileStructure(String directory,String output){
-        if(output==null){
+        if(output==null)
             output="";
-        }
         File dir=new File(directory);
         File[] files=dir.listFiles();
         if(files!=null){
@@ -330,7 +334,7 @@ public class DbxFile {
                     tabs+="  ";
                 }
                 if(f.isDirectory()){
-                    output=getFileStructure(directory+"/"+f.getName(),output)+output;
+                    output=getFileStructure(directory+"/"+f.getName(),output);
                     output=tabs+f.getName()+"/\n"+output;
                 }
                 else if(f.isFile()){

@@ -246,7 +246,7 @@ public class Print implements Printable {
                     String[] strLines=str.split("\n");
                     for(int lineb=0;lineb<strLines.length;lineb++){
                         String[] stringLines=lineWrap(strLines[lineb].replaceAll("\n", ""),(int)pf.getImageableWidth(),g);
-                        System.out.println(Arrays.toString(stringLines));
+                        //System.out.println(Arrays.toString(stringLines));
                         for(int line=previousAssignmentLine;line<stringLines.length;line++){
                             String s=stringLines[line];
                             g.drawString(s,0,(int)marginY);
@@ -280,7 +280,10 @@ public class Print implements Printable {
         previousAssignmentLine=0;
         return true;
     }
-    private String[] lineWrap(String str,int width,Graphics2D g){        
+    private String[] lineWrap(String str,int width,Graphics2D g){   
+        if(str.contains("Test 1: Error")){
+            System.out.println("hi");
+        }
         int lineWidth=g.getFontMetrics().stringWidth(str);
         double lines=lineWidth/(double)width;
         if(lines<=1){
@@ -302,7 +305,7 @@ public class Print implements Printable {
                 lastString=combined;
             }
             else{
-                if(lastString==null){ //there were no spaces so we will just cut it off
+                if(lastString==null||lastString.replaceAll(" ", "").equals("")){ //there were no spaces so we will just cut it off
                     lastString=str;
                 }
                 break;

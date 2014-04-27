@@ -17,6 +17,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -46,6 +48,9 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     private JScrollPane scroll;
     private JTextField nameField;
     
+    private JLabel spinnerLabel;
+    private JLabel spinnerDescription;
+    
     public PrintOverlay(Gui gui){
         super("PrintOverlay");
         this.gui=gui;
@@ -54,63 +59,84 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     @Override
     public void setup() {
         format=printer.getFormat();
-        BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
-        printer.printPreview(image.getGraphics(), currentPage);
+        final BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
         
-        JPanel panel=new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.setBackground(Color.LIGHT_GRAY);
-        ImageIcon icon=new ImageIcon(image);
-        iconLabel=new JLabel(icon);
-        printButton=new JButton("Print");
-        printButton.addActionListener(this);
-        modeField=new JComboBox(Print.modes);
-        modeField.addActionListener(this);
-        backButton=new JButton("Back");
-        backButton.addActionListener(this);
-        forwardButton=new JButton("Forward");
-        forwardButton.addActionListener(this);
-        pageLabel=new JLabel();
-        
+        ImageIcon icon=new ImageIcon(getClass().getResource("/Resources/ajax-loader.gif"));
+        spinnerLabel=new JLabel(icon);
+        spinnerLabel.setOpaque(false);
+        spinnerDescription=new JLabel("Generating Print Preview...");
         GridBagConstraints cons=new GridBagConstraints();
-        cons.insets=new Insets(5,5,5,5);
         cons.gridx=0;
         cons.gridy=0;
-        cons.weightx=1;
-        cons.weighty=1;
-        cons.gridwidth=4;
-        cons.fill=GridBagConstraints.NONE;
-        cons.anchor=GridBagConstraints.NORTH;
-        panel.add(iconLabel,cons);
+        cons.weightx=0;
+        cons.weighty=0;
+        add(spinnerLabel,cons);
+        cons.gridy++;
+        add(spinnerDescription,cons);
         
-        scroll=new JScrollPane(panel);
-        
-        cons.gridx=0;
-        cons.gridy=0;
-        cons.weighty=99;
-        cons.gridwidth=5;
-        cons.fill=GridBagConstraints.BOTH;
-        cons.insets=new Insets(5,5,0,5);
-        add(scroll,cons);
-        cons.fill=GridBagConstraints.NONE;
-        cons.gridwidth=1;
-        cons.gridy=1;
-        cons.weighty=1;
-        cons.anchor=GridBagConstraints.NORTHWEST;
-        cons.weightx=5;
-        add(printButton,cons);
-        cons.anchor=GridBagConstraints.NORTH;
-        cons.weightx=1;
-        cons.gridx=1;
-        add(modeField,cons);
-        cons.gridx=2;
-        add(backButton,cons);
-        cons.gridx=3;
-        add(pageLabel,cons);
-        cons.gridx=4;
-        add(forwardButton,cons);
-        
-        changePage(0);
+        gui.getBackgroundThread().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                printer.printPreview(image.getGraphics(), currentPage);
+                JPanel panel=new JPanel();
+                panel.setLayout(new GridBagLayout());
+                panel.setBackground(Color.LIGHT_GRAY);
+                ImageIcon icon=new ImageIcon(image);
+                iconLabel=new JLabel(icon);
+                printButton=new JButton("Print");
+                printButton.addActionListener(PrintOverlay.this);
+                modeField=new JComboBox(Print.modes);
+                modeField.addActionListener(PrintOverlay.this);
+                backButton=new JButton("Back");
+                backButton.addActionListener(PrintOverlay.this);
+                forwardButton=new JButton("Forward");
+                forwardButton.addActionListener(PrintOverlay.this);
+                pageLabel=new JLabel();
+                
+                remove(spinnerLabel);
+                remove(spinnerDescription);
+                
+                GridBagConstraints cons=new GridBagConstraints();
+                cons.insets=new Insets(5,5,5,5);
+                cons.gridx=0;
+                cons.gridy=0;
+                cons.weightx=1;
+                cons.weighty=1;
+                cons.gridwidth=4;
+                cons.fill=GridBagConstraints.NONE;
+                cons.anchor=GridBagConstraints.NORTH;
+                panel.add(iconLabel,cons);
+
+                scroll=new JScrollPane(panel);
+
+                cons.gridx=0;
+                cons.gridy=0;
+                cons.weighty=99;
+                cons.gridwidth=5;
+                cons.fill=GridBagConstraints.BOTH;
+                cons.insets=new Insets(5,5,0,5);
+                add(scroll,cons);
+                cons.fill=GridBagConstraints.NONE;
+                cons.gridwidth=1;
+                cons.gridy=1;
+                cons.weighty=1;
+                cons.anchor=GridBagConstraints.NORTHWEST;
+                cons.weightx=5;
+                add(printButton,cons);
+                cons.anchor=GridBagConstraints.NORTH;
+                cons.weightx=1;
+                cons.gridx=1;
+                add(modeField,cons);
+                cons.gridx=2;
+                add(backButton,cons);
+                cons.gridx=3;
+                add(pageLabel,cons);
+                cons.gridx=4;
+                add(forwardButton,cons);
+
+                changePage(0);
+            }
+        });
         
         setTitle("Print Preview");
         int width=(int)(format.getWidth()*1.1f);

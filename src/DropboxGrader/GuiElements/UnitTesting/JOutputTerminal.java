@@ -22,10 +22,14 @@ import javax.swing.text.StyledDocument;
  * @author Matt
  */
 public class JOutputTerminal extends JTextPane{
+    private boolean errors;
+    
     public JOutputTerminal(){
         super();
     }    
     public void append(String s,Color c){
+        if(c.equals(Color.RED))
+            errors=true;
         StyleContext context= StyleContext.getDefaultStyleContext();
         AttributeSet set=context.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
         StyledDocument doc=getStyledDocument();
@@ -34,5 +38,8 @@ public class JOutputTerminal extends JTextPane{
         } catch (BadLocationException ex) {
             Logger.getLogger(JOutputTerminal.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    public boolean errorsOccured(){
+        return errors;
     }
 }

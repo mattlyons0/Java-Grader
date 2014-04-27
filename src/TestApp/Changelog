@@ -1,6 +1,9 @@
-Grading is now always done on the background thread.
-    An exception will be thrown if it isnt.
+Print Preview is now generated in the background and displays a spinner while it is generating.
 
-Fixed not being able to close if it hung on startup connecting to dropbox or something.
-Fixed all bugs with printing multi line comments
-Cleaned up border in gradebook around cells. No more border around names.
+Halved time to load the code grading view.
+Fixed file directory search duplicating.
+No longer 'misses' some .java files, then say that we have .java files.
+Fixed simple unit tests when they wouldn't compile.
+Test description overlay no longer auto-closes when errors occur testing.
+Fixed stackoverflow with printing
+Fixed running simple unit tests multiple times if multiple methods applied.

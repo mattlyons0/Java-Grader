@@ -119,7 +119,13 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
             scrolls[x]=new JScrollPane (browserArea[x]);
             if(noJavaFiles&&numFiles-x==1){ //theres no files
                 String t="No .java files found in the zip file.\n";
-                t+="File Structure:\n"+file.getFileStructure();
+                String structure=file.getFileStructure();
+                if(structure==null){ //signals to us that it forgot some files and researched
+                    sort();
+                    init();
+                    return;
+                }
+                t+="File Structure:\n"+structure;
                 if(file.isInvalidZip()){
                     t="Zip file is invalid.";
                 }
@@ -267,9 +273,6 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
     }
     public void setFile(DbxFile f){
         file=f;
-        
-        sort();
-        init();
     }
     public String saveFile(){
         if(files==null){

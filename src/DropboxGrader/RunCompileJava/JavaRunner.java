@@ -214,7 +214,7 @@ public class JavaRunner implements Runnable{
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
             StringStream compileStream=new StringStream();
-            int result=compiler.run(System.in, System.out, compileStream, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            int result=compiler.run(null, null, compileStream, filePaths); //if the compiler couldnt be found it will crash here. NPE
             compileStream.close();
             if(result!=0&&!compileStream.getOutput().equals("")){
                 return new String[]{null,compileStream.getOutput()};
@@ -224,7 +224,7 @@ public class JavaRunner implements Runnable{
             e.printStackTrace();
         }
         try{
-            System.out.println("Running with commands: "+Arrays.toString(args));
+            //System.out.println("Running with commands: "+Arrays.toString(args));
             ProcessBuilder builder=new ProcessBuilder(args);
             Process testProc=builder.start();
             StringRelayer relayer=new StringRelayer(testProc.getInputStream(),testProc.getErrorStream());
@@ -315,7 +315,7 @@ public class JavaRunner implements Runnable{
             }
             String javaVersion=Runtime.class.getPackage().getImplementationVersion();
             StringStream compileStream=new StringStream();
-            int result=compiler.run(null, System.out, null, filePaths); //if the compiler couldnt be found it will crash here. NPE
+            int result=compiler.run(null, null, compileStream, filePaths); //if the compiler couldnt be found it will crash here. NPE
             compileStream.close();
             if(result!=0&&!compileStream.getOutput().equals("")){
                 return new String[]{null,compileStream.getOutput()};
@@ -453,7 +453,7 @@ public class JavaRunner implements Runnable{
                 String javaVersion=Runtime.class.getPackage().getImplementationVersion();
                 terminal.append("JDK: "+System.getProperty("java.home")+"\n",Color.GRAY);
                 terminal.append("JRE: "+javaVersion+"\n",Color.GRAY);
-                int result=compiler.run(null, System.out, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
+                int result=compiler.run(null, null, errorRelay, filePaths); //if the compiler couldnt be found it will crash here. NPE
                 if(result!=0){
                     terminal.append("Compile Failed\n\n",Color.RED);
                     gui.proccessEnded();
@@ -488,7 +488,7 @@ public class JavaRunner implements Runnable{
             builder.directory(runningFrom); //do something like this but safer to set proper working directory
             //todo: verify this works with packages
             //builder.inheritIO();
-            System.out.println("Running from: "+runningFrom);
+            //System.out.println("Running from: "+runningFrom);
             if(compile)
                 terminal.append("Run Started: \n\n",Color.GRAY);
             running=builder.start();
@@ -503,7 +503,7 @@ public class JavaRunner implements Runnable{
 //            s2.useDelimiter("\n");
 //            FilterOutputStream filterStream=(FilterOutputStream) running.getOutputStream();
 //            printStream=new PrintStream(filterStream);
-              System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
+              //System.out.println("Making call: "+javaExe+" -cp "+classpath+" "+className);
               return true;
             //}
         } catch (IOException ex) {
@@ -630,7 +630,7 @@ public class JavaRunner implements Runnable{
     }
     public boolean isRunning(){
         if(numRunsLeft>0||running!=null){
-            System.out.println("RunsLeft:"+numRunsLeft+" Proccess:"+running);
+            //System.out.println("RunsLeft:"+numRunsLeft+" Proccess:"+running);
             return true;
         }
         return false;

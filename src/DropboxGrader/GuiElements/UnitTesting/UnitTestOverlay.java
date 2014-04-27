@@ -113,6 +113,16 @@ public class UnitTestOverlay extends ContentOverlay{
     public void finished(){
         if(timer!=null)
             return;
+        if(testOutput.errorsOccured()){
+            statusLabel.setText("Errors Running Tests");
+            statusLabel.setForeground(Color.RED);
+            currentTestInfo.setText("Errors logged below.");
+            remove(cancelButton);
+            cancelButton=null;
+            revalidate();
+            repaint();
+            return;
+        }
         cancelButton.setEnabled(true);
         cancelButton.setText("Cancel Closing");
         cancelButton.setToolTipText("");

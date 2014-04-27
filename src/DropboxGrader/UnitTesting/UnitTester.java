@@ -98,25 +98,27 @@ public class UnitTester {
         }
         if(overlay!=null)
             overlay.setStatus("Running Unit Tests");
-        for(int i=0;i<javaFiles.length;i++){
-            JavaMethod[] methods=javaFiles[i].getMethods();
-            for(JavaMethod m:methods){
-                if((overlay==null||!overlay.isCanceled())&&assignment.simpleUnitTests!=null){
-                    if(overlay!=null)
-                        overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
-                    for(UnitTest test:assignment.simpleUnitTests){
+        if((overlay==null||!overlay.isCanceled())&&assignment.simpleUnitTests!=null){
+            if(overlay!=null)
+                overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
+            for(UnitTest test:assignment.simpleUnitTests){
+                test:
+                for(int i=0;i<javaFiles.length;i++){
+                    JavaMethod[] methods=javaFiles[i].getMethods();
+                    for(JavaMethod m:methods){
                         if((overlay==null||!overlay.isCanceled())&&(test!=null&&testMatch(m,test))){
                             if(overlay!=null)
                                 overlay.setDescription("Method: "+m.getMethodString()+" Unit Test: "+(test.getDescription()==null?test.getMethodName():("'"+test.getDescription()+"'"))+" Assignment: "+assignment+" File: "+file.getFileName());
-                            runSimpleTest(file,test,i);
+                            runSimpleTest(file,test,i,m);
                             if(overlay!=null)
                                 overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
+                            break test;
                         }
                     }
                 }
-                if(overlay!=null)
-                    overlay.setDescription("File: "+file.getFileName());
-            }
+        }
+        if(overlay!=null)
+            overlay.setDescription("File: "+file.getFileName());
         }
         if(overlay!=null)
             overlay.setStatus("Running JUnit Tests");
@@ -170,6 +172,8 @@ public class UnitTester {
                     System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);
                     if(overlay!=null)
                         overlay.append("Error downloading JUnit Test: "+testLoc+" from dropbox!",Color.RED);
+                    testResults.add(null);
+                    testStatus.add(null);
                     ex.printStackTrace();
                 }
                 if(overlay!=null&&overlay.isCanceled())
@@ -266,8 +270,9 @@ public class UnitTester {
         }
         final TextGrader grader=gui.getGrader();
         final Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
+        final String gradeComment=grader.getComment(file.getFirstLastName(), assignment.number);
         final String fStatus=status;
-        if(!errorTesting&&(gradeNum==null||gradeNum!=grade)){
+        if(!errorTesting&&(gradeNum==null||gradeNum!=grade||gradeComment==null||!gradeComment.equals(status))){
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
@@ -298,9 +303,9 @@ public class UnitTester {
             return;
         }
         if(results==null){
-            System.err.println("Error getting results from JUnit Test, result was null.");
+            System.err.println("Unknown error running JUnitTest '"+file.getFileName()+"' Program wouldn't run.");
             if(overlay!=null)
-                overlay.append("Unknown error running JUnitTest.",Color.RED);
+                overlay.append("Unknown error running JUnitTest '"+file.getFileName()+"' Program wouldn't run.",Color.RED);
             return;
         }
         String[] resultsLines=results[0].split("\n");
@@ -357,7 +362,7 @@ public class UnitTester {
             }
         }
     }
-    private void runSimpleTest(DbxFile file,UnitTest unitTest,int javaFileIndex){
+    private void runSimpleTest(DbxFile file,UnitTest unitTest,int javaFileIndex,JavaMethod testMethod){
         String types=unitTest.getArgumentTypesString();
         if(types==null)
             types="";
@@ -366,9 +371,9 @@ public class UnitTester {
             overlay.append("Running Unit Test: "+(unitTest.getDescription()==null?method:("'"+unitTest.getDescription()+"'"))+" on "+file.getFileName());
         currentFile=file.getJavaFiles()[javaFileIndex];
         String code=currentFile.getCode();
-        if(code.contains("//INJECTED-FOR-UNIT-TEST\npublic static void main(String[] args){")){
+        if(code.contains("//INJECTED-FOR-UNIT-TEST")){
             file.forceDownload();
-            runSimpleTest(file,unitTest,javaFileIndex);
+            runSimpleTest(file,unitTest,javaFileIndex,testMethod);
             return;
         }
         for(JavaMethod m:currentFile.getMethods()){
@@ -397,14 +402,14 @@ public class UnitTester {
             args="";
         int lastIndex=code.lastIndexOf("}");
         String methodCallString=unitTest.getMethodName();
-        if(unitTest.modStatic==CheckboxStatus.DISALLOWED){
-            //if we might need to use a constructor to access it
+        if(!testMethod.modifiers.staticMod){
+            //if we need to use a constructor to access it
             String className=currentFile.getName().substring(0,currentFile.getName().length()-5); //remove .java
             methodCallString="new "+className+"()."+methodCallString;
         }
         String classInjected=null;
-        if(unitTest.accessPackagePrivate==CheckboxStatus.ALLOWED||unitTest.accessPrivate==CheckboxStatus.ALLOWED||
-                unitTest.accessProtected==CheckboxStatus.ALLOWED){
+        if(testMethod.accessType==MethodAccessType.PACKAGEPRIVATE||testMethod.accessType==MethodAccessType.PRIVATE||
+                testMethod.accessType==MethodAccessType.PROTECTED){
             //we need to inject a method to make it work.
             classInjected="public static void m1(){System.out.println("+methodCallString+"("+args+"));}";
         }
@@ -426,10 +431,13 @@ public class UnitTester {
         String[] value=gui.getRunner().runTest(file.getJavaFiles(),currentFile,this);
         if(value[0]==null){
             compileFinished();
-            testResults.add(null);
-            testStatus.add(null);
-            GuiHelper.alertDialog("Error running Simple Unit Tests. "+value[1]);
-            System.err.println("Error running Simple Unit Tests. "+value[1]);
+            testResults.add(false);
+            testStatus.add("Error running Unit Test:\n"+value[1]);
+            
+            if(overlay!=null)
+                overlay.append("Error running Simple Unit Test '"+file.getFileName()+"':\n"+value[1],Color.RED);
+            System.err.println("Error running Simple Unit Test '"+file.getFileName()+"':\n"+value[1]);
+            return;
         }
         
         String status="";
