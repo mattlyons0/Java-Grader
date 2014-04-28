@@ -9,6 +9,7 @@ package DropboxGrader.Printing;
 import DropboxGrader.Gui;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.print.PrinterJob;
 import javax.swing.JTable;
@@ -42,50 +43,41 @@ public class PrintGradebook {
         Graphics2D g2=(Graphics2D)combinedImage.getGraphics();
         g2.drawImage(columnsImage, null, null);
         g2.drawImage(tableImage, 0,columnsImage.getHeight(), null);
-        int cellWidthStart=getWidthCells(pageNum-1);
-        int cellHeightStart=getHeightCells(pageNum-1);
-        int cellWidth=getWidthCells(pageNum);
-        int cellHeight=getHeightCells(pageNum);
-        g2.clearRect(cellWidth, 0, combinedImage.getWidth(), combinedImage.getHeight());
-        g2.clearRect(0,cellHeight,combinedImage.getWidth(),combinedImage.getHeight());
+        Rectangle oldHorizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum-2), true);
+        Rectangle oldVerticalCell=table.getCellRect(0, getNumVerticalCells(pageNum-2), true);
+        Rectangle horizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum-1), true);
+        Rectangle verticalCell=table.getCellRect(0, getNumVerticalCells(pageNum-1), true);
+        g2.fillRect(horizontalCell.width+horizontalCell.x, 0, combinedImage.getWidth(), combinedImage.getHeight());
+        //g2.clearRect(0, verticalCell.height+verticalCell.y, combinedImage.getWidth(), combinedImage.getHeight());
         
-        g.translate(-cellWidthStart, 0);
+        g.translate(-(oldHorizontalCell.width+oldHorizontalCell.x), -0);
         if(landscapeMode){
             ((Graphics2D)g).rotate(Math.toRadians(90));
             g.drawImage(combinedImage, 0, 0, null);
         } else
             g.drawImage(combinedImage, 0, 0, null);
-        g.translate(cellWidthStart,-cellHeightStart);
+        g.translate(oldHorizontalCell.width+oldHorizontalCell.x,0);
     }
-    private int getWidthCells(int page){
+    private int getNumHorizontalCells(int page){
         if(page<0)
             return 0;
         int width=(int)job.defaultPage().getImageableWidth()*(page+1);
         
-        int lastWidth;
         int totalWidth=0;
-        if(page>0)
-            totalWidth=getWidthCells(page-1);
         int startCell=0;
-        int testWidth=0;
-        for(int i=0;testWidth<totalWidth;i++){
-            startCell=i-1;
-            testWidth+=table.getCellRect(0,i,true).width;
-        }
-        for(int i=startCell-1;i<table.getModel().getColumnCount();i++){
-            lastWidth=totalWidth;
+        if(page>0)
+            startCell=getNumHorizontalCells(page-1);
+        for(int i=startCell;i<table.getModel().getColumnCount();i++){
             totalWidth+=table.getCellRect(0, i, true).width;
             if(totalWidth>width){//one lower than our current index, but since we return size we don't subtract one
-                if(totalWidth-50<=width)
-                    return totalWidth;
-                return lastWidth;
+                return i-1;
             }
             if(totalWidth==width)
-                return totalWidth; //current one, but since we are returning the number not the index add one
+                return i; //current one, but since we are returning the number not the index add one
         }
         return totalWidth;
     }
-    private int getHeightCells(int page){
+    private int getNumVerticalCells(int page){
         if(page<0)
             return 0;
         int height=(int)job.defaultPage().getImageableHeight();

@@ -160,7 +160,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     }
     private void changePage(int newPage){
         currentPage=newPage;
-        BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image=new BufferedImage((int)format.getImageableWidth(),(int)format.getImageableHeight(),BufferedImage.TYPE_INT_ARGB);
         if(modeField.getSelectedIndex()!=2)
             printer.printPreview(image.getGraphics(), currentPage);
         else if(modeField.getSelectedIndex()==2){
