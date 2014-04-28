@@ -63,6 +63,8 @@ public class WorkerThread implements Runnable{
             System.err.println("An exception occured on the background thread and it was caught from crashing.");
             e.printStackTrace();
         }
+        if(!queue.isEmpty())
+            run();
     }
     public void download(ArrayList<Integer> fileIndexes,final boolean gradeAfter){
         final ArrayList<DbxFile> files=new ArrayList();
@@ -118,7 +120,8 @@ public class WorkerThread implements Runnable{
         });
     }
     public void invokeLater(Runnable run){
-        queue.add(run);
+        if(run!=null)
+            queue.add(run);
         if(!workerThread.isAlive()){
             createThread();
             workerThread.start();
@@ -143,6 +146,7 @@ public class WorkerThread implements Runnable{
         manager=man;
     }
     public boolean hasWork(){
+        invokeLater(null);
         return !queue.isEmpty();
     }
     public void setCloseAfterDone(boolean close,ClosingOverlay o){

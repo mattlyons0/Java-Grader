@@ -8,9 +8,12 @@ package DropboxGrader.GuiElements.MiscOverlays;
 
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
+import DropboxGrader.GuiElements.GradebookBrowser.GradebookView;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.Printing.Print;
+import DropboxGrader.Printing.PrintGradebook;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -19,12 +22,16 @@ import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.OrientationRequested;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -36,6 +43,7 @@ import javax.swing.event.DocumentListener;
 public class PrintOverlay extends ContentOverlay implements DocumentListener{
     private Gui gui;
     private Print printer;
+    private PrintGradebook gradebookPrinter;
     private int currentPage;
     private PageFormat format;
     
@@ -51,16 +59,14 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     private JLabel spinnerLabel;
     private JLabel spinnerDescription;
     
-    public PrintOverlay(Gui gui){
+    public PrintOverlay(Gui gui,GradebookView view){
         super("PrintOverlay");
         this.gui=gui;
-        printer=new Print(gui);
+        gradebookPrinter=new PrintGradebook(gui,view.getGradebookTable(),view.getScroll().getColumnHeader());
+        //gradebookPrinter.setLandscape(true);
     }
     @Override
-    public void setup() {
-        format=printer.getFormat();
-        final BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
-        
+    public void setup() {        
         ImageIcon icon=new ImageIcon(getClass().getResource("/Resources/ajax-loader.gif"));
         spinnerLabel=new JLabel(icon);
         spinnerLabel.setOpaque(false);
@@ -77,6 +83,19 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
         gui.getBackgroundThread().invokeLater(new Runnable() {
             @Override
             public void run() {
+                printer=new Print(gui);
+                format=printer.getFormat();
+                int width=(int)(format.getWidth()*1.1f);
+                int height=(int)(format.getHeight()*1.1f);
+                if(height>=gui.getContentPane().getHeight()){
+                    height=gui.getContentPane().getHeight();
+                }
+                if(width>=gui.getContentPane().getWidth()){
+                    width=gui.getContentPane().getWidth();
+                }
+                setSize(width,height);
+                setLocation((gui.getContentPane().getWidth()-width)/2,(gui.getContentPane().getHeight()-height)/2);
+                BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
                 printer.printPreview(image.getGraphics(), currentPage);
                 JPanel panel=new JPanel();
                 panel.setLayout(new GridBagLayout());
@@ -139,14 +158,8 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
         });
         
         setTitle("Print Preview");
-        int width=(int)(format.getWidth()*1.1f);
-        int height=(int)(format.getHeight()*1.1f);
-        if(height>=gui.getContentPane().getHeight()){
-            height=gui.getContentPane().getHeight();
-        }
-        if(width>=gui.getContentPane().getWidth()){
-            width=gui.getContentPane().getWidth();
-        }
+        int width=(int)(gui.getContentPane().getWidth()*0.4f);
+        int height=(int)(gui.getContentPane().getHeight()*0.75f);
         setSize(width,height);
         setLocation((gui.getContentPane().getWidth()-width)/2,(gui.getContentPane().getHeight()-height)/2);
         setVisible(true);
@@ -155,7 +168,11 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     private void changePage(int newPage){
         currentPage=newPage;
         BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
-        printer.printPreview(image.getGraphics(), currentPage);
+        if(modeField.getSelectedIndex()!=2)
+            printer.printPreview(image.getGraphics(), currentPage);
+        else if(modeField.getSelectedIndex()==2){
+            gradebookPrinter.printPreview(image.getGraphics(), currentPage);
+        }
         iconLabel.setIcon(new ImageIcon(image));
         int numPages=printer.getNumPages();
         pageLabel.setText("Page "+(currentPage+1)+"/"+numPages);
@@ -196,7 +213,8 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
             changePage(currentPage+1);
         }
         else if(e.getSource().equals(modeField)){
-            printer.setMode(modeField.getSelectedIndex());
+            if(modeField.getSelectedIndex()!=2) //since we draw the jtable not manually, no need to tell the manual printer we're donig it.
+                printer.setMode(modeField.getSelectedIndex());
             currentPage=0;
             changePage(currentPage);
             if(Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")&&

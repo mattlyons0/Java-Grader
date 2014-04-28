@@ -22,13 +22,12 @@ import java.awt.print.Printable;
 import static java.awt.print.Printable.NO_SUCH_PAGE;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Print implements Printable {
-    public static String[] modes={"All Student Reports","Specific Student Report"};
+    public static String[] modes={"All Student Reports","Specific Student Report","Gradebook Table"};
     
     private Gui gui;
     private Pageable pageable;
@@ -47,7 +46,7 @@ public class Print implements Printable {
     
     public Print(final Gui gui){
         this.gui=gui;
-        
+
         job=PrinterJob.getPrinterJob();
         cachedTotalPages=calcTotalPages();
         pageable=new Pageable() {
@@ -55,9 +54,8 @@ public class Print implements Printable {
             public int getNumberOfPages() {
                 if(modes[printMode].equals("All Student Reports"))
                     return cachedTotalPages;
-                if(modes[printMode].equals("Specific Student Report")){
+                if(modes[printMode].equals("Specific Student Report"))
                     return cachedStudentPages;
-                }
                 return 0;                
             }
             @Override

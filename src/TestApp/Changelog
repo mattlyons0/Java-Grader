@@ -1,9 +1,5 @@
-Print Preview is now generated in the background and displays a spinner while it is generating.
+Started Implementing Printing Gradebook Table
 
-Halved time to load the code grading view.
-Fixed file directory search duplicating.
-No longer 'misses' some .java files, then say that we have .java files.
-Fixed simple unit tests when they wouldn't compile.
-Test description overlay no longer auto-closes when errors occur testing.
-Fixed stackoverflow with printing
-Fixed running simple unit tests multiple times if multiple methods applied.
+Threaded print preview page number generation.
+Fixed the background queue getting stuck with a task, which prevented you from closing.
+    Made it less likely to get stuck

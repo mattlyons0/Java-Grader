@@ -10,7 +10,6 @@ import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
@@ -126,23 +125,28 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         }
         return false;
     }
-    public void addOverlay(ContentOverlay o){
+    public void addOverlay(final ContentOverlay o){
         if(o.shouldBeCached()){
             overlays.add(o);
         }
-        o.addInternalFrameListener(this);
+        o.addInternalFrameListener(ContentViewManager.this);
         o.setID(overlayID);
         overlayID++;
         o.setup();
         setLocation(o);
-        add(o,JLayeredPane.POPUP_LAYER);
-        o.switchedTo();
-        try {
-            o.setMaximum(false);
-            o.setSelected(true);
-        } catch (PropertyVetoException ex) {
-            //oh no it cant be selected! whatever will we do!
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                add(o,JLayeredPane.POPUP_LAYER);
+                o.switchedTo();
+                try {
+                    o.setMaximum(false);
+                    o.setSelected(true);
+                } catch (Exception ex) {
+                    //oh no it cant be selected! whatever will we do!
+                }
+            }
+        });
     }
     public boolean removeOverlay(String name){
         boolean removed=false;
