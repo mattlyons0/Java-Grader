@@ -1,5 +1,3 @@
-Started Implementing Printing Gradebook Table
+More work on printing table
 
-Threaded print preview page number generation.
-Fixed the background queue getting stuck with a task, which prevented you from closing.
-    Made it less likely to get stuck
+Fixed potential NPE

@@ -33,7 +33,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.util.Configuration;
 
 /**
  *
@@ -285,13 +284,15 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
             result+=files[x].changeCode(code);
         }
         TextFile[] textFiles=file.getTextFiles();
-        for(int i=0;i<textFiles.length;i++){
-            textFiles[i].save(browserArea[i].getText());
-        }
+        if(textFiles!=null)
+            for(int i=0;i<textFiles.length;i++){
+                if(textFiles[i]!=null&&browserArea[i]!=null)
+                    textFiles[i].save(browserArea[i].getText());
+            }
         return result;
     }
     public void setRunningFile(JavaFile f){
-        String colorString1="<html><font color='00AB00'>";
+        String colorString1="<html><font color='00AB00'>"; //set running label green
         String colorString2="</font></html>";
         if(f!=null){
             for(int i=numTextFiles;i<files.size()+numTextFiles;i++){

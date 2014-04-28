@@ -42,21 +42,30 @@ public class PrintGradebook {
         Graphics2D g2=(Graphics2D)combinedImage.getGraphics();
         g2.drawImage(columnsImage, null, null);
         g2.drawImage(tableImage, 0,columnsImage.getHeight(), null);
-        
+        int cellWidthStart=getWidthCells(pageNum-1);
+        int cellHeightStart=getHeightCells(pageNum-1);
         int cellWidth=getWidthCells(pageNum);
-        int cellheight=getHeightCells(pageNum);
+        int cellHeight=getHeightCells(pageNum);
+        g2.clearRect(cellWidth, 0, combinedImage.getWidth(), combinedImage.getHeight());
+        g2.clearRect(0,cellHeight,combinedImage.getWidth(),combinedImage.getHeight());
         
+        g.translate(-cellWidthStart, 0);
         if(landscapeMode){
             ((Graphics2D)g).rotate(Math.toRadians(90));
-            g.drawImage(combinedImage, 0, -cellheight, null);
+            g.drawImage(combinedImage, 0, 0, null);
         } else
             g.drawImage(combinedImage, 0, 0, null);
+        g.translate(cellWidthStart,-cellHeightStart);
     }
     private int getWidthCells(int page){
-        int width=(int)job.defaultPage().getImageableWidth();
+        if(page<0)
+            return 0;
+        int width=(int)job.defaultPage().getImageableWidth()*(page+1);
         
         int lastWidth;
         int totalWidth=0;
+        if(page>0)
+            totalWidth=getWidthCells(page-1);
         for(int i=0;i<table.getModel().getColumnCount();i++){
             lastWidth=totalWidth;
             totalWidth+=table.getCellRect(0, i, true).width;
@@ -68,6 +77,8 @@ public class PrintGradebook {
         return totalWidth;
     }
     private int getHeightCells(int page){
+        if(page<0)
+            return 0;
         int height=(int)job.defaultPage().getImageableHeight();
         
         int lastHeight;
