@@ -279,9 +279,6 @@ public class Print implements Printable {
         return true;
     }
     private String[] lineWrap(String str,int width,Graphics2D g){   
-        if(str.contains("Test 1: Error")){
-            System.out.println("hi");
-        }
         int lineWidth=g.getFontMetrics().stringWidth(str);
         double lines=lineWidth/(double)width;
         if(lines<=1){

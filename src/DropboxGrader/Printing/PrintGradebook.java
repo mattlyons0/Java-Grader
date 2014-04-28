@@ -66,11 +66,20 @@ public class PrintGradebook {
         int totalWidth=0;
         if(page>0)
             totalWidth=getWidthCells(page-1);
-        for(int i=0;i<table.getModel().getColumnCount();i++){
+        int startCell=0;
+        int testWidth=0;
+        for(int i=0;testWidth<totalWidth;i++){
+            startCell=i-1;
+            testWidth+=table.getCellRect(0,i,true).width;
+        }
+        for(int i=startCell-1;i<table.getModel().getColumnCount();i++){
             lastWidth=totalWidth;
             totalWidth+=table.getCellRect(0, i, true).width;
-            if(totalWidth>width)
-                return lastWidth; //one lower than our current index, but since we return size we don't subtract one
+            if(totalWidth>width){//one lower than our current index, but since we return size we don't subtract one
+                if(totalWidth-50<=width)
+                    return totalWidth;
+                return lastWidth;
+            }
             if(totalWidth==width)
                 return totalWidth; //current one, but since we are returning the number not the index add one
         }
