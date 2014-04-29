@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
+import java.awt.print.Pageable;
 import java.awt.print.Printable;
 import static java.awt.print.Printable.PAGE_EXISTS;
 import java.awt.print.PrinterException;
@@ -30,13 +31,34 @@ public class PrintGradebook implements Printable{
     private boolean landscapeMode;
     
     private PrinterJob job;
+    private Pageable pageable;
+    private Integer pages;
     public PrintGradebook(Gui gui,JTable gradebook){
         this.gui=gui;
         table=gradebook;
         columns=gradebook.getTableHeader();
         job=PrinterJob.getPrinterJob();
+        pageable=new Pageable() {
+            @Override
+            public int getNumberOfPages() {
+                if(pages!=null)
+                    return pages;
+                else{
+                    calculatePages();
+                    return pages;
+                }
+            }
+            @Override
+            public PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
+                return job.defaultPage();
+            }
+            @Override
+            public Printable getPrintable(int pageIndex) throws IndexOutOfBoundsException {
+                return PrintGradebook.this;
+            }
+        };
     }
-    public void printPreview(Graphics g,int pageNum){
+    public int printPreview(Graphics g,int pageNum){
         BufferedImage columnsImage=new BufferedImage(columns.getBounds().width,columns.getBounds().height,BufferedImage.TYPE_INT_ARGB);
         table.getTableHeader().paint(columnsImage.getGraphics());
         BufferedImage tableImage=new BufferedImage(table.getBounds().width,table.getBounds().height,BufferedImage.TYPE_INT_ARGB);
@@ -54,6 +76,8 @@ public class PrintGradebook implements Printable{
         Rectangle oldVerticalCell=table.getCellRect(0, lastVertical, true);
         Rectangle horizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum), true);
         Rectangle verticalCell=table.getCellRect(0, getNumVerticalCells(pageNum), true);
+        if(oldHorizontalCell.x==horizontalCell.x)
+            return NO_SUCH_PAGE;
 
         g2.fillRect(horizontalCell.x+horizontalCell.width, 0, combinedImage.getWidth(), combinedImage.getHeight());
         //g2.clearRect(0, verticalCell.height+verticalCell.y, combinedImage.getWidth(), combinedImage.getHeight());
@@ -65,9 +89,7 @@ public class PrintGradebook implements Printable{
         } else
             g.drawImage(combinedImage, 0, 0, null);
         g.translate(oldHorizontalCell.x,0);
-    }
-    public void print(){
-        
+        return PAGE_EXISTS;
     }
     private int getNumHorizontalCells(int page){
         if(page<0)
@@ -109,10 +131,44 @@ public class PrintGradebook implements Printable{
     public void setLandscape(boolean b){
         landscapeMode=b;
     }
-
+    public boolean print(){
+        job.setPrintable(this);
+        job.setJobName("Gradebook Table");
+        job.setPageable(pageable);
+        
+        boolean accepted=job.printDialog();
+        if(accepted){
+            try{
+                job.print();
+            } catch(PrinterException ex){
+                ex.printStackTrace();
+                return false;
+            }
+        } else
+            return false;
+        return true;
+    }
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
         printPreview(graphics,pageIndex);
         return PAGE_EXISTS;
+    }
+    private void calculatePages(){
+        BufferedImage i=new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
+        int pages=0;
+        boolean done=false;
+        while(!done){
+            int val=printPreview(i.getGraphics(),pages);
+            if(val==NO_SUCH_PAGE)
+                done=true;
+            else
+                pages++;
+        }
+        this.pages=pages;
+    }
+    public int getNumPages(){
+        if(pages==null)
+            calculatePages();
+        return pages;
     }
 }

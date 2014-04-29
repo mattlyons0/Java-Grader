@@ -167,7 +167,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
             gradebookPrinter.printPreview(image.getGraphics(), currentPage);
         }
         iconLabel.setIcon(new ImageIcon(image));
-        int numPages=printer.getNumPages();
+        int numPages=modeField.getSelectedIndex()!=2?printer.getNumPages():gradebookPrinter.getNumPages();
         pageLabel.setText("Page "+(currentPage+1)+"/"+numPages);
         if(currentPage==0){
             backButton.setEnabled(false);
@@ -192,12 +192,12 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    if(printer.getMode()!=2){
+                    if(modeField.getSelectedIndex()!=2){
                         Print p=new Print(gui);
                         p.setMode(printer.getMode());
                         p.setStudent(printer.getStudent());
                         p.print();
-                    } else if(printer.getMode()==2){
+                    } else if(modeField.getSelectedIndex()==2){
                         gradebookPrinter.print();
                     }
                 }
