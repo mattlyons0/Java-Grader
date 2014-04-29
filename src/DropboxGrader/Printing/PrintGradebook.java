@@ -43,39 +43,39 @@ public class PrintGradebook {
         Graphics2D g2=(Graphics2D)combinedImage.getGraphics();
         g2.drawImage(columnsImage, null, null);
         g2.drawImage(tableImage, 0,columnsImage.getHeight(), null);
-        Rectangle oldHorizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum-2), true);
-        Rectangle oldVerticalCell=table.getCellRect(0, getNumVerticalCells(pageNum-2), true);
-        Rectangle horizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum-1), true);
-        Rectangle verticalCell=table.getCellRect(0, getNumVerticalCells(pageNum-1), true);
-        g2.fillRect(horizontalCell.width+horizontalCell.x, 0, combinedImage.getWidth(), combinedImage.getHeight());
+        Rectangle oldHorizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum-1), true);
+        Rectangle oldVerticalCell=table.getCellRect(0, getNumVerticalCells(pageNum-1), true);
+        Rectangle horizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum), true);
+        Rectangle verticalCell=table.getCellRect(0, getNumVerticalCells(pageNum), true);
+        g2.fillRect(horizontalCell.x+horizontalCell.width, 0, combinedImage.getWidth(), combinedImage.getHeight());
         //g2.clearRect(0, verticalCell.height+verticalCell.y, combinedImage.getWidth(), combinedImage.getHeight());
         
-        g.translate(-(oldHorizontalCell.width+oldHorizontalCell.x), -0);
+        g.translate(-oldHorizontalCell.x, -0);
         if(landscapeMode){
             ((Graphics2D)g).rotate(Math.toRadians(90));
             g.drawImage(combinedImage, 0, 0, null);
         } else
             g.drawImage(combinedImage, 0, 0, null);
-        g.translate(oldHorizontalCell.width+oldHorizontalCell.x,0);
+        g.translate(oldHorizontalCell.x,0);
     }
     private int getNumHorizontalCells(int page){
         if(page<0)
             return 0;
         int width=(int)job.defaultPage().getImageableWidth()*(page+1);
         
-        int totalWidth=0;
         int startCell=0;
-        if(page>0)
+        if(page>0){
             startCell=getNumHorizontalCells(page-1);
+        }
         for(int i=startCell;i<table.getModel().getColumnCount();i++){
-            totalWidth+=table.getCellRect(0, i, true).width;
+            int totalWidth=table.getCellRect(0, i, true).x+table.getCellRect(0, i, true).width;
             if(totalWidth>width){//one lower than our current index, but since we return size we don't subtract one
                 return i-1;
             }
             if(totalWidth==width)
                 return i; //current one, but since we are returning the number not the index add one
         }
-        return totalWidth;
+        return table.getModel().getColumnCount();
     }
     private int getNumVerticalCells(int page){
         if(page<0)

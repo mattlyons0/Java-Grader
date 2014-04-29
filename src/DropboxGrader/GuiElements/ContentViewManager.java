@@ -211,7 +211,12 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
     @Override
     public void componentResized(ComponentEvent e) {
         if(backgroundPanel!=null)
-            backgroundPanel.setSize(gui.getContentPane().getSize());
+            SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                backgroundPanel.setSize(gui.getContentPane().getSize());
+            }
+        });
     }
 
     @Override

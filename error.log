@@ -1,0 +1,4 @@
+Error when JUnit testing. Hamcrest or JUnit Jar is missing.
+There were errors running JUnit Test 
+Errors: 'The Hamcrest or JUnit Jar is missing, Configure their paths in the settings menu.' 
+Output: 'null'
