@@ -1,3 +1,1 @@
-More work on printing table
-
-Fixed a repaint exception
+Finished horizontal paging of printing gradebook table.

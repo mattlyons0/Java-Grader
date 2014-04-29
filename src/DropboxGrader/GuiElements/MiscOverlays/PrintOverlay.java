@@ -55,7 +55,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     public PrintOverlay(Gui gui,GradebookView view){
         super("PrintOverlay");
         this.gui=gui;
-        gradebookPrinter=new PrintGradebook(gui,view.getGradebookTable(),view.getScroll().getColumnHeader());
+        gradebookPrinter=new PrintGradebook(gui,view.getGradebookTable());
         //gradebookPrinter.setLandscape(true);
     }
     @Override
@@ -192,10 +192,14 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    Print p=new Print(gui);
-                    p.setMode(printer.getMode());
-                    p.setStudent(printer.getStudent());
-                    p.print();
+                    if(printer.getMode()!=2){
+                        Print p=new Print(gui);
+                        p.setMode(printer.getMode());
+                        p.setStudent(printer.getStudent());
+                        p.print();
+                    } else if(printer.getMode()==2){
+                        gradebookPrinter.print();
+                    }
                 }
             });
         }
