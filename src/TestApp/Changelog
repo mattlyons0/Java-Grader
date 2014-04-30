@@ -1,3 +1,5 @@
-Fixed bug with not erasing previous grade when grading in queues
-Fixed selected student printing not showing a preview
-Threaded print preview better (a bit unstable though)
+Threading on Print Preview is now complete and not buggy.
+
+    Fixed creating a ton of background proccesses if the button was spammed
+Fixed opening JUnit test results when no tests were run.
+Fixed crash when refreshing

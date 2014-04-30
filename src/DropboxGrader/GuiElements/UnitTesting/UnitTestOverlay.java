@@ -105,15 +105,17 @@ public class UnitTestOverlay extends ContentOverlay{
         return canceled;
     }
     public void setStatus(String status){
-        statusLabel.setText(status+"...");
+        if(statusLabel!=null)
+            statusLabel.setText(status+"...");
     }
     public void setDescription(String desc){
-        currentTestInfo.setText(desc);
+        if(currentTestInfo!=null)
+            currentTestInfo.setText(desc);
     }
     public void finished(){
         if(timer!=null)
             return;
-        if(testOutput.errorsOccured()){
+        if(testOutput!=null&&testOutput.errorsOccured()){
             statusLabel.setText("Errors Running Tests");
             statusLabel.setForeground(Color.RED);
             currentTestInfo.setText("Errors logged below.");
@@ -123,10 +125,11 @@ public class UnitTestOverlay extends ContentOverlay{
             repaint();
             return;
         }
-        cancelButton.setEnabled(true);
-        cancelButton.setText("Cancel Closing");
-        cancelButton.setToolTipText("");
-        
+        if(cancelButton!=null){
+            cancelButton.setEnabled(true);
+            cancelButton.setText("Cancel Closing");
+            cancelButton.setToolTipText("");
+        }        
         
         closingSeconds=5;
         timer=new Timer();

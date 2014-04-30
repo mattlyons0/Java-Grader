@@ -35,10 +35,14 @@ public class UnitTestManager implements Runnable{
             @Override
             public void run() {
                 UnitTestOverlay overlay=new UnitTestOverlay(gui);
-                gui.getViewManager().addOverlay(overlay);
+                boolean foundTests=false;
                 TextAssignment[] assignments=gui.getGrader().getSpreadsheet().getAllAssignments();
                 for(int i=0;i<assignments.length;i++){
                     if(assignments[i].simpleUnitTests!=null||assignments[i].junitTests!=null){
+                        if(!foundTests){
+                            foundTests=true;
+                            gui.getViewManager().addOverlay(overlay);
+                        }
                         UnitTester tester=new UnitTester(gui,assignments[i],overlay);
                         tester.runTests();
                     }

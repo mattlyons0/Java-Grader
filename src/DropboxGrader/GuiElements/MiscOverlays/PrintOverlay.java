@@ -12,7 +12,9 @@ import DropboxGrader.GuiElements.GradebookBrowser.GradebookView;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.Printing.Print;
 import DropboxGrader.Printing.PrintGradebook;
+import DropboxGrader.Util.NamedRunnable;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -162,7 +164,6 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
                 panel.add(iconLabel,cons);
 
                 scroll=new JScrollPane(panel);
-                hideLoader();
 
                 cons.gridx=0;
                 cons.gridy=0;
@@ -202,8 +203,8 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
         
     }
     private void changePage(final int newPage){
-        showLoader();
-        gui.getBackgroundThread().invokeLater(new Runnable() {
+        gui.getBackgroundThread().removeQueued("GradebookPrintPreviewChangePage");
+        gui.getBackgroundThread().invokeLater(new NamedRunnable() {
             @Override
             public void run() {
                 currentPage=newPage;
@@ -233,6 +234,11 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
                     forwardButton.setEnabled(true);
                 }
                 hideLoader();
+            }
+
+            @Override
+            public String name() {
+                return "GradebookPrintPreviewChangePage";
             }
         });
     }
@@ -267,6 +273,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
             if(modeField.getSelectedIndex()!=2) //since we draw the jtable not manually, no need to tell the manual printer we're donig it.
                 printer.setMode(modeField.getSelectedIndex());
             currentPage=0;
+            showLoader();
             changePage(currentPage);
             if(Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")&&
                     nameField==null){
@@ -333,22 +340,36 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
             }
         }
         else if(e.getSource().equals(orientation)){
-            gui.getBackgroundThread().invokeLater(new Runnable() {
+            showLoader();
+            gui.getBackgroundThread().removeQueued("GradebookPrintChangeOrientation");
+            gui.getBackgroundThread().invokeLater(new NamedRunnable() {
                 @Override
                 public void run() {
                     gradebookPrinter.setLandscape(orientation.getSelectedIndex()==1);
+                    changePage(currentPage);
+                }
+
+                @Override
+                public String name() {
+                    return "GradebookPrintChangeOrientation";
                 }
             });
-            changePage(currentPage);
         }
         else if(e.getSource().equals(wrapCells)){
-            gui.getBackgroundThread().invokeLater(new Runnable() {
+            showLoader();
+            gui.getBackgroundThread().removeQueued("GradebookPrintChangeWrap");
+            gui.getBackgroundThread().invokeLater(new NamedRunnable() {
                 @Override
                 public void run() {
                     gradebookPrinter.setWrap(wrapCells.isSelected());
+                    changePage(currentPage);
+                }
+
+                @Override
+                public String name() {
+                    return "GradebookPrintChangeWrap";
                 }
             });
-            changePage(currentPage);
         }
     }
 
@@ -373,13 +394,20 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
     @Override
     public void stateChanged(ChangeEvent e) {
         if(e.getSource().equals(scaleSlider)){
-            gui.getBackgroundThread().invokeLater(new Runnable() {
+            showLoader();
+            gui.getBackgroundThread().removeQueued("GenerateGradebookPrintPreview");
+            gui.getBackgroundThread().invokeLater(new NamedRunnable() {
                 @Override
                 public void run() {
                     gradebookPrinter.setScale(scaleSlider.getValue()/100f);
+                    changePage(currentPage);
+                }
+
+                @Override
+                public String name() {
+                    return "GenerateGradebookPrintPreview";
                 }
             });
-            changePage(currentPage);
         }
     }
     

@@ -9,6 +9,7 @@ package DropboxGrader;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.GuiElements.MiscOverlays.ClosingOverlay;
+import DropboxGrader.Util.NamedRunnable;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +41,7 @@ public class WorkerThread implements Runnable{
     @Override
     public void run() {
         try{
-            while(!queue.isEmpty()){
+            while(!queue.isEmpty()){                
                 Runnable r=queue.remove(0);
                 try{
                     r.run();
@@ -138,6 +139,8 @@ public class WorkerThread implements Runnable{
                         gui.getGrader().refresh();
                         gui.repaint();
                     }
+                    if(gui.getGradebook()!=null)
+                        gui.getGradebook().dataChanged();
                 }
             }
         });
@@ -152,5 +155,15 @@ public class WorkerThread implements Runnable{
     public void setCloseAfterDone(boolean close,ClosingOverlay o){
         closeAfterDone=close;
         closingOverlay=o;
+    }
+    public void removeQueued(String name){
+        for(int i=0;i<queue.size();i++){
+            if(queue.get(i) instanceof NamedRunnable){
+                if(((NamedRunnable)queue.get(i)).name().equals(name)){
+                    queue.remove(i);
+                    i--;
+                }
+            }
+        }
     }
 }

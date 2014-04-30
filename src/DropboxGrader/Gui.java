@@ -107,7 +107,7 @@ public class Gui extends JFrame implements ActionListener{
                 sizeY=Config.screenHeight;
             if(exceedsSize[1])
                 sizeX=Config.screenWidth;
-            System.out.println(sizeX+","+sizeY);
+            //System.out.println(sizeX+","+sizeY);
             
             setSize(sizeX,sizeY);
         }
@@ -331,5 +331,8 @@ public class Gui extends JFrame implements ActionListener{
     }
     public UnitTestManager getTestManager(){
         return unitMan;
+    }
+    public GradebookView getGradebook(){
+        return gradebookView;
     }
 }
