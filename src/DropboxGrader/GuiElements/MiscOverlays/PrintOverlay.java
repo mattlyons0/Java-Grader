@@ -21,11 +21,15 @@ import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -33,7 +37,7 @@ import javax.swing.event.DocumentListener;
  *
  * @author 141lyonsm
  */
-public class PrintOverlay extends ContentOverlay implements DocumentListener{
+public class PrintOverlay extends ContentOverlay implements DocumentListener,ChangeListener{
     private Gui gui;
     private Print printer;
     private PrintGradebook gradebookPrinter;
@@ -48,6 +52,10 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
     private JLabel pageLabel;
     private JScrollPane scroll;
     private JTextField nameField;
+    private JCheckBox wrapCells;
+    private JComboBox orientation;
+    private JPanel gradebookSettings;
+    private JSlider scaleSlider;
     
     private JLabel spinnerLabel;
     private JLabel spinnerDescription;
@@ -88,6 +96,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
                 }
                 setSize(width,height);
                 setLocation((gui.getContentPane().getWidth()-width)/2,(gui.getContentPane().getHeight()-height)/2);
+                
                 BufferedImage image=new BufferedImage((int)format.getWidth(),(int)format.getHeight(),BufferedImage.TYPE_INT_ARGB);
                 printer.printPreview(image.getGraphics(), currentPage);
                 JPanel panel=new JPanel();
@@ -164,10 +173,12 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
         if(modeField.getSelectedIndex()!=2)
             printer.printPreview(image.getGraphics(), currentPage);
         else if(modeField.getSelectedIndex()==2){
-            gradebookPrinter.printPreview(image.getGraphics(), currentPage);
+            gradebookPrinter.printPreview(image.getGraphics(), currentPage,Color.LIGHT_GRAY);
         }
         iconLabel.setIcon(new ImageIcon(image));
         int numPages=modeField.getSelectedIndex()!=2?printer.getNumPages():gradebookPrinter.getNumPages();
+        if(currentPage>=numPages)
+            changePage(currentPage-1);
         pageLabel.setText("Page "+(currentPage+1)+"/"+numPages);
         if(currentPage==0){
             backButton.setEnabled(false);
@@ -228,12 +239,63 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
                 add(nameField,cons);
                 revalidate();
             }
-            else if(!Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")&&
+            else if(modeField.getSelectedIndex()==2&&wrapCells==null){
+                wrapCells=new JCheckBox("Wrap Cells");
+                wrapCells.setToolTipText("Avoid cutting off cells.");
+                wrapCells.setSelected(gradebookPrinter.getWrapMode());
+                wrapCells.addActionListener(this);
+                orientation=new JComboBox(new String[]{"Portrait","Landscape"});
+                orientation.setToolTipText("Orientation");
+                orientation.setSelectedIndex(gradebookPrinter.getLandscape()?1:0);
+                orientation.addActionListener(this);
+                scaleSlider=new JSlider(5,100,(int)(gradebookPrinter.getScale()*100));
+                scaleSlider.addChangeListener(this);
+                                
+                GridBagConstraints cons=new GridBagConstraints();
+                cons.anchor=GridBagConstraints.NORTH;
+                cons.fill=GridBagConstraints.NONE;
+                cons.gridx=0;
+                cons.gridy=0;
+                cons.weightx=1;
+                cons.weighty=0.1;
+                
+                gradebookSettings=new JPanel();
+                gradebookSettings.setLayout(new GridBagLayout());
+                gradebookSettings.add(orientation,cons);
+                cons.gridx++;
+                gradebookSettings.add(wrapCells,cons);
+                
+                cons.gridx=0;
+                cons.gridy=2;
+                add(scaleSlider,cons);
+                cons.gridx=1;
+                add(gradebookSettings,cons);
+                
+                revalidate();
+            }
+                
+            if(!Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")&&
                     nameField!=null){
                 remove(nameField);
                 nameField=null;
                 revalidate();
             }
+            if(modeField.getSelectedIndex()!=2&&wrapCells!=null){
+                remove(gradebookSettings);
+                remove(scaleSlider);
+                wrapCells=null;
+                orientation=null;
+                scaleSlider=null;
+                revalidate();
+            }
+        }
+        else if(e.getSource().equals(orientation)){
+            gradebookPrinter.setLandscape(orientation.getSelectedIndex()==1);
+            changePage(currentPage);
+        }
+        else if(e.getSource().equals(wrapCells)){
+            gradebookPrinter.setWrap(wrapCells.isSelected());
+            changePage(currentPage);
         }
     }
 
@@ -252,6 +314,14 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener{
         if(Print.modes[modeField.getSelectedIndex()].equals("Specific Student Report")){
             printer.setStudent(nameField.getText());
             changePage(currentPage);                
+        }
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if(e.getSource().equals(scaleSlider)){
+            gradebookPrinter.setScale(scaleSlider.getValue()/100f);
+            changePage(currentPage);
         }
     }
     

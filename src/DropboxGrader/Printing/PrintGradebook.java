@@ -7,6 +7,7 @@
 package DropboxGrader.Printing;
 
 import DropboxGrader.Gui;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -28,7 +29,9 @@ public class PrintGradebook implements Printable{
     private Gui gui;
     private JTable table;
     private JTableHeader columns;
-    private boolean landscapeMode;
+    private boolean landscape;
+    private boolean wrapCells;
+    private float scale=0.85f;
     
     private PrinterJob job;
     private Pageable pageable;
@@ -38,6 +41,7 @@ public class PrintGradebook implements Printable{
         table=gradebook;
         columns=gradebook.getTableHeader();
         job=PrinterJob.getPrinterJob();
+        wrapCells=true;
         pageable=new Pageable() {
             @Override
             public int getNumberOfPages() {
@@ -58,51 +62,71 @@ public class PrintGradebook implements Printable{
             }
         };
     }
-    public int printPreview(Graphics g,int pageNum){
+    public int printPreview(Graphics g,int pageNum,Color clearColor){
         BufferedImage columnsImage=new BufferedImage(columns.getBounds().width,columns.getBounds().height,BufferedImage.TYPE_INT_ARGB);
         table.getTableHeader().paint(columnsImage.getGraphics());
         BufferedImage tableImage=new BufferedImage(table.getBounds().width,table.getBounds().height,BufferedImage.TYPE_INT_ARGB);
         table.paint(tableImage.getGraphics());
         
-        BufferedImage combinedImage=new BufferedImage(columnsImage.getWidth(),columnsImage.getHeight()+tableImage.getHeight(),
+        BufferedImage combinedImage=new BufferedImage((int)(columnsImage.getWidth()*scale),(int)(columnsImage.getHeight()+tableImage.getHeight()*scale),
             BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2=(Graphics2D)combinedImage.getGraphics();
-        g2.drawImage(columnsImage, null, null);
-        g2.drawImage(tableImage, 0,columnsImage.getHeight(), null);
+        g2.drawImage(columnsImage.getScaledInstance((int)(columnsImage.getWidth()*scale),
+                (int)(columnsImage.getHeight()*scale), BufferedImage.SCALE_SMOOTH), 0,0,null);
+        g2.drawImage(tableImage.getScaledInstance((int)(tableImage.getWidth()*scale),
+                (int)(tableImage.getHeight()*scale), BufferedImage.SCALE_SMOOTH), 0,(int)(columnsImage.getHeight()*scale), null);
 
         int lastHorizontal=pageNum==0?0:getNumHorizontalCells(pageNum-1)+1;
         int lastVertical=pageNum==0?0:getNumVerticalCells(pageNum-1)+1;
         Rectangle oldHorizontalCell=table.getCellRect(0, lastHorizontal, true);
-        Rectangle oldVerticalCell=table.getCellRect(0, lastVertical, true);
+        Rectangle oldVerticalCell=table.getCellRect(lastVertical,0, true);
         Rectangle horizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum), true);
-        Rectangle verticalCell=table.getCellRect(0, getNumVerticalCells(pageNum), true);
-        if(oldHorizontalCell.x==horizontalCell.x)
+        Rectangle verticalCell=table.getCellRect(getNumVerticalCells(pageNum),0, true);
+        if(!wrapCells){
+            int width=(int)job.defaultPage().getImageableWidth();
+            int height=(int)job.defaultPage().getImageableHeight();
+            if(landscape){
+                int temp=width;
+                width=height;
+                height=temp;
+            }
+            oldHorizontalCell=new Rectangle((int)(width*pageNum*(2-scale)),0,0,0);
+            horizontalCell=new Rectangle((int)(width*(pageNum+1)*(2-scale)),0,0,0);
+            oldVerticalCell=new Rectangle(0,(int)(height*scale),0,0);
+            verticalCell=new Rectangle(0,(int)(height*scale),0,0);            
+        }
+        if((wrapCells&&oldHorizontalCell.x==horizontalCell.x)||(!wrapCells&&oldHorizontalCell.x>=combinedImage.getWidth()))
             return NO_SUCH_PAGE;
-
-        g2.fillRect(horizontalCell.x+horizontalCell.width, 0, combinedImage.getWidth(), combinedImage.getHeight());
-        //g2.clearRect(0, verticalCell.height+verticalCell.y, combinedImage.getWidth(), combinedImage.getHeight());
         
-        g.translate(-oldHorizontalCell.x, -0);
-        if(landscapeMode){
+        if(clearColor!=null)
+            g2.setColor(clearColor);
+        if(landscape)
             ((Graphics2D)g).rotate(Math.toRadians(90));
+        //g2.clearRect(0, verticalCell.height+verticalCell.y, combinedImage.getWidth(), combinedImage.getHeight());
+        g.translate((int)(-oldHorizontalCell.x*scale),0);
+        g2.fillRect((int)((horizontalCell.x+horizontalCell.width)*scale), 0, combinedImage.getWidth(), combinedImage.getHeight());
+        if(landscape)
+            g.drawImage(combinedImage, 0, -(int)job.defaultPage().getImageableWidth(), null);
+        else //portrait
             g.drawImage(combinedImage, 0, 0, null);
-        } else
-            g.drawImage(combinedImage, 0, 0, null);
-        g.translate(oldHorizontalCell.x,0);
+        
         return PAGE_EXISTS;
     }
     private int getNumHorizontalCells(int page){
         if(page<0)
             return 0;
         int width=(int)job.defaultPage().getImageableWidth();
+        if(landscape)
+            width=(int)job.defaultPage().getImageableHeight();
+        
         int totalWidth=0;
-        int startCell=0;
+        int startCell=-1;
         if(page>0){
             startCell=getNumHorizontalCells(page-1);
             //totalWidth+=table.getCellRect(0, startCell, true).width;
         }
         for(int i=startCell+1;i<table.getModel().getColumnCount();i++){
-            totalWidth+=table.getCellRect(0, i, true).width;
+            totalWidth+=table.getCellRect(0, i, true).width*scale;
             if(totalWidth>width){//one lower than our current index, but since we return size we don't subtract one
                 return i-1;
             }
@@ -115,21 +139,25 @@ public class PrintGradebook implements Printable{
         if(page<0)
             return 0;
         int height=(int)job.defaultPage().getImageableHeight();
-        
-        int lastHeight;
-        int totalHeight=columns.getHeight();
-        for(int i=0;i<table.getModel().getRowCount();i++){
-            lastHeight=totalHeight;
-            totalHeight+=table.getCellRect(i,0,true).height;
-            if(totalHeight>height)
-                return lastHeight; //one lower than our current index, but since we return size we don't subtract one
-            if(totalHeight==height)
-                return totalHeight; //current one, but since we are returning the number not the index add one
+        if(landscape)
+            height=(int)job.defaultPage().getImageableWidth();
+        int totalHeight=0;
+        int startCell=0;
+        if(page>0){
+            startCell=getNumVerticalCells(page-1);
         }
-        return totalHeight;
+        for(int i=startCell+1;i<table.getModel().getRowCount();i++){
+            totalHeight+=table.getCellRect(i,0,true).height*scale;
+            if(totalHeight>height)
+                return i-1; //one lower than our current index, but since we return size we don't subtract one
+            if(totalHeight==height)
+                return i; //current one, but since we are returning the number not the index add one
+        }
+        return table.getModel().getRowCount();
     }
     public void setLandscape(boolean b){
-        landscapeMode=b;
+        landscape=b;
+        calculatePages();
     }
     public boolean print(){
         job.setPrintable(this);
@@ -150,7 +178,7 @@ public class PrintGradebook implements Printable{
     }
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-        printPreview(graphics,pageIndex);
+        printPreview(graphics,pageIndex,null);
         return PAGE_EXISTS;
     }
     private void calculatePages(){
@@ -158,7 +186,7 @@ public class PrintGradebook implements Printable{
         int pages=0;
         boolean done=false;
         while(!done){
-            int val=printPreview(i.getGraphics(),pages);
+            int val=printPreview(i.getGraphics(),pages,null);
             if(val==NO_SUCH_PAGE)
                 done=true;
             else
@@ -170,5 +198,22 @@ public class PrintGradebook implements Printable{
         if(pages==null)
             calculatePages();
         return pages;
+    }
+    public void setWrap(boolean wrap){
+        wrapCells=wrap;
+        calculatePages();
+    }
+    public void setScale(float scale){
+        this.scale=scale;
+        calculatePages();
+    }
+    public float getScale(){
+        return scale;
+    }
+    public boolean getLandscape(){
+        return landscape;
+    }
+    public boolean getWrapMode(){
+        return wrapCells;
     }
 }
