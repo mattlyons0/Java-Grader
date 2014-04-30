@@ -39,6 +39,7 @@ import javax.swing.event.DocumentListener;
  */
 public class PrintOverlay extends ContentOverlay implements DocumentListener,ChangeListener{
     private Gui gui;
+    private GradebookView gradebookView;
     private Print printer;
     private PrintGradebook gradebookPrinter;
     private int currentPage;
@@ -59,30 +60,65 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
     
     private JLabel spinnerLabel;
     private JLabel spinnerDescription;
+    private JPanel loaderPanel;
     
     public PrintOverlay(Gui gui,GradebookView view){
         super("PrintOverlay");
         this.gui=gui;
-        gradebookPrinter=new PrintGradebook(view.getGradebookTable());
-    }
-    @Override
-    public void setup() {        
-        ImageIcon icon=new ImageIcon(getClass().getResource("/Resources/ajax-loader.gif"));
-        spinnerLabel=new JLabel(icon);
+        gradebookView=view;
+        //init loader
+        ImageIcon loader=new ImageIcon(getClass().getResource("/Resources/ajax-loader.gif"));
+        spinnerLabel=new JLabel(loader);
         spinnerLabel.setOpaque(false);
         spinnerDescription=new JLabel("Generating Print Preview...");
+        loaderPanel=new JPanel();
+        loaderPanel.setLayout(new GridBagLayout());
         GridBagConstraints cons=new GridBagConstraints();
         cons.gridx=0;
         cons.gridy=0;
         cons.weightx=0;
         cons.weighty=0;
-        add(spinnerLabel,cons);
+        loaderPanel.add(spinnerLabel,cons);
         cons.gridy++;
-        add(spinnerDescription,cons);
+        loaderPanel.add(spinnerDescription,cons);
         
+    }
+    private void showLoader(){
+        if(scroll!=null)
+            remove(scroll);
+        GridBagConstraints cons=new GridBagConstraints();
+        cons.gridx=0;
+        cons.gridy=0;
+        cons.weighty=99;
+        cons.weightx=1;
+        cons.gridwidth=5;
+        cons.fill=GridBagConstraints.BOTH;
+        cons.insets=new Insets(5,5,0,5);
+        add(loaderPanel,cons);
+        revalidate();
+        repaint();
+    }
+    private void hideLoader(){
+        remove(loaderPanel);
+        GridBagConstraints cons=new GridBagConstraints();
+        cons.gridx=0;
+        cons.gridy=0;
+        cons.weighty=99;
+        cons.weightx=1;
+        cons.gridwidth=5;
+        cons.fill=GridBagConstraints.BOTH;
+        cons.insets=new Insets(5,5,0,5);
+        add(scroll,cons);
+        revalidate();
+        repaint();
+    }
+    @Override
+    public void setup() {
+        showLoader();
         gui.getBackgroundThread().invokeLater(new Runnable() {
             @Override
             public void run() {
+                gradebookPrinter=new PrintGradebook(gradebookView.getGradebookTable());
                 printer=new Print(gui);
                 format=printer.getFormat();
                 int width=(int)(format.getWidth()*1.1f);
@@ -113,8 +149,6 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
                 forwardButton.addActionListener(PrintOverlay.this);
                 pageLabel=new JLabel();
                 
-                remove(spinnerLabel);
-                remove(spinnerDescription);
                 
                 GridBagConstraints cons=new GridBagConstraints();
                 cons.insets=new Insets(5,5,5,5);
@@ -128,6 +162,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
                 panel.add(iconLabel,cons);
 
                 scroll=new JScrollPane(panel);
+                hideLoader();
 
                 cons.gridx=0;
                 cons.gridy=0;
@@ -166,31 +201,40 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
         setVisible(true);
         
     }
-    private void changePage(int newPage){
-        currentPage=newPage;
-        BufferedImage image=new BufferedImage((int)format.getImageableWidth(),(int)format.getImageableHeight(),BufferedImage.TYPE_INT_ARGB);
-        if(modeField.getSelectedIndex()!=2)
-            printer.printPreview(image.getGraphics(), currentPage);
-        else if(modeField.getSelectedIndex()==2){
-            gradebookPrinter.printPreview(image.getGraphics(), currentPage,Color.LIGHT_GRAY);
-        }
-        iconLabel.setIcon(new ImageIcon(image));
-        int numPages=modeField.getSelectedIndex()!=2?printer.getNumPages():gradebookPrinter.getNumPages();
-        if(currentPage>=numPages)
-            changePage(currentPage-1);
-        pageLabel.setText("Page "+(currentPage+1)+"/"+numPages);
-        if(currentPage==0){
-            backButton.setEnabled(false);
-        }
-        else{
-            backButton.setEnabled(true);
-        }
-        if(currentPage==numPages-1||numPages==0){
-            forwardButton.setEnabled(false);
-        }
-        else{
-            forwardButton.setEnabled(true);
-        }
+    private void changePage(final int newPage){
+        showLoader();
+        gui.getBackgroundThread().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                currentPage=newPage;
+                BufferedImage image=new BufferedImage((int)format.getImageableWidth(),(int)format.getImageableHeight(),BufferedImage.TYPE_INT_ARGB);
+                if(modeField.getSelectedIndex()!=2)
+                    printer.printPreview(image.getGraphics(), currentPage);
+                else if(modeField.getSelectedIndex()==2){
+                    gradebookPrinter.printPreview(image.getGraphics(), currentPage,Color.LIGHT_GRAY);
+                }
+                iconLabel.setIcon(new ImageIcon(image));
+                int numPages=modeField.getSelectedIndex()!=2?printer.getNumPages():gradebookPrinter.getNumPages();
+                if(currentPage>=numPages)
+                    changePage(currentPage-1);
+                else if(currentPage<0&&numPages>0)
+                    changePage(currentPage+1);
+                pageLabel.setText("Page "+(currentPage+1)+"/"+numPages);
+                if(currentPage<=0){
+                    backButton.setEnabled(false);
+                }
+                else{
+                    backButton.setEnabled(true);
+                }
+                if(currentPage==numPages-1||numPages==0){
+                    forwardButton.setEnabled(false);
+                }
+                else{
+                    forwardButton.setEnabled(true);
+                }
+                hideLoader();
+            }
+        });
     }
     @Override
     public void switchedTo() {}
@@ -289,11 +333,21 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
             }
         }
         else if(e.getSource().equals(orientation)){
-            gradebookPrinter.setLandscape(orientation.getSelectedIndex()==1);
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    gradebookPrinter.setLandscape(orientation.getSelectedIndex()==1);
+                }
+            });
             changePage(currentPage);
         }
         else if(e.getSource().equals(wrapCells)){
-            gradebookPrinter.setWrap(wrapCells.isSelected());
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    gradebookPrinter.setWrap(wrapCells.isSelected());
+                }
+            });
             changePage(currentPage);
         }
     }
@@ -319,7 +373,12 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
     @Override
     public void stateChanged(ChangeEvent e) {
         if(e.getSource().equals(scaleSlider)){
-            gradebookPrinter.setScale(scaleSlider.getValue()/100f);
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    gradebookPrinter.setScale(scaleSlider.getValue()/100f);
+                }
+            });
             changePage(currentPage);
         }
     }

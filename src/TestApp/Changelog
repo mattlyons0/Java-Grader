@@ -1,1 +1,3 @@
-Fixed Printing gradebook table not respecting margins.
+Fixed bug with not erasing previous grade when grading in queues
+Fixed selected student printing not showing a preview
+Threaded print preview better (a bit unstable though)

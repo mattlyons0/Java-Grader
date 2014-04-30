@@ -153,18 +153,18 @@ public class Print implements Printable {
         else if(modes[printMode].equals("Specific Student Report")){
             if(previousStudent==-2){
                 previousStudent=-1;
-                return NO_SUCH_PAGE;
+                return pageNum==0?PAGE_EXISTS:NO_SUCH_PAGE;
             }
             int studentIndex=0;
             if(specifiedStudent==null){
                 g2d.drawString("No Student Specified.", 0, 0);
-                return NO_SUCH_PAGE;
+                return pageNum==0?PAGE_EXISTS:NO_SUCH_PAGE;
             }
             else{
                 TextName[] textNames=grader.getSpreadsheet().indexesOfName(specifiedStudent);
                 if(textNames.length==0){
                     g2d.drawString("Student "+specifiedStudent+" does not exist.",0,0);
-                    return NO_SUCH_PAGE;
+                    return pageNum==0?PAGE_EXISTS:NO_SUCH_PAGE;
                 }
                 else if(textNames.length>1){
                     g2d.drawString("Found multiple names:",0,0);
@@ -181,7 +181,7 @@ public class Print implements Printable {
                         g2d.drawString(line,0,y);
                         y+=15;
                     }
-                    return NO_SUCH_PAGE;
+                    return pageNum==0?PAGE_EXISTS:NO_SUCH_PAGE;
                 }
                 else{
                     studentIndex=grader.getSpreadsheet().indexOfName(specifiedStudent);
@@ -374,10 +374,9 @@ public class Print implements Printable {
             previousAssignmentIndex=0;
         }
         printMode=mode;
-        if(!modes[mode].equals("Specific Student Report")){
+        if(!modes[mode].equals("Specific Student Report"))
             specifiedStudent=null;
-            cachedStudentPages=calcTotalPages();
-        }
+        cachedStudentPages=calcTotalPages();
     }
     public void setStudent(String student){
         specifiedStudent=student;

@@ -56,8 +56,10 @@ public class JGhostTextField extends JTextField implements FocusListener{
     public void setText(String text){
         if(text==null) //null is the trigger to just clear the field of the ghost text
             text="";
-        else if(text.equals(""))
-            return;
+        else if(text.equals("")){
+            super.setText(text);
+            focusLost(null);
+        }
         if(!getForeground().equals(regularColor)){
             setForeground(regularColor);
         }
