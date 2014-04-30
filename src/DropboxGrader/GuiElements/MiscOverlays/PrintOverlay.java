@@ -63,8 +63,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
     public PrintOverlay(Gui gui,GradebookView view){
         super("PrintOverlay");
         this.gui=gui;
-        gradebookPrinter=new PrintGradebook(gui,view.getGradebookTable());
-        //gradebookPrinter.setLandscape(true);
+        gradebookPrinter=new PrintGradebook(view.getGradebookTable());
     }
     @Override
     public void setup() {        

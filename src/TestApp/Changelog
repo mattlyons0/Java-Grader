@@ -1,5 +1,1 @@
-Added GUI to set gradebook print landscape/portrait, line wrapping/no wrapping
-
-Fixes to landscape printing of gradebook table.
-Created configureable wrap mode.
-Implemented scaling gradebook table when printing
+Fixed Printing gradebook table not respecting margins.

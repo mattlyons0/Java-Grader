@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Pageable;
@@ -26,18 +27,16 @@ import javax.swing.table.JTableHeader;
  * @author matt
  */
 public class PrintGradebook implements Printable{
-    private Gui gui;
     private JTable table;
     private JTableHeader columns;
     private boolean landscape;
     private boolean wrapCells;
-    private float scale=0.85f;
+    private float scale=0.9f;
     
     private PrinterJob job;
     private Pageable pageable;
     private Integer pages;
-    public PrintGradebook(Gui gui,JTable gradebook){
-        this.gui=gui;
+    public PrintGradebook(JTable gradebook){
         table=gradebook;
         columns=gradebook.getTableHeader();
         job=PrinterJob.getPrinterJob();
@@ -103,7 +102,10 @@ public class PrintGradebook implements Printable{
         if(landscape)
             ((Graphics2D)g).rotate(Math.toRadians(90));
         //g2.clearRect(0, verticalCell.height+verticalCell.y, combinedImage.getWidth(), combinedImage.getHeight());
-        g.translate((int)(-oldHorizontalCell.x*scale),0);
+        int marginX=clearColor!=null?0:(int)job.defaultPage().getImageableX();
+        int marginY=clearColor!=null?0:(int)job.defaultPage().getImageableY();
+        g.translate((int)marginX+(int)(-oldHorizontalCell.x*scale),
+                (int)marginY);
         g2.fillRect((int)((horizontalCell.x+horizontalCell.width)*scale), 0, combinedImage.getWidth(), combinedImage.getHeight());
         if(landscape)
             g.drawImage(combinedImage, 0, -(int)job.defaultPage().getImageableWidth(), null);
