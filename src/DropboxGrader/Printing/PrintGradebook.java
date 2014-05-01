@@ -60,6 +60,7 @@ public class PrintGradebook implements Printable{
         };
     }
     public int printPreview(Graphics g,int pageNum,Color clearColor){
+        table.clearSelection();
         BufferedImage columnsImage=new BufferedImage(columns.getBounds().width,columns.getBounds().height,BufferedImage.TYPE_INT_ARGB);
         table.getTableHeader().paint(columnsImage.getGraphics());
         BufferedImage tableImage=new BufferedImage(table.getBounds().width,table.getBounds().height,BufferedImage.TYPE_INT_ARGB);
@@ -78,7 +79,8 @@ public class PrintGradebook implements Printable{
         Rectangle oldHorizontalCell=table.getCellRect(0, lastHorizontal, true);
         Rectangle oldVerticalCell=table.getCellRect(lastVertical,0, true);
         Rectangle horizontalCell=table.getCellRect(0, getNumHorizontalCells(pageNum), true);
-        Rectangle verticalCell=table.getCellRect(getNumVerticalCells(pageNum),0, true);
+        Rectangle verticalCell=table.getCellRect(getNumVerticalCells(pageNum)-1,0, true); //-1 for the col header
+        boolean pageVertical=false;
         if(!wrapCells){
             int width=(int)job.defaultPage().getImageableWidth();
             int height=(int)job.defaultPage().getImageableHeight();
@@ -92,9 +94,13 @@ public class PrintGradebook implements Printable{
             oldVerticalCell=new Rectangle(0,(int)(height*scale),0,0);
             verticalCell=new Rectangle(0,(int)(height*scale),0,0);            
         }
-        if((wrapCells&&oldHorizontalCell.x==horizontalCell.x)||(!wrapCells&&oldHorizontalCell.x>=combinedImage.getWidth()))
-            return NO_SUCH_PAGE;
-        
+        if((wrapCells&&oldHorizontalCell.x==horizontalCell.x)||(!wrapCells&&oldHorizontalCell.x>=combinedImage.getWidth())){
+//            if(oldVerticalCell.y==verticalCell.y)
+                return NO_SUCH_PAGE;
+//            else{
+//                pageVertical=true;
+//            }
+        }
         if(clearColor!=null)
             g2.setColor(clearColor);
         if(landscape)
@@ -104,7 +110,10 @@ public class PrintGradebook implements Printable{
         int marginY=clearColor!=null?0:(int)job.defaultPage().getImageableY();
         g.translate((int)marginX+(int)(-oldHorizontalCell.x*scale),
                 (int)marginY);
-        g2.fillRect((int)((horizontalCell.x+horizontalCell.width)*scale), 0, combinedImage.getWidth(), combinedImage.getHeight());
+        if(!pageVertical)
+            g2.fillRect((int)((horizontalCell.x+horizontalCell.width)*scale), 0, combinedImage.getWidth(), combinedImage.getHeight());
+        else
+            g2.fillRect(marginY, marginY, marginY, marginY);
         if(landscape)
             g.drawImage(combinedImage, 0, -(int)job.defaultPage().getImageableWidth(), null);
         else //portrait
@@ -141,7 +150,7 @@ public class PrintGradebook implements Printable{
         int height=(int)job.defaultPage().getImageableHeight();
         if(landscape)
             height=(int)job.defaultPage().getImageableWidth();
-        int totalHeight=0;
+        int totalHeight=(int)(columns.getHeight()*scale);
         int startCell=0;
         if(page>0){
             startCell=getNumVerticalCells(page-1);

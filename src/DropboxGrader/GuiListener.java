@@ -9,7 +9,6 @@ package DropboxGrader;
 import DropboxGrader.GuiElements.MiscOverlays.ClosingOverlay;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.IllegalComponentStateException;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;

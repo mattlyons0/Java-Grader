@@ -160,30 +160,35 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         return removed;
     }
     public void setLocation(ContentOverlay frame){
-        int range=30;
-        Point loc1=frame.getLocation();
-        JInternalFrame[] frames=getAllFrames();
-        for(JInternalFrame otherFrame:frames){
-            if(otherFrame instanceof ContentOverlay && ((ContentOverlay)otherFrame).getID()!=frame.getID()){
-                Point loc2=otherFrame.getLocation();
-                int xDist=distWithinRange(loc1.x,range,loc2.x);
-                int yDist=distWithinRange(loc1.y,range,loc2.y);
-                boolean changed=false;
-                if(xDist!=-1){
-                    frame.setLocation(loc1.x+xDist, loc1.y);
-                    loc1=frame.getLocation();
-                    changed=true;
-                }
-                if(yDist!=-1){
-                    frame.setLocation(loc1.x,loc1.y+yDist);
-                    loc1=frame.getLocation();
-                    changed=true;
-                }
-                if(changed){
-                    setLocation(frame);
-                    break;
+        try{
+            int range=30;
+            Point loc1=frame.getLocation();
+            JInternalFrame[] frames=getAllFrames();
+            for(JInternalFrame otherFrame:frames){
+                if(otherFrame instanceof ContentOverlay && ((ContentOverlay)otherFrame).getID()!=frame.getID()){
+                    Point loc2=otherFrame.getLocation();
+                    int xDist=distWithinRange(loc1.x,range,loc2.x);
+                    int yDist=distWithinRange(loc1.y,range,loc2.y);
+                    boolean changed=false;
+                    if(xDist!=-1){
+                        frame.setLocation(loc1.x+xDist, loc1.y);
+                        loc1=frame.getLocation();
+                        changed=true;
+                    }
+                    if(yDist!=-1){
+                        frame.setLocation(loc1.x,loc1.y+yDist);
+                        loc1=frame.getLocation();
+                        changed=true;
+                    }
+                    if(changed){
+                        setLocation(frame);
+                        break;
+                    }
                 }
             }
+        } catch(StackOverflowError e){
+            //we cant move it, so thats ok.
+            //I'd like to print that, but it might stackoverflow again
         }
     }
     public static int distWithinRange(int number,int range,int desired){

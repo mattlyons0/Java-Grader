@@ -1,5 +1,3 @@
-Threading on Print Preview is now complete and not buggy.
+Fixed setLocation not working with print preview window (stack overflowing)
 
-    Fixed creating a ton of background proccesses if the button was spammed
-Fixed opening JUnit test results when no tests were run.
-Fixed crash when refreshing
+Work on paging table vertically

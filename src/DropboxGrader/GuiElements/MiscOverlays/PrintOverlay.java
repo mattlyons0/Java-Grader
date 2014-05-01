@@ -14,7 +14,7 @@ import DropboxGrader.Printing.Print;
 import DropboxGrader.Printing.PrintGradebook;
 import DropboxGrader.Util.NamedRunnable;
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -26,14 +26,19 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.plaf.InternalFrameUI;
+import javax.swing.plaf.UIResource;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 /**
  *
@@ -83,8 +88,7 @@ public class PrintOverlay extends ContentOverlay implements DocumentListener,Cha
         loaderPanel.add(spinnerLabel,cons);
         cons.gridy++;
         loaderPanel.add(spinnerDescription,cons);
-        
-    }
+        }
     private void showLoader(){
         if(scroll!=null)
             remove(scroll);

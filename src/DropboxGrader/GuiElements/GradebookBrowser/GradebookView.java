@@ -123,8 +123,8 @@ public class GradebookView extends ContentView{
             }
         }
         else if(e.getSource().equals(printButton)){
-                PrintOverlay overlay=new PrintOverlay(gui,this);
-                gui.getViewManager().addOverlay(overlay);
+            PrintOverlay overlay=new PrintOverlay(gui,this);
+            gui.getViewManager().addOverlay(overlay);
         }
         else if(e.getSource().equals(markGraded)){
             gui.getBackgroundThread().invokeLater(new Runnable() {
