@@ -7,6 +7,8 @@ package DropboxGrader.GuiElements.FileBrowser;
 import DropboxGrader.Config;
 import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
+import DropboxGrader.GuiHelper;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -43,14 +45,18 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
         JPopupMenu m=new JPopupMenu();
         JMenuItem m1=new JMenuItem("Rename");
         JMenuItem m2=new JMenuItem("Redownload");
+        JMenuItem m3=new JMenuItem("View Statistics");
         m1.setActionCommand("Rename"+row);
         m1.addActionListener(this);
         m2.setActionCommand("ReDownload"+row);
         m2.addActionListener(this);
+        m3.setActionCommand("Statistics"+row);
+        m3.addActionListener(this);
         m.add(m1);
         if(gui.getManager().getFile(row).isDownloaded()){
             m.add(m2);
         }
+        m.add(m3);
         return m;
     }
     private JPopupMenu createHeaderMenu(int col){
@@ -132,7 +138,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
     public void actionPerformed(final ActionEvent e) {
         if(!table.getRowSelectionAllowed())
             return;
-        if(e.getActionCommand().contains("Rename")){
+        if(e.getActionCommand().startsWith("Rename")){
             table.setRowSelectionAllowed(false);
             int f=Integer.parseInt(e.getActionCommand().replace("Rename", ""));
             final DbxFile file=gui.getManager().getFile(f);
@@ -154,7 +160,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
                 }
             });
         }
-        else if(e.getActionCommand().contains("ReDownload")){
+        else if(e.getActionCommand().startsWith("ReDownload")){
             int f=Integer.parseInt(e.getActionCommand().replace("ReDownload", ""));
             final DbxFile file=gui.getManager().getFile(f);
             gui.setStatus("Redownloading "+file.getFileName());
@@ -167,7 +173,7 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
                 }
             });
         }
-        else if(e.getActionCommand().contains("Hide")){
+        else if(e.getActionCommand().startsWith("Hide")){
             int col=Integer.parseInt(e.getActionCommand().replace("Hide", ""));
             if(!table.colIsHidden(col))
                 table.hideCol(col);
@@ -176,6 +182,24 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             
             table.repaint();
             table.revalidate();
+        }
+        else if(e.getActionCommand().startsWith("Statistics")){
+            int col=GradebookTable.extractNumber("Statistics", e.getActionCommand());
+            final DbxFile file=gui.getManager().getFile(col);
+            Integer lines=file.getLines();
+            if(lines==null){
+               gui.getBackgroundThread().invokeLater(new Runnable() {
+                   @Override
+                   public void run() {
+                       gui.setStatus("Downloading "+file.getFileName());
+                       file.download();
+                       actionPerformed(e);
+                       gui.setStatus("");
+                   }
+               });
+            }
+            else
+                GuiHelper.alertDialog(lines+" Lines of Code.");
         }
     }
 

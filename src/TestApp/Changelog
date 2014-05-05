@@ -1,3 +1,5 @@
-Fixed setLocation not working with print preview window (stack overflowing)
+Fixed student search when printing grades for a specific student not searching correctly when putting in first and last name.
 
-Work on paging table vertically
+Code now gets sorted by lines instead of characters when sorting by size.
+Lines of code can now be seen by checking the statistics in the file browser (right click menu)
+Fixed not tabbing when no java files are found and displaying the file structure on windows.

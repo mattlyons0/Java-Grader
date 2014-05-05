@@ -184,7 +184,7 @@ public class Print implements Printable {
                     return pageNum==0?PAGE_EXISTS:NO_SUCH_PAGE;
                 }
                 else{
-                    studentIndex=grader.getSpreadsheet().indexOfName(specifiedStudent);
+                    studentIndex=grader.getSpreadsheet().indexOfName(textNames[0].toString());
                 }
                 if(studentIndex==-1){
                     studentIndex=grader.getSpreadsheet().indexOfName(textNames[0].firstName+textNames[0].lastName);

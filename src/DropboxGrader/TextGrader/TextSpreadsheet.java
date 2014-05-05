@@ -237,6 +237,16 @@ public class TextSpreadsheet {
                     namesFound.add(tName);
                 }
             }
+            else if(split.length==2){
+                if(tName.firstName.toLowerCase().contains(split[0].toLowerCase())){
+                    if(tName.lastName.toLowerCase().contains(split[1].toLowerCase()))
+                        namesFound.add(tName);
+                }
+                else if(tName.lastName.toLowerCase().contains(split[0].toLowerCase())){
+                    if(tName.firstName.toLowerCase().contains(split[1].toLowerCase()))
+                        namesFound.add(tName);
+                }
+            }
         }
         return namesFound.toArray(new TextName[namesFound.size()]);
     }

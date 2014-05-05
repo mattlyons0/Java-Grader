@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  * I hate this class
@@ -396,5 +397,9 @@ public class JavaFile extends File{
     }
     public DbxFile getDbx(){
         return dbxFile;
+    }
+    public int getLines(){
+        String[] lines=code.split("\n");
+        return lines.length;
     }
 }

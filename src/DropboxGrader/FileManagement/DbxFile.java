@@ -11,6 +11,7 @@ import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
 import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.GuiElements.FileBrowser.CellLocation;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.Util.Unzip;
 import com.dropbox.core.DbxClient;
@@ -323,6 +324,7 @@ public class DbxFile {
         return str;
     }
     private String getFileStructure(String directory,String output){
+        char slash=JavaRunner.onWindows?'\\':'/';
         if(output==null)
             output="";
         File dir=new File(directory);
@@ -330,7 +332,7 @@ public class DbxFile {
         if(files!=null){
             for(File f:files){
                 String tabs="";
-                for(int x=0;x<occurancesOf('/',f.getPath());x++){
+                for(int x=0;x<occurancesOf(slash,f.getPath());x++){
                     tabs+="  ";
                 }
                 if(f.isDirectory()){
@@ -561,5 +563,13 @@ public class DbxFile {
     public File getFile(){
         return downloadedFile;
     }
-    
+    public Integer getLines(){
+        if(!isDownloaded()||javaFiles==null)
+            return null;
+        int lines=0;
+        for(JavaFile f:javaFiles){
+            lines+=f.getLines();
+        }
+        return lines;
+    }    
 }

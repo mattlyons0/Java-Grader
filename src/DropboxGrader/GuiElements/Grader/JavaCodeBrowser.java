@@ -202,7 +202,7 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
                 this.files.add(f);
             }
         }
-        else if(sortMode==2){ //Most Code (characters)
+        else if(sortMode==2){ //Most Code (lines)
             ArrayList<JavaFile> files=new ArrayList();
             for(JavaFile f:this.files){ //we don't want to mutate files as this method might get threaded in the future
                 files.add(f);
@@ -212,7 +212,7 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
             JavaFile largest=null;
             for(int i=0;i<size;i++){
                 for(int x=0;x<files.size();x++){
-                    if(largest==null||files.get(x).getCode().length()>largest.getCode().length()){
+                    if(largest==null||files.get(x).getLines()>largest.getLines()){
                         largest=files.get(x);
                     }
                 }
@@ -261,7 +261,7 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
             return f.getDependencies().length+" Dependencies";
         }
         else if(sortMode==2){
-            return f.getCode().length()+" Characters";
+            return f.getLines()+" Lines";
         }
         else if(sortMode==3){
             return null;

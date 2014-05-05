@@ -30,6 +30,7 @@ public class PrintGradebook implements Printable{
     private boolean landscape;
     private boolean wrapCells;
     private float scale=0.9f;
+    private boolean verticalPage;
     
     private PrinterJob job;
     private Pageable pageable;
@@ -100,7 +101,7 @@ public class PrintGradebook implements Printable{
 //            else{
 //                pageVertical=true;
 //            }
-        }
+                    }
         if(clearColor!=null)
             g2.setColor(clearColor);
         if(landscape)
@@ -194,6 +195,8 @@ public class PrintGradebook implements Printable{
         BufferedImage i=new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
         int pages=0;
         boolean done=false;
+        boolean oldVPage=verticalPage;
+        verticalPage=false;
         while(!done){
             int val=printPreview(i.getGraphics(),pages,null);
             if(val==NO_SUCH_PAGE)
@@ -224,5 +227,11 @@ public class PrintGradebook implements Printable{
     }
     public boolean getWrapMode(){
         return wrapCells;
+    }
+    public boolean getPageVertical(){
+        return verticalPage;
+    }
+    public void setPageVertical(boolean b){
+        verticalPage=b;
     }
 }
