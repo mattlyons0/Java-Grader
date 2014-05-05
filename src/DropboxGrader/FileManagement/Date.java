@@ -56,6 +56,10 @@ public class Date {
     private String append(String str,Object append){
         return str+TextSpreadsheet.INDIVIDUALDELIMITER2+append;
     }
+    public java.util.Date toDate(){
+        java.util.Date d=new java.util.Date(year,month,hour,minute,second);
+        return d;
+    }
     public static Date currentDate(){
         Calendar c=Calendar.getInstance();
         Date d=new Date();
@@ -66,7 +70,12 @@ public class Date {
         return d;
     }
     public static boolean before(Date first,Date last){
+        Calendar firstC=Calendar.getInstance();
+        firstC.setTime(first.toDate());
+        Calendar lastC=Calendar.getInstance();
+        lastC.setTime(last.toDate());
         
+        return firstC.before(lastC);
     }
     
 }

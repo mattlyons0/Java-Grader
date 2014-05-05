@@ -45,9 +45,9 @@ public class TextGrade {
         text+=grade+TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=comment.replaceAll("\n", TextSpreadsheet.INDIVIDUALDELIMITER2).replaceAll("\r", TextSpreadsheet.INDIVIDUALDELIMITER2)
                 +TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=inGradebook;
-        text+=unitTested;
-        text+=dateGraded.toText();
+        text+=inGradebook+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=unitTested+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=dateGraded==null?"":dateGraded.toText();
         
         return text;
     }

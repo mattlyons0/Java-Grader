@@ -21,6 +21,7 @@ import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
+import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
 import java.awt.Color;
 import java.io.File;
@@ -104,17 +105,21 @@ public class UnitTester {
             if(overlay!=null)
                 overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
             for(UnitTest test:assignment.simpleUnitTests){
-                test:
-                for(int i=0;i<javaFiles.length;i++){
-                    JavaMethod[] methods=javaFiles[i].getMethods();
-                    for(JavaMethod m:methods){
-                        if((overlay==null||!overlay.isCanceled())&&(test!=null&&testMatch(m,test))){
-                            if(overlay!=null)
-                                overlay.setDescription("Method: "+m.getMethodString()+" Unit Test: "+(test.getDescription()==null?test.getMethodName():("'"+test.getDescription()+"'"))+" Assignment: "+assignment+" File: "+file.getFileName());
-                            runSimpleTest(file,test,i,m);
-                            if(overlay!=null)
-                                overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
-                            break test;
+                TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
+                if(test!=null&&(grade==null||!grade.unitTested||Date.before(file.getSubmittedDate(), grade.dateGraded)||
+                        Date.before(test.updateDate, grade.dateGraded))){
+                    test:
+                    for(int i=0;i<javaFiles.length;i++){
+                        JavaMethod[] methods=javaFiles[i].getMethods();
+                        for(JavaMethod m:methods){
+                            if((overlay==null||!overlay.isCanceled())&&(testMatch(m,test))){
+                                if(overlay!=null)
+                                    overlay.setDescription("Method: "+m.getMethodString()+" Unit Test: "+(test.getDescription()==null?test.getMethodName():("'"+test.getDescription()+"'"))+" Assignment: "+assignment+" File: "+file.getFileName());
+                                runSimpleTest(file,test,i,m);
+                                if(overlay!=null)
+                                    overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
+                                break test;
+                            }
                         }
                     }
                 }
@@ -127,49 +132,55 @@ public class UnitTester {
         if((overlay==null||!overlay.isCanceled())&&assignment.junitTests!=null){
             for(String testLoc:assignment.junitTests){
                 try {
-                    if(overlay!=null)
-                        overlay.setStatus("Downloading JUnit Test File");
-                    if(!testLoc.equals("")&&gui.getDbxSession().getClient().getMetadata(testLoc)!=null){
-                        String[] testPaths=testLoc.split(Pattern.quote("/"));
-                        String testName;
-                        if(testPaths.length==0)
-                            testName=testLoc;
-                        else
-                            testName=testPaths[testPaths.length-1];
+                    DbxEntry entry=gui.getDbxSession().getClient().getMetadata(testLoc);
+                    TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
+                    if(grade==null||!grade.unitTested||Date.before(file.getSubmittedDate(), 
+                            grade.dateGraded)||entry.isFile()&&Date.before(new Date(((DbxEntry.File)entry).lastModified),
+                            file.getSubmittedDate())){ //reasons it needs to be tested
                         if(overlay!=null)
-                            overlay.setDescription("JUnit Test: "+testName+" File: "+file.getFileName());
-                        String localTestLoc=unitTestDirectory+"/"+testName;
-                        try{
-                            FileOutputStream f = new FileOutputStream(localTestLoc);
-                            gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
-                            f.close();
-                            JavaFile runFile=new JavaFile(new File(localTestLoc),null);
-                            JavaFile compileFile=runFile;
-                            if(runFile.packageFolder()!=null){ //we gotta verify its in the right directory
-                                compileFile=validateDirectory(runFile,null); //moves it to the right directory, but doesnt update pointer so that it gets called correctly
+                            overlay.setStatus("Downloading JUnit Test File");
+                        if(!testLoc.equals("")&&gui.getDbxSession().getClient().getMetadata(testLoc)!=null){
+                            String[] testPaths=testLoc.split(Pattern.quote("/"));
+                            String testName;
+                            if(testPaths.length==0)
+                                testName=testLoc;
+                            else
+                                testName=testPaths[testPaths.length-1];
+                            if(overlay!=null)
+                                overlay.setDescription("JUnit Test: "+testName+" File: "+file.getFileName());
+                            String localTestLoc=unitTestDirectory+"/"+testName;
+                            try{
+                                FileOutputStream f = new FileOutputStream(localTestLoc);
+                                gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
+                                f.close();
+                                JavaFile runFile=new JavaFile(new File(localTestLoc),null);
+                                JavaFile compileFile=runFile;
+                                if(runFile.packageFolder()!=null){ //we gotta verify its in the right directory
+                                    compileFile=validateDirectory(runFile,null); //moves it to the right directory, but doesnt update pointer so that it gets called correctly
+                                }
+                                if(overlay!=null)
+                                    overlay.setStatus("Running JUnit Tests");
+                                runJUnitTest(file,compileFile,runFile);
+                            } catch(IOException ex){
+                                System.err.println("Error downloading unit test file.\n"+ex);
+                                if(overlay!=null)
+                                    overlay.append("Error downloading JUnit Test: "+testLoc+" from dropbox!",Color.RED);
+                                ex.printStackTrace();
                             }
-                            if(overlay!=null)
-                                overlay.setStatus("Running JUnit Tests");
-                            runJUnitTest(file,compileFile,runFile);
-                        } catch(IOException ex){
-                            System.err.println("Error downloading unit test file.\n"+ex);
-                            if(overlay!=null)
-                                overlay.append("Error downloading JUnit Test: "+testLoc+" from dropbox!",Color.RED);
-                            ex.printStackTrace();
                         }
-                    }
-                    else{
-                        String errorS="Error, JUnit Test "+testLoc+" for assignment "+assignment.number+" does not exist on Dropbox Servers!";
-                        System.err.println(errorS);
+                        else{
+                            String errorS="Error, JUnit Test "+testLoc+" for assignment "+assignment.number+" does not exist on Dropbox Servers!";
+                            System.err.println(errorS);
+                            if(overlay!=null)
+                                overlay.append(errorS,Color.red);
+                            else
+                                GuiHelper.alertDialog(errorS);
+                            testResults.add(null);
+                            testStatus.add(null);
+                        }
                         if(overlay!=null)
-                            overlay.append(errorS,Color.red);
-                        else
-                            GuiHelper.alertDialog(errorS);
-                        testResults.add(null);
-                        testStatus.add(null);
+                            overlay.setDescription("File: "+file.getFileName());
                     }
-                    if(overlay!=null)
-                        overlay.setDescription("File: "+file.getFileName());
                 } catch (DbxException ex) {
                     System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);
                     if(overlay!=null)
@@ -279,8 +290,10 @@ public class UnitTester {
                 @Override
                 public void run() {
                     grader.downloadSheet();
-                    grader.setGrade(file.getFirstLastName(), assignment.number, grade,fStatus, (gradeNum!=null));
-                    grader.getGrade(file.getFirstLastName(), assignment.number).unitTested=true;
+                    TextGrade curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
+                    curGrade.grade=grade;
+                    curGrade.comment=fStatus;
+                    curGrade.unitTested=true;
                     grader.uploadTable();
                     gui.repaint();
                 }

@@ -6,6 +6,7 @@
 
 package DropboxGrader.UnitTesting.SimpleTesting;
 
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
 import static DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus.*;
@@ -40,6 +41,8 @@ public class UnitTest {
     private String expectedReturnValue;
     //description
     private String testDescription;
+    //date
+    public Date updateDate;
     
     public UnitTest(){
         accessPublic=ALLOWED;
@@ -51,6 +54,7 @@ public class UnitTest {
         modFinal=ALLOWED;
         modAbstract=ALLOWED;
         modSynchronized=ALLOWED;
+        updateDate=Date.currentDate();
     }
     public UnitTest(String fromText){
         this();
@@ -86,6 +90,7 @@ public class UnitTest {
                 expectedReturnValue=s[12];
             if(!s[13].equals("null"))
                 testDescription=s[13];
+            updateDate=new Date(s[14]);
         } catch(Exception e){
             
         }
@@ -196,6 +201,7 @@ public class UnitTest {
         }
         s=append(s,expectedReturnValue);
         s=append(s,testDescription);
+        s=append(s,updateDate);
         
         return s;
     }
