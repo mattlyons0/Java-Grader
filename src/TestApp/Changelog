@@ -1,5 +1,3 @@
-Fixed student search when printing grades for a specific student not searching correctly when putting in first and last name.
+Now stores graded date.
 
-Code now gets sorted by lines instead of characters when sorting by size.
-Lines of code can now be seen by checking the statistics in the file browser (right click menu)
-Fixed not tabbing when no java files are found and displaying the file structure on windows.
+Now need to only unit test when determined to be neccisary

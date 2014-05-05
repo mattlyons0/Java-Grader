@@ -6,6 +6,7 @@
 
 package DropboxGrader.UnitTesting;
 
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
@@ -14,6 +15,7 @@ import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextAssignment;
+import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
 import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
@@ -276,7 +278,10 @@ public class UnitTester {
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
+                    grader.downloadSheet();
                     grader.setGrade(file.getFirstLastName(), assignment.number, grade,fStatus, (gradeNum!=null));
+                    grader.getGrade(file.getFirstLastName(), assignment.number).unitTested=true;
+                    grader.uploadTable();
                     gui.repaint();
                 }
             });

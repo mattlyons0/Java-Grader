@@ -6,6 +6,7 @@
 
 package DropboxGrader.TextGrader;
 
+import DropboxGrader.FileManagement.Date;
 import java.util.Objects;
 
 /**
@@ -15,13 +16,14 @@ import java.util.Objects;
 public class TextGrade {
     public double grade;
     public String comment="";
-    //public final Date DATEGRADED;
     public boolean inGradebook=false;
+    public boolean unitTested=false;
+    public Date dateGraded=null;
     
     public TextGrade(double grade,String comment){
         this.grade=grade;
         this.comment=comment;
-        inGradebook=false;
+        dateGraded=Date.currentDate();
     }
     public TextGrade(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
@@ -30,6 +32,8 @@ public class TextGrade {
             comment=text[1];
             comment=comment.replaceAll(TextSpreadsheet.INDIVIDUALDELIMITER2, "\n");
             inGradebook=Boolean.parseBoolean(text[2]);
+            unitTested=Boolean.parseBoolean(text[3]);
+            dateGraded=new Date(text[4]);
         } catch(Exception e){
             //System.err.println("Error reading grade from \""+fromText+"\": "+e);
             //it is entirely normal to get this error, so we don't need to output anything
@@ -42,6 +46,8 @@ public class TextGrade {
         text+=comment.replaceAll("\n", TextSpreadsheet.INDIVIDUALDELIMITER2).replaceAll("\r", TextSpreadsheet.INDIVIDUALDELIMITER2)
                 +TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=inGradebook;
+        text+=unitTested;
+        text+=dateGraded.toText();
         
         return text;
     }
@@ -52,7 +58,8 @@ public class TextGrade {
         }
         if(o instanceof TextGrade){
             TextGrade g=(TextGrade)o;
-            if(g.grade==grade&&g.comment.equals(comment)&&g.inGradebook==inGradebook){
+            if(g.grade==grade&&g.comment.equals(comment)&&g.inGradebook==inGradebook
+                    &&unitTested==g.unitTested){
                 return true;
             }
         }

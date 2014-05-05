@@ -177,7 +177,8 @@ public class TextSpreadsheet {
                 }
             }
         }
-        grades.get(nameIndex).set(assignmentIndex,new TextGrade(grade,comment)); //TODO: record date and timestamp with this.
+        TextGrade newGrade=new TextGrade(grade,comment);
+        grades.get(nameIndex).set(assignmentIndex,newGrade); //TODO: record date and timestamp with this.
         return true;
     }
     public boolean setGradeAt(int nameIndex,int assignmentIndex,double grade,String comment,boolean overwrite){
