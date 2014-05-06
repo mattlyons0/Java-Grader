@@ -131,7 +131,11 @@ public class UnitTester {
                         }
                     }
                 }
-        }
+                else{ //didnt need to test
+                        testStatus.add("SKIPPED");
+                        testResults.add(true);
+                }
+        } //this is tabbed wrong
         if(overlay!=null)
             overlay.setDescription("File: "+file.getFileName());
         }
