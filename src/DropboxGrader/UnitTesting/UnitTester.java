@@ -191,6 +191,7 @@ public class UnitTester {
                     }
                     else{ //didnt need to test
                         testStatus.add("SKIPPED");
+                        testResults.add(true);
                     }
                 } catch (DbxException ex) {
                     System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);
