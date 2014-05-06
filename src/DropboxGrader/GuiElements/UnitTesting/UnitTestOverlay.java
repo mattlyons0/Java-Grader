@@ -113,6 +113,10 @@ public class UnitTestOverlay extends ContentOverlay{
             currentTestInfo.setText(desc);
     }
     public void finished(){
+        if(testOutput!=null&&testOutput.getText().equals("")){//no text has been printed
+            isClosing();
+            dispose();
+        }
         if(timer!=null)
             return;
         if(testOutput!=null&&testOutput.errorsOccured()){

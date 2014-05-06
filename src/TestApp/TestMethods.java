@@ -5,6 +5,7 @@
 package TestApp;
 
 //import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
+import DropboxGrader.GuiHelper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

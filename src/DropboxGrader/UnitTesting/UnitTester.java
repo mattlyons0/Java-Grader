@@ -17,6 +17,7 @@ import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextSpreadsheet;
 import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.MethodAccessType;
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
- *
+ * 
  * @author matt
  */
 public class UnitTester {
@@ -96,7 +97,14 @@ public class UnitTester {
             //we need to download the file
             if(overlay!=null)
                 overlay.setStatus("Downloading File to be Tested");
-            file.download();
+            boolean success=file.download()!=null;
+            if(!success){
+                System.err.println("Error downloading file to be unit tested.");
+                if(overlay!=null)
+                    overlay.append("Error downloading file from dropbox, either dropbox "
+                            + "is having issues or the internet is down. "+Color.RED);
+            }
+            prepareTest(file);
             return;
         }
         if(overlay!=null)
@@ -106,8 +114,8 @@ public class UnitTester {
                 overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
             for(UnitTest test:assignment.simpleUnitTests){
                 TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
-                if(test!=null&&(grade==null||!grade.unitTested||Date.before(file.getSubmittedDate(), grade.dateGraded)||
-                        Date.before(test.updateDate, grade.dateGraded))){
+                if(test!=null&&(grade==null||!grade.unitTested||grade.dateGraded==null||Date.before(file.getSubmittedDate(), grade.dateGraded)||
+                        Date.before(test.updateDate, grade.dateGraded))){ //reasons to test
                     test:
                     for(int i=0;i<javaFiles.length;i++){
                         JavaMethod[] methods=javaFiles[i].getMethods();
@@ -134,7 +142,7 @@ public class UnitTester {
                 try {
                     DbxEntry entry=gui.getDbxSession().getClient().getMetadata(testLoc);
                     TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
-                    if(grade==null||!grade.unitTested||Date.before(file.getSubmittedDate(), 
+                    if(grade==null||!grade.unitTested||grade.dateGraded==null||Date.before(file.getSubmittedDate(), 
                             grade.dateGraded)||entry.isFile()&&Date.before(new Date(((DbxEntry.File)entry).lastModified),
                             file.getSubmittedDate())){ //reasons it needs to be tested
                         if(overlay!=null)
@@ -181,6 +189,9 @@ public class UnitTester {
                         if(overlay!=null)
                             overlay.setDescription("File: "+file.getFileName());
                     }
+                    else{ //didnt need to test
+                        testStatus.add("SKIPPED");
+                    }
                 } catch (DbxException ex) {
                     System.err.println("Error communicating with dropbox when downloading unit test file.\n"+ex);
                     if(overlay!=null)
@@ -198,6 +209,18 @@ public class UnitTester {
         //write grade
         final double grade;
         int successes=0;
+        for(String s:testStatus){//it just got skipped because it didnt need
+        //to be graded again, but this will skip it out of the loops anyways.
+            if(s.equals("SKIPPED")){
+                testResults.clear();
+                testStatus.clear();
+                if(overlay!=null){
+                    overlay.setDescription("");
+                    overlay.setStatus("");
+                }
+                return;
+            }
+        }
         boolean errorTesting=false;
         for(Boolean result:testResults){
             if(result==null){
@@ -282,20 +305,42 @@ public class UnitTester {
             }
         }
         final TextGrader grader=gui.getGrader();
+        final TextGrade tGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
         final Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
         final String gradeComment=grader.getComment(file.getFirstLastName(), assignment.number);
         final String fStatus=status;
-        if(!errorTesting&&(gradeNum==null||gradeNum!=grade||gradeComment==null||!gradeComment.equals(status))){
+        if(!errorTesting&&(gradeNum==null||gradeNum!=grade||gradeComment==null||!gradeComment.equals(status)||!tGrade.unitTested)){
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     grader.downloadSheet();
                     TextGrade curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
-                    curGrade.grade=grade;
-                    curGrade.comment=fStatus;
-                    curGrade.unitTested=true;
+                    if(curGrade==null){
+                        TextSpreadsheet sheet=grader.getSpreadsheet();
+                        sheet.setGrade(sheet.getName(file.getFirstLastName()), 
+                                sheet.getAssignment(assignment.number), grade, fStatus, true);
+                        curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
+                        curGrade.unitTested=true;
+                        curGrade.dateGraded=Date.currentDate();
+                    }
+                    else{
+                        curGrade.grade=grade;
+                        curGrade.comment=fStatus;
+                        curGrade.unitTested=true;
+                    }
                     grader.uploadTable();
                     gui.repaint();
+                }
+            });
+        }
+        else if(!errorTesting){ //lets update the date graded
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    TextGrader grader=gui.getGrader();
+                    grader.downloadSheet();
+                    TextGrade g=grader.getGrade(file.getFirstLastName(), assignment.number);
+                    g.dateGraded=Date.currentDate();
                 }
             });
         }

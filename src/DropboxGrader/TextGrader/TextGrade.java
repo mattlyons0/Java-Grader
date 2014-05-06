@@ -33,7 +33,7 @@ public class TextGrade {
             comment=comment.replaceAll(TextSpreadsheet.INDIVIDUALDELIMITER2, "\n");
             inGradebook=Boolean.parseBoolean(text[2]);
             unitTested=Boolean.parseBoolean(text[3]);
-            dateGraded=new Date(text[4]);
+            dateGraded=text[4].equals("null")||text[4].equals("")?null:new Date(text[4]);
         } catch(Exception e){
             //System.err.println("Error reading grade from \""+fromText+"\": "+e);
             //it is entirely normal to get this error, so we don't need to output anything
@@ -47,7 +47,7 @@ public class TextGrade {
                 +TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=inGradebook+TextSpreadsheet.INDIVIDUALDELIMITER;
         text+=unitTested+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=dateGraded==null?"":dateGraded.toText();
+        text+=dateGraded==null?"null":dateGraded.toText();
         
         return text;
     }

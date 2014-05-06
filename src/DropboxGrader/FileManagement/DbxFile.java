@@ -198,7 +198,7 @@ public class DbxFile {
         return entry.clientMtime.toString();
     }
     public Date getSubmittedDate(){
-        return new Date(entry.clientMtime);
+        return new Date(entry.lastModified);
     }
     public String getFirstLastName(){
         String s=entry.name;

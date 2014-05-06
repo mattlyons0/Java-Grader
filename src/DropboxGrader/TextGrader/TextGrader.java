@@ -101,6 +101,9 @@ public class TextGrader {
                 }
                 downloadSheet(force);
             }
+            else{
+                GuiHelper.alertDialog("Error accessing files from dropbox.\nSee error log for more information.");
+            }
         }
     }
     //make sheet, and save it to a file.

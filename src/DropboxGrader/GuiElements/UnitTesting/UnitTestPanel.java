@@ -7,6 +7,7 @@
 package DropboxGrader.GuiElements.UnitTesting;
 
 import DropboxGrader.Config;
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.GradebookBrowser.GradebookTable;
@@ -354,6 +355,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             test.setReturnType(returnTypes.get(i).getText());
             test.setExpectedReturnValue(expectedValues.get(i).getText());
             test.setDescription(descriptionValues.get(i).getText());
+            test.updateDate=Date.currentDate();
             
             gui.getViewManager().removeOverlay("MethodAccessOverlay"+i);
             gui.getViewManager().removeOverlay("MethodModifiersOverlay"+i);

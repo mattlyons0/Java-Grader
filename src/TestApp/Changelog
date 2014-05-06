@@ -1,2 +1,6 @@
-Only unit tests when it needs to.
-    Doesn't work really
+Assignments, Unit Tests and Grades now store the date they were modified.
+
+Fixed selective unit testing running unnecisarily sometimes
+Fixed dates being completely broken
+Fixed not testing in certain conditions
+Added it bit more logging of situations when dropbox is down.

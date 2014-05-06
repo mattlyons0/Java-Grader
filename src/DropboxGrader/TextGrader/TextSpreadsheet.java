@@ -23,6 +23,7 @@ public class TextSpreadsheet {
     public static final String INDIVIDUALDELIMITER="÷"; //See validateString(String) for more info on banning them
     public static final String INDIVIDUALDELIMITER2="☃"; //lol snowman
     public static final String INDIVIDUALDELIMITER3="☑";
+    public static final String INDIVIDUALDELIMITER4="★";
     
     private ArrayList<TextAssignment> assignments;
     private ArrayList<TextName> names;
@@ -461,6 +462,7 @@ public class TextSpreadsheet {
         s=s.replace(INDIVIDUALDELIMITER, "");
         s=s.replace(INDIVIDUALDELIMITER2, "");
         s=s.replace(INDIVIDUALDELIMITER3, "");
+        s=s.replace(INDIVIDUALDELIMITER4, "");
         if(!returns){
             s=s.replace("\n", "");
             s=s.replace("\r", "");

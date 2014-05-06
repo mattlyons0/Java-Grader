@@ -90,7 +90,7 @@ public class UnitTest {
                 expectedReturnValue=s[12];
             if(!s[13].equals("null"))
                 testDescription=s[13];
-            updateDate=new Date(s[14]);
+            updateDate=s[14].equals("null")||s[14].equals("")?null:new Date(s[14]);
         } catch(Exception e){
             
         }
@@ -201,7 +201,7 @@ public class UnitTest {
         }
         s=append(s,expectedReturnValue);
         s=append(s,testDescription);
-        s=append(s,updateDate);
+        s=append(s,updateDate==null?"null":updateDate.toText());
         
         return s;
     }
