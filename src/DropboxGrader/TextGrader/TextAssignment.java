@@ -6,6 +6,7 @@
 
 package DropboxGrader.TextGrader;
 
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -21,11 +22,12 @@ public class TextAssignment {
     public UnitTest[] simpleUnitTests;
     public String[] junitTests;
     public double totalPoints;
-    //public Date dateDue;
+    public Date dateDue;
     
-    public TextAssignment(int number,String name){
+    public TextAssignment(int number,String name,Date dueDate){
         this.number=number;
         this.name=name;
+        dateDue=dueDate;
         this.perferredWidth=75;
     }
     public TextAssignment(String fromText){
@@ -53,6 +55,7 @@ public class TextAssignment {
                     }
                 }
             }
+            dateDue=text[6].equals("null")?null:new Date(text[6]);
         } catch(Exception e){ //catch numberformat and indexoutofbounds
             if(name==null){
                 name="";
@@ -87,8 +90,9 @@ public class TextAssignment {
                 text+=TextSpreadsheet.INDIVIDUALDELIMITER2;
             }
         else
-            text+=null;
-        //text+=TextSpreadsheet.INDIVIDUALDELIMITER;
+            text+="null";
+        text+=TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=dateDue==null?"null":dateDue.toText();
         return text;
     }
     @Override

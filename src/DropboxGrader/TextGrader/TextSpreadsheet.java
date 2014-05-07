@@ -7,6 +7,7 @@
 package DropboxGrader.TextGrader;
 
 import DropboxGrader.DbxSession;
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.Util.StaticMethods;
 import java.io.File;
@@ -126,10 +127,10 @@ public class TextSpreadsheet {
     public boolean isInitialized(){
         return assignments!=null;
     }
-    public void addAssignment(int assignmentNum,String assignmentName){ //TODO: store due date
+    public void addAssignment(int assignmentNum,String assignmentName,Date date){
         assignmentName=validateString(assignmentName);
         
-        assignments.add(new TextAssignment(assignmentNum,assignmentName));
+        assignments.add(new TextAssignment(assignmentNum,assignmentName,date));
         
         for(ArrayList<TextGrade> grade:grades){
             grade.add(null);

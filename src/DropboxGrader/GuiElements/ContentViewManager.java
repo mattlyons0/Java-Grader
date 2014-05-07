@@ -153,6 +153,7 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
         for(int i=0;i<overlays.size();i++){
             ContentOverlay o=overlays.get(i);
             if(o.getViewName().equals(name)){
+                o.isClosing();
                 o.dispose();
                 removed=true;
             }

@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements.MiscOverlays;
+package DropboxGrader.GuiElements.Assignment;
 
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
 import DropboxGrader.GuiElements.UnitTesting.UnitTestPanel;
@@ -17,6 +18,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -35,6 +37,8 @@ public class AssignmentOverlay extends ContentOverlay{
     private JTextField assignmentNumField;
     private JTextField assignmentNameField;
     private JTextField assignmentPointsField;
+    private DateOverlay dateOverlay;
+    private JButton dateButton;
     private UnitTestPanel unitTestPanel;
     private JScrollPane unitTestScroll;
     
@@ -43,6 +47,7 @@ public class AssignmentOverlay extends ContentOverlay{
     private Double assignmentPoints;
     private UnitTest[] tests;
     private String[] jtests;
+    private Date date;
     public AssignmentOverlay(Gui gui) {
         super("AssignmentOverlay");
         this.gui=gui;
@@ -87,6 +92,11 @@ public class AssignmentOverlay extends ContentOverlay{
             unitTestPanel=new UnitTestPanel(tests,jtests,assignmentName,assignmentNum,gui);
         }
         unitTestScroll=new JScrollPane(unitTestPanel);
+        dateOverlay=new DateOverlay(this,gui);
+        dateButton=new JButton("Due Date");
+        dateButton.setToolTipText("Due Date");
+        dateButton.addActionListener(this);
+        setDate(date);
         
         GridBagConstraints cons=new GridBagConstraints(); 
         cons.insets=new Insets(5,5,5,5);
@@ -109,13 +119,15 @@ public class AssignmentOverlay extends ContentOverlay{
         cons.gridx=5;
         cons.weightx=10;
         add(assignmentPointsField,cons);
+        cons.gridx=6;
+        add(dateButton,cons);
         
         cons.fill=GridBagConstraints.BOTH;
         cons.weighty=98;
         cons.weightx=1;
         cons.gridy=1;
         cons.gridx=0;
-        cons.gridwidth=6;
+        cons.gridwidth=7;
         add(unitTestScroll,cons);
         
         Dimension parentSize = gui.getSize();
@@ -131,6 +143,7 @@ public class AssignmentOverlay extends ContentOverlay{
         return save();
     }
     private boolean save(){
+        gui.getViewManager().removeOverlay(dateOverlay.getViewName()); //save and remove the overlay
         //validate data
         try{
             assignmentNum=Integer.parseInt(assignmentNumField.getText().replace(" ", ""));
@@ -145,7 +158,7 @@ public class AssignmentOverlay extends ContentOverlay{
         }
         assignmentPoints=Double.parseDouble(assignmentPointsField.getText());
         unitTestPanel.save();
-
+        
         if(callback!=null){
             gui.getBackgroundThread().invokeLater(callback);
         }
@@ -159,6 +172,12 @@ public class AssignmentOverlay extends ContentOverlay{
                 e.getSource().equals(assignmentPointsField)){
             if(save())
                 dispose();
+        }
+        else if(e.getSource().equals(dateButton)){
+            gui.getViewManager().removeOverlay(dateOverlay.getViewName());
+            
+            gui.getViewManager().addOverlay(dateOverlay);
+            dateOverlay.setDate(date);
         }
     }
     public Object[] getData(){
@@ -194,7 +213,20 @@ public class AssignmentOverlay extends ContentOverlay{
         jtests=assign.junitTests;
         if(unitTestPanel!=null)
             unitTestPanel.setJUnitTests(jtests);
+        if(dateOverlay!=null)
+            dateOverlay.setDate(assign.dateDue);
+        date=assign.dateDue;
         setTitle("Edit Assignment: "+assign.number+" "+assign.name);
     }
-    
+    public void setDate(Date d){
+        if(d==null){
+            dateButton.setText("Due Date");
+        } else{
+            dateButton.setText("Due Date: "+d.toString());
+        }
+        date=d;
+    }
+    public Date getDate(){
+        return date;
+    }
 }

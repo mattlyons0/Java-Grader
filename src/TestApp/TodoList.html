@@ -18,6 +18,8 @@
     <li>Config to read text files by default</li>
     <li>button to change dropbox login in config</li>
     <li>Delete local files option in settings menu.</li>
+    <li>Config to set late penalty</li>
+    <li>Config to remove code sorter</li>
 </ul>
 <h3>Bugs</h3>
 <ul>
@@ -29,6 +31,7 @@
     <li>Saving bottom toolbar for grade size sometimes screws up in grader</li>
     <li>Big downloaded files hangs startup a lot</li>
     <li>JUnit Running not recognizing test class (need to run my own jar)</li>
+    <li>Opening the date overlay twice will make it unable to close (I have stripped the class down to nothing and cannot get it to go away, might be a issue with my session).</li>
 </ul>
 <h3>Visual</h3>
 <ul>
@@ -40,7 +43,6 @@
     <li>Bulk file handling for gradebook</li>
     <li>View grade percentage per person (gradebook)</li>
     <li>More printing modes (grade analysis) (overall grade/percentage,table)</li>
-    <li>Make code sort take up less space (maybe put it in an (undecorated?) overlay)</li>
     <li>Horizontal scroll wheel support</li>
     <li>Mode to switch names/assignments axis (gradebook)</li>
     <li>Use contentOverlay instead of GuiHelper and JOptionPane (everywhere)</li>
@@ -57,7 +59,6 @@
     <li>display current fileQueue</li>
     <li>Switch grade spreadsheets</li>
     <li>Create spacer in gradebook</li>
-    <li>Don't allow to set grade in gradebook view for unit tested assignments</li>
     <li>Show graded date in Gradebook</li>
 </ul>
 <h3>Required Additions</h3>
@@ -66,22 +67,21 @@
     <li>Auto retry when there are problems with dropbox and show a message saying we are having trouble</li>
     <li>Add ability to change directory it is run from. (when running code)</li>
     <li>Check return values when changing data in gradebook</li>
-    <li>Remove old resubmit thing, replace it with date based resubmits/late</li>
     <li>Bulk operations in filebrowser (change assignment number for all...)</li>
     <li>Filters in filebrowser (ex: name contains "" or assignment number == this)</li>
     <li>Javadocs / more comments</li>
     <li>Users manual</li>
-    <li>Use graded date vs date uploaded to determine if resubmits are done or not.</li>
     <li>Store assignment due date, graded date</li>
     <li>store student email</li>
     <li>Auto email for invalid file structure, graded...</li>
     <li>store student period (check for wrong class period and move it)</li>
     <li>libraries to compile with with assignments</li>
-    <li>use submit date and graded status to auto determine late assignments (also for unit tests)</li>
     <li>Demo Mode</li>
     <li>Pagentate printing gradebook vertically as well</li>
     <li>Redo zip structure required, name_assignmentNumber_assignmentName<br/>
     use stored name to determine class period and attempt to fix assignment numbers based on other submitted assignment names</li>
     <li>Remove class period from config and instead put it in the bulk filter options</li>
     <li>Add button to force rerun unit tests</li>
+    <li>Include licenses of all the libraries used</li>
+    <li>Get rid of old resubmit method and old 2nd year method</li>
 </ul>

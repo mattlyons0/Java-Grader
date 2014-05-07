@@ -141,6 +141,8 @@ public class DbxFile {
     }
     public String getAssignmentName(int row,int col){
         String s=entry.name;
+        if(!isCorrection())
+            fileManager.getTableData().removeColorAt(new CellLocation(fileManager.getAttributes()[col],row));
         if(!s.endsWith(".zip")){
             return "Error \""+entry.name+"\" doesn't end with .zip!";
         }
@@ -148,7 +150,7 @@ public class DbxFile {
         if(splits.length<4){
             return ERRORMSG;
         }
-        if(!isNotFirstYear(splits[2])&&splits.length==5||isCorrection(splits)){
+        if(!isNotFirstYear(splits[2])&&splits.length==5||isCorrection()){
             fileManager.getTableData().setColorAt(Color.YELLOW, new CellLocation(fileManager.getAttributes()[col],row));
             return splits[3]+" (Resubmit)";
         }
@@ -173,12 +175,10 @@ public class DbxFile {
         }
         return false;
     }
-    private boolean isCorrection(String[] assignment){
-        if(assignment.length==6){
-            if(assignment[5].contains("Correction")||assignment[5].contains("CORRECTION")||assignment[5].contains("correction")||
-                    assignment[5].contains("Resubmit")||assignment[5].contains("resubmit")||assignment[5].contains("RESUBMIT")){
-                return true;
-            }
+    private boolean isCorrection(){
+        TextGrade grade=fileManager.getGrader().getGrade(getFirstLastName(), getAssignmentNumber());
+        if(grade!=null&&Date.before(grade.dateGraded, getSubmittedDate())){
+            return true;
         }
         return false;
     }
@@ -197,8 +197,12 @@ public class DbxFile {
         }
         return entry.clientMtime.toString();
     }
+    /**
+     * Gets the date of the first revision on dropbox
+     * @return the date the file was initially submitted to dropbox
+     */
     public Date getSubmittedDate(){
-        return new Date(entry.lastModified);
+        return new Date(entry.clientMtime);
     }
     public String getFirstLastName(){
         String s=entry.name;

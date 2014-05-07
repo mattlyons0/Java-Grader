@@ -114,8 +114,8 @@ public class UnitTester {
                 overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
             for(UnitTest test:assignment.simpleUnitTests){
                 TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
-                if(test!=null&&(grade==null||!grade.unitTested||grade.dateGraded==null||Date.before(file.getSubmittedDate(), grade.dateGraded)||
-                        Date.before(test.updateDate, grade.dateGraded))){ //reasons to test
+                if(test!=null&&(grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), grade.dateGraded)||
+                        !Date.before(test.updateDate, grade.dateGraded))){ //reasons to test
                     test:
                     for(int i=0;i<javaFiles.length;i++){
                         JavaMethod[] methods=javaFiles[i].getMethods();
@@ -146,8 +146,8 @@ public class UnitTester {
                 try {
                     DbxEntry entry=gui.getDbxSession().getClient().getMetadata(testLoc);
                     TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
-                    if(grade==null||!grade.unitTested||grade.dateGraded==null||Date.before(file.getSubmittedDate(), 
-                            grade.dateGraded)||entry.isFile()&&Date.before(new Date(((DbxEntry.File)entry).lastModified),
+                    if(grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), 
+                            grade.dateGraded)||entry.isFile()&&!Date.before(new Date(((DbxEntry.File)entry).lastModified),
                             file.getSubmittedDate())){ //reasons it needs to be tested
                         if(overlay!=null)
                             overlay.setStatus("Downloading JUnit Test File");
@@ -212,7 +212,7 @@ public class UnitTester {
         if(overlay!=null)
             overlay.setStatus("Grading Unit Tests");
         //write grade
-        final double grade;
+        double grade;
         int successes=0;
         for(String s:testStatus){//it just got skipped because it didnt need
         //to be graded again, but this will skip it out of the loops anyways.
@@ -309,12 +309,17 @@ public class UnitTester {
                         "and must return a "+assignment.simpleUnitTests[testNum].getReturnTypeString()+".\n";
             }
         }
+        if(assignment.dateDue!=null&&!Date.before(file.getSubmittedDate(), assignment.dateDue)){ //it was submitted late
+            grade/=2;
+            status+=Date.differenceBefore(assignment.dateDue,file.getSubmittedDate())+" Late";
+        }
         final TextGrader grader=gui.getGrader();
         final TextGrade tGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
         final Double gradeNum=grader.getGradeNum(file.getFirstLastName(), assignment.number);
         final String gradeComment=grader.getComment(file.getFirstLastName(), assignment.number);
+        final double fGrade=grade;
         final String fStatus=status;
-        if(!errorTesting&&(gradeNum==null||gradeNum!=grade||gradeComment==null||!gradeComment.equals(status)||!tGrade.unitTested)){
+        if(!errorTesting&&(gradeNum==null||gradeNum!=fGrade||gradeComment==null||!gradeComment.equals(status)||!tGrade.unitTested)){
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
@@ -323,13 +328,13 @@ public class UnitTester {
                     if(curGrade==null){
                         TextSpreadsheet sheet=grader.getSpreadsheet();
                         sheet.setGrade(sheet.getName(file.getFirstLastName()), 
-                                sheet.getAssignment(assignment.number), grade, fStatus, true);
+                                sheet.getAssignment(assignment.number), fGrade, fStatus, true);
                         curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
                         curGrade.unitTested=true;
                         curGrade.dateGraded=Date.currentDate();
                     }
                     else{
-                        curGrade.grade=grade;
+                        curGrade.grade=fGrade;
                         curGrade.comment=fStatus;
                         curGrade.unitTested=true;
                     }
@@ -346,6 +351,7 @@ public class UnitTester {
                     grader.downloadSheet();
                     TextGrade g=grader.getGrade(file.getFirstLastName(), assignment.number);
                     g.dateGraded=Date.currentDate();
+                    grader.uploadTable();
                 }
             });
         }

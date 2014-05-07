@@ -1,1 +1,16 @@
-Fixed the bugs I made with unit testing in the last few commits.
+Implemented late assignment detection/resubmit detection
+
+Detects late assignments being manually graded.
+    Defaults to half the total points (on todo list to make configurable)
+Unit testing also detects late assignments
+    Automatically takes off 50%
+Assignments now store their duedate
+Added a library for a calendar picker (and a bunch of other swing components).
+Fixed bug in dates.
+When modifying assignments you can now set the duedate
+Unit Tested assignments can no longer be graded from the grader
+    Will display a message saying so.
+Changed resubmits to detect based on if an assignment has been submitted more recently than it has been graded
+    This means that resubmits are now only resubmits until they are graded
+Fixed not reuploading gradebook when changing date on a grade
+Fixed an issue with colors not being removed for resubmitted assignments after they were no longer resubmitted

@@ -8,7 +8,7 @@ import DropboxGrader.Config;
 import DropboxGrader.DbxSession;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
-import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
+import DropboxGrader.GuiElements.Assignment.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.WorkerThread;
@@ -191,7 +191,7 @@ public class TextGrader {
         }
         if(!data.assignmentDefined(assignmentNum)){ //need to create assignment in table
             final AssignmentOverlay overlay=new AssignmentOverlay(gui);
-            overlay.setData(new TextAssignment(assignmentNum,""));
+            overlay.setData(new TextAssignment(assignmentNum,"",overlay.getDate()));
             overlay.setCallback(new Runnable() {
                 @Override
                 public void run() {
@@ -208,7 +208,7 @@ public class TextGrader {
                 }
             });
             gui.getViewManager().addOverlay(overlay);
-            data.addAssignment(assignmentNum, "");
+            data.addAssignment(assignmentNum, "",null);
         }
         boolean gradeSet=data.setGrade(data.getName(name),data.getAssignment(assignmentNum), gradeNum, comment,overwrite);
         if(!gradeSet){

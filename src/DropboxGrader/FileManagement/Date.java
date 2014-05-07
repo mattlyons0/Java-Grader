@@ -5,6 +5,7 @@
 package DropboxGrader.FileManagement;
 
 import DropboxGrader.TextGrader.TextSpreadsheet;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
@@ -62,7 +63,7 @@ public class Date {
         return str+TextSpreadsheet.INDIVIDUALDELIMITER4+append;
     }
     public java.util.Date toDate(){
-        java.util.Date d=new java.util.Date(year,month,hour,minute,second);
+        java.util.Date d=new java.util.Date(year-1900,month,day,hour,minute,second); //minus 1900... wow, just wow
         return d;
     }
     private void toCurrentDate(){
@@ -80,35 +81,40 @@ public class Date {
         return d;
     }
     public static boolean before(Date first,Date last){
-        if(last.year>first.year)
-            return false;
-        else if(first.year>last.year)
-            return true;
-        if(last.month>first.month)
-            return false;
-        else if(first.month>last.month)
-            return true;
-        if(last.day>first.day)
-            return false;
-        else if(first.day>last.day)
-            return true;
-        if(last.hour>first.hour)
-            return false;
-        else if(first.hour>last.hour)
-            return true;
-        if(last.minute>first.minute)
-            return false;
-        else if(first.minute>last.minute)
-            return true;
-        if(last.second>first.second)
-            return false;
-        else if(first.second>last.second)
-            return true;
-        return true; //exact same time (to the second)
+        Calendar c1=Calendar.getInstance();
+        c1.setTime(first.toDate());
+        Calendar c2=Calendar.getInstance();
+        c2.setTime(last.toDate());
+        
+        return c1.before(c2);
     }
+    public static String differenceBefore(Date first,Date last){
+        java.util.Date dt1 = first.toDate();
+        java.util.Date dt2 = last.toDate();
+
+        long diff = dt2.getTime() - dt1.getTime();
+        long diffSeconds = diff / 1000 % 60;
+        long diffMinutes = diff / (60 * 1000) % 60;
+        long diffHours = diff / (60 * 60 * 1000);
+        int diffInDays = (int) ((dt2.getTime() - dt1.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffInDays > 0) {
+            return diffInDays+" Days";
+        } else if (diffHours > 1) {
+            return diffHours+" Hours";
+        } else if (diffMinutes > 1) {
+            return diffMinutes+" Minutes";
+        } else if (diffSeconds > 0)
+            return diffSeconds+" Seconds";
+        return null;
+    }
+    
     @Override
     public String toString(){
-        return month+"/"+day+"/"+year+" "+hour+":"+minute+":"+second;
+        DecimalFormat format=new DecimalFormat("#00");
+        DecimalFormat format2=new DecimalFormat("#0000");
+        return (format.format(month+1))+"/"+format.format(day)+"/"+format2.format(year)+
+                " "+format.format(hour)+":"+format.format(minute)+":"+format.format(second);
     }
     
 }

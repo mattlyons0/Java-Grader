@@ -31,6 +31,7 @@ Remember previously used comments for this session.
 Store a list of (canned comments) which can simply be selected (or a shortcut can be assigned to them)
 Overlay Windows don't deallocate from memory
 Add tile mode to gradebook table print
+Make code sort take up less space (maybe put it in an (undecorated?) overlay)
 
 demo mode
     Log them into a test dropbox with some test code and files

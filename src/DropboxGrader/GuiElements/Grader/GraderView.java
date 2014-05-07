@@ -7,6 +7,7 @@
 package DropboxGrader.GuiElements.Grader;
 
 import DropboxGrader.Config;
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
@@ -14,6 +15,7 @@ import DropboxGrader.GuiElements.ContentView;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaRunner;
+import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrader;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -340,6 +342,9 @@ public class GraderView extends ContentView{
             GuiHelper.alertDialog("Invalid File");
             return;
         }
+        recordGradeButton.setEnabled(true);
+        gradeNumber.setEditable(true);
+        gradeComment.setEditable(true);
         Double grade=null;
         String comment=null;
         if(gui.getGrader()!=null){
@@ -373,6 +378,26 @@ public class GraderView extends ContentView{
         javaCode.setSort(Config.codeSortMode,Config.codeSortOrder);
         codeSortMode.setSelectedIndex(Config.codeSortMode);
         codeSortOrder.setSelectedIndex(Config.codeSortOrder);
+        
+        if(gui.getGrader()!=null){
+            TextAssignment assignment=gui.getGrader().getSpreadsheet().getAssignment(file.getAssignmentNumber());
+            if((assignment.simpleUnitTests!=null&&assignment.simpleUnitTests.length>0)||
+                    assignment.junitTests!=null&&assignment.junitTests.length>0){ //this assignment is unit tested
+                gradeNumber.setEditable(false);
+                gradeComment.setEditable(false);
+                gradeStatus.setText("<html>This assignment is unit tested and should not be manually graded.<br/>"
+                        + "However if you would like to edit the grade, do so from the gradebook.</html>");
+                recordGradeButton.setEnabled(false);
+            }
+            if(gradeNumber.getText().equals("")&&gradeComment.getText().equals("")&& //there isnt already a grade
+                    assignment!=null&&assignment.dateDue!=null&&!Date.before(file.getSubmittedDate(),assignment.dateDue)){ //it was submitted late
+                String daysLate=Date.differenceBefore(assignment.dateDue,file.getSubmittedDate());
+                if(daysLate!=null){
+                    gradeNumber.setText(assignment.totalPoints/2+"");
+                    gradeComment.setText(daysLate+" Late");
+                }
+            }
+        }
         
         if(Config.autoRun&&!gui.getSelectedFiles().isEmpty()){
             //If it should autorun, go autorun on the other thread.

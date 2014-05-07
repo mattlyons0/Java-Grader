@@ -65,6 +65,9 @@ public class FileBrowserData extends AbstractTableModel{
     public void setColorAt(Color c,CellLocation cell){
         cellColors.put(cell, c);
     }
+    public void removeColorAt(CellLocation cell){
+        cellColors.remove(cell);
+    }
     public Color getColorAt(CellLocation cell){
         return cellColors.get(cell);
     }

@@ -7,7 +7,7 @@
 package DropboxGrader.GuiElements.GradebookBrowser;
 
 import DropboxGrader.Gui;
-import DropboxGrader.GuiElements.MiscOverlays.AssignmentOverlay;
+import DropboxGrader.GuiElements.Assignment.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.GradeOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
@@ -453,7 +453,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                     GuiHelper.alertDialog("Error, Assignment "+data[0]+" already exists!");
                     return;
                 }
-                sheet.addAssignment((int)data[0], (String)data[1]);
+                sheet.addAssignment((int)data[0], (String)data[1],overlay.getDate());
                 TextAssignment assign=sheet.getAssignment((int)data[0]);
                 assign.totalPoints=(Double)data[2];
                 assign.junitTests=overlay.getJUnitTests();
@@ -480,6 +480,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 assign.totalPoints=(Double)data[2];
                 assign.simpleUnitTests=overlay.getUnitTest();
                 assign.junitTests=overlay.getJUnitTests();
+                assign.dateDue=overlay.getDate();
                 gui.getGrader().uploadTable();
                 dataChanged();
                 gui.fileBrowserDataChanged();
