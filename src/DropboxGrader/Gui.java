@@ -68,7 +68,7 @@ public class Gui extends JFrame implements ActionListener{
         super("Dropbox Grader");
         setBackground(Color.lightGray);
         try {
-            setIconImage(ImageIO.read(getClass().getResource("/Resources/icon64.png")));
+            setIconImage(ImageIO.read(getClass().getResource("/Resources/iconRed64.png")));
         } catch (IOException ex) {
             System.err.println("Error setting taskbar icon.");
             Logger.getLogger(Gui.class.getName()).log(Level.SEVERE, null, ex);
