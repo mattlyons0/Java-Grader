@@ -49,7 +49,7 @@ public class DbxFile {
         fileVersion=0;
         ERRORMSG="File Naming Error: "+entry.name;
         
-        if(entry.name.indexOf(".")!=entry.name.length()-4){
+        if(entry.name.indexOf(".")!=entry.name.length()-4&&!entry.name.endsWith(".invalid")){
             String newName=entry.name.replace(".", "");
             if(newName.contains("zip"))
                 newName=newName.substring(0, newName.length()-3);
@@ -110,7 +110,7 @@ public class DbxFile {
                 if(retryNum>0){
                     download(true,1);
                 }
-                setInvalidZip();
+                setInvalidZip(true);
             }
             else if(ex instanceof DbxException){
                 if(ex instanceof DbxException.ServerError||ex instanceof DbxException.RetryLater){
@@ -143,24 +143,19 @@ public class DbxFile {
         String s=entry.name;
         if(!isCorrection())
             fileManager.getTableData().removeColorAt(new CellLocation(fileManager.getAttributes()[col],row));
-        if(!s.endsWith(".zip")){
-            return "Error \""+entry.name+"\" doesn't end with .zip!";
-        }
         String[] splits=s.split("_");
         if(splits.length<4){
             return ERRORMSG;
         }
-        if(!isNotFirstYear(splits[2])&&splits.length==5||isCorrection()){
-            fileManager.getTableData().setColorAt(Color.YELLOW, new CellLocation(fileManager.getAttributes()[col],row));
-            return splits[3]+" (Resubmit)";
-        }
         else if(splits.length==5){
             fileManager.getTableData().setColorAt(Color.CYAN.darker(), new CellLocation(fileManager.getAttributes()[col],row));
             int year=safeStringToInt(splits[2]);
-            return splits[4].substring(0, splits[4].length()-4)+" (Year "+year+")";
+            int dotIndex=splits[4].indexOf(".");
+            return splits[4].substring(0, dotIndex)+" (Year "+year+")";
         }
         else if(splits.length==4&&splits[3].length()>4){
-            return splits[3].substring(0, splits[3].length()-4);//assignment name is 4th underscore, .zip is the last 4 characters
+            int dotIndex=splits[3].indexOf(".");
+            return splits[3].substring(0, dotIndex);//assignment name is 4th underscore, .zip is the last 4 characters
         }
         else if(splits.length>3){
             return splits[3];
@@ -217,11 +212,11 @@ public class DbxFile {
                 return "Graded: "+grade;
             }
         }
+        if(isInvalidZip()){
+            return "Invalid Zip File";
+        }
         if(downloadedFile==null){
             return "On Server";
-        }
-        if(downloadedFile.exists()&&invalidZip){
-            return "Invalid Zip File";
         }
         if(downloadedFile.exists()){
             return "Downloaded";
@@ -541,11 +536,20 @@ public class DbxFile {
         }
         return true;
     }
-    public void setInvalidZip(){
-        invalidZip=true;
+    public void setInvalidZip(boolean invalid){
+        if(invalid){
+            invalidZip=true;
+            if(!entry.name.endsWith(".invalid"))
+                rename(entry.name+".invalid");
+        }
+        else{
+            invalidZip=false;
+            if(entry.name.endsWith(".invalid"))
+                rename(entry.name.substring(0,entry.name.length()-".invalid".length()));
+        }
     }
     public boolean isInvalidZip(){
-        return invalidZip;
+        return invalidZip||entry.name.endsWith(".invalid");
     }
     public boolean changedFolder(){
         return changedFolder;

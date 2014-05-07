@@ -38,6 +38,7 @@ public class Main {
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         Config.init();
         Config.readConfig();
         Gui gui=new Gui();

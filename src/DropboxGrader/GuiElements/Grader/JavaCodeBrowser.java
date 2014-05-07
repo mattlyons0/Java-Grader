@@ -126,8 +126,10 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
                 }
                 t+="File Structure:\n"+structure;
                 if(file.isInvalidZip()){
-                    t="Zip file is invalid.";
-                }
+                    t="Zip file is invalid.\nIt may have some form of encryption applied to it.\n"
+                            + "It also may not have been a zip file but was renamed to .zip.";
+                } else
+                    file.setInvalidZip(false);
                 browserArea[x].setText(t);
             }
             else{

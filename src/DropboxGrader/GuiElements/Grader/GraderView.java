@@ -381,12 +381,12 @@ public class GraderView extends ContentView{
         
         if(gui.getGrader()!=null){
             TextAssignment assignment=gui.getGrader().getSpreadsheet().getAssignment(file.getAssignmentNumber());
-            if((assignment.simpleUnitTests!=null&&assignment.simpleUnitTests.length>0)||
-                    assignment.junitTests!=null&&assignment.junitTests.length>0){ //this assignment is unit tested
+            if(assignment!=null&&((assignment.simpleUnitTests!=null&&assignment.simpleUnitTests.length>0)||
+                    (assignment.junitTests!=null&&assignment.junitTests.length>0))){ //this assignment is unit tested
                 gradeNumber.setEditable(false);
                 gradeComment.setEditable(false);
-                gradeStatus.setText("<html>This assignment is unit tested and should not be manually graded.<br/>"
-                        + "However if you would like to edit the grade, do so from the gradebook.</html>");
+                gradeStatus.setText("This assignment is unit tested and should not be manually graded."
+                        + "However if you would like to edit the grade, do so from the gradebook.");
                 recordGradeButton.setEnabled(false);
             }
             if(gradeNumber.getText().equals("")&&gradeComment.getText().equals("")&& //there isnt already a grade

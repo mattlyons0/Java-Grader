@@ -92,21 +92,6 @@ public class UnitTester {
             overlay.setStatus("Running Tests");
             overlay.setDescription("File: "+file.getFileName());
         }
-        JavaFile[] javaFiles=file.getJavaFiles();
-        if(javaFiles==null){
-            //we need to download the file
-            if(overlay!=null)
-                overlay.setStatus("Downloading File to be Tested");
-            boolean success=file.download()!=null;
-            if(!success){
-                System.err.println("Error downloading file to be unit tested.");
-                if(overlay!=null)
-                    overlay.append("Error downloading file from dropbox, either dropbox "
-                            + "is having issues or the internet is down. "+Color.RED);
-            }
-            prepareTest(file);
-            return;
-        }
         if(overlay!=null)
             overlay.setStatus("Running Unit Tests");
         if((overlay==null||!overlay.isCanceled())&&assignment.simpleUnitTests!=null){
@@ -116,6 +101,21 @@ public class UnitTester {
                 TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
                 if(test!=null&&(grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), grade.dateGraded)||
                         !Date.before(test.updateDate, grade.dateGraded))){ //reasons to test
+                    JavaFile[] javaFiles=file.getJavaFiles();
+                    if(!file.isDownloaded()){
+                        //we need to download the file
+                        if(overlay!=null)
+                            overlay.setStatus("Downloading File to be Tested");
+                        boolean success=file.download()!=null;
+                        if(!success){
+                            System.err.println("Error downloading file to be unit tested.");
+                            if(overlay!=null)
+                                overlay.append("Error downloading file from dropbox, either dropbox "
+                                        + "is having issues or the internet is down. "+Color.RED);
+                        }
+                        prepareTest(file);
+                        return;
+                    }
                     test:
                     for(int i=0;i<javaFiles.length;i++){
                         JavaMethod[] methods=javaFiles[i].getMethods();

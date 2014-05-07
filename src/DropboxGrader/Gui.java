@@ -30,9 +30,11 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
@@ -65,6 +67,12 @@ public class Gui extends JFrame implements ActionListener{
     public Gui(){
         super("Dropbox Grader");
         setBackground(Color.lightGray);
+        try {
+            setIconImage(ImageIO.read(getClass().getResource("/Resources/icon64.png")));
+        } catch (IOException ex) {
+            System.err.println("Error setting taskbar icon.");
+            Logger.getLogger(Gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
         viewManager=new ContentViewManager(this);
         selectedFiles=new ArrayList();        
         listener=new GuiListener(this);
