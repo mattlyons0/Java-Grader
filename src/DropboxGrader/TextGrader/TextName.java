@@ -27,7 +27,7 @@ public class TextName {
         try{
             firstName=text[0];
             lastName=text[1];
-            email=text[2];
+            email=text[2].equals("null")?null:text[2];
         } catch(Exception e){
             //something wasnt defined till now.
         }

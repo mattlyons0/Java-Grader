@@ -23,6 +23,7 @@ public class TextAssignment {
     public String[] junitTests;
     public double totalPoints;
     public Date dateDue;
+    public String[] libraries;
     
     public TextAssignment(int number,String name,Date dueDate){
         this.number=number;
@@ -56,6 +57,15 @@ public class TextAssignment {
                 }
             }
             dateDue=text[6].equals("null")?null:new Date(text[6]);
+            if(!text[7].equals("null")){
+                String[] libs=text[7].split(TextSpreadsheet.INDIVIDUALDELIMITER2);
+                if(libs.length>0){
+                    libraries=new String[libs.length];
+                    for(int i=0;i<libs.length;i++){
+                        libraries[i]=libs[i];
+                    }
+                }
+            }
         } catch(Exception e){ //catch numberformat and indexoutofbounds
             if(name==null){
                 name="";
@@ -87,12 +97,23 @@ public class TextAssignment {
         if(junitTests!=null)
             for(int i=0;i<junitTests.length;i++){
                 text+=junitTests[i];
-                text+=TextSpreadsheet.INDIVIDUALDELIMITER2;
+                if(i!=junitTests.length-1)
+                    text+=TextSpreadsheet.INDIVIDUALDELIMITER2;
             }
         else
             text+="null";
         text+=TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=dateDue==null?"null":dateDue.toText();
+        text+=dateDue==null?"null":dateDue.toText()+TextSpreadsheet.INDIVIDUALDELIMITER;
+        if(libraries!=null){
+            for(int i=0;i<libraries.length;i++){
+                text+=libraries[i];
+                if(i!=libraries.length-1)
+                    text+=TextSpreadsheet.INDIVIDUALDELIMITER2;
+            }
+        }
+        else
+            text+="null";
+        text+=TextSpreadsheet.INDIVIDUALDELIMITER;
         return text;
     }
     @Override

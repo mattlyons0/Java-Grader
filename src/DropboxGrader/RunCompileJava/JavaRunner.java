@@ -33,9 +33,11 @@ public class JavaRunner implements Runnable{
     private RelayStream errorRelay;
     private int numRunsLeft;
     private JavaFile[] currentFiles;
+    private String[] currentLibraries;
     private JavaFile mainFile;
     private boolean fixedPath=false;
     public final static boolean onWindows=System.getProperty("os.name").contains("Windows");
+    public final static char CLASSPATHDELIMITER=JavaRunner.onWindows?'\\':'/';
     
     public JavaRunner(final JTerminal t,Gui gui){
         terminal=t;
@@ -75,12 +77,13 @@ public class JavaRunner implements Runnable{
                     }
                     if(numRunsLeft>0){
                         System.out.println("running new file.");
-                        runFile(currentFiles,mainFile,numRunsLeft,false);
+                        runFile(currentFiles,mainFile,numRunsLeft,false,currentLibraries);
                     }
                     else{
                         running=null;
                         gui.proccessEnded();
                         currentFiles=null;
+                        currentLibraries=null;
                         mainFile=null;
                     }
                     
@@ -357,18 +360,21 @@ public class JavaRunner implements Runnable{
            return new String[]{null,"Error running Simple Unit Tests.\n"+ex};
         }
     }
-    public boolean runFile(JavaFile[] files,JavaFile runChoice,int numTimes,String folder){
-        return runFile(files,runChoice,numTimes,true);
+    public boolean runFile(JavaFile[] files,JavaFile runChoice,int numTimes,String folder,String[] libraries){
+        return runFile(files,runChoice,numTimes,true,libraries);
     }
-    private boolean runFile(JavaFile[] files,JavaFile runChoice, int numTimes,boolean compile){
+    private boolean runFile(JavaFile[] files,JavaFile runChoice, int numTimes,boolean compile,String[] libraries){
         if(files.length==0){
             return false;
         }
+        if(libraries==null)
+            libraries=new String[0];
         if(compile)
             terminal.setText("");
         
         numRunsLeft=numTimes;
         currentFiles=files;
+        currentLibraries=libraries;
         mainFile=runChoice;
         
         stopProcess(true);
@@ -380,7 +386,7 @@ public class JavaRunner implements Runnable{
             }
         }
         
-        int manualArgNum=4;
+        int manualArgNum=4+libraries.length>0?2:0; //2 more args if there are libraries
         ArrayList<JavaFile> dependentFiles=calcDependencies(runChoice,Arrays.copyOf(files, files.length));
         dependentFiles.add(mainFile);
         String[] filePaths=new String[dependentFiles.size()+manualArgNum];
@@ -435,8 +441,19 @@ public class JavaRunner implements Runnable{
         filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
         filePaths[2]="-sourcepath";
         filePaths[3]=filePaths[1];
+        if(libraries.length>0){
+            filePaths[4]="-classpath";
+            
+            String classpaths="";
+            for(int i=0;i<libraries.length;i++){
+                if(i!=0)
+                    classpaths+=CLASSPATHDELIMITER;
+                classpaths+=libraries[i];
+            }
+            filePaths[5]=classpaths;
+        }
         for(int i=manualArgNum;i<filePaths.length;i++){
-            filePaths[i]=dependentFiles.get(i-manualArgNum).getAbsolutePath();
+                filePaths[i]=dependentFiles.get(i-manualArgNum).getAbsolutePath();
         }
         if(compile){
             //System.out.println("Compiling "+Arrays.toString(filePaths));
@@ -472,6 +489,10 @@ public class JavaRunner implements Runnable{
         try{
             //for(int x=0;x<files.length;x++){
             String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+            char slash=CLASSPATHDELIMITER;
+            for(int i=0;i<libraries.length;i++){
+                classpath+=slash+libraries[i];
+            }
             String className="";
             if(runChoice.hasPackage()){
                 className+=runChoice.packageFolder()+"/";

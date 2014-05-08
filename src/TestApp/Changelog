@@ -1,5 +1,6 @@
-Now stores email address
+Implemented running code with other libraries and assigning libraries to run with certain assignments
 
-Fixed potential NPE
-Editing email doesnt work.
-Updated todolist
+    No gui for it yet though.
+Fixed saving emails
+Fixed null emails showing as "null"
+Fixed not repainting after changing the data in the gradebook

@@ -12,6 +12,7 @@ import DropboxGrader.RunCompileJava.JavaFile;
 import DropboxGrader.GuiElements.FileBrowser.CellLocation;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaRunner;
+import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.Util.Unzip;
 import com.dropbox.core.DbxClient;
@@ -326,7 +327,7 @@ public class DbxFile {
         return str;
     }
     private String getFileStructure(String directory,String output){
-        char slash=JavaRunner.onWindows?'\\':'/';
+        char slash=JavaRunner.CLASSPATHDELIMITER;
         if(output==null)
             output="";
         File dir=new File(directory);
@@ -415,7 +416,10 @@ public class DbxFile {
         }
         if(codeView!=null)
             codeView.setRunningFile(mainMethods.get(choice));
-        boolean success = fileManager.getGui().getRunner().runFile(javaFiles,mainMethods.get(choice),times,downloadedFile.getPath());
+        TextAssignment assign=fileManager.getGrader().getSpreadsheet().getAssignment(getAssignmentNumber());
+        String[] libraries=assign.libraries;
+        boolean success = fileManager.getGui().getRunner().runFile
+                (javaFiles,mainMethods.get(choice),times,downloadedFile.getPath(),libraries);
         if(!success&&currentVersion!=fileVersion){ //if we moved it between saving/running try again
             return run(times,codeView);
         }

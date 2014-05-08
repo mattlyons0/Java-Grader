@@ -167,6 +167,8 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             sheetData.fireTableDataChanged();
             setDragEnabled(true);
             getTableHeader().setReorderingAllowed(true);
+            gui.getGradebook().revalidate();
+            gui.getGradebook().repaint();
         }});
     }
     @Override
@@ -429,7 +431,10 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 String[] names=overlay.getNames();
                 boolean success=sheet.changeName(name,names);
                 if(success){
+                    TextName tName=gui.getGrader().getSpreadsheet().getName(names[0]+names[1]);
+                    tName.email=names[2];
                     gui.getGrader().uploadTable();
+                    dataChanged();
                     revalidate();
                     repaint();
                     initWidths();
