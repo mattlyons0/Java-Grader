@@ -1,6 +1,3 @@
-Implemented running code with other libraries and assigning libraries to run with certain assignments
+Worked on assignment library gui
 
-    No gui for it yet though.
-Fixed saving emails
-Fixed null emails showing as "null"
-Fixed not repainting after changing the data in the gradebook
+    Doesnt save yet.

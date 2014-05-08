@@ -41,6 +41,7 @@ public class AssignmentOverlay extends ContentOverlay{
     private JButton dateButton;
     private UnitTestPanel unitTestPanel;
     private JScrollPane unitTestScroll;
+    private LibraryPanel libraryPanel;
     
     private Integer assignmentNum;
     private String assignmentName;
@@ -97,6 +98,8 @@ public class AssignmentOverlay extends ContentOverlay{
         dateButton.setToolTipText("Due Date");
         dateButton.addActionListener(this);
         setDate(date);
+        libraryPanel=new LibraryPanel(gui);
+        JScrollPane libraryScroll=new JScrollPane(libraryPanel);
         
         GridBagConstraints cons=new GridBagConstraints(); 
         cons.insets=new Insets(5,5,5,5);
@@ -129,6 +132,8 @@ public class AssignmentOverlay extends ContentOverlay{
         cons.gridx=0;
         cons.gridwidth=7;
         add(unitTestScroll,cons);
+        cons.gridy++;
+        add(libraryScroll,cons);
         
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
