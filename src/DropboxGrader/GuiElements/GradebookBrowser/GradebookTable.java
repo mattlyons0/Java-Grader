@@ -409,7 +409,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                     GuiHelper.alertDialog("Error, Name "+names[0]+" "+names[1]+" already exists!");
                     return;
                 }
-                sheet.addName(names[0], names[1]);
+                sheet.addName(names[0], names[1],names[2]);
                 gui.getGrader().uploadTable();
                 revalidate();
                 repaint();
@@ -421,7 +421,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
     private void changeName(final int row){
         final TextName name=sheet.getNameAt(row);
         final NameOverlay overlay=new NameOverlay(gui);
-        overlay.setData(name.firstName,name.lastName);
+        overlay.setData(name.firstName,name.lastName,name.email);
         overlay.setCallback(new Runnable() {
             @Override
             public void run() {

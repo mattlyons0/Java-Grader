@@ -136,7 +136,7 @@ public class TextSpreadsheet {
             grade.add(null);
         }
     }
-    public void addName(String firstName,String lastName){ //TODO: store email and email when wrongly submitted file
+    public void addName(String firstName,String lastName,String email){ //TODO: store email and email when wrongly submitted file
         firstName=validateString(firstName);
         lastName=validateString(lastName);
         while(getName(firstName+lastName)!=null){
@@ -149,7 +149,7 @@ public class TextSpreadsheet {
                 lastName+=1;
             }
         }
-        names.add(new TextName(firstName,lastName));
+        names.add(new TextName(firstName,lastName,email));
         
         int numAssignments=grades.get(0).size();
         grades.add(new ArrayList());
@@ -265,7 +265,7 @@ public class TextSpreadsheet {
         TextName desiredName=null;
         int desiredIndex=-1;
         for(int i=0;i<names.size();i++){
-            if(names.get(i)!=name&&names.get(i).equals(new TextName(newNames[0],newNames[1]))){ //if it isn't the same pointer, but it has the same first/last name
+            if(names.get(i)!=name&&names.get(i).equals(new TextName(newNames[0],newNames[1],null))){ //if it isn't the same pointer, but it has the same first/last name
                 desiredName=names.get(i);
                 desiredIndex=i;
                 break;

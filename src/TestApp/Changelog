@@ -1,5 +1,5 @@
-Invalid Zip files are now marked so permanently
+Now stores email address
 
-Removed old method for resubmits with the weird filename
-No longer downloads unit tests when it doesn't actually need to run them.
-Added Icon
+Fixed potential NPE
+Editing email doesnt work.
+Updated todolist

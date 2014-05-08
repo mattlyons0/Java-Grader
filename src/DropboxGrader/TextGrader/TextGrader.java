@@ -182,11 +182,26 @@ public class TextGrader {
         }
         downloadSheet();
         if(!data.nameDefined(name)){ //need to put name in gradebook
-            String[] nameParts=splitName(name,assignmentNum,gradeNum,comment,overwrite);
+            final String[] nameParts=splitName(name,assignmentNum,gradeNum,comment,overwrite);
             if(nameParts==null){
                 return true;
             }
-            data.addName(nameParts[0],nameParts[1]);
+            data.addName(nameParts[0],nameParts[1],null);
+            final NameOverlay overlay=new NameOverlay(gui);
+            overlay.setData(nameParts[0], nameParts[1],null);
+            overlay.setCallback(new Runnable() {
+                @Override
+                public void run() {
+                    downloadSheet();
+                    String[] strings=overlay.getNames();
+                    TextSpreadsheet sheet=getSpreadsheet();
+                    TextName name=sheet.getName(nameParts[0]+" "+nameParts[1]);
+                    name.firstName=strings[0];
+                    name.lastName=strings[1];
+                    name.email=strings[2];
+                    uploadTable();
+                }
+            });
             name=nameParts[0]+nameParts[1];
         }
         if(!data.assignmentDefined(assignmentNum)){ //need to create assignment in table
@@ -266,13 +281,17 @@ public class TextGrader {
         }
         if(upercaseIndex==-1){
             final NameOverlay overlay=new NameOverlay(gui);
-            overlay.setData(name, name);
+            overlay.setData(name, name,null);
             overlay.setCallback(new Runnable() {
                 @Override
                 public void run() {
                     String firstName=overlay.getNames()[0];
                     String lastName=overlay.getNames()[1];
-                    setGrade(firstName+lastName,assignmentNum,gradeNum,comment,overwrite);
+                    String email=overlay.getNames()[2];
+                    TextName name=getSpreadsheet().getName(firstName+lastName);
+                    name.email=email;
+                    getSpreadsheet().setGrade(name, getSpreadsheet().getAssignment(assignmentNum), gradeNum, comment, overwrite);
+                    uploadTable();
                 }
             });
             gui.getViewManager().addOverlay(overlay);

@@ -15,27 +15,28 @@ import java.util.Objects;
 public class TextName {
     public String firstName;
     public String lastName;
-    //public String email;
+    public String email;
     
-    public TextName(String firstName,String lastName){
+    public TextName(String firstName,String lastName,String email){
         this.firstName=firstName;
         this.lastName=lastName;
+        this.email=email;
     }
     public TextName(String fromText){
         String[] text=fromText.split(TextSpreadsheet.INDIVIDUALDELIMITER);
-        //Pretty sure this should never happen, but just in case.
         try{
             firstName=text[0];
             lastName=text[1];
+            email=text[2];
         } catch(Exception e){
-            System.err.println("Error reading name from \""+fromText+"\": "+e);
-            e.printStackTrace();
+            //something wasnt defined till now.
         }
     }
     public String toText(){
         String text="";
         text+=firstName+TextSpreadsheet.INDIVIDUALDELIMITER;
-        text+=lastName;
+        text+=lastName+TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=email;
         
         return text;
     }

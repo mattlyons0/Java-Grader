@@ -6,6 +6,7 @@ package DropboxGrader.GuiElements.MiscOverlays;
 
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
+import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -24,9 +25,11 @@ public class NameOverlay extends ContentOverlay{
     
     private JTextField firstNameField;
     private JTextField lastNameField;
+    private JTextField emailField;
     
     private String firstName;
     private String lastName;
+    private String email;
     
     public NameOverlay(Gui gui){
         super("NameOverlay");
@@ -42,10 +45,13 @@ public class NameOverlay extends ContentOverlay{
         firstNameField=new JTextField(20);
         lastNameField=new JTextField(20);
         lastNameField.addActionListener(this);
+        emailField=new JGhostTextField(20,"Email Address");
         if(firstName!=null)
             firstNameField.setText(firstName);
         if(lastName!=null)
             lastNameField.setText(lastName);
+        if(email!=null)
+            emailField.setText(email);
         
         GridBagConstraints cons=new GridBagConstraints(); 
         cons.insets=new Insets(5,5,5,5);
@@ -62,6 +68,8 @@ public class NameOverlay extends ContentOverlay{
         cons.weighty=10;
         cons.gridx=3;
         add(lastNameField,cons);
+        cons.gridx++;
+        add(emailField,cons);
         
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
@@ -94,6 +102,8 @@ public class NameOverlay extends ContentOverlay{
             lastName=Character.toUpperCase(lastName.charAt(0))+lastName.substring(1);
             lastNameField.setText(lastName);
         }
+        email=emailField.getText();
+        
         if(callback!=null){
             gui.getBackgroundThread().invokeLater(callback);
         }
@@ -107,19 +117,24 @@ public class NameOverlay extends ContentOverlay{
         }
     }
     public String[] getNames(){
-        return new String[]{firstName,lastName};
+        return new String[]{firstName,lastName,email};
     }
     public void setCallback(Runnable callback){
         this.callback=callback;
     }
-    public void setData(String firstName,String lastName){
+    public void setData(String firstName,String lastName,String email){
         if(firstNameField!=null){
-            firstNameField.setText(firstName);
-            lastNameField.setText(lastName);
+            if(firstName!=null)
+                firstNameField.setText(firstName);
+            if(lastName!=null)
+                lastNameField.setText(lastName);
+            if(email!=null)
+                emailField.setText(email);
         }
         else{
             this.firstName=firstName;
             this.lastName=lastName;
+            this.email=email;
         }
         setTitle("Edit Name: "+firstName+" "+lastName);
     }
