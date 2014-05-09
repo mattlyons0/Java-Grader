@@ -19,6 +19,7 @@
     <li>Delete local files option in settings menu.</li>
     <li>Config to set late penalty</li>
     <li>Config to remove code sorter</li>
+    <li>Store last used location for libraries</li>
 </ul>
 <h3>Bugs</h3>
 <ul>
@@ -26,9 +27,8 @@
     <li>Catch out of memory with massive files.</li>
     <li>Changing assignments in the queue throws exceptions and sometimes repaints wrong. (unconfirmed)</li>
     <li>Sometimes closing fails, should make a timer for a minute to force close if it hasn't after a minute.</li>
-    <li>Saving bottom toolbar for grade size sometimes screws up in grader</li>
     <li>Big downloaded files hangs startup a lot</li>
-    <li>JUnit Running not recognizing test class (need to run my own jar)</li>
+    <li>JUnit Running not recognizing test class on some computers(need to run my own jar)</li>
     <li>Opening the date overlay twice will make it unable to close.</li>
 </ul>
 <h3>Visual</h3>
@@ -54,27 +54,24 @@
     <li>Ability to close code tabs with right click.</li>
     <li>Custom sorting in browser table (2 before 1000, date by actual date)</li>
     <li>display current fileQueue</li>
-    <li>Switch grade spreadsheets</li>
+    <li>Switch grade spreadsheets (keep names, but not grades or assignments)</li>
     <li>Create spacer in gradebook</li>
     <li>Show graded date in Gradebook</li>
     <li>Make about page and put isaac in it.</li>
-    <li>Make a gui for adding libraries to an assignment</li>
     <li>Add way to change running from folder/libraries from the grading menu</li>
 </ul>
 <h3>Required Additions</h3>
 <ul>
     <li>Cleanup downloaded junits and grade spreadsheets (in downloads)</li>
-    <li>Auto retry when there are problems with dropbox and show a message saying we are having trouble</li>
+    <li>When dropbox screws up make sure we alert the user.</li>
     <li>Add ability to change directory it is run from. (when running code)</li>
     <li>Check return values when changing data in gradebook</li>
     <li>Bulk operations in filebrowser (change assignment number for all...)</li>
     <li>Filters in filebrowser (ex: name contains "" or assignment number == this)</li>
     <li>Javadocs / more comments</li>
     <li>Users manual</li>
-    <li>store student email</li>
-    <li>Auto email for invalid file structure, graded...</li>
+    <li>Auto email for invalid file structure, graded, email address set...</li>
     <li>store student period (check for wrong class period and move it)</li>
-    <li>libraries to compile with with assignments</li>
     <li>Demo Mode</li>
     <li>Pagentate printing gradebook vertically as well</li>
     <li>Redo zip structure required, name_assignmentNumber_assignmentName<br/>
@@ -84,7 +81,6 @@
     <li>Include licenses of all the libraries used</li>
     <li>Get rid of old 2nd year method</li>
     <li>Alert when there is a updated version availible upon start</li>
-    <li>Validate email</li>
     <li>Split icons into multiple scaled versions so it looks better at different resolutions</li>
     <li>Stop cluttering up dropbox with folders</li>
     <li>If the "there is still a program running" dialog is up and the program stops, close it and quit</li>

@@ -7,6 +7,7 @@ package DropboxGrader.GuiElements.MiscOverlays;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
+import DropboxGrader.GuiHelper;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -90,6 +91,10 @@ public class NameOverlay extends ContentOverlay{
             return false;
         }
         if(lastNameField.getText().equals("")||lastNameField.getText().equals(" ")){
+            return false;
+        }
+        if(!emailField.getText().equals("")&&!emailField.getText().contains("@")){
+            GuiHelper.alertDialog("That is not a valid email address.");
             return false;
         }
         firstName=firstNameField.getText();

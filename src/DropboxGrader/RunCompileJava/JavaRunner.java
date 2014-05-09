@@ -37,7 +37,8 @@ public class JavaRunner implements Runnable{
     private JavaFile mainFile;
     private boolean fixedPath=false;
     public final static boolean onWindows=System.getProperty("os.name").contains("Windows");
-    public final static char CLASSPATHDELIMITER=JavaRunner.onWindows?'\\':'/';
+    public final static char SLASH=onWindows?'\\':'/';
+    public final static char CLASSPATHDELIMITER=onWindows?';':':'; //unix : windows ; (used to seperate classpaths)
     
     public JavaRunner(final JTerminal t,Gui gui){
         terminal=t;
@@ -123,24 +124,31 @@ public class JavaRunner implements Runnable{
         running=null;     
     }
     //this has even more copied code from runTest() I really need to merge these...
-    public String[] runJUnit(JavaFile compileTest,JavaFile runTest,DbxFile testedFile){
+    public String[] runJUnit(JavaFile compileTest,JavaFile runTest,DbxFile testedFile,String[] libs){
         if(!new File(Config.jUnitHamcrestJarLocation).exists()||!new File(Config.jUnitJarLocation).exists()){
             System.err.println("Error when JUnit testing. Hamcrest or JUnit Jar is missing.");
             return new String[]{null,"The Hamcrest or JUnit Jar is missing, Configure their paths in the settings menu."};
         }
-        char sym=onWindows?';':':'; //unix : windows ; (used to seperate classpaths)
+        if(libs==null)
+            libs=new String[0];
+        char sym=CLASSPATHDELIMITER;
         String unitTestName=runTest.getName().substring(0,runTest.getName().length()-5); //remove .java
         String unitTestPackage=runTest.packageFolder();
         if(unitTestPackage!=null){
             unitTestName=unitTestPackage.replaceAll(Pattern.quote("/"),".")+"."+unitTestName;
         }
+        String libsString="";
+        for(int i=0;i<libs.length;i++){
+            libsString+=sym;
+            libsString+=new File(gui.getManager().getDownloadFolder()+"/"+libs[i]).getAbsolutePath();
+        }
         String[] args={"java","-cp",new File(Config.jUnitJarLocation).getAbsolutePath()+sym+
                 new File(Config.jUnitHamcrestJarLocation).getAbsolutePath()+sym+
-                testedFile.getFile().getAbsolutePath()+sym+runTest.getParentFile().getAbsolutePath(),
+                testedFile.getFile().getAbsolutePath()+sym+runTest.getParentFile().getAbsolutePath()+libsString,
                 "org.junit.runner.JUnitCore",unitTestName};
         String compileArgs=new File(Config.jUnitJarLocation).getAbsolutePath()+sym+
                 new File(Config.jUnitHamcrestJarLocation).getAbsolutePath()+sym+
-                testedFile.getFile().getAbsolutePath()+sym+compileTest.getParentFile().getAbsolutePath();
+                testedFile.getFile().getAbsolutePath()+sym+compileTest.getParentFile().getAbsolutePath()+libsString;
         
         JavaFile[] files=testedFile.getJavaFiles();
         boolean containsPackages=false;
@@ -242,7 +250,7 @@ public class JavaRunner implements Runnable{
     }
     //this has a lot of code copied from runFile() In the future merge them...
     //returns String{Output,Error}
-    public String[] runTest(JavaFile[] files,JavaFile testFile,UnitTester tester){
+    public String[] runTest(JavaFile[] files,JavaFile testFile,UnitTester tester,String[] libs){
         boolean containsPackages=false;
         for(JavaFile f: files){
             if(f.hasPackage()){
@@ -250,6 +258,8 @@ public class JavaRunner implements Runnable{
                 break;
             }
         }
+        if(libs==null)
+            libs=new String[0];
         int manualArgNum=4;
         ArrayList<JavaFile> dependentFiles=calcDependencies(testFile,Arrays.copyOf(files, files.length));
         dependentFiles.add(testFile);
@@ -300,9 +310,13 @@ public class JavaRunner implements Runnable{
                 path="";
             }
         }
-        filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
+        String libsString="";
+        for(int i=0;i<libs.length;i++){
+            libsString+=CLASSPATHDELIMITER+new File(gui.getManager().getDownloadFolder()+"/"+libs[i]).getAbsolutePath();
+        }
+        filePaths[1]=path+libsString; //careful if removed, referenced in the run loop.
         filePaths[2]="-sourcepath";
-        filePaths[3]=filePaths[1];
+        filePaths[3]=path;
         for(int i=manualArgNum;i<filePaths.length;i++){
             filePaths[i]=dependentFiles.get(i-manualArgNum).getAbsolutePath();
         }
@@ -386,7 +400,7 @@ public class JavaRunner implements Runnable{
             }
         }
         
-        int manualArgNum=4+libraries.length>0?2:0; //2 more args if there are libraries
+        int manualArgNum=4;
         ArrayList<JavaFile> dependentFiles=calcDependencies(runChoice,Arrays.copyOf(files, files.length));
         dependentFiles.add(mainFile);
         String[] filePaths=new String[dependentFiles.size()+manualArgNum];
@@ -398,7 +412,7 @@ public class JavaRunner implements Runnable{
                 path=path.replace("\\", "="); //windows uses stupid slashes when everything else doesnt
             else
                 path=path.replace("/","=");
-            String[] pathPart=path.split("="); //cant split \ for whatever reason (regex strikes again!)..
+            String[] pathPart=path.split("="); //cant split \ for whatever reason (regex strikes again!).. (yea i didn't know about Pattern.quote at the time)
             path=path.replace("=", "/");
             path=path.substring(0, path.length()-pathPart[pathPart.length-1].length());
             if(containsPackages){
@@ -438,20 +452,16 @@ public class JavaRunner implements Runnable{
                 path="";
             }
         }
-        filePaths[1]="\""+path+"\""; //careful if removed, referenced in the run loop.
-        filePaths[2]="-sourcepath";
-        filePaths[3]=filePaths[1];
+        String libs="";
         if(libraries.length>0){
-            filePaths[4]="-classpath";
-            
-            String classpaths="";
             for(int i=0;i<libraries.length;i++){
-                if(i!=0)
-                    classpaths+=CLASSPATHDELIMITER;
-                classpaths+=libraries[i];
+                libs+=libraries[i];
+                libs+=CLASSPATHDELIMITER;
             }
-            filePaths[5]=classpaths;
         }
+        filePaths[1]=libs+path; //careful if removed, referenced in the run loop.
+        filePaths[2]="-sourcepath";
+        filePaths[3]=path;
         for(int i=manualArgNum;i<filePaths.length;i++){
                 filePaths[i]=dependentFiles.get(i-manualArgNum).getAbsolutePath();
         }
@@ -489,9 +499,9 @@ public class JavaRunner implements Runnable{
         try{
             //for(int x=0;x<files.length;x++){
             String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
-            char slash=CLASSPATHDELIMITER;
+            char cpDelimit=CLASSPATHDELIMITER;
             for(int i=0;i<libraries.length;i++){
-                classpath+=slash+libraries[i];
+                classpath+=cpDelimit+libraries[i];
             }
             String className="";
             if(runChoice.hasPackage()){

@@ -463,6 +463,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 assign.totalPoints=(Double)data[2];
                 assign.junitTests=overlay.getJUnitTests();
                 assign.simpleUnitTests=overlay.getUnitTest();
+                assign.libraries=overlay.getLibraries();
                 
                 gui.getGrader().uploadTable();
                 dataChanged();
@@ -486,6 +487,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 assign.simpleUnitTests=overlay.getUnitTest();
                 assign.junitTests=overlay.getJUnitTests();
                 assign.dateDue=overlay.getDate();
+                assign.libraries=overlay.getLibraries();
                 gui.getGrader().uploadTable();
                 dataChanged();
                 gui.fileBrowserDataChanged();

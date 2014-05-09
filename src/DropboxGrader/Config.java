@@ -43,7 +43,10 @@ public class Config {
     //UnitTests
     public static String jUnitJarLocation;
     public static String jUnitHamcrestJarLocation;
-    public static String jUnitTestsLocation;
+    public static String jUnitTestsLocation="/JUnitTests";
+    
+    //Libraries
+    public static String librariesLocation="/Libraries";
     public static void init(){
         //Preinit
         spreadsheetName="APCS Period 1 Assignments";
@@ -72,7 +75,6 @@ public class Config {
         //UnitTests
         jUnitJarLocation="";
         jUnitHamcrestJarLocation="";
-        jUnitTestsLocation="/JUnitTests";
     }
     public static void readConfig(){
         if(!CONFIGFILE.exists()){
@@ -100,7 +102,7 @@ public class Config {
             screenState=Integer.parseInt(vars[17]);
             jUnitJarLocation=vars[18];
             jUnitHamcrestJarLocation=vars[19];
-            jUnitTestsLocation=vars[20];
+            //jUnitTestsLocation=vars[20]; //no longer configurable
             bottomDividerLocation=Integer.parseInt(vars[21]);
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
@@ -127,7 +129,7 @@ public class Config {
         config=append(config,screenState);
         config=append(config,jUnitJarLocation);
         config=append(config,jUnitHamcrestJarLocation);
-        config=append(config,jUnitTestsLocation);
+        config=append(config,jUnitTestsLocation); //no longer configurable, but we'll leave it in just to not screw up the order
         config=append(config,bottomDividerLocation);
         
         DbxSession.writeToFile(CONFIGFILE, config);

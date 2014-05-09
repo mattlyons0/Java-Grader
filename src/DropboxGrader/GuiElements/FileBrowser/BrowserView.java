@@ -17,11 +17,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -146,8 +145,13 @@ public class BrowserView extends ContentView{
             statusText.setText("");
     }
     public void dataChanged(){
-        fileBrowserTable.dataChanged();
-        gui.getManager().refreshCellColors();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                fileBrowserTable.dataChanged();
+                gui.getManager().refreshCellColors();
+            }
+        });
     }
     @Override
     public void actionPerformed(ActionEvent e) {

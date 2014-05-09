@@ -218,6 +218,7 @@ public class TextGrader {
                     assign.totalPoints=(Double)returned[2];
                     assign.simpleUnitTests=overlay.getUnitTest();
                     assign.junitTests=overlay.getJUnitTests();
+                    assign.libraries=overlay.getLibraries();
                     uploadTable();
                     gui.gradebookDataChanged();
                 }

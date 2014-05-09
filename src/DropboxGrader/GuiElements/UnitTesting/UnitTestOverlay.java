@@ -17,6 +17,7 @@ import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -71,7 +72,6 @@ public class UnitTestOverlay extends ContentOverlay{
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
         Dimension size=getSize();
         setLocation((parentSize.width-size.width)/2,(parentSize.height-size.height)/2);
-        setVisible(true);
     }
 
     @Override
@@ -158,6 +158,12 @@ public class UnitTestOverlay extends ContentOverlay{
         append(s,Color.BLACK);
     }
     public void append(String s,Color c){
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                setVisible(true);
+            }
+        });
         testOutput.append(s+"\n",c);
     }
     

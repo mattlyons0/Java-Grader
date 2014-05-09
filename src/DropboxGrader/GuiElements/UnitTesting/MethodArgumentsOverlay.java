@@ -102,6 +102,11 @@ public class MethodArgumentsOverlay extends ContentOverlay implements CaretListe
                 argumentValues.add(data);
                 removeArguments.add(remove);
             }
+            else{
+                argumentTypes.get(i).setActionCommand("ObjectType"+i);
+                argumentValues.get(i).setActionCommand("DataType"+i);
+                removeArguments.get(i).setActionCommand("RemoveArgument"+i);
+            }
             if(argumentsT.get(i)!=null)
                 argumentTypes.get(i).setText(argumentsT.get(i).toText());
             if(argumentsV.get(i)!=null)

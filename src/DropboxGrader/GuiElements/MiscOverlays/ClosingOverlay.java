@@ -13,6 +13,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
@@ -25,6 +26,7 @@ public class ClosingOverlay extends ContentOverlay{
     
     private JLabel statusLabel;
     private JButton cancelButton;
+    private JLabel spinner;
     private int tasksLeft;
     
     public ClosingOverlay(Gui gui){
@@ -40,6 +42,9 @@ public class ClosingOverlay extends ContentOverlay{
         statusLabel=new JLabel("<html>Finishing Background Tasks...<br/></html>");
         cancelButton=new JButton("Cancel Closing");
         cancelButton.addActionListener(this);
+        spinner=new JLabel();
+        ImageIcon icon=new ImageIcon(getClass().getResource("/Resources/ajax-loader.gif"));
+        spinner.setIcon(icon);
         
         GridBagConstraints cons=new GridBagConstraints(); 
         cons.insets=new Insets(5,5,5,5);
@@ -50,6 +55,9 @@ public class ClosingOverlay extends ContentOverlay{
         cons.gridy=1;
         cons.weighty=10;
         add(cancelButton,cons);
+        cons.gridy++;
+        cons.weighty=1;
+        add(spinner,cons);
         
         setClosable(false);
         Dimension parentSize = gui.getSize();

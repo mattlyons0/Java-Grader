@@ -1,3 +1,21 @@
-Worked on assignment library gui
+Finished Implementing Library Gui & Fixed a lot of bugs
 
-    Doesnt save yet.
+Fixed junit testing gui NPE
+Fixed a instance of not repainting on the swing thread
+Fixed crashing with a JUnit Test with a empty path
+Fixed crash with library running code.
+Libraries are now deleted from dropbox when they are no longer needed.
+Fixed crash when junit testing and the unit testing file didn't exist in dropbox anymore.
+Fixed watching file when editing JUnit Tests
+Added spinner to closing overlay.
+Discovered and fixed pretty huge crash bug with all "unlimited add" components.
+Fixed junit test files getting renamed when uploading then erroring because they were renamed (now it renames them back locally when testing)
+Now downloads libraries upon running code that requires them
+Run button is now threaded more
+Fixed bug that caused unneccisary junit testing at the start of every session if a junit test was modified after an assignment was submitted.
+Fixed unit testing overlay flickering when there were no unit tests to run.
+    It now only shows up when a test is run.
+Fixed JUnit test files not downloading
+Fixed not rerunning unit tests after modifying a JUnit Test File.
+Fixed unit tests not respecting libraries to run with.
+Fixed not validating email address

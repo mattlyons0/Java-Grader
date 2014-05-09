@@ -49,6 +49,7 @@ public class AssignmentOverlay extends ContentOverlay{
     private UnitTest[] tests;
     private String[] jtests;
     private Date date;
+    private String[] libs;
     public AssignmentOverlay(Gui gui) {
         super("AssignmentOverlay");
         this.gui=gui;
@@ -98,7 +99,7 @@ public class AssignmentOverlay extends ContentOverlay{
         dateButton.setToolTipText("Due Date");
         dateButton.addActionListener(this);
         setDate(date);
-        libraryPanel=new LibraryPanel(gui);
+        libraryPanel=new LibraryPanel(libs,assignmentNum,assignmentName,gui);
         JScrollPane libraryScroll=new JScrollPane(libraryPanel);
         
         GridBagConstraints cons=new GridBagConstraints(); 
@@ -163,6 +164,7 @@ public class AssignmentOverlay extends ContentOverlay{
         }
         assignmentPoints=Double.parseDouble(assignmentPointsField.getText());
         unitTestPanel.save();
+        libraryPanel.save();
         
         if(callback!=null){
             gui.getBackgroundThread().invokeLater(callback);
@@ -221,6 +223,9 @@ public class AssignmentOverlay extends ContentOverlay{
         if(dateOverlay!=null)
             dateOverlay.setDate(assign.dateDue);
         date=assign.dateDue;
+        libs=assign.libraries;
+        if(libraryPanel!=null)
+            libraryPanel.setLibs(libs);
         setTitle("Edit Assignment: "+assign.number+" "+assign.name);
     }
     public void setDate(Date d){
@@ -233,5 +238,8 @@ public class AssignmentOverlay extends ContentOverlay{
     }
     public Date getDate(){
         return date;
+    }
+    public String[] getLibraries(){
+        return libraryPanel.getLibs();
     }
 }

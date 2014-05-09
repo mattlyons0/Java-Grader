@@ -42,6 +42,7 @@ public class FileManager {
         
         File dlDirectory=new File(DOWNLOADFOLDER);
         dlDirectory.mkdir();
+        new File(DOWNLOADFOLDER+Config.librariesLocation).mkdir();
         
     }
     public void postInit(){

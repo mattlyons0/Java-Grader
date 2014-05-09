@@ -327,7 +327,7 @@ public class DbxFile {
         return str;
     }
     private String getFileStructure(String directory,String output){
-        char slash=JavaRunner.CLASSPATHDELIMITER;
+        char slash=JavaRunner.SLASH;
         if(output==null)
             output="";
         File dir=new File(directory);
@@ -387,9 +387,9 @@ public class DbxFile {
         return textFiles;
     }
     
-    public boolean run(int times,JavaCodeBrowser codeView){
-        int currentVersion=fileVersion;
-        ArrayList<JavaFile> mainMethods=new ArrayList();
+    public boolean run(final int times,final JavaCodeBrowser codeView){
+        final int currentVersion=fileVersion;
+        final ArrayList<JavaFile> mainMethods=new ArrayList();
         for(JavaFile f:javaFiles){
             if(f.containsMain()){
                 mainMethods.add(f);
@@ -416,14 +416,41 @@ public class DbxFile {
         }
         if(codeView!=null)
             codeView.setRunningFile(mainMethods.get(choice));
+        final int fchoice=choice;
         TextAssignment assign=fileManager.getGrader().getSpreadsheet().getAssignment(getAssignmentNumber());
-        String[] libraries=assign.libraries;
-        boolean success = fileManager.getGui().getRunner().runFile
-                (javaFiles,mainMethods.get(choice),times,downloadedFile.getPath(),libraries);
-        if(!success&&currentVersion!=fileVersion){ //if we moved it between saving/running try again
-            return run(times,codeView);
-        }
-        return success;
+        final String[] libraries=assign.libraries;
+        fileManager.getGui().getBackgroundThread().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                String[] libs=libraries;
+                if(libraries!=null){
+                    String libsFolder=fileManager.getDownloadFolder()+"/";
+                    for(int i=0;i<libraries.length;i++){
+                        try{
+                            File outputFile=new File(libsFolder+libraries[i]);
+                            if(!outputFile.exists()){
+                                FileOutputStream f = new FileOutputStream(libsFolder+libraries[i]);
+                                fileManager.getGui().getDbxSession().getClient().getFile(libraries[i], null, f); //downloads from dropbox server
+                                f.close();
+                            }
+                            libs[i]=outputFile.getAbsolutePath();
+                        } catch(IOException|DbxException e){
+                            System.err.println("Error downloading libraries to run with.");
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                boolean success = fileManager.getGui().getRunner().runFile
+                (javaFiles,mainMethods.get(fchoice),times,downloadedFile.getPath(),libs);
+                if(!success&&currentVersion!=fileVersion){ //if we moved it between saving/running try again
+                    DbxFile.this.run(times,codeView);
+                    return;
+                }
+                if(!success)
+                    fileManager.getGui().proccessEnded();
+            }
+        });
+        return true;
     }
     public String getFileName(){
         return entry.name;
@@ -506,10 +533,7 @@ public class DbxFile {
         return zipPath+" submitted on "+getSubmitDate(true,-1,-1);
     }
     public boolean isDownloaded(){
-        if(downloadedFile!=null){
-            return true;
-        }
-        return false;
+        return downloadedFile!=null;
     }
     @Override
     public int hashCode() {

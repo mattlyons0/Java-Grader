@@ -147,8 +147,8 @@ public class UnitTester {
                     DbxEntry entry=gui.getDbxSession().getClient().getMetadata(testLoc);
                     TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
                     if(grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), 
-                            grade.dateGraded)||entry.isFile()&&!Date.before(new Date(((DbxEntry.File)entry).lastModified),
-                            file.getSubmittedDate())){ //reasons it needs to be tested
+                            grade.dateGraded)||(entry.isFile()&&!Date.before(new Date(((DbxEntry.File)entry).lastModified),
+                            grade.dateGraded))){ //reasons it needs to be tested
                         if(overlay!=null)
                             overlay.setStatus("Downloading JUnit Test File");
                         if(!testLoc.equals("")&&gui.getDbxSession().getClient().getMetadata(testLoc)!=null){
@@ -165,10 +165,55 @@ public class UnitTester {
                                 FileOutputStream f = new FileOutputStream(localTestLoc);
                                 gui.getDbxSession().getClient().getFile(testLoc, null, f); //downloads from dropbox server
                                 f.close();
-                                JavaFile runFile=new JavaFile(new File(localTestLoc),null);
+                                File downloadedJTest=new File(localTestLoc);
+                                if(downloadedJTest.getName().substring(0,downloadedJTest.getName().length()-5).endsWith(")")){ //-5 for .java
+                                    //it was renamed due to duplicate files
+                                    String path=downloadedJTest.getPath();
+                                    boolean confirmed=false;
+                                    Character last=null;
+                                    for(int i=path.length()-1-5;i>=0;i--){ //-1 for size -5 for .java
+                                        char c=path.charAt(i);
+                                        if(last==null&&c!=')')
+                                            break;
+                                        else if(last==null)
+                                            last=c;
+                                        else if(Character.isDigit(last)&&!(Character.isDigit(c)||c=='('))
+                                            break;
+                                        else if(Character.isDigit(last)&&c=='('){
+                                            confirmed=true;
+                                            break;
+                                        }
+                                        else
+                                            last=c;
+                                    }
+                                    if(confirmed){
+                                        int subIndex=path.lastIndexOf("(");
+                                        String newName=path.substring(0,subIndex)+".java";
+                                        File destinationName=new File(newName);
+                                        if(destinationName.exists())
+                                            destinationName.delete();
+                                        downloadedJTest.renameTo(destinationName); //rename it to its original name (so that the class name is the same as the filename)
+                                        downloadedJTest=destinationName;
+                                    }
+                                }
+                                JavaFile runFile=new JavaFile(downloadedJTest,null);
                                 JavaFile compileFile=runFile;
                                 if(runFile.packageFolder()!=null){ //we gotta verify its in the right directory
                                     compileFile=validateDirectory(runFile,null); //moves it to the right directory, but doesnt update pointer so that it gets called correctly
+                                }
+                                if(!file.isDownloaded()){
+                                    //we need to download the file
+                                    if(overlay!=null)
+                                        overlay.setStatus("Downloading File to be Tested");
+                                    boolean success=file.download()!=null;
+                                    if(!success){
+                                        System.err.println("Error downloading file to be unit tested.");
+                                        if(overlay!=null)
+                                            overlay.append("Error downloading file from dropbox, either dropbox "
+                                                    + "is having issues or the internet is down. "+Color.RED);
+                                    }
+                                    prepareTest(file);
+                                    return;
                                 }
                                 if(overlay!=null)
                                     overlay.setStatus("Running JUnit Tests");
@@ -216,7 +261,7 @@ public class UnitTester {
         int successes=0;
         for(String s:testStatus){//it just got skipped because it didnt need
         //to be graded again, but this will skip it out of the loops anyways.
-            if(s.equals("SKIPPED")){
+            if(s!=null&&s.equals("SKIPPED")){
                 testResults.clear();
                 testStatus.clear();
                 if(overlay!=null){
@@ -364,7 +409,24 @@ public class UnitTester {
         if(overlay!=null)
             overlay.append("Running JUnit Test on "+file.getFileName());
         JavaRunner runner=gui.getRunner();
-        String[] results=runner.runJUnit(compileTest,runTest,file);
+        String[] libraries=assignment.libraries;
+        if(libraries==null)
+            libraries=new String[0];
+        String libsFolder=gui.getManager().getDownloadFolder()+"/";
+        for(int i=0;i<libraries.length;i++){
+            try{
+                File outputFile=new File(libsFolder+libraries[i]);
+                if(!outputFile.exists()){
+                    FileOutputStream f = new FileOutputStream(libsFolder+libraries[i]);
+                    gui.getDbxSession().getClient().getFile(libraries[i], null, f); //downloads from dropbox server
+                    f.close();
+                }
+            } catch(IOException|DbxException e){
+                System.err.println("Error downloading libraries to run with.");
+                e.printStackTrace();
+            }
+        }
+        String[] results=runner.runJUnit(compileTest,runTest,file,assignment.libraries);
         if(!results[1].equals("")||results[0].contains("Could not find class:")){
             String error="There were errors running JUnit Test \nErrors: '"+results[1]+"' \nOutput: '"+results[0]+"'";
             System.err.println(error);
@@ -502,7 +564,24 @@ public class UnitTester {
         if(!result.equals("")){
             System.err.println("Error running unit tests. Could not modify file: "+result);
         }
-        String[] value=gui.getRunner().runTest(file.getJavaFiles(),currentFile,this);
+        String[] libraries=assignment.libraries;
+        if(libraries==null)
+            libraries=new String[0];
+        String libsFolder=gui.getManager().getDownloadFolder()+"/";
+        for(int i=0;i<libraries.length;i++){
+            try{
+                File outputFile=new File(libsFolder+libraries[i]);
+                if(!outputFile.exists()){
+                    FileOutputStream f = new FileOutputStream(libsFolder+libraries[i]);
+                    gui.getDbxSession().getClient().getFile(libraries[i], null, f); //downloads from dropbox server
+                    f.close();
+                }
+            } catch(IOException|DbxException e){
+                System.err.println("Error downloading libraries to run with.");
+                e.printStackTrace();
+            }
+        }
+        String[] value=gui.getRunner().runTest(file.getJavaFiles(),currentFile,this,assignment.libraries);
         if(value[0]==null){
             compileFinished();
             testResults.add(false);

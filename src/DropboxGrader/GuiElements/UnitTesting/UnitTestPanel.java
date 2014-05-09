@@ -230,13 +230,16 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 descriptionValues.add(descriptionField);
                 removeTestButtons.add(removeButton);
                 
-                if(watchKeys.size()<=i)
-                    watchKeys.add(null);
-                
                 //set buttons text to use data from test
                 setAccessType(null,null,i);
                 setModifierType(null,-1,i);
                 setArgs(null,null,i);
+            }
+            else{
+                methodAccess.get(i).setActionCommand("SetMethodAccess"+i);
+                methodModifiers.get(i).setActionCommand("SetMethodModifiers"+i);
+                argumentsButtons.get(i).setActionCommand("SetArguments"+i);
+                removeTestButtons.get(i).setActionCommand("RemoveUnitTest"+i);
             }
             if(addTestButton==null){
                 addTestButton=new JButton("+");
@@ -307,6 +310,8 @@ public class UnitTestPanel extends JPanel implements ActionListener{
                 addJTestButton.setToolTipText("Add JUnit Test");
                 addJTestButton.addActionListener(this);
             }
+            if(watchKeys.size()<=i)
+                watchKeys.add(null);
             cons.gridx=0;
             add(jFilenames.get(i),cons);
             cons.gridx=1;
@@ -363,45 +368,52 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         }
         for(int i=0;i<junitTests.size();i++){
             final String remoteTestName=junitTests.get(i);
-            WatchKey key=watchKeys.get(i);
-            if(key!=null){
-                List<WatchEvent<?>> events=key.pollEvents();
-                if(events!=null&&!events.isEmpty()){
-                    for(WatchEvent<?> event:events){
-                        final File localFile;
-                        String[] testPaths=remoteTestName.split(Pattern.quote("/"));
-                        String testName;
-                        if(testPaths.length==0)
-                            testName=remoteTestName;
-                        else
-                            testName=testPaths[testPaths.length-1];
-                        localFile=new File(UnitTester.unitTestDirectory+"/"+testName);
-                        final Path changed = (Path) event.context();
-                        if (changed.endsWith(localFile.getName())) {
-                            gui.getBackgroundThread().invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try{
-                                        DbxClient client=gui.getDbxSession().getClient();
-                                        if(!remoteTestName.equals("")&&client.getMetadata(remoteTestName)!=null){
-                                            client.delete(remoteTestName);
+            if(remoteTestName.equals("")){
+                junitTests.remove(i);
+                i--;
+            }
+            else if(!watchKeys.isEmpty()){
+                WatchKey key=watchKeys.get(i);
+                if(key!=null){
+                    List<WatchEvent<?>> events=key.pollEvents();
+                    if(events!=null&&!events.isEmpty()){
+                        for(WatchEvent<?> event:events){
+                            final File localFile;
+                            String[] testPaths=remoteTestName.split(Pattern.quote("/"));
+                            String testName;
+                            if(testPaths.length==0)
+                                testName=remoteTestName;
+                            else
+                                testName=testPaths[testPaths.length-1];
+                            localFile=new File(UnitTester.unitTestDirectory+"/"+testName);
+                            final Path changed = (Path) event.context();
+                            if (changed.endsWith(localFile.getName())) {
+                                gui.getBackgroundThread().invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try{
+                                            DbxClient client=gui.getDbxSession().getClient();
+                                            if(!remoteTestName.equals("")&&client.getMetadata(remoteTestName)!=null){
+                                                client.delete(remoteTestName);
+                                            }
+                                            FileInputStream sheetStream = new FileInputStream(localFile);
+                                            client.uploadFile(remoteTestName, DbxWriteMode.force(), localFile.length(), sheetStream);
+                                            sheetStream.close();
+                                        } catch(DbxException|IOException e){
+                                            System.err.println("Error uploading unit test. "+(localFile!=null?localFile.getName():null)+"\n");
+                                            GuiHelper.alertDialog("<html>Error Uploading "+(localFile!=null?localFile.getName():null)+" to Dropbox.<br/>"
+                                                    + "Dropbox is probably under heavy load or down.<br/>"+e.getMessage()+"</html>");
+                                            e.printStackTrace();
                                         }
-                                        FileInputStream sheetStream = new FileInputStream(localFile);
-                                        client.uploadFile(remoteTestName, DbxWriteMode.force(), localFile.length(), sheetStream);
-                                        sheetStream.close();
-                                    } catch(DbxException|IOException e){
-                                        System.err.println("Error uploading unit test. "+(localFile!=null?localFile.getName():null)+"\n");
-                                        GuiHelper.alertDialog("<html>Error Uploading "+(localFile!=null?localFile.getName():null)+" to Dropbox.<br/>"
-                                                + "Dropbox is probably under heavy load or down.<br/>"+e.getMessage()+"</html>");
-                                        e.printStackTrace();
+                                        gui.getTestManager().test();
                                     }
-                                }
-                            });
-                            break;
+                                });
+                                break;
+                            }
                         }
                     }
+                    key.cancel();
                 }
-                key.cancel();
             }
         }
     }
@@ -663,7 +675,7 @@ public class UnitTestPanel extends JPanel implements ActionListener{
         }
         else if(e.getActionCommand().startsWith("DownloadJUnitTest")){
             final int index=GradebookTable.extractNumber("DownloadJUnitTest",e.getActionCommand());
-            if(watchKeys.get(index)==null){
+            if(watchKeys.size()<=index||watchKeys.get(index)==null){
                 gui.getBackgroundThread().invokeLater(new Runnable() {
                     @Override
                     public void run() {
