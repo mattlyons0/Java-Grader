@@ -94,7 +94,7 @@ public class UnitTester {
         }
         if(overlay!=null)
             overlay.setStatus("Running Unit Tests");
-        if((overlay==null||!overlay.isCanceled())&&assignment.simpleUnitTests!=null){
+        if((overlay==null||!overlay.isCanceled())&&assignment.simpleUnitTests!=null&&assignment.simpleUnitTests.length>0){
             if(overlay!=null)
                 overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
             for(UnitTest test:assignment.simpleUnitTests){
@@ -141,7 +141,7 @@ public class UnitTester {
         }
         if(overlay!=null)
             overlay.setStatus("Running JUnit Tests");
-        if((overlay==null||!overlay.isCanceled())&&assignment.junitTests!=null){
+        if((overlay==null||!overlay.isCanceled())&&assignment.junitTests!=null&&assignment.junitTests.length>0){
             for(String testLoc:assignment.junitTests){
                 try {
                     DbxEntry entry=gui.getDbxSession().getClient().getMetadata(testLoc);
@@ -287,6 +287,8 @@ public class UnitTester {
             totalTests+=testResults.size();
         if(assignment.junitTests!=null&&assignment.simpleUnitTests!=null)
             totalTests-=assignment.simpleUnitTests.length;
+        if(totalTests==0)
+            return;
         grade=successes/(double)totalTests*assignment.totalPoints;
         String status="(Unit Tested) Passed "+successes+"/"+totalTests+", \n";
         for(int testNum=0;testNum<totalTests;testNum++){
@@ -373,7 +375,7 @@ public class UnitTester {
                     if(curGrade==null){
                         TextSpreadsheet sheet=grader.getSpreadsheet();
                         sheet.setGrade(sheet.getName(file.getFirstLastName()), 
-                                sheet.getAssignment(assignment.number), fGrade, fStatus, true);
+                        sheet.getAssignment(assignment.number), fGrade, fStatus, true);
                         curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
                         curGrade.unitTested=true;
                         curGrade.dateGraded=Date.currentDate();

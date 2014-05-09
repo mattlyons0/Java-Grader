@@ -151,7 +151,7 @@ public class TextSpreadsheet {
         }
         names.add(new TextName(firstName,lastName,email));
         
-        int numAssignments=grades.get(0).size();
+        int numAssignments=assignments.size();
         grades.add(new ArrayList());
         int nameIndex=names.indexOf(names.get(names.size()-1));
         for(int i=0;i<numAssignments;i++){

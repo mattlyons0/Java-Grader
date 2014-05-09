@@ -221,6 +221,10 @@ public class Print implements Printable {
         g.drawString(new Date().toString(),0, marginY);
         marginY+=25;
         if(page==0){
+            if(sheet.getNameAt(studentIndex)==null){
+                g.drawString("No Students Found.", (int)centerX, (int)marginY);
+                return true;
+            }
             g.setFont(g.getFont().deriveFont(Font.BOLD));
             g.drawString(sheet.getNameAt(studentIndex).toString(), (int)centerX, (int)marginY);
             g.setFont(g.getFont().deriveFont(Font.PLAIN));

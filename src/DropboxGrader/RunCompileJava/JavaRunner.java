@@ -344,7 +344,7 @@ public class JavaRunner implements Runnable{
         }
         try{
             //for(int x=0;x<files.length;x++){
-            String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+            String classpath=filePaths[1];
             String className="";
             if(testFile.hasPackage()){
                 className+=testFile.packageFolder()+"/";
@@ -498,7 +498,7 @@ public class JavaRunner implements Runnable{
         }
         try{
             //for(int x=0;x<files.length;x++){
-            String classpath=filePaths[1].substring(1, filePaths[1].length()-1); //removes quotes in filepaths[1]
+            String classpath=filePaths[1];
             char cpDelimit=CLASSPATHDELIMITER;
             for(int i=0;i<libraries.length;i++){
                 classpath+=cpDelimit+libraries[i];
@@ -618,6 +618,20 @@ public class JavaRunner implements Runnable{
         return depFiles;
     }
     private File runFrom(JavaFile mainFile){
+//        if(mainFile.packageFolder()!=null){
+//            String packageFolder=mainFile.packageFolder();
+//            String[] folders=packageFolder.split(".");
+//            if(folders.length==0)
+//                folders=new String[]{mainFile.packageFolder()};
+//            File f=mainFile;
+//            for(int i=0;i<=folders.length;i++){
+//                f=f.getParentFile();
+//            }
+//            return f;
+//        }
+//        else{
+//            return new File(gui.getManager().getDownloadFolder()+"/"+mainFile.getParent()).getAbsoluteFile();
+//        }
         String parent=mainFile.getDbx().getFileName();
         parent=parent.substring(0,parent.length()-4); //get rid of .zip
         String[] folders;

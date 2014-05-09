@@ -47,9 +47,9 @@ public class LibraryPanel extends JPanel implements ActionListener{
     private final FileFilter jarFilter;
     private final String statusText="Library: ";
     
-    private int assignmentNumber;
+    private Integer assignmentNumber;
     private String assignmentName;
-    public LibraryPanel(String[] libs,int assignmentNum,String assignmentName,Gui gui){
+    public LibraryPanel(String[] libs,Integer assignmentNum,String assignmentName,Gui gui){
         this.gui=gui;
         this.assignmentNumber=assignmentNum;
         this.assignmentName=assignmentName;

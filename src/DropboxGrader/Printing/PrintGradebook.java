@@ -64,7 +64,7 @@ public class PrintGradebook implements Printable{
         table.clearSelection();
         BufferedImage columnsImage=new BufferedImage(columns.getBounds().width,columns.getBounds().height,BufferedImage.TYPE_INT_ARGB);
         table.getTableHeader().paint(columnsImage.getGraphics());
-        BufferedImage tableImage=new BufferedImage(table.getBounds().width,table.getBounds().height,BufferedImage.TYPE_INT_ARGB);
+        BufferedImage tableImage=new BufferedImage(table.getBounds().width,table.getHeight()==0?1:table.getHeight(),BufferedImage.TYPE_INT_ARGB);
         table.paint(tableImage.getGraphics());
         
         BufferedImage combinedImage=new BufferedImage((int)(columnsImage.getWidth()*scale),(int)(columnsImage.getHeight()+tableImage.getHeight()*scale),
@@ -73,7 +73,8 @@ public class PrintGradebook implements Printable{
         g2.drawImage(columnsImage.getScaledInstance((int)(columnsImage.getWidth()*scale),
                 (int)(columnsImage.getHeight()*scale), BufferedImage.SCALE_SMOOTH), 0,0,null);
         g2.drawImage(tableImage.getScaledInstance((int)(tableImage.getWidth()*scale),
-                (int)(tableImage.getHeight()*scale), BufferedImage.SCALE_SMOOTH), 0,(int)(columnsImage.getHeight()*scale), null);
+                (int)(tableImage.getHeight()*scale)==0?1:(int)(tableImage.getHeight()*scale),
+                BufferedImage.SCALE_SMOOTH), 0,(int)(columnsImage.getHeight()*scale), null);
 
         int lastHorizontal=pageNum==0?0:getNumHorizontalCells(pageNum-1)+1;
         int lastVertical=pageNum==0?0:getNumVerticalCells(pageNum-1)+1;

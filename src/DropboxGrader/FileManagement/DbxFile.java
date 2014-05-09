@@ -418,7 +418,11 @@ public class DbxFile {
             codeView.setRunningFile(mainMethods.get(choice));
         final int fchoice=choice;
         TextAssignment assign=fileManager.getGrader().getSpreadsheet().getAssignment(getAssignmentNumber());
-        final String[] libraries=assign.libraries;
+        final String[] libraries;
+        if(assign!=null)
+            libraries=assign.libraries;
+        else
+            libraries=null;
         fileManager.getGui().getBackgroundThread().invokeLater(new Runnable() {
             @Override
             public void run() {

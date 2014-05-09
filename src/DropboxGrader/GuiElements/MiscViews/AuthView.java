@@ -80,8 +80,8 @@ public class AuthView extends ContentView{
         authButton.addActionListener(this);
         demoLabel=new JLabel("Alernatively if you just want to try "+DbxSession.APPNAME+", you can try demo mode.");
         demoButton=new JButton("Demo Mode");
-        demoButton.setEnabled(false); //NYI
-        demoButton.setToolTipText("Not Yet Implemented");
+        demoButton.addActionListener(this);
+        demoButton.setToolTipText("Login to a dropbox account filled with assignments.");
         
         cons.gridy=2;
         add(authButton,cons);
@@ -243,6 +243,9 @@ public class AuthView extends ContentView{
         }
         else if(e.getSource().equals(openBrowserButton)){
             session.promptKey();
+        }
+        else if(e.getSource().equals(demoButton)){
+            session.demo();
         }
     }    
 

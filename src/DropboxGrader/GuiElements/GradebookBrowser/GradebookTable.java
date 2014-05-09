@@ -93,6 +93,8 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             Component comp=getDefaultRenderer(this.getClass()).getTableCellRendererComponent(this, getModel().getValueAt(i, 0), false, false, i, 0);
             maxNameWidth=Math.max(comp.getPreferredSize().width, maxNameWidth);
         }
+        if(maxNameWidth==0)
+            maxNameWidth=100;
         if(cols>0)
             getColumnModel().getColumn(0).setPreferredWidth(maxNameWidth+5);
         for(int i=1;i<cols;i++){
@@ -315,13 +317,15 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
     }
     private JPopupMenu createColHeaderRightClickMenu(int col){
         col--;
-        if(col==-1||col==-2){
+        TextAssignment assign;
+        if(col==-2){
             return null;
         }
-        TextAssignment assign=sheet.getAssignmentAt(col);
-        if(assign==null){
-            return null;
+        if(col==-1){
+            assign=null;
         }
+        else
+            assign=sheet.getAssignmentAt(col);
         JPopupMenu m=new JPopupMenu();
         JMenuItem m1=new JMenuItem("Edit");
         m1.setActionCommand("Edit Assignment"+col);
@@ -334,7 +338,15 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         m3.addActionListener(this);
         m.add(m1);
         m.add(m2);
-        m.add(m3);        
+        m.add(m3);      
+        if(assign==null){ //they clicked the top left corner header
+            m.remove(m1);
+            m.remove(m2);
+            JMenuItem m4=new JMenuItem("Create New Name");
+            m4.setActionCommand("Create Name"+col); //doesnt matter, we dont' use it
+            m4.addActionListener(this);
+            m.add(m4);
+        }
         return m;
     }
     @Override
