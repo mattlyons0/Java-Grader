@@ -172,11 +172,13 @@ public class BrowserView extends ContentView{
             for(int x=0;x<selected.length;x++){
                 select.add(fileBrowserTable.convertRowIndexToModel(selected[x]));
             }
+            setStatus("Deleting Files...");
             boolean deleted=false;
             boolean kept=false;
             for(int x=0;x<select.size();x++){ //check if there is a grade for assignment
                 int i=select.get(x);
                 DbxFile f=fileManager.getFile(i);
+                int progress=(int)(((float)(x+1)/(select.size()))*100);
                 if(f!=null){
                     int assignment=f.getAssignmentNumber();
                     boolean written=gui.getGrader().gradeWritten(f.getFirstLastName(), assignment);
@@ -187,23 +189,31 @@ public class BrowserView extends ContentView{
                     }
                     else{
                         deleted=true;
-                        gui.getBackgroundThread().delete(select.get(x));
+                        gui.getBackgroundThread().delete(select.get(x),progress);
                     }
                 }
             }
             for(int x=0;x<select.size();x++){
                 fileManager.delete(fileManager.getFile(select.get(x)));
             }
-            if(deleted)
-                gui.refreshTable();
-            if(deleted&&kept){
-                statusText.setText("Deleted some files, kept other files becuase they weren't graded.");
-            }
-            else if(deleted){
-                statusText.setText("Deleted.");
-            }
-            else
-                statusText.setText("Kept all files becuase none of them were graded.");
+            final boolean deletedF=deleted;
+            final boolean keptF=kept;
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    if(deletedF)
+                        gui.refreshTable();
+                    if(deletedF&&keptF){
+                        statusText.setText("Deleted some files, kept other files becuase they weren't graded.");
+                    }
+                    else if(deletedF){
+                        statusText.setText("Deleted.");
+                    }
+                    else
+                        statusText.setText("Kept all files becuase none of them were graded.");
+                    updateProgress(0);
+                }
+            });
         }
         else if(e.getSource().equals(configButton)){
             gui.setupConfigGui();
@@ -220,6 +230,7 @@ public class BrowserView extends ContentView{
             for(int element:selected){
                 gui.getSelectedFiles().add(fileBrowserTable.convertRowIndexToModel(element));
             }
+            setStatus("Opening "+fileManager.getFile(gui.getSelectedFiles().get(0)).getFileName()+" ...");
             gui.getBackgroundThread().download(gui.getSelectedFiles(),true);
             
             gui.setCurrentFile(fileManager.getFile(gui.getSelectedFiles().get(0)));

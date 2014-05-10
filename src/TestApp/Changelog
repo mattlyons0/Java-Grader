@@ -1,11 +1,4 @@
-A bunch of small additions that have been on the todo list forever
+Added progress when deleting files
 
-Added way to force run unit tests by right clicking on assignment in gradebook.
-Changed submit date in file browser to use new date class
-Added right click menu to show/hide modifications in the filebrowser
-    Stores that value in the config
-Demo mode can no longer delete files
-Gradebook now shows date graded in a tooltip (along with unit tested)
-Filebrowser sort now sorts properly for assignment numbers and dates.
-Code tabs can now be closed with right click on them.
-When grade column is hidden, grades are also hidden in the grader view now
+Got rid of 2nd year files
+States when loading list of files

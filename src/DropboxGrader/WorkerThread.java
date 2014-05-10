@@ -106,7 +106,7 @@ public class WorkerThread implements Runnable{
             }
         });
     }
-    public void delete(Integer file){
+    public void delete(Integer file,final int progress){
         if(file==null){
             return;
         }
@@ -115,7 +115,13 @@ public class WorkerThread implements Runnable{
             @Override
             public void run() {
                 if(f!=null){
+                    gui.updateProgress(progress);
                     f.delete();
+                    try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(WorkerThread.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                 }
             }
         });

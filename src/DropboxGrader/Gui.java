@@ -158,8 +158,10 @@ public class Gui extends JFrame implements ActionListener{
         
         graderView=new GraderView(Gui.this,fileManager);
         viewManager.addView(graderView);
+        browserView.setStatus("Loading...");
         
         fileManager.postInit();
+        browserView.setStatus("");
     }
     
     public void setupFileBrowserGui(){

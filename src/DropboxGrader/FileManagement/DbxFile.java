@@ -150,10 +150,8 @@ public class DbxFile {
             return ERRORMSG;
         }
         else if(splits.length==5){
-            fileManager.getTableData().setColorAt(Color.CYAN.darker(), new CellLocation(fileManager.getAttributes()[col],row));
-            int year=safeStringToInt(splits[2]);
             int dotIndex=splits[4].indexOf(".");
-            return splits[4].substring(0, dotIndex)+" (Year "+year+")";
+            return splits[4].substring(0, dotIndex);
         }
         else if(splits.length==4&&splits[3].length()>4){
             int dotIndex=splits[3].indexOf(".");
@@ -617,5 +615,8 @@ public class DbxFile {
             lines+=f.getLines();
         }
         return lines;
-    }    
+    }   
+    public FileManager getFileManager(){
+        return fileManager;
+    }
 }

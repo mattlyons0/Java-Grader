@@ -35,6 +35,10 @@ Make code sort take up less space (maybe put it in an (undecorated?) overlay)
 Remove columns entirely in browser via right click
 Show progress bar when populating filebrowser and downloading grades
 Run settings to set memory to run with.
+You can't cancel making an assignment...
+Sometimes closing fails, should make a timer for a minute to force close if it hasn't after a minute.
+Large files downloaded hangs startup (Can't do anything about this without doing a major refactor, systems just assume everything has been parsed upon opening)
+Opening the date overlay twice will make it unable to close. (I striped down the dateOverlay class to nothing and it still happens, I give up on that bug. Close the assignment window and it will close the date overlay)
 
 demo mode
     Log them into a test dropbox with some test code and files
