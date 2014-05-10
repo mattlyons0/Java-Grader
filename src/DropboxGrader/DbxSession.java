@@ -65,6 +65,7 @@ public class DbxSession {
         }
         try {
             gui.goodKey(client.getAccountInfo().displayName,client);
+            Config.demoMode=false;
         } catch (DbxException ex) {
             if(ex instanceof DbxException.InvalidAccessToken){
                 invalidToken=true;
@@ -141,6 +142,7 @@ public class DbxSession {
         client=new DbxClient(config,DEMOKEY);
         try {
             gui.goodKey(client.getAccountInfo().displayName,client);
+            Config.demoMode=true;
         } catch (DbxException ex) {
             GuiHelper.alertDialog("Error connecting to dropbox.");
             System.err.println("Error connecting to dropbox in demo mode.");

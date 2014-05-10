@@ -13,6 +13,8 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -68,6 +70,7 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         setLayout(layout);
         if(tabPane==null){
             tabPane=new JTabbedPane();
+            tabPane.addMouseListener(this);
         }
         else{
             tabPane.removeAll();
@@ -366,11 +369,19 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
         m.add(m3);
         return m;
     }
+    private JPopupMenu createCloseTabMenu(int tabNum){
+        JPopupMenu m=new JPopupMenu();
+        JMenuItem m1=new JMenuItem("Close");
+        m1.setActionCommand("CloseTab"+tabNum);
+        m1.addActionListener(this);
+        m.add(m1);
+        return m;
+    }
     @Override
     public void mouseClicked(MouseEvent e) {
         if(e.getButton()==MouseEvent.BUTTON3){
             int panelNum=-1;
-            for(int i=0;i<browserArea.length;i++){
+            for(int i=0;i<browserArea.length;i++){ //copy/paste in text file browserareas
                 if(browserArea[i]==e.getSource()){ //checking for instance equality (pointers same)
                     panelNum=i;
                     break;
@@ -379,6 +390,19 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
             if(panelNum!=-1){
                 JPopupMenu popup = createRightClickMenu(panelNum);
                 popup.show(e.getComponent(), e.getX(), e.getY());
+                return;
+            }
+            for(int i=0;i<browserArea.length;i++){
+                if(tabPane.equals(e.getSource())&&i<tabPane.getTabCount()){
+                    Rectangle rect=tabPane.getBoundsAt(i);
+                    Point locOnScreen=tabPane.getLocationOnScreen();
+                    Rectangle rectScreen=new Rectangle(rect.x+locOnScreen.x,rect.y+locOnScreen.y,rect.width,rect.height);
+                    if(rectScreen.contains(e.getLocationOnScreen())){
+                        JPopupMenu popup=createCloseTabMenu(i);
+                        popup.show(e.getComponent(),e.getX(),e.getY());
+                        return;
+                    }
+                }
             }
         }
     }
@@ -440,6 +464,10 @@ public class JavaCodeBrowser extends JPanel implements MouseListener,ActionListe
                 System.err.println("Error Pasting into TextTab.");
                 ex.printStackTrace();
             }
+        }
+        else if(e.getActionCommand().startsWith("CloseTab")){
+            int num=GradebookTable.extractNumber("CloseTab", e.getActionCommand());
+            tabPane.remove(num);
         }
     }
 }

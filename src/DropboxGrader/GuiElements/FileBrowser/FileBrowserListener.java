@@ -66,6 +66,13 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             m1.setText("Unhide");
         m1.setActionCommand("Hide"+col);
         m1.addActionListener(this);
+        JMenuItem m2=new JMenuItem("Hide Modifications");
+        if(!Config.showModified)
+            m2.setText("Show Modifications");
+        m2.setActionCommand("HideModifications"+col);
+        m2.addActionListener(this);
+        if(table.convertColumnIndexToModel(col)==2)
+            m.add(m2);
         m.add(m1);
         return m;
     }
@@ -172,6 +179,13 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
                     gui.setStatus("");
                 }
             });
+        }
+        else if(e.getActionCommand().startsWith("HideModifications")){
+            int col=GradebookTable.extractNumber("HideModifications", e.getActionCommand());
+            Config.showModified=!Config.showModified;
+            
+            gui.getManager().getTableData().refresh();
+            table.repaint();
         }
         else if(e.getActionCommand().startsWith("Hide")){
             int col=Integer.parseInt(e.getActionCommand().replace("Hide", ""));

@@ -4,6 +4,7 @@
  */
 package DropboxGrader.GuiElements.FileBrowser;
 
+import DropboxGrader.Config;
 import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
@@ -159,6 +160,10 @@ public class BrowserView extends ContentView{
             refreshTable();
         }
         else if(e.getSource().equals(deleteButton)){
+            if(Config.demoMode){
+                statusText.setText("This normally deletes files on dropbox, but in Demo Mode this functionality has been disabled.");
+                return;
+            }
             int[] selected=fileBrowserTable.getSelectedRows();
             if(selected.length==0){
                 statusText.setText("You must select at least one assignment to delete.");

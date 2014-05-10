@@ -32,6 +32,9 @@ Store a list of (canned comments) which can simply be selected (or a shortcut ca
 Overlay Windows don't deallocate from memory
 Add tile mode to gradebook table print
 Make code sort take up less space (maybe put it in an (undecorated?) overlay)
+Remove columns entirely in browser via right click
+Show progress bar when populating filebrowser and downloading grades
+Run settings to set memory to run with.
 
 demo mode
     Log them into a test dropbox with some test code and files

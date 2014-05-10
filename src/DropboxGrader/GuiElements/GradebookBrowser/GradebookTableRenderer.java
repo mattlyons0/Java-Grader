@@ -13,7 +13,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.UIManager;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -39,6 +38,12 @@ public class GradebookTableRenderer extends DefaultTableCellRenderer{
                     if(isSelected)
                         l.setBackground(l.getBackground().darker());
                 }
+                String tooltip="";
+                if(grade.dateGraded!=null)
+                    tooltip+="Graded on: "+grade.dateGraded+" ";
+                if(grade.unitTested)
+                    tooltip+="Unit Tested";
+                l.setToolTipText(tooltip);
             }
             l.setBorder(new MatteBorder(0,0,1,1,UIManager.getColor("Table.gridColor")));
             return l;

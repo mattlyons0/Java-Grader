@@ -6,6 +6,7 @@
 
 package DropboxGrader.FileManagement;
 
+import DropboxGrader.Config;
 import DropboxGrader.GuiElements.Grader.TextFile;
 import DropboxGrader.GuiElements.Grader.JavaCodeBrowser;
 import DropboxGrader.RunCompileJava.JavaFile;
@@ -180,18 +181,20 @@ public class DbxFile {
     }
     /**
      * The submission time on the dropbox server. This is the the most recent revision date.
-     * @param checkRevisions if true, will check if the file has been modified since initial submission
      * @param row set by manager
      * @param col set by manager
      * @return if checkRevisions is false will return the date of the newest version, otherwise will
      * return the date or if it has been modified both dates.
      */
-    public String getSubmitDate(boolean checkRevisions,int row,int col){
-        if(checkRevisions&&entry.lastModified.after(entry.clientMtime)&&row>-1&&col>-1){
-            fileManager.getTableData().setColorAt(new Color(230,120,120), new CellLocation(fileManager.getAttributes()[col],row));
-            return "Originally "+entry.clientMtime+" Modified "+entry.lastModified;
+    public String getSubmitDate(int row,int col){
+        if(entry.lastModified.after(entry.clientMtime)&&row>-1&&col>-1){
+            if(Config.showModified){ //set modified ones to be red
+                fileManager.getTableData().setColorAt(new Color(230,120,120), new CellLocation(fileManager.getAttributes()[col],row));
+                return "Modified "+new Date(entry.lastModified);
+            }
+            fileManager.getTableData().setTooltipAt("Originally "+new Date(entry.clientMtime),new CellLocation(fileManager.getAttributes()[col],row));
         }
-        return entry.clientMtime.toString();
+        return new Date(entry.clientMtime).toString();
     }
     /**
      * Gets the date of the first revision on dropbox
@@ -509,7 +512,7 @@ public class DbxFile {
             int dotIndex=getLastIndex(newName,'.');
             if(Character.isDigit(newName.charAt(dotIndex-1)))
                 num=safeStringToInt(Character.toString(newName.charAt(dotIndex-1)));
-            rename(newName.substring(0, dotIndex)+num+newName.substring(dotIndex, newName.length()),onInit);
+            rename(newName.substring(0, dotIndex)+num+newName.substring(dotIndex, newName.length()),onInit); //no it wont recurse infinately compiler you're wrong
         }
         if(moved&&downloadedFile!=null){
             searchForFilesToDelete(downloadedFile.getPath());
@@ -534,7 +537,7 @@ public class DbxFile {
     public String toString(){
         String zipPath=entry.name;
         zipPath=zipPath.substring(0,zipPath.indexOf('.'));
-        return zipPath+" submitted on "+getSubmitDate(true,-1,-1);
+        return zipPath+" submitted on "+getSubmitDate(-1,-1);
     }
     public boolean isDownloaded(){
         return downloadedFile!=null;

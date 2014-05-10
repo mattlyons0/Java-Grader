@@ -1,9 +1,11 @@
-Implemented Demo Mode
+A bunch of small additions that have been on the todo list forever
 
-Fixed NPE running code.
-Fixed running bug introduced in the last commit.
-Fixed NPE making a new assignment.
-Fixed trying to unit test assignments that didn't have any unit tests.
-Added way to add assignments and names to the gradebook when there aren't any.
-Fixed a crash when creating the first name when an assignment already exists.
-Fixed printing crashing if there are no grades.
+Added way to force run unit tests by right clicking on assignment in gradebook.
+Changed submit date in file browser to use new date class
+Added right click menu to show/hide modifications in the filebrowser
+    Stores that value in the config
+Demo mode can no longer delete files
+Gradebook now shows date graded in a tooltip (along with unit tested)
+Filebrowser sort now sorts properly for assignment numbers and dates.
+Code tabs can now be closed with right click on them.
+When grade column is hidden, grades are also hidden in the grader view now

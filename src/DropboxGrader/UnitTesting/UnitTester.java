@@ -41,8 +41,9 @@ public class UnitTester {
     private Gui gui;
     private TextAssignment assignment;
     private UnitTestOverlay overlay;
-    JavaFile currentFile;
-    String currentPreviousCode;
+    private JavaFile currentFile;
+    private String currentPreviousCode;
+    private boolean force;
     
     private ArrayList<Boolean> testResults;
     private ArrayList<String> testStatus;
@@ -62,6 +63,10 @@ public class UnitTester {
     public UnitTester(Gui gui,TextAssignment assign,UnitTestOverlay overlay){
         this(gui,assign);
         this.overlay=overlay;
+    }
+    public UnitTester(Gui gui,TextAssignment assign,UnitTestOverlay overlay,boolean forceTest){
+        this(gui,assign,overlay);
+        this.force=forceTest;
     }
     public void runTests(){
         while(currentFile!=null){
@@ -99,7 +104,7 @@ public class UnitTester {
                 overlay.setDescription("Assignment: "+assignment+" File: "+file.getFileName());
             for(UnitTest test:assignment.simpleUnitTests){
                 TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
-                if(test!=null&&(grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), grade.dateGraded)||
+                if(test!=null&&(force||grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), grade.dateGraded)||
                         !Date.before(test.updateDate, grade.dateGraded))){ //reasons to test
                     JavaFile[] javaFiles=file.getJavaFiles();
                     if(!file.isDownloaded()){
@@ -146,7 +151,7 @@ public class UnitTester {
                 try {
                     DbxEntry entry=gui.getDbxSession().getClient().getMetadata(testLoc);
                     TextGrade grade=gui.getGrader().getGrade(file.getFirstLastName(), assignment.number);
-                    if(grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), 
+                    if(force||grade==null||!grade.unitTested||grade.dateGraded==null||!Date.before(file.getSubmittedDate(), 
                             grade.dateGraded)||(entry.isFile()&&!Date.before(new Date(((DbxEntry.File)entry).lastModified),
                             grade.dateGraded))){ //reasons it needs to be tested
                         if(overlay!=null)

@@ -10,11 +10,6 @@ import DropboxGrader.FileManagement.FileManager;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.swing.JTable;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -24,12 +19,14 @@ import javax.swing.table.AbstractTableModel;
 public class FileBrowserData extends AbstractTableModel{
     private FileManager manager;
     private HashMap<CellLocation,Color> cellColors;
+    private HashMap<CellLocation,String> tooltips;
     private ArrayList<Integer> hiddenCols;
     public FileBrowserData(FileManager f){
         super();
         manager=f;
         
         cellColors=new HashMap();
+        tooltips=new HashMap();
         hiddenCols=new ArrayList();
     }
     @Override
@@ -71,11 +68,18 @@ public class FileBrowserData extends AbstractTableModel{
     public Color getColorAt(CellLocation cell){
         return cellColors.get(cell);
     }
+    public void setTooltipAt(String tooltip,CellLocation cell){
+        tooltips.put(cell,tooltip);
+    }
+    public String getTooltipAt(CellLocation cell){
+        return tooltips.get(cell);
+    }
     public FileManager getManager(){
         return manager;
     }
     public void refresh(){
         cellColors.clear();
+        tooltips.clear();
     }
     public void hideCol(int col){
         if(!hiddenCols.contains(col)){

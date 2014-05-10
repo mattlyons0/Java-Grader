@@ -21,11 +21,14 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
     public Component getTableCellRendererComponent(JTable table,Object value,boolean isSelected,boolean hasFocus,int row,int col){
         JLabel l=(JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
         Color c;
+        String tooltip=null;
         try{
             col=table.convertColumnIndexToModel(col);
             FileBrowserData data=(FileBrowserData)table.getModel();
             String colName=data.getColumnName(col);
-            c=data.getColorAt(new CellLocation(colName,table.convertRowIndexToModel(row)));
+            CellLocation loc=new CellLocation(colName,table.convertRowIndexToModel(row));
+            c=data.getColorAt(loc);
+            tooltip=data.getTooltipAt(loc);
         } catch(ArrayIndexOutOfBoundsException ex){
             c=null;
             System.err.println("Determining color failed, "); //tried to color something during a data refresh or something.
@@ -33,6 +36,7 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
         }
         if(c!=null){
             l.setBackground(c);
+            l.setToolTipText(tooltip==null?"":tooltip);
             if(isSelected){
                 l.setBackground(c.darker());
             }

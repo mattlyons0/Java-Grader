@@ -271,14 +271,14 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         if(col!=0){
             TextGrade grade=sheet.getGradeAt(col-1, row);
             JPopupMenu m=new JPopupMenu();
-            if(grade==null){
+            if(grade==null){ //its a cell with no grade
                 JMenuItem m1=new JMenuItem("Create Grade");
                 m1.setActionCommand("Create Grade"+row+","+col);
                 m1.addActionListener(this);
                 m.add(m1);
                 return m;
             }
-            else{
+            else{ //its a grade
                 JMenuItem m1=new JMenuItem("Toggle Gradebook Status");
                 m1.setActionCommand("Toggle Gradebook Status"+row+","+col);
                 m1.addActionListener(this);
@@ -336,17 +336,21 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         JMenuItem m3=new JMenuItem("Create New Assignment");
         m3.setActionCommand("Create Assignment"+col);
         m3.addActionListener(this);
-        m.add(m1);
-        m.add(m2);
-        m.add(m3);      
-        if(assign==null){ //they clicked the top left corner header
-            m.remove(m1);
-            m.remove(m2);
-            JMenuItem m4=new JMenuItem("Create New Name");
-            m4.setActionCommand("Create Name"+col); //doesnt matter, we dont' use it
-            m4.addActionListener(this);
-            m.add(m4);
+        JMenuItem m4=new JMenuItem("Force Run Unit Tests");
+        m4.setActionCommand("ForceUnitTests"+col);
+        m4.addActionListener(this);
+        JMenuItem m5=new JMenuItem("Create New Name");
+        m5.setActionCommand("Create Name"+col); //doesnt matter, we dont' use it
+        m5.addActionListener(this);
+        if(assign!=null){
+            m.add(m1);
+            m.add(m2);
+            if(assign.junitTests!=null||assign.simpleUnitTests!=null)
+                m.add(m4);
+            m.add(m3);
         }
+        if(assign==null) //they clicked the top left corner header
+            m.add(m5);
         return m;
     }
     @Override
@@ -391,6 +395,10 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         }
         else if(e.getActionCommand().startsWith("Create Name")){
             createName();
+        }
+        else if(e.getActionCommand().startsWith("ForceUnitTests")){
+            int col=extractNumber("ForceUnitTests",e.getActionCommand());
+            gui.getTestManager().forceTest(gui.getGrader().getSpreadsheet().getAssignmentAt(col));
         }
     }
     private void changeGrade(int row,int col,final boolean overwrite){

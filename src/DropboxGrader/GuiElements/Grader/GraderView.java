@@ -398,6 +398,13 @@ public class GraderView extends ContentView{
                 }
             }
         }
+        if(gui.getManager().getTableData().isHidden(4)){ //if the grades col is hidden hide the grades
+            gradeNumber.setText("Hidden");
+            gradeComment.setText("Hidden");
+            gradeNumber.setEditable(false);
+            gradeComment.setEditable(false);
+            recordGradeButton.setEnabled(false);
+        }
         
         if(Config.autoRun&&!gui.getSelectedFiles().isEmpty()){
             //If it should autorun, go autorun on the other thread.

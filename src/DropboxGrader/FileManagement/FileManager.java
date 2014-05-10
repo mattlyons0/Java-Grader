@@ -5,7 +5,6 @@
 package DropboxGrader.FileManagement;
 
 import DropboxGrader.Config;
-import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import DropboxGrader.TextGrader.TextGrader;
@@ -110,7 +109,7 @@ public class FileManager {
         switch(attrib){
             case "Assignment": return file.getAssignmentNumber()==-1?"":file.getAssignmentNumber()+"";
             case "Assignment Name": return file.getAssignmentName(fileNum,attribute);
-            case "Submit Date": return file.getSubmitDate(true,fileNum,attribute);
+            case "Submit Date": return file.getSubmitDate(fileNum,attribute);
             case "Name": return file.getFirstLastName();
             case "Status": return file.getStatus(fileNum,attribute);
         }

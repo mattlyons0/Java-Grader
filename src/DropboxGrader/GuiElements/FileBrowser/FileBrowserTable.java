@@ -8,7 +8,10 @@ package DropboxGrader.GuiElements.FileBrowser;
 
 import DropboxGrader.Config;
 import DropboxGrader.FileManagement.DbxFile;
+import DropboxGrader.Util.DateComparator;
+import DropboxGrader.Util.NumberComparator;
 import java.util.ArrayList;
+import javax.swing.DefaultRowSorter;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.RowSorter.SortKey;
@@ -84,7 +87,12 @@ public class FileBrowserTable extends JTable{
     }
     private void initSort(){
         try{
-            RowSorter sorter=getRowSorter();
+            DefaultRowSorter sorter=(DefaultRowSorter)getRowSorter();
+            //sort cols properly
+            sorter.setComparator(0, new NumberComparator()); //first col is ints
+            sorter.setComparator(2, new DateComparator());
+            
+            //sort by last saved order
             ArrayList<RowSorter.SortKey> keys=new ArrayList();
             String order=Config.sortOrder;
             String column=Config.sortColumn;

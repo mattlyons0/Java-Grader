@@ -55,7 +55,29 @@ public class UnitTestManager implements Runnable{
             unitTestThread.start();
         }
     }
-
+    public void forceTest(final TextAssignment assign){
+        tests.add(new Runnable() {
+            @Override
+            public void run() {
+                UnitTestOverlay overlay=new UnitTestOverlay(gui);
+                boolean foundTests=false;
+                TextAssignment[] assignments=gui.getGrader().getSpreadsheet().getAllAssignments();
+                if(assign.simpleUnitTests!=null||assign.junitTests!=null){
+                    if(!foundTests){
+                        foundTests=true;
+                        gui.getViewManager().addOverlay(overlay);
+                    }
+                    UnitTester tester=new UnitTester(gui,assign,overlay,true);
+                    tester.runTests();
+                }
+                overlay.finished();
+            }
+        });
+        if(!unitTestThread.isAlive()){
+            createThread();
+            unitTestThread.start();
+        }
+    }
     @Override
     public void run() {
         while(!tests.isEmpty()){

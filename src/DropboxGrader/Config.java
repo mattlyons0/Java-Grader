@@ -5,7 +5,6 @@
 package DropboxGrader;
 
 import DropboxGrader.FileManagement.DbxFile;
-import java.awt.Frame;
 import java.awt.Toolkit;
 import java.io.File;
 import javax.swing.JFrame;
@@ -31,6 +30,7 @@ public class Config {
     public static String columnWidth;
     public static String sortColumn;
     public static String sortOrder;
+    public static boolean showModified;
     
     //GradingPanel
     public static boolean autoRun;
@@ -45,8 +45,10 @@ public class Config {
     public static String jUnitHamcrestJarLocation;
     public static String jUnitTestsLocation="/JUnitTests";
     
-    //Libraries
+    //Misc
     public static String librariesLocation="/Libraries";
+    public static boolean demoMode=false;
+    
     public static void init(){
         //Preinit
         spreadsheetName="APCS Period 1 Assignments";
@@ -63,6 +65,7 @@ public class Config {
         columnWidth="75,75,75,75,75"; //75=default
         sortColumn="0";
         sortOrder="ASCENDING";
+        showModified=true;
 
         //GradingPanel
         autoRun=false;
@@ -104,6 +107,7 @@ public class Config {
             jUnitHamcrestJarLocation=vars[19];
             //jUnitTestsLocation=vars[20]; //no longer configurable
             bottomDividerLocation=Integer.parseInt(vars[21]);
+            showModified=Boolean.parseBoolean(vars[22]);
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
@@ -131,6 +135,7 @@ public class Config {
         config=append(config,jUnitHamcrestJarLocation);
         config=append(config,jUnitTestsLocation); //no longer configurable, but we'll leave it in just to not screw up the order
         config=append(config,bottomDividerLocation);
+        config=append(config,showModified);
         
         DbxSession.writeToFile(CONFIGFILE, config);
     }
