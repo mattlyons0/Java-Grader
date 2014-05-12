@@ -539,9 +539,10 @@ public class UnitTestPanel extends JPanel implements ActionListener{
             expectedValues.remove(testNum);
             removeTestButtons.remove(testNum);
             descriptionValues.remove(testNum);
-            if(watchKeys.get(testNum)!=null)
+            if(watchKeys.size()>testNum&&watchKeys.get(testNum)!=null)
                 watchKeys.get(testNum).cancel();
-            watchKeys.remove(testNum);
+            if(watchKeys.size()>testNum)
+                watchKeys.remove(testNum);
             
             gui.getViewManager().removeOverlay("MethodAccessOverlay"+testNum);
             gui.getViewManager().removeOverlay("MethodModifiersOverlay"+testNum);

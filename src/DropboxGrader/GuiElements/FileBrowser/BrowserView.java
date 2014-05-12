@@ -43,6 +43,8 @@ public class BrowserView extends ContentView{
     private JProgressBar progressBar;
     private JButton gradeButton;
     private JLabel statusText;
+    private BulkFilterComponent bulkActions;
+    
     
     public BrowserView(Gui gui,FileManager manager){
         super("BrowserView");
@@ -72,6 +74,7 @@ public class BrowserView extends ContentView{
         progressBar=new JProgressBar(0,0,100);
         gradeButton=new JButton("Grade");
         gradeButton.addActionListener(this);
+        bulkActions=new BulkFilterComponent(this);
         
         constraints.anchor=GridBagConstraints.WEST;
         constraints.insets=new Insets(5,5,5,5);
@@ -79,6 +82,10 @@ public class BrowserView extends ContentView{
         constraints.gridy=0;
         //constraints.weightx=0.05;
         constraints.weighty=GridBagConstraints.RELATIVE;
+        constraints.gridwidth=6;
+        add(bulkActions,constraints);
+        constraints.gridy++;
+        constraints.gridwidth=1;
         add(refreshButton,constraints);
         constraints.gridx=1;
         add(deleteButton,constraints);
@@ -95,13 +102,13 @@ public class BrowserView extends ContentView{
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.insets=new Insets(0,5,5,5);
         constraints.gridx=0;
-        constraints.gridy=1;
+        constraints.gridy++;
         constraints.gridwidth=6;
         constraints.weightx=100;
         constraints.weighty=0.9;
         add(fileBrowserScroll,constraints);
         constraints.gridwidth=5;
-        constraints.gridy=2;
+        constraints.gridy++;
         constraints.fill=GridBagConstraints.HORIZONTAL;
         constraints.weighty=GridBagConstraints.RELATIVE;
         constraints.ipady=5;
@@ -242,7 +249,7 @@ public class BrowserView extends ContentView{
 
     @Override
     public void switchedTo() {
-        statusText.setText("");
+        //statusText.setText("");
         progressBar.setValue(0);
     }
 
