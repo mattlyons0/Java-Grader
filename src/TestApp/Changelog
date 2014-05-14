@@ -1,4 +1,6 @@
-Added progress when deleting files
+More work on bluk actions
 
-Got rid of 2nd year files
-States when loading list of files
+Fixed not removing downloading... status from filebrowser
+Fixed not stating Loading... early enough on startup
+
+Changing selection when a bulk action is selected now updates status text

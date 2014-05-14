@@ -55,10 +55,12 @@ public class BrowserView extends ContentView{
     @Override
     public void setup() {        
         constraints=new GridBagConstraints();
+        bulkActions=new BulkFilterComponent(this);
         fileBrowserData=new FileBrowserData(fileManager);
         fileManager.setTableData(fileBrowserData);
         fileBrowserListener=new FileBrowserListener(gui);
         fileBrowserTable=new FileBrowserTable(fileBrowserData,fileBrowserListener);
+        fileBrowserTable.getSelectionModel().addListSelectionListener(bulkActions);
         fileBrowserScroll=new JScrollPane(fileBrowserTable);
         
         refreshButton=new JButton("Refresh");
@@ -74,17 +76,13 @@ public class BrowserView extends ContentView{
         progressBar=new JProgressBar(0,0,100);
         gradeButton=new JButton("Grade");
         gradeButton.addActionListener(this);
-        bulkActions=new BulkFilterComponent(this);
         
         constraints.anchor=GridBagConstraints.WEST;
-        constraints.insets=new Insets(5,5,5,5);
+        constraints.insets=new Insets(5,5,0,5);
         constraints.gridx=0;
         constraints.gridy=0;
         //constraints.weightx=0.05;
         constraints.weighty=GridBagConstraints.RELATIVE;
-        constraints.gridwidth=6;
-        add(bulkActions,constraints);
-        constraints.gridy++;
         constraints.gridwidth=1;
         add(refreshButton,constraints);
         constraints.gridx=1;
@@ -98,6 +96,14 @@ public class BrowserView extends ContentView{
         constraints.gridx=5;
         //constraints.weightx=0.9;
         add(configButton,constraints);
+        constraints.gridx=0;
+        constraints.gridy++;
+        constraints.gridwidth=6;
+        constraints.insets=new Insets(0,0,0,0);
+        constraints.anchor=GridBagConstraints.WEST;
+        add(bulkActions,constraints);
+        constraints.insets=new Insets(5,5,5,5);
+        constraints.gridwidth=1;
         constraints.fill=GridBagConstraints.BOTH;
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.insets=new Insets(0,5,5,5);
@@ -271,5 +277,11 @@ public class BrowserView extends ContentView{
 
     public JButton getGradebookButton(){
         return spreadsheetButton;
+    }
+    public Gui getGui(){
+        return gui;
+    }
+    public int[] getSelected(){
+        return fileBrowserTable.getSelectedRows();
     }
 }

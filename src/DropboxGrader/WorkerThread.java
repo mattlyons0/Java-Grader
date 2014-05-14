@@ -86,6 +86,7 @@ public class WorkerThread implements Runnable{
                         }
                         f.download();
                         gui.repaintTable();
+                        gui.setStatus("");
                     }
                 }
                 if(gradeAfter){
