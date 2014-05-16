@@ -36,7 +36,6 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
         }
         if(c!=null){
             l.setBackground(c);
-            l.setToolTipText(tooltip==null?"":tooltip);
             if(isSelected){
                 l.setBackground(c.darker());
             }
@@ -44,6 +43,7 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
                 l.setForeground(Color.BLACK);
             }
         }
+        l.setToolTipText(tooltip==null?"":tooltip);
         
         return l;
     }

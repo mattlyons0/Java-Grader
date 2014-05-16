@@ -146,7 +146,6 @@ public class Gui extends JFrame implements ActionListener{
             public void run() {
                 gradebookView=new GradebookView(Gui.this);
                 viewManager.addView(gradebookView);
-
                 
                 unitMan=new UnitTestManager(Gui.this);
                 unitMan.test();

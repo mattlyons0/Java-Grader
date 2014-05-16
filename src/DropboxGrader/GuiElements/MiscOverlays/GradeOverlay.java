@@ -8,6 +8,7 @@ package DropboxGrader.GuiElements.MiscOverlays;
 
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
+import DropboxGrader.GuiElements.MiscComponents.DoubleDocument;
 import DropboxGrader.GuiHelper;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -44,6 +45,7 @@ public class GradeOverlay extends ContentOverlay{
         setLayout(new GridBagLayout());
         
         gradeField=new JTextField(10);
+        gradeField.setDocument(new DoubleDocument());
         gradeField.addActionListener(this);
         commentField=new JTextPane();
         JScrollPane scrollComment=new JScrollPane(commentField);
@@ -89,12 +91,7 @@ public class GradeOverlay extends ContentOverlay{
             GuiHelper.alertDialog("Grade cannot be empty.");
             return false;
         }
-        try{
-            grade=Double.parseDouble(gradeField.getText());
-        } catch(NumberFormatException ex){
-            GuiHelper.alertDialog("Grade must be a number (but can be a decimal).");
-            return false;
-        }
+        grade=Double.parseDouble(gradeField.getText());
         comment=commentField.getText();
 
         if(callback!=null){

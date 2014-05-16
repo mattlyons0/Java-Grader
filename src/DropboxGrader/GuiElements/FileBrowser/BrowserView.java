@@ -6,9 +6,6 @@ package DropboxGrader.GuiElements.FileBrowser;
 
 import DropboxGrader.Config;
 import DropboxGrader.FileManagement.DbxFile;
-import DropboxGrader.GuiElements.FileBrowser.FileBrowserTable;
-import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
-import DropboxGrader.GuiElements.FileBrowser.FileBrowserListener;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
@@ -37,7 +34,6 @@ public class BrowserView extends ContentView{
     private FileBrowserListener fileBrowserListener;
     private GridBagConstraints constraints;
     private JButton refreshButton;
-    private JButton deleteButton;
     private JButton spreadsheetButton;
     private JButton configButton;
     private JProgressBar progressBar;
@@ -65,8 +61,6 @@ public class BrowserView extends ContentView{
         
         refreshButton=new JButton("Refresh");
         refreshButton.addActionListener(this);
-        deleteButton=new JButton("Delete");
-        deleteButton.addActionListener(this);
         if(statusText==null)
             statusText=new JLabel("");
         spreadsheetButton=new JButton("Gradebook");
@@ -85,8 +79,6 @@ public class BrowserView extends ContentView{
         constraints.weighty=GridBagConstraints.RELATIVE;
         constraints.gridwidth=1;
         add(refreshButton,constraints);
-        constraints.gridx=1;
-        add(deleteButton,constraints);
         constraints.anchor=GridBagConstraints.CENTER;
         constraints.gridx=3;
         add(statusText,constraints);
@@ -153,10 +145,6 @@ public class BrowserView extends ContentView{
             return;
         }
         fileBrowserTable.setRowSelectionAllowed(true);
-        dataChanged();
-        
-        if(statusText!=null)
-            statusText.setText("");
     }
     public void dataChanged(){
         SwingUtilities.invokeLater(new Runnable() {
@@ -164,6 +152,8 @@ public class BrowserView extends ContentView{
             public void run() {
                 fileBrowserTable.dataChanged();
                 gui.getManager().refreshCellColors();
+                if(statusText!=null)
+                    statusText.setText("");
             }
         });
     }
@@ -171,62 +161,6 @@ public class BrowserView extends ContentView{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource().equals(refreshButton)){
             refreshTable();
-        }
-        else if(e.getSource().equals(deleteButton)){
-            if(Config.demoMode){
-                statusText.setText("This normally deletes files on dropbox, but in Demo Mode this functionality has been disabled.");
-                return;
-            }
-            int[] selected=fileBrowserTable.getSelectedRows();
-            if(selected.length==0){
-                statusText.setText("You must select at least one assignment to delete.");
-            }
-            ArrayList<Integer> select=new ArrayList();
-            for(int x=0;x<selected.length;x++){
-                select.add(fileBrowserTable.convertRowIndexToModel(selected[x]));
-            }
-            setStatus("Deleting Files...");
-            boolean deleted=false;
-            boolean kept=false;
-            for(int x=0;x<select.size();x++){ //check if there is a grade for assignment
-                int i=select.get(x);
-                DbxFile f=fileManager.getFile(i);
-                int progress=(int)(((float)(x+1)/(select.size()))*100);
-                if(f!=null){
-                    int assignment=f.getAssignmentNumber();
-                    boolean written=gui.getGrader().gradeWritten(f.getFirstLastName(), assignment);
-                    if(!written){
-                        kept=true;
-                        select.remove(x);
-                        x--;
-                    }
-                    else{
-                        deleted=true;
-                        gui.getBackgroundThread().delete(select.get(x),progress);
-                    }
-                }
-            }
-            for(int x=0;x<select.size();x++){
-                fileManager.delete(fileManager.getFile(select.get(x)));
-            }
-            final boolean deletedF=deleted;
-            final boolean keptF=kept;
-            gui.getBackgroundThread().invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    if(deletedF)
-                        gui.refreshTable();
-                    if(deletedF&&keptF){
-                        statusText.setText("Deleted some files, kept other files becuase they weren't graded.");
-                    }
-                    else if(deletedF){
-                        statusText.setText("Deleted.");
-                    }
-                    else
-                        statusText.setText("Kept all files becuase none of them were graded.");
-                    updateProgress(0);
-                }
-            });
         }
         else if(e.getSource().equals(configButton)){
             gui.setupConfigGui();

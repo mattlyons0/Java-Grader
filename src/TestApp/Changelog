@@ -1,6 +1,11 @@
-More work on bluk actions
+Bulk Actions and Filtering is now fully implemented
 
-Fixed not removing downloading... status from filebrowser
-Fixed not stating Loading... early enough on startup
-
-Changing selection when a bulk action is selected now updates status text
+    Changing assignments now shows progress
+    Deleting files is now handled in bulk actions and the button is gone
+    
+Now use more textfields limited to only ints and doubles
+Fixed opening date overlay twice not closing properly
+Fixed a condition where deleting files would fail
+Fixed being able to change assignments that had invalid names
+Fixed closing date overlay not saving am/pm
+Fixed tooltips being broken for date submitted cells

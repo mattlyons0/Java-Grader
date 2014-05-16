@@ -250,6 +250,7 @@ public class ContentViewManager extends JDesktopPane implements ComponentListene
                     overlays.remove(o);
                     o.removeInternalFrameListener(this); //I think this should get removed when invalidating or removing frame, 
                     //but in case it doesnt I don't want this reference stopping it from GC.
+                    //that said I dont think it GC's anyway...
                     break;
                 }
             }
