@@ -12,6 +12,7 @@ import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
+import DropboxGrader.GuiElements.MiscComponents.DoubleDocument;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaRunner;
@@ -151,22 +152,7 @@ public class GraderView extends ContentView{
         gradeNumber.setHorizontalAlignment(JTextField.CENTER);
         gradeNumber.setMinimumSize(new Dimension(30,30));
         gradeNumber.addActionListener(this);
-        gradeNumber.setDocument(new PlainDocument(){
-            @Override
-            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-                for(int i=0;i<str.length();i++){
-                    char c=str.charAt(i);
-                    if(Character.isDigit(c)||c=='.'){
-                        if(c=='.'){
-                            if(gradeNumber.getText().contains(".")){
-                                return;
-                            }
-                        }
-                        super.insertString(offs, str, a);
-                    }
-                }
-            }
-        });
+        gradeNumber.setDocument(new DoubleDocument());
         JLabel gradeLabel2=new JLabel(" Comment: ");
         gradeComment=new JTextPane();
         gradeComment.setText("");

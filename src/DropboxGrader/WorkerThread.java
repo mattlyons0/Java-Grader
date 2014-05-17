@@ -86,6 +86,7 @@ public class WorkerThread implements Runnable{
                         }
                         f.download();
                         gui.repaintTable();
+                        gui.setStatus("");
                     }
                 }
                 if(gradeAfter){
@@ -106,11 +107,11 @@ public class WorkerThread implements Runnable{
             }
         });
     }
-    public void delete(Integer file,final int progress){
+    public void delete(DbxFile file,final int progress){
         if(file==null){
             return;
         }
-        final DbxFile f=manager.getFile(file);
+        final DbxFile f=file;
         invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -140,13 +141,12 @@ public class WorkerThread implements Runnable{
             public void run() {
                 if(manager!=null){
                     manager.refresh();
-                    gui.refreshFinished();
                     if(gui.getGrader()!=null){
                         gui.getGrader().refresh();
-                        gui.repaint();
                     }
                     if(gui.getGradebook()!=null)
                         gui.getGradebook().dataChanged();
+                    gui.refreshFinished();
                 }
             }
         });

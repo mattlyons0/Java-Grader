@@ -9,10 +9,13 @@ package DropboxGrader.GuiElements.Assignment;
 import DropboxGrader.FileManagement.Date;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
+import DropboxGrader.GuiElements.MiscComponents.NumberRangeDocument;
+import DropboxGrader.Util.SettableDate;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,7 +29,7 @@ import org.jdesktop.swingx.JXDatePicker;
  * @author matt
  */
 public class DateOverlay extends ContentOverlay implements CaretListener{
-    private AssignmentOverlay overlay;
+    private SettableDate overlay;
     private Gui gui;
     
     private JXDatePicker datePicker;
@@ -34,22 +37,23 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
     private JTextField minuteSpinner;
     private JTextField secondSpinner;
     private JComboBox ampmSpinner;
+    private JButton removeButton;
     
     private Date date;
     
-    public DateOverlay(AssignmentOverlay overlay,Gui gui){
-        super("DateOverlay"+overlay.getID(),true);
+    public DateOverlay(SettableDate overlay,Gui gui,long id){
+        super("DateOverlay"+id,true);
         
         this.overlay=overlay;
         this.gui=gui;
-        date=new Date();
+        date=Date.currentDate();
     }
     @Override
     public void setup() {
         datePicker=new JXDatePicker();
-        datePicker.setDate(Date.currentDate().toDate());
         datePicker.addActionListener(this);
         datePicker.setLightWeightPopupEnabled(false);
+        datePicker.setDate(Date.currentDate().toDate());
         
         hourSpinner=new JTextField(3);
         hourSpinner.setDocument(new NumberRangeDocument(0,13,hourSpinner));
@@ -63,6 +67,8 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
         secondSpinner.addCaretListener(this);
         ampmSpinner=new JComboBox(new String[]{"AM","PM"});
         ampmSpinner.addActionListener(this);
+        removeButton=new JButton("Remove Date");
+        removeButton.addActionListener(this);
         
         GridBagConstraints cons=new GridBagConstraints();
         cons.gridx=0;
@@ -90,6 +96,11 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
         add(datePicker,cons);
         cons.gridx++;
         add(timePanel,cons);
+        
+        cons.gridx=0;
+        cons.gridwidth=8;
+        cons.gridy++;
+        add(removeButton,cons);
 
         Dimension parentSize = gui.getSize();
         setSize((int)(parentSize.width*0.5),(int)(parentSize.height*0.25));
@@ -105,7 +116,10 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
     @Override
     public boolean isClosing() {
         try{
-            date.hour=Integer.parseInt(hourSpinner.getText());
+            int ampm=1;
+            if(ampmSpinner.getSelectedIndex()==1)
+                ampm++;
+            date.hour=Integer.parseInt(hourSpinner.getText())*ampm;
             date.minute=Integer.parseInt(minuteSpinner.getText());
             date.second=Integer.parseInt(secondSpinner.getText());
             actionPerformed(new ActionEvent(datePicker,0,null));
@@ -136,6 +150,10 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
                 hour+=12;
             date.hour=hour;
             overlay.setDate(date);
+        }
+        else if(e.getSource().equals(removeButton)){
+            overlay.setDate(null);
+            dispose();
         }
     }
     public void setDate(Date d){

@@ -9,10 +9,13 @@ package DropboxGrader.GuiElements.Assignment;
 import DropboxGrader.FileManagement.Date;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
+import DropboxGrader.GuiElements.MiscComponents.DoubleDocument;
+import DropboxGrader.GuiElements.MiscComponents.IntegerDocument;
 import DropboxGrader.GuiElements.UnitTesting.UnitTestPanel;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
+import DropboxGrader.Util.SettableDate;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -22,15 +25,12 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 
 /**
  *
  * @author Matt
  */
-public class AssignmentOverlay extends ContentOverlay{
+public class AssignmentOverlay extends ContentOverlay implements SettableDate{
     private Gui gui;
     private Runnable callback;
     
@@ -62,27 +62,13 @@ public class AssignmentOverlay extends ContentOverlay{
         setLayout(new GridBagLayout());
         
         assignmentNumField=new JTextField(10);
+        assignmentNumField.setDocument(new IntegerDocument());
         assignmentNumField.addActionListener(this);
         assignmentNameField=new JTextField(20);
         assignmentNameField.addActionListener(this);
         assignmentPointsField=new JTextField(5);
         assignmentPointsField.addActionListener(this);
-        assignmentPointsField.setDocument(new PlainDocument(){
-            @Override
-            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-                for(int i=0;i<str.length();i++){
-                    char c=str.charAt(i);
-                    if(Character.isDigit(c)||c=='.'){
-                        if(c=='.'){
-                            if(assignmentPointsField.getText().contains(".")){
-                                return;
-                            }
-                        }
-                        super.insertString(offs, str, a);
-                    }
-                }
-            }
-        });
+        assignmentPointsField.setDocument(new DoubleDocument());
         if(assignmentNum!=null)
             assignmentNumField.setText(assignmentNum+"");
         if(assignmentName!=null)
@@ -94,7 +80,7 @@ public class AssignmentOverlay extends ContentOverlay{
             unitTestPanel=new UnitTestPanel(tests,jtests,assignmentName,assignmentNum,gui);
         }
         unitTestScroll=new JScrollPane(unitTestPanel);
-        dateOverlay=new DateOverlay(this,gui);
+        dateOverlay=new DateOverlay(this,gui,getID());
         dateButton=new JButton("Due Date");
         dateButton.setToolTipText("Due Date");
         dateButton.addActionListener(this);
@@ -182,7 +168,7 @@ public class AssignmentOverlay extends ContentOverlay{
         }
         else if(e.getSource().equals(dateButton)){
             gui.getViewManager().removeOverlay(dateOverlay.getViewName());
-            
+            dateOverlay=new DateOverlay(this,gui,getID());
             gui.getViewManager().addOverlay(dateOverlay);
             dateOverlay.setDate(date);
         }
@@ -228,6 +214,7 @@ public class AssignmentOverlay extends ContentOverlay{
             libraryPanel.setLibs(libs);
         setTitle("Edit Assignment: "+assign.number+" "+assign.name);
     }
+    @Override
     public void setDate(Date d){
         if(d==null){
             dateButton.setText("Due Date");

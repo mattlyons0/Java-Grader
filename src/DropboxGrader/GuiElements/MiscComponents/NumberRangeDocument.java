@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package DropboxGrader.GuiElements.Assignment;
+package DropboxGrader.GuiElements.MiscComponents;
 
 import java.awt.Color;
 import javax.swing.JTextField;

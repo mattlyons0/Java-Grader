@@ -151,7 +151,6 @@ public class Gui extends JFrame implements ActionListener{
             public void run() {
                 gradebookView=new GradebookView(Gui.this);
                 viewManager.addView(gradebookView);
-
                 
                 unitMan=new UnitTestManager(Gui.this);
                 unitMan.test();
@@ -160,10 +159,10 @@ public class Gui extends JFrame implements ActionListener{
         browserView=new BrowserView(Gui.this,fileManager);
         viewManager.addView(browserView);
         setupFileBrowserGui();
+        browserView.setStatus("Loading...");
         
         graderView=new GraderView(Gui.this,fileManager);
         viewManager.addView(graderView);
-        browserView.setStatus("Loading...");
         
         fileManager.postInit();
         browserView.setStatus("");

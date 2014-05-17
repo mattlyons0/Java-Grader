@@ -1,9 +1,6 @@
 package DropboxGrader;
 
-import java.lang.reflect.InvocationTargetException;
 import javax.swing.JOptionPane;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 public class GuiHelper{

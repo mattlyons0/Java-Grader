@@ -143,7 +143,7 @@ public class DbxFile {
     }
     public String getAssignmentName(int row,int col){
         String s=entry.name;
-        if(!isCorrection())
+        if(!isCorrection()&&row>-1&&col>-1)
             fileManager.getTableData().removeColorAt(new CellLocation(fileManager.getAttributes()[col],row));
         String[] splits=s.split("_");
         if(splits.length<4){
@@ -164,12 +164,6 @@ public class DbxFile {
             return ERRORMSG;
         }
     }
-    private boolean isNotFirstYear(String s){
-        if(s.contains("Yr")||s.contains("yr")||s.contains("YR")||s.contains("Year")||s.contains("year")||s.contains("YEAR")){
-            return true;
-        }
-        return false;
-    }
     private boolean isCorrection(){
         TextGrade grade=fileManager.getGrader().getGrade(getFirstLastName(), getAssignmentNumber());
         if(grade!=null&&Date.before(grade.dateGraded, getSubmittedDate())){
@@ -188,9 +182,10 @@ public class DbxFile {
         if(entry.lastModified.after(entry.clientMtime)&&row>-1&&col>-1){
             if(Config.showModified){ //set modified ones to be red
                 fileManager.getTableData().setColorAt(new Color(230,120,120), new CellLocation(fileManager.getAttributes()[col],row));
+                fileManager.getTableData().setTooltipAt("Originally "+new Date(entry.clientMtime),new CellLocation(fileManager.getAttributes()[col],row));
                 return "Modified "+new Date(entry.lastModified);
             }
-            fileManager.getTableData().setTooltipAt("Originally "+new Date(entry.clientMtime),new CellLocation(fileManager.getAttributes()[col],row));
+            fileManager.getTableData().setTooltipAt("Modified "+new Date(entry.lastModified),new CellLocation(fileManager.getAttributes()[col],row));
         }
         return new Date(entry.clientMtime).toString();
     }
@@ -618,5 +613,33 @@ public class DbxFile {
     }   
     public FileManager getFileManager(){
         return fileManager;
+    }
+    public int getPeriod(){
+        String[] splits=entry.name.split("_");
+        return safeStringToInt(splits[0]);
+    }
+    public void setAssignmentNumber(int num){
+        if(getAssignmentNumber()==num||!isNameValid())
+            return;
+        String filename="P"+getPeriod()+"_"+
+                getFirstLastName()+"_"+num+
+                "_"+getAssignmentName(-1,-1)+".zip";
+        if(!filename.equals(entry.name))
+            rename(filename,true);
+    }
+    public void setAssignmentName(String name){
+        if(name.equals(getFirstLastName())||!isNameValid())
+            return;
+        String filename="P"+getPeriod()+"_"+
+                getFirstLastName()+"_"+getAssignmentNumber()+
+                "_"+name+".zip";
+        if(!filename.equals(entry.name))
+            rename(filename,true);
+    }
+    public boolean isNameValid(){
+        String filename=getPeriod()+getFirstLastName()+getAssignmentNumber()+getAssignmentName(-1,-1);
+        if(filename.contains(ERRORMSG))
+            return false;
+        return true;
     }
 }
