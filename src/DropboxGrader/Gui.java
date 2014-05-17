@@ -6,8 +6,9 @@
 
 package DropboxGrader;
 
-import DropboxGrader.FileManagement.FileManager;
+import DropboxGrader.Email.Emailer;
 import DropboxGrader.FileManagement.DbxFile;
+import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.GuiElements.ContentViewManager;
 import DropboxGrader.GuiElements.FileBrowser.BrowserView;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
@@ -20,6 +21,7 @@ import DropboxGrader.GuiElements.MiscViews.AuthView;
 import DropboxGrader.GuiElements.MiscViews.ConfigView;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.UnitTesting.UnitTestManager;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
@@ -54,6 +56,7 @@ public class Gui extends JFrame implements ActionListener{
     private ArrayList<Integer> selectedFiles;
     private DbxFile currentFile;
     private UnitTestManager unitMan;
+    private Emailer emailer;
     
     //View Manager
     private ContentViewManager viewManager;
@@ -137,6 +140,8 @@ public class Gui extends JFrame implements ActionListener{
         });
     }
     private void createSession(){
+        emailer=new Emailer(this);
+        emailer.email(new TextName("Matt","Lyons","pcmaster160@gmail.com"), "Hello there", "This is a test");
         fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
         workerThread.setFileManager(fileManager);
         grader=new TextGrader(fileManager,client,Gui.this);
@@ -346,5 +351,8 @@ public class Gui extends JFrame implements ActionListener{
     }
     public GradebookView getGradebook(){
         return gradebookView;
+    }
+    public Emailer getEmailer(){
+        return emailer;
     }
 }

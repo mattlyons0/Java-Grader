@@ -45,6 +45,9 @@ public class Config {
     public static String jUnitHamcrestJarLocation;
     public static String jUnitTestsLocation="/JUnitTests";
     
+    //Email
+    public static String emailSentFrom;
+    
     //Misc
     public static String librariesLocation="/Libraries";
     public static boolean demoMode=false;
@@ -78,6 +81,9 @@ public class Config {
         //UnitTests
         jUnitJarLocation="";
         jUnitHamcrestJarLocation="";
+        
+        //Email
+        emailSentFrom="AP Computer Science Grader";
     }
     public static void readConfig(){
         if(!CONFIGFILE.exists()){
@@ -108,6 +114,7 @@ public class Config {
             //jUnitTestsLocation=vars[20]; //no longer configurable
             bottomDividerLocation=Integer.parseInt(vars[21]);
             showModified=Boolean.parseBoolean(vars[22]);
+            emailSentFrom=vars[23];
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
@@ -136,6 +143,7 @@ public class Config {
         config=append(config,jUnitTestsLocation); //no longer configurable, but we'll leave it in just to not screw up the order
         config=append(config,bottomDividerLocation);
         config=append(config,showModified);
+        config=append(config,emailSentFrom);
         
         DbxSession.writeToFile(CONFIGFILE, config);
     }
