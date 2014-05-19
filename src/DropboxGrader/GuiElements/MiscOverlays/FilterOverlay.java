@@ -6,7 +6,6 @@
 
 package DropboxGrader.GuiElements.MiscOverlays;
 
-import DropboxGrader.Config;
 import DropboxGrader.FileManagement.Date;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Assignment.DateOverlay;

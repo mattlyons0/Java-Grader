@@ -10,6 +10,7 @@ import DropboxGrader.FileManagement.Date;
 import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
+import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiElements.UnitTesting.UnitTestOverlay;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.RunCompileJava.JavaFile;
@@ -330,29 +331,63 @@ public class UnitTester {
                 public void run() {
                     grader.downloadSheet();
                     TextGrade curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
-                    TextSpreadsheet sheet=grader.getSpreadsheet();
+                    final TextSpreadsheet sheet=grader.getSpreadsheet();
                     TextName name=sheet.getName(file.getFirstLastName());
-                    TextGrade oldGrade=null;
-                    if(curGrade==null){
-                        sheet.setGrade(name,
-                        sheet.getAssignment(assignment.number), fGrade, fStatus, true);
-                        curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
-                        curGrade.unitTested=true;
-                        curGrade.dateGraded=Date.currentDate();
+                    boolean graded=false;
+                    if(name==null){
+                        String[] splitName=gui.getGrader().splitName(file.getFirstLastName());
+                        if(splitName!=null){
+                            sheet.addName(splitName[0], splitName[1], null);
+                            name=sheet.getName(splitName[0]+splitName[1]);
+                        }
+                        else{
+                            graded=true;
+                            final NameOverlay overlay=new NameOverlay(gui);
+                            overlay.setData(file.getFirstLastName(), file.getFirstLastName(), null);
+                            overlay.setCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    String names=overlay.getNames()[0]+overlay.getNames()[1];
+                                    sheet.addName(overlay.getNames()[0],overlay.getNames()[1],overlay.getNames()[2]);
+                                    TextName name=sheet.getName(names);
+                                    sheet.setGrade(name, 
+                                            assignment, fGrade, fStatus, true);
+                                    TextGrade g=grader.getGrade(names, assignment.number);
+                                    g.unitTested=true;
+                                    g.dateGraded=Date.currentDate();
+                                    
+                                    gui.getEmailer().emailGraded(assignment, name, g, null);
+                                    grader.uploadTable();
+                                    gui.repaint();
+                                    gui.gradebookDataChanged();
+                                }
+                            });
+                        }
                         
-                        gui.getEmailer().emailGraded(assignment, name, curGrade, null);
                     }
-                    else{
-                        oldGrade=new TextGrade(curGrade);
-                        curGrade.grade=fGrade;
-                        curGrade.comment=fStatus;
-                        curGrade.unitTested=true;
-                        curGrade.dateGraded=Date.currentDate();
-                        
-                        gui.getEmailer().emailGraded(assignment, name, curGrade, oldGrade);
+                    if(!graded){
+                        TextGrade oldGrade=null;
+                        if(curGrade==null){
+                            sheet.setGrade(name,sheet.getAssignment(assignment.number), fGrade, fStatus, true);
+                            curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
+                            curGrade.unitTested=true;
+                            curGrade.dateGraded=Date.currentDate();
+
+                            gui.getEmailer().emailGraded(assignment, name, curGrade, null);
+                        }
+                        else{
+                            oldGrade=new TextGrade(curGrade);
+                            curGrade.grade=fGrade;
+                            curGrade.comment=fStatus;
+                            curGrade.unitTested=true;
+                            curGrade.dateGraded=Date.currentDate();
+
+                            gui.getEmailer().emailGraded(assignment, name, curGrade, oldGrade);
+                        }
+                        grader.uploadTable();
+                        gui.repaint();
+                        gui.gradebookDataChanged();
                     }
-                    grader.uploadTable();
-                    gui.repaint();
                 }
             });
         }

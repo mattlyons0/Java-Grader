@@ -11,6 +11,7 @@ import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Assignment.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.NameOverlay;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.Util.StaticMethods;
 import DropboxGrader.WorkerThread;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
@@ -29,6 +30,9 @@ import java.util.logging.Logger;
  * @author 141lyonsm
  */
 public class TextGrader {
+    private String selectedPath;
+    private String selectedRemotePath;
+    
     private DbxClient client;
     private FileManager manager;
     private String filenameRemote;
@@ -39,6 +43,7 @@ public class TextGrader {
     private Gui gui;
     
     private boolean doneLoading=false;
+    private boolean locked=false;
     public TextGrader(FileManager manager,DbxClient client,Gui gui){
         this.client=client;
         this.manager=manager;
@@ -50,7 +55,19 @@ public class TextGrader {
         if(Config.dropboxSpreadsheetFolder==null){
             Config.reset(); //config corrupt
         }
-        filenameLocal="Grades-Period"+Config.dropboxPeriod+".txt";
+        String text="";
+        try {
+            selectedPath=manager.getDownloadFolder()+"/.selected"+Config.dropboxPeriod;
+            selectedRemotePath="/"+Config.dropboxSpreadsheetFolder+"/.selected"+Config.dropboxPeriod;
+            FileOutputStream f = new FileOutputStream(selectedPath);
+            DbxEntry e=client.getFile(selectedRemotePath, null, f);
+            f.close();
+            text=DbxSession.readFromFile(new File(selectedPath));
+        } catch (IOException|DbxException ex) {
+            System.err.println("Error determining selected gradebook. Using Default.");
+            Logger.getLogger(TextGrader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        filenameLocal="Grades-Period"+Config.dropboxPeriod+text+".txt";
         filenameRemote="/"+Config.dropboxSpreadsheetFolder+"/"+filenameLocal;
         filenameLocal=manager.getDownloadFolder()+"/"+filenameLocal;
         sheet=new File(filenameLocal);
@@ -120,10 +137,14 @@ public class TextGrader {
         }
     }
     public boolean uploadTable(){
+        if(locked)
+            return false;
         data.writeToFile(sheet);
         return upload();
     }
     private boolean upload(){
+        if(locked)
+            return false;
         try{
             DbxEntry.File entry=(DbxEntry.File)client.getMetadata(filenameRemote);
             if(entry!=null&&downloadedRevision!=null){ //file has already been created
@@ -132,6 +153,7 @@ public class TextGrader {
                     //proccess it, write the change to the sheet to disk then upload it.
                     System.err.println("A different revision was downloaded than was going to be uploaded.\n"
                             + "Someone changed a grade at the exact moment you changed a grade.");
+                    StaticMethods.printStackTrace();
                     GuiHelper.alertDialog("Someone wrote a grade at the exact moment you did.\nTry again in a second.");
                     return false;
                 }
@@ -228,6 +250,14 @@ public class TextGrader {
         }
         TextName n=data.getName(name);
         TextAssignment a=data.getAssignment(assignmentNum);
+        if(gradeNum>a.totalPoints){
+            int val=GuiHelper.multiOptionPane(gradeNum+" is larger than the total points"
+                    + " for this assignment of "+a.totalPoints+". \nAre you sure you would to do this?", new String[]{"Yes","No"});
+            if(val==1){
+                downloadSheet(true);
+                return false;
+            }
+        }
         TextGrade oldGrade=null;
         if(data.getGrade(n,a)!=null)
             oldGrade=new TextGrade(data.getGrade(n,a));
@@ -274,7 +304,7 @@ public class TextGrader {
     public TextSpreadsheet getSpreadsheet(){
         return data;
     }
-    private String[] splitName(String name,final int assignmentNum,final double gradeNum,final String comment,final boolean overwrite){
+    public String[] splitName(String name){
         String firstName,lastName;
         int upercaseIndex=-1;
         char c;
@@ -288,6 +318,18 @@ public class TextGrader {
             }
         }
         if(upercaseIndex==-1){
+            return null;
+        }
+        else{
+            firstName=name.substring(0, upercaseIndex);
+            lastName=name.substring(upercaseIndex, name.length());
+        }
+        
+        return new String[] {firstName,lastName};
+    }
+    private String[] splitName(String name,final int assignmentNum,final double gradeNum,final String comment,final boolean overwrite){
+        String[] split=splitName(name);
+        if(split==null){
             final NameOverlay overlay=new NameOverlay(gui);
             overlay.setData(name, name,null);
             overlay.setCallback(new Runnable() {
@@ -314,11 +356,18 @@ public class TextGrader {
             gui.getViewManager().addOverlay(overlay);
             return null;
         }
-        else{
-            firstName=name.substring(0, upercaseIndex);
-            lastName=name.substring(upercaseIndex, name.length());
-        }
-        
-        return new String[] {firstName,lastName};
+        return split;
+    }
+    public String getSelectedPath(){
+        return selectedPath;
+    }    
+    public String getSelectedRemotePath(){
+        return selectedRemotePath;
+    }
+    public void lock(){
+        locked=true;
+    }
+    public void unlock(){
+        locked=false;
     }
 }

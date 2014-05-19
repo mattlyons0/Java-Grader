@@ -35,6 +35,7 @@ public class GradebookView extends ContentView{
     private JComboBox gradebookMode;
     private JButton printButton;
     private JButton markGraded;
+    private JButton changeSpreadsheetButton;
     
     public GradebookView(Gui gui){
         super("GradebookView");
@@ -58,6 +59,8 @@ public class GradebookView extends ContentView{
         modeSelector.add(gradebookMode,cons);
         printButton=new JButton("Print");
         printButton.addActionListener(this);
+        changeSpreadsheetButton=new JButton("Change Gradebook");
+        changeSpreadsheetButton.addActionListener(this);
         
         
         cons=new GridBagConstraints();
@@ -75,8 +78,10 @@ public class GradebookView extends ContentView{
         cons.anchor=GridBagConstraints.EAST;
         cons.gridx=3;
         cons.weightx=0.1;
-        add(modeSelector,cons);
+        add(changeSpreadsheetButton,cons);
         cons.gridx=4;
+        add(modeSelector,cons);
+        cons.gridx=5;
         cons.weightx=0.1;
         add(printButton,cons);
         cons.weightx=1;
@@ -85,7 +90,7 @@ public class GradebookView extends ContentView{
         cons.gridy=1;
         cons.gridx=0;
         cons.weighty=95;
-        cons.gridwidth=5;
+        cons.gridwidth=6;
         cons.gridheight=1;
         cons.insets=new Insets(0,5,5,5);
         add(gradebookScroll,cons);
@@ -146,6 +151,10 @@ public class GradebookView extends ContentView{
                 }
             });
         }
+        else if(e.getSource().equals(changeSpreadsheetButton)){
+            GradebookOverlay overlay=new GradebookOverlay(this);
+            gui.getViewManager().addOverlay(overlay);
+        }
     }
     public void dataChanged(){
         gradebookTable.dataChanged();
@@ -155,6 +164,9 @@ public class GradebookView extends ContentView{
     }
     public JScrollPane getScroll(){
         return gradebookScroll;
+    }
+    public Gui getGui(){
+        return gui;
     }
     
 }

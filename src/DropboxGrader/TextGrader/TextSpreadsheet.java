@@ -53,11 +53,12 @@ public class TextSpreadsheet {
 
         int row=0; //keeps track of where we are in terms of real lines
         for (String line : lines) {
-            if(!line.contains(COMMENTDELIMITER)&&line.contains(GRADEDELIMITER)){ //if its not a comment and the line contains delimitors
+            if(!line.contains(COMMENTDELIMITER)){ //if its not a comment and the line contains delimitors
                 String[] gradesInLine=line.split(GRADEDELIMITER);
                 for(int col=0;col<gradesInLine.length;col++){
                     if(row==0){ //We are on the line that declares assignments
-                        assignments.add(new TextAssignment(gradesInLine[col])); //Add to list of assignments
+                        if(!gradesInLine[col].equals(""))
+                            assignments.add(new TextAssignment(gradesInLine[col])); //Add to list of assignments
                     }
                     else{
                         if(col==0){ //this is a name
@@ -101,7 +102,9 @@ public class TextSpreadsheet {
         //Write names then grades
         for(int row=0;row<names.size();row++){
             TextName name=names.get(row);
-            for(int i=0;i<grades.get(0).size();i++){
+            if(grades.get(row).isEmpty())
+                code+=name.toText()+GRADEDELIMITER;
+            for(int i=0;i<grades.get(row).size();i++){
                 if(i==0){ //name entry
                     code+=name.toText()+GRADEDELIMITER;
                 }
@@ -505,6 +508,25 @@ public class TextSpreadsheet {
     }
     public TextName[] getAllNames(){
         return names.toArray(new TextName[0]);
+    }
+    public void deleteAllNames(){
+        deleteAllGrades();
+        names.clear();
+        grades.clear();
+    }
+    public void deleteAllAssignments(){
+        deleteAllGrades();
+        assignments.clear();
+        for(int i=0;i<grades.size();i++){
+            grades.get(i).clear();
+        }
+    }
+    public void deleteAllGrades(){
+        for(int x=0;x<grades.size();x++){
+            for(int y=0;y<grades.get(x).size();y++){
+                grades.get(x).set(y, null);
+            }
+        }
     }
     private void clearData(){
         if(assignments!=null)
