@@ -21,7 +21,6 @@ import DropboxGrader.GuiElements.MiscViews.AuthView;
 import DropboxGrader.GuiElements.MiscViews.ConfigView;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextGrader;
-import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.UnitTesting.UnitTestManager;
 import com.dropbox.core.DbxClient;
 import java.awt.Color;
@@ -141,7 +140,6 @@ public class Gui extends JFrame implements ActionListener{
     }
     private void createSession(){
         emailer=new Emailer(this);
-        emailer.email(new TextName("Matt","Lyons","pcmaster160@gmail.com"), "Hello there", "This is a test");
         fileManager=new FileManager(Config.dropboxFolder,Config.dropboxPeriod,client,this);
         workerThread.setFileManager(fileManager);
         grader=new TextGrader(fileManager,client,Gui.this);
@@ -160,12 +158,14 @@ public class Gui extends JFrame implements ActionListener{
         viewManager.addView(browserView);
         setupFileBrowserGui();
         browserView.setStatus("Loading...");
+        browserView.setLoading(true);
         
         graderView=new GraderView(Gui.this,fileManager);
         viewManager.addView(graderView);
         
         fileManager.postInit();
         browserView.setStatus("");
+        browserView.setLoading(false);
     }
     
     public void setupFileBrowserGui(){
@@ -353,5 +353,9 @@ public class Gui extends JFrame implements ActionListener{
     }
     public Emailer getEmailer(){
         return emailer;
+    }
+    public void setLoading(boolean b){
+        if(browserView!=null)
+            browserView.setLoading(b);
     }
 }

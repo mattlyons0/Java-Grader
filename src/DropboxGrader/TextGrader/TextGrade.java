@@ -40,6 +40,13 @@ public class TextGrade {
             //it will be thrown if someone chooses not to write a comment for a grade
         }
     }
+    public TextGrade(TextGrade g){
+        comment=g.comment;
+        dateGraded=new Date(g.dateGraded);
+        grade=g.grade;
+        inGradebook=g.inGradebook;
+        unitTested=g.unitTested;
+    }
     public String toText(){
         String text="";
         text+=grade+TextSpreadsheet.INDIVIDUALDELIMITER;

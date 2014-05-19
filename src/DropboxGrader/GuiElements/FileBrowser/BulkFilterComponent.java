@@ -11,7 +11,6 @@ import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.MiscOverlays.ChangeAssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.FilterOverlay;
-import DropboxGrader.TextGrader.TextSpreadsheet;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -110,6 +109,8 @@ public class BulkFilterComponent extends JComponent implements ActionListener,Li
             }
         }
         else if(e.getSource().equals(applyBulkActionsButton)){
+            if(!view.getSelectionAllowed())
+                return;
             int index=bulkActionsBox.getSelectedIndex();
             final int[] selected=view.getSelected();
             if(selected.length==0){

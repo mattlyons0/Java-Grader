@@ -17,6 +17,7 @@ import DropboxGrader.RunCompileJava.JavaRunner;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import DropboxGrader.UnitTesting.SimpleTesting.JavaMethod;
 import DropboxGrader.UnitTesting.SimpleTesting.MethodData.CheckboxStatus;
@@ -305,59 +306,11 @@ public class UnitTester {
                 if(argTypes==null)
                     argTypes="";
                 String method=assignment.simpleUnitTests[testNum].getMethodName()+"("+argTypes+")";
-                CheckboxStatus[] accesses=CheckboxStatus.getAllowed(assignment.simpleUnitTests[testNum].getAccess());
-                String access="";
-                for(int i=0;i<accesses.length;i++){
-                    if(accesses[i]!=null){
-                        if(i==0)
-                            access+="public";
-                        else if(i==1)
-                            access+="protected";
-                        else if(i==2)
-                            access+="private";
-                        else if(i==3)
-                            access+="package-private";
-                        int numMore=0;
-                        for(int x=i+1;x<accesses.length;x++){
-                            if(accesses[x]!=null)
-                                numMore++;
-                        }
-                        if(numMore>1)
-                            access+=", ";
-                        else if(numMore==1)
-                            access+=" or ";
-                        else
-                            access+=" ";
-                    }
-                }
+                String access=getAccesses(assignment.simpleUnitTests[testNum]);
+                String modifiers="and may be "+getModifiers(assignment.simpleUnitTests[testNum]);
                 CheckboxStatus[] modifierss=CheckboxStatus.getAllowed(assignment.simpleUnitTests[testNum].getModifiers());
-                String modifiers="and may be ";
-                boolean modsAllowed=false;
-                for(int i=0;i<modifierss.length;i++){
-                    if(modifierss[i]!=null){
-                        modsAllowed=true;
-                        if(i==0)
-                            modifiers+="static";
-                        else if(i==1)
-                            modifiers+="final";
-                        else if(i==2)
-                            modifiers+="abstract";
-                        else if(i==3)
-                            modifiers+="synchronized";
-                        int numMore=0;
-                        for(int x=i+1;x<modifierss.length;x++){
-                            if(accesses[x]!=null)
-                                numMore++;
-                        }
-                        if(numMore>1)
-                            modifiers+=", ";
-                        else if(numMore==1)
-                            modifiers+=" and/or ";
-                        else
-                            modifiers+=" ";
-                    }
-                }
-                status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist. It must be  "+access+(modsAllowed?modifiers:"")+
+                status+="Test "+(testNum+1)+": Failed, Method "+method+" does not exist. It must be  "+access+
+                        (!modifiers.replaceAll("and may be ", "").equals("")?modifiers:"")+
                         "and must return a "+assignment.simpleUnitTests[testNum].getReturnTypeString()+".\n";
             }
         }
@@ -377,18 +330,26 @@ public class UnitTester {
                 public void run() {
                     grader.downloadSheet();
                     TextGrade curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
+                    TextSpreadsheet sheet=grader.getSpreadsheet();
+                    TextName name=sheet.getName(file.getFirstLastName());
+                    TextGrade oldGrade=null;
                     if(curGrade==null){
-                        TextSpreadsheet sheet=grader.getSpreadsheet();
-                        sheet.setGrade(sheet.getName(file.getFirstLastName()), 
+                        sheet.setGrade(name,
                         sheet.getAssignment(assignment.number), fGrade, fStatus, true);
                         curGrade=grader.getGrade(file.getFirstLastName(), assignment.number);
                         curGrade.unitTested=true;
                         curGrade.dateGraded=Date.currentDate();
+                        
+                        gui.getEmailer().emailGraded(assignment, name, curGrade, null);
                     }
                     else{
+                        oldGrade=new TextGrade(curGrade);
                         curGrade.grade=fGrade;
                         curGrade.comment=fStatus;
                         curGrade.unitTested=true;
+                        curGrade.dateGraded=Date.currentDate();
+                        
+                        gui.getEmailer().emailGraded(assignment, name, curGrade, oldGrade);
                     }
                     grader.uploadTable();
                     gui.repaint();
@@ -743,5 +704,61 @@ public class UnitTester {
                 ret+=delim;
         }
         return ret;
+    }
+    public static String getAccesses(UnitTest t){
+        String access="";
+        CheckboxStatus[] accesses=CheckboxStatus.getAllowed(t.getAccess());
+        for(int i=0;i<accesses.length;i++){
+            if(accesses[i]!=null){
+                if(i==0)
+                    access+="public";
+                else if(i==1)
+                    access+="protected";
+                else if(i==2)
+                    access+="private";
+                else if(i==3)
+                    access+="package-private";
+                int numMore=0;
+                for(int x=i+1;x<accesses.length;x++){
+                    if(accesses[x]!=null)
+                        numMore++;
+                }
+                if(numMore>1)
+                    access+=", ";
+                else if(numMore==1)
+                    access+=" or ";
+                else
+                    access+=" ";
+            }
+        }
+        return access;
+    }
+    public static String getModifiers(UnitTest t){
+        CheckboxStatus[] modifierss=CheckboxStatus.getAllowed(t.getModifiers());
+        String modifiers="";
+        for(int i=0;i<modifierss.length;i++){
+            if(modifierss[i]!=null){
+                if(i==0)
+                    modifiers+="static";
+                else if(i==1)
+                    modifiers+="final";
+                else if(i==2)
+                    modifiers+="abstract";
+                else if(i==3)
+                    modifiers+="synchronized";
+                int numMore=0;
+                for(int x=i+1;x<modifierss.length;x++){
+                    if(modifierss[x]!=null)
+                        numMore++;
+                }
+                if(numMore>1)
+                    modifiers+=", ";
+                else if(numMore==1)
+                    modifiers+=" and/or ";
+                else
+                    modifiers+=" ";
+            }
+        }
+        return modifiers;
     }
 }

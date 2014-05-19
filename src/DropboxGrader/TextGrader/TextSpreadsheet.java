@@ -8,7 +8,9 @@ package DropboxGrader.TextGrader;
 
 import DropboxGrader.DbxSession;
 import DropboxGrader.FileManagement.Date;
+import DropboxGrader.Gui;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.Util.NamedRunnable;
 import DropboxGrader.Util.StaticMethods;
 import java.io.File;
 import java.util.ArrayList;
@@ -26,12 +28,14 @@ public class TextSpreadsheet {
     public static final String INDIVIDUALDELIMITER3="☑";
     public static final String INDIVIDUALDELIMITER4="★";
     
+    private Gui gui;
+    
     private ArrayList<TextAssignment> assignments;
     private ArrayList<TextName> names;
     private ArrayList<ArrayList<TextGrade>> grades; //in the same order as names, then the same order as assignments
     
-    public TextSpreadsheet(){
-        
+    public TextSpreadsheet(Gui gui){
+        this.gui=gui;
     }
     public void parse(File f){
         if(f==null){
@@ -75,6 +79,9 @@ public class TextSpreadsheet {
                 row++;
             }
         }
+        //check if it is overdue
+        for(TextAssignment assign:assignments)
+            checkOverdue(assign);
     }
     public void writeToFile(File f){
         //Migrate comments from old sheet to the new sheet
@@ -130,7 +137,8 @@ public class TextSpreadsheet {
     public void addAssignment(int assignmentNum,String assignmentName,Date date){
         assignmentName=validateString(assignmentName);
         
-        assignments.add(new TextAssignment(assignmentNum,assignmentName,date));
+        TextAssignment assign=new TextAssignment(assignmentNum,assignmentName,date);
+        assignments.add(assign);
         
         for(ArrayList<TextGrade> grade:grades){
             grade.add(null);
@@ -210,11 +218,27 @@ public class TextSpreadsheet {
         return assignments.toArray(new TextAssignment[0]);
     }
     public TextName getName(String name){
-        for(TextName tName:names){
-            if(name.toLowerCase().contains(tName.firstName.toLowerCase())&&name.toLowerCase().contains(tName.lastName.toLowerCase())){
-                return tName;
+        
+        String[] split=name.split("(?=\\p{Upper})"); //regex, splits by uppercase
+        if(split.length==2){
+            for(TextName tName:names){
+                if(tName.firstName.toLowerCase().equals(split[0].toLowerCase())){
+                    if(tName.lastName.toLowerCase().equals(split[1].toLowerCase()))
+                        return tName;
+                }
+                else if(tName.firstName.toLowerCase().equals(split[1].toLowerCase())){
+                    if(tName.lastName.toLowerCase().equals(split[0].toLowerCase()))
+                        return tName;
+                }
             }
         }
+        for(TextName tName:names){
+            if((tName.firstName+tName.lastName).toLowerCase().equals(name.toLowerCase()))
+                return tName;
+            else if((tName.lastName+tName.firstName).toLowerCase().equals(name.toLowerCase()))
+                return tName;
+        }
+        
         return null;
     }
     public int indexOfName(String name){
@@ -436,6 +460,51 @@ public class TextSpreadsheet {
             return null;
         }
         return names.get(nameIndex);
+    }
+    public void checkOverdue(final TextAssignment assign){
+        gui.getBackgroundThread().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                gui.getGrader().downloadSheet();
+                boolean changed=false;
+                
+                int assignIndex=assignments.indexOf(assign);
+                TextAssignment assign=assignments.get(assignIndex);
+                if(assign.dateDue!=null&&(!Date.before(Date.currentDate(), assign.dateDue))){ //if the duedate has passed
+                    if(!assign.overdue){ //we havent sent late emails out yet
+                        assign.overdue=true;
+                        changed=true;
+                        for(int nameIndex=0;nameIndex<names.size();nameIndex++){
+                            TextName name=names.get(nameIndex);
+                            TextGrade grade=grades.get(nameIndex).get(assignIndex);
+                            if(grade==null){ //we havent graded it yet, but it might be submitted
+                                if(!gui.getManager().fileExists(assign.number,name)){ //they don't have anything submitted that hasnt been graded
+                                    gui.getEmailer().emailLateAssignment(assign,name);
+                                }
+                            }
+                        }
+                    }
+                }
+                if(changed){
+                    gui.getBackgroundThread().removeQueued("UploadGrades");
+                    gui.getBackgroundThread().invokeLater(new NamedRunnable() {
+
+                    @Override
+                    public void run() {
+                        gui.getGrader().uploadTable();
+                    }
+
+                    @Override
+                    public String name() {
+                        return "UploadGrades";
+                    }
+                });
+                }
+            }
+        });
+    }
+    public TextName[] getAllNames(){
+        return names.toArray(new TextName[0]);
     }
     private void clearData(){
         if(assignments!=null)

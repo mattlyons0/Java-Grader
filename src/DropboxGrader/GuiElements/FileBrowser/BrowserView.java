@@ -4,8 +4,6 @@
  */
 package DropboxGrader.GuiElements.FileBrowser;
 
-import DropboxGrader.Config;
-import DropboxGrader.FileManagement.DbxFile;
 import DropboxGrader.FileManagement.FileManager;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentView;
@@ -13,12 +11,11 @@ import DropboxGrader.WorkerThread;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 
 /**
  *
@@ -125,8 +122,10 @@ public class BrowserView extends ContentView{
     }
     public void refreshTable(){
         WorkerThread workerThread=gui.getBackgroundThread();
-        if(statusText!=null)
+        if(statusText!=null){
             statusText.setText("Refreshing File Listings...");
+            setLoading(true);
+        }
         if(fileBrowserTable!=null){
             fileBrowserTable.setRowSelectionAllowed(false);
         }
@@ -147,15 +146,13 @@ public class BrowserView extends ContentView{
         fileBrowserTable.setRowSelectionAllowed(true);
     }
     public void dataChanged(){
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                fileBrowserTable.dataChanged();
-                gui.getManager().refreshCellColors();
-                if(statusText!=null)
-                    statusText.setText("");
-            }
-        });
+        fileBrowserTable.dataChanged();
+        gui.getManager().refreshCellColors();
+        fileBrowserTable.setRowSelectionAllowed(true);
+        if(statusText!=null){
+            statusText.setText("");
+            setLoading(false);
+        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -205,6 +202,12 @@ public class BrowserView extends ContentView{
     public void setStatus(String status){
         statusText.setText(status);
     }
+    public void setLoading(boolean b){
+        if(b)
+            statusText.setIcon(new ImageIcon(getClass().getResource("/Resources/ajax-loader.gif")));
+        else
+            statusText.setIcon(null);
+    }
     public void gradeRows(){
         actionPerformed(new ActionEvent(gradeButton,0,null));
     }
@@ -217,5 +220,8 @@ public class BrowserView extends ContentView{
     }
     public int[] getSelected(){
         return fileBrowserTable.getSelectedRows();
+    }
+    public boolean getSelectionAllowed(){
+        return fileBrowserTable.getRowSelectionAllowed();
     }
 }

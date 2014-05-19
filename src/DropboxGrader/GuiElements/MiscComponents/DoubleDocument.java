@@ -6,9 +6,6 @@
 
 package DropboxGrader.GuiElements.MiscComponents;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JTextField;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -28,7 +25,7 @@ public class DoubleDocument extends PlainDocument{
                         return;
                     }
                 }
-                super.insertString(offs, str, a);
+                super.insertString(offs+i, c+"", a);
             }
         }
     }

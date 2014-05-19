@@ -40,6 +40,7 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
     private JButton removeButton;
     
     private Date date;
+    private boolean initialized;
     
     public DateOverlay(SettableDate overlay,Gui gui,long id){
         super("DateOverlay"+id,true);
@@ -53,7 +54,7 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
         datePicker=new JXDatePicker();
         datePicker.addActionListener(this);
         datePicker.setLightWeightPopupEnabled(false);
-        datePicker.setDate(Date.currentDate().toDate());
+        datePicker.setDate(date.toDate());
         
         hourSpinner=new JTextField(3);
         hourSpinner.setDocument(new NumberRangeDocument(0,13,hourSpinner));
@@ -69,6 +70,9 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
         ampmSpinner.addActionListener(this);
         removeButton=new JButton("Remove Date");
         removeButton.addActionListener(this);
+        
+        setDate(date);
+        initialized=true;
         
         GridBagConstraints cons=new GridBagConstraints();
         cons.gridx=0;
@@ -116,10 +120,10 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
     @Override
     public boolean isClosing() {
         try{
-            int ampm=1;
+            int ampm=0;
             if(ampmSpinner.getSelectedIndex()==1)
                 ampm++;
-            date.hour=Integer.parseInt(hourSpinner.getText())*ampm;
+            date.hour=Integer.parseInt(hourSpinner.getText())+(12*ampm);
             date.minute=Integer.parseInt(minuteSpinner.getText());
             date.second=Integer.parseInt(secondSpinner.getText());
             actionPerformed(new ActionEvent(datePicker,0,null));
@@ -133,6 +137,8 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(!initialized)
+            return;
         if(e.getSource().equals(datePicker)){
             if(datePicker.getDate()!=null){
                 Date d=new Date(datePicker.getDate());
@@ -175,6 +181,8 @@ public class DateOverlay extends ContentOverlay implements CaretListener{
     }
     @Override
     public void caretUpdate(CaretEvent e) {
+        if(!initialized)
+            return;
         if(e.getSource().equals(hourSpinner)){
             try{
                 date.hour=Integer.parseInt(hourSpinner.getText());

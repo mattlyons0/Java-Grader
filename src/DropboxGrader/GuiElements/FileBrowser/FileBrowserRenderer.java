@@ -20,6 +20,13 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
     @Override
     public Component getTableCellRendererComponent(JTable table,Object value,boolean isSelected,boolean hasFocus,int row,int col){
         JLabel l=(JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+        if(!table.getRowSelectionAllowed()){
+            if(col==0)
+                l.setText("Refreshing...");
+            else
+                l.setText("");
+            return l;
+        }
         Color c;
         String tooltip=null;
         try{
@@ -43,7 +50,7 @@ public class FileBrowserRenderer extends DefaultTableCellRenderer{
                 l.setForeground(Color.BLACK);
             }
         }
-        l.setToolTipText(tooltip==null?"":tooltip);
+        l.setToolTipText(tooltip);
         
         return l;
     }

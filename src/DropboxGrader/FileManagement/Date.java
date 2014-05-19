@@ -34,6 +34,14 @@ public class Date {
         minute=c.get(Calendar.MINUTE);
         second=c.get(Calendar.SECOND);
     }
+    public Date(Date d){
+        day=d.day;
+        hour=d.hour;
+        minute=d.minute;
+        month=d.month;
+        second=d.second;
+        year=d.year;
+    }
     public Date(String dateString){
         try{
             String[] split=dateString.split(Pattern.quote(TextSpreadsheet.INDIVIDUALDELIMITER4));
@@ -116,5 +124,26 @@ public class Date {
         return (format.format(month+1))+"/"+format.format(day)+"/"+format2.format(year)+
                 " "+format.format(hour)+":"+format.format(minute)+":"+format.format(second);
     }
-    
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + this.month;
+        hash = 79 * hash + this.day;
+        hash = 79 * hash + this.year;
+        hash = 79 * hash + this.hour;
+        hash = 79 * hash + this.minute;
+        hash = 79 * hash + this.second;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Date){
+            Date d=(Date)obj;
+            if(d.day==day&&d.hour==hour&&d.minute==minute&&d.second==second&&d.year==year)
+                return true;
+        }
+        return false;
+    }    
 }

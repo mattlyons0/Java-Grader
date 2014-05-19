@@ -86,6 +86,8 @@ public class GradeOverlay extends ContentOverlay{
     }
     private boolean save(){
         //validate data
+        if(gradeField.getText().equals("")&&commentField.getText().equals(""))// nothin entered
+            return true;
         if(gradeField.getText().replaceAll(" ","").equals("")){
             gradeField.setText("");
             GuiHelper.alertDialog("Grade cannot be empty.");

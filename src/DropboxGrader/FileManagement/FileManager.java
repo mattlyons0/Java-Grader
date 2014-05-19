@@ -8,6 +8,7 @@ import DropboxGrader.Config;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.FileBrowser.FileBrowserData;
 import DropboxGrader.TextGrader.TextGrader;
+import DropboxGrader.TextGrader.TextName;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
@@ -159,5 +160,18 @@ public class FileManager {
     }
     public Gui getGui(){
         return gui;
+    }
+    public boolean fileExists(int assignmentNumber,TextName name){
+        for(DbxFile f:files){
+            if(f!=null){
+                if(f.getAssignmentNumber()==assignmentNumber){
+                    String submittedName=f.getFirstLastName();
+                    TextName foundName=gui.getGrader().getSpreadsheet().getName(submittedName);
+                    if(name.equals(foundName))
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 }

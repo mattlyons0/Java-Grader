@@ -29,6 +29,7 @@ public class FileBrowserTable extends JTable{
         super(data);
         model=data;
         
+        setRowSelectionAllowed(false);
         listener.setTable(this);
         setAutoCreateRowSorter(true);
         setUpdateSelectionOnSort(true);
@@ -45,10 +46,12 @@ public class FileBrowserTable extends JTable{
         dataChanged();
     } 
     public void dataChanged(){
-        SwingUtilities.invokeLater(new Runnable(){public void run(){
-            model.fireTableStructureChanged();
-            model.fireTableDataChanged();
-            initSort();
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run(){                
+                model.fireTableStructureChanged();
+                model.fireTableDataChanged();
+                initSort();
+                
         }});
     }
     @Override

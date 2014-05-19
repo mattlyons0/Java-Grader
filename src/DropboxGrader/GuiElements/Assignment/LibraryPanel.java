@@ -256,4 +256,7 @@ public class LibraryPanel extends JPanel implements ActionListener{
             }
         }
     }
+    public boolean hasLibraries(){
+        return !libraries.isEmpty();
+    }
 }

@@ -47,6 +47,10 @@ public class Config {
     
     //Email
     public static String emailSentFrom;
+    public static String emailTeacher;
+    public static String emailTeacherName;
+    public static boolean emailHowtoSubmit;
+    public static String submitURL;
     
     //Misc
     public static String librariesLocation="/Libraries";
@@ -84,6 +88,10 @@ public class Config {
         
         //Email
         emailSentFrom="AP Computer Science Grader";
+        emailTeacher=null;
+        emailTeacherName=null;
+        emailHowtoSubmit=true;
+        submitURL=null;
     }
     public static void readConfig(){
         if(!CONFIGFILE.exists()){
@@ -114,7 +122,11 @@ public class Config {
             //jUnitTestsLocation=vars[20]; //no longer configurable
             bottomDividerLocation=Integer.parseInt(vars[21]);
             showModified=Boolean.parseBoolean(vars[22]);
-            emailSentFrom=vars[23];
+            emailSentFrom=!vars[23].equals("null")?vars[23]:null;
+            emailTeacher=!vars[24].equals("null")?vars[24]:null;
+            emailTeacherName=!vars[25].equals("null")?vars[25]:null;
+            emailHowtoSubmit=Boolean.parseBoolean(vars[26]);
+            submitURL=!vars[27].equals("null")?vars[27]:null;
         } catch(Exception ex){
             //cool, we got all we wanted, defaults will work for the rest.
         }
@@ -144,6 +156,10 @@ public class Config {
         config=append(config,bottomDividerLocation);
         config=append(config,showModified);
         config=append(config,emailSentFrom);
+        config=append(config,emailTeacher);
+        config=append(config,emailTeacherName);
+        config=append(config,emailHowtoSubmit);
+        config=append(config,submitURL);
         
         DbxSession.writeToFile(CONFIGFILE, config);
     }

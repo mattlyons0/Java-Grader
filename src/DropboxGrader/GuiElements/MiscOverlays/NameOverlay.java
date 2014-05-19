@@ -8,6 +8,7 @@ import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.ContentOverlay;
 import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
+import DropboxGrader.TextGrader.TextName;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -87,10 +88,14 @@ public class NameOverlay extends ContentOverlay{
     }
     private boolean save(){
         //validate data
+        if(firstNameField.getText().equals("")&&lastNameField.getText().equals("")&&emailField.getText().equals("")) //no data entered
+            return true;
         if(firstNameField.getText().equals("")||firstNameField.getText().equals(" ")){
+            GuiHelper.alertDialog("A first name must be entered.");
             return false;
         }
         if(lastNameField.getText().equals("")||lastNameField.getText().equals(" ")){
+            GuiHelper.alertDialog("A last name must be entered.");
             return false;
         }
         if(!emailField.getText().equals("")&&!emailField.getText().contains("@")){
@@ -107,7 +112,17 @@ public class NameOverlay extends ContentOverlay{
             lastName=Character.toUpperCase(lastName.charAt(0))+lastName.substring(1);
             lastNameField.setText(lastName);
         }
-        email=emailField.getText();
+        if((email==null&&!emailField.getText().equals(""))||
+                (email!=null&&!emailField.getText().equals("")&&!email.equals(emailField.getText()))){//if first time setting email or it is changed
+            gui.getBackgroundThread().invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    gui.getEmailer().emailSet(new TextName(firstName,lastName,emailField.getText()));
+                }
+            });
+        }
+        email=emailField.getText().equals("")?null:emailField.getText();
         
         if(callback!=null){
             gui.getBackgroundThread().invokeLater(callback);

@@ -43,7 +43,7 @@ public class TextGrader {
         this.client=client;
         this.manager=manager;
         this.gui=gui;
-        data=new TextSpreadsheet();
+        data=new TextSpreadsheet(gui);
         init();
     }
     private void init(){
@@ -226,10 +226,17 @@ public class TextGrader {
             gui.getViewManager().addOverlay(overlay);
             data.addAssignment(assignmentNum, "",null);
         }
+        TextName n=data.getName(name);
+        TextAssignment a=data.getAssignment(assignmentNum);
+        TextGrade oldGrade=null;
+        if(data.getGrade(n,a)!=null)
+            oldGrade=new TextGrade(data.getGrade(n,a));
+        
         boolean gradeSet=data.setGrade(data.getName(name),data.getAssignment(assignmentNum), gradeNum, comment,overwrite);
         if(!gradeSet){
             return false;
         }
+        gui.getEmailer().emailGraded(a,n,data.getGrade(n,a), oldGrade);
         //convert to code, write and upload
         gui.gradebookDataChanged();
         return uploadTable();
@@ -289,10 +296,19 @@ public class TextGrader {
                     String firstName=overlay.getNames()[0];
                     String lastName=overlay.getNames()[1];
                     String email=overlay.getNames()[2];
-                    TextName name=getSpreadsheet().getName(firstName+lastName);
-                    name.email=email;
-                    getSpreadsheet().setGrade(name, getSpreadsheet().getAssignment(assignmentNum), gradeNum, comment, overwrite);
+                    TextName name=data.getName(firstName+lastName);
+                    if(name==null)
+                        data.addName(firstName, lastName, email);
+                    else
+                        name.email=email;
+                    TextAssignment a=data.getAssignment(assignmentNum);
+                    TextName n=data.getName(firstName+lastName);
+                    TextGrade oldGrade=data.getGrade(n,a)==null?null:new TextGrade(data.getGrade(n, a));
+                    data.setGrade(n, a, gradeNum, comment, overwrite);
                     uploadTable();
+                    
+                    
+                    gui.getEmailer().emailGraded(a,n,data.getGrade(n,a), oldGrade);
                 }
             });
             gui.getViewManager().addOverlay(overlay);

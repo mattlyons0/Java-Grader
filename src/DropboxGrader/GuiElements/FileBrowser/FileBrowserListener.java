@@ -146,7 +146,6 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
         if(!table.getRowSelectionAllowed())
             return;
         if(e.getActionCommand().startsWith("Rename")){
-            table.setRowSelectionAllowed(false);
             int f=Integer.parseInt(e.getActionCommand().replace("Rename", ""));
             final DbxFile file=gui.getManager().getFile(f);
             gui.setStatus("Renaming "+file.getFileName());
@@ -156,14 +155,16 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
                     String choice=JOptionPane.showInputDialog("What would you like to name the file?",file.getFileName());
                     if(choice!=null&&!choice.equals(file.getFileName())){
                         gui.setStatus("Renaming "+file.getFileName()+" to "+choice);
+                        table.setRowSelectionAllowed(false);
                         file.rename(choice);
                         gui.setupFileBrowserGui();
                         table.dataChanged();
                     }
                     else{
                         table.setRowSelectionAllowed(true);
+                        gui.setStatus("");
+                        gui.setLoading(false);
                     }
-                    gui.setStatus("");
                 }
             });
         }
@@ -171,12 +172,14 @@ public class FileBrowserListener implements ActionListener,MouseListener,RowSort
             int f=Integer.parseInt(e.getActionCommand().replace("ReDownload", ""));
             final DbxFile file=gui.getManager().getFile(f);
             gui.setStatus("Redownloading "+file.getFileName());
+            gui.setLoading(true);
             gui.getBackgroundThread().invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     file.forceDownload();
-                    table.dataChanged();
+                    gui.repaintTable();
                     gui.setStatus("");
+                    gui.setLoading(false);
                 }
             });
         }

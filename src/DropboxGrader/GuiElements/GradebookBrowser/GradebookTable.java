@@ -6,6 +6,7 @@
 
 package DropboxGrader.GuiElements.GradebookBrowser;
 
+import DropboxGrader.FileManagement.Date;
 import DropboxGrader.Gui;
 import DropboxGrader.GuiElements.Assignment.AssignmentOverlay;
 import DropboxGrader.GuiElements.MiscOverlays.GradeOverlay;
@@ -87,18 +88,24 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         initWidths();
     }
     private void initWidths(){
-        int cols=getModel().getColumnCount();
-        int maxNameWidth=0;
-        for(int i=0;i<getModel().getRowCount();i++){
-            Component comp=getDefaultRenderer(this.getClass()).getTableCellRendererComponent(this, getModel().getValueAt(i, 0), false, false, i, 0);
-            maxNameWidth=Math.max(comp.getPreferredSize().width, maxNameWidth);
-        }
-        if(maxNameWidth==0)
-            maxNameWidth=100;
-        if(cols>0)
-            getColumnModel().getColumn(0).setPreferredWidth(maxNameWidth+5);
-        for(int i=1;i<cols;i++){
-            getColumnModel().getColumn(i).setPreferredWidth(sheet.getAssignmentAt(i-1).perferredWidth);
+        try{
+            int cols=getModel().getColumnCount();
+            int maxNameWidth=0;
+            for(int i=0;i<getModel().getRowCount();i++){
+                Component comp=getDefaultRenderer(this.getClass()).
+                        getTableCellRendererComponent(GradebookTable.this, getModel().getValueAt(i, 0), false, false, i, 0);
+                maxNameWidth=Math.max(comp.getPreferredSize().width, maxNameWidth);
+            }
+            if(maxNameWidth==0)
+                maxNameWidth=100;
+            if(cols>0)
+                getColumnModel().getColumn(0).setPreferredWidth(maxNameWidth+5);
+            for(int i=1;i<cols;i++){
+                getColumnModel().getColumn(i).setPreferredWidth(sheet.getAssignmentAt(i-1).perferredWidth);
+            }
+        } catch(Exception e){
+            //might throw exception repainting because it isnt on the EDT
+            //but we want it on our thread so its fluid
         }
     }
     private void copyCell(int mouseButton){
@@ -347,8 +354,8 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             m.add(m2);
             if(assign.junitTests!=null||assign.simpleUnitTests!=null)
                 m.add(m4);
-            m.add(m3);
         }
+        m.add(m3);
         if(assign==null) //they clicked the top left corner header
             m.add(m5);
         return m;
@@ -452,7 +459,7 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 boolean success=sheet.changeName(name,names);
                 if(success){
                     TextName tName=gui.getGrader().getSpreadsheet().getName(names[0]+names[1]);
-                    tName.email=names[2];
+                    tName.email=names[2]==null||names[2].equals("")?null:names[2];
                     gui.getGrader().uploadTable();
                     dataChanged();
                     revalidate();
@@ -485,8 +492,12 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 assign.simpleUnitTests=overlay.getUnitTest();
                 assign.libraries=overlay.getLibraries();
                 
+                
                 gui.getGrader().uploadTable();
                 dataChanged();
+                
+                gui.getEmailer().emailAssignment(assign,true);
+                gui.getGrader().getSpreadsheet().checkOverdue(assign);
             }
         });
         gui.getViewManager().addOverlay(overlay);
@@ -501,6 +512,13 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 gui.getGrader().downloadSheet();
                 Object[] data=overlay.getData();
                 TextAssignment assign=sheet.getAssignmentAt(col);
+                int oldNumber=assign.number;
+                String oldName=assign.name;
+                double oldPoints=assign.totalPoints;
+                Date oldDate=new Date(assign.dateDue);
+                int simpletests=assign.simpleUnitTests==null?0:assign.simpleUnitTests.length;
+                int jtests=assign.junitTests==null?0:assign.junitTests.length;
+                
                 assign.number=(int)data[0];
                 assign.name=(String)data[1];
                 assign.totalPoints=(Double)data[2];
@@ -511,6 +529,13 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
                 gui.getGrader().uploadTable();
                 dataChanged();
                 gui.fileBrowserDataChanged();
+                
+                if(oldNumber!=assign.number||!oldName.equals(assign.name)||oldPoints!=assign.totalPoints||!assign.dateDue.equals(oldDate)||
+                        simpletests!=(assign.simpleUnitTests==null?0:assign.simpleUnitTests.length)||
+                        jtests!=(assign.junitTests==null?0:assign.junitTests.length)) //something changed
+                    gui.getEmailer().emailAssignment(assign,false);
+                
+                gui.getGrader().getSpreadsheet().checkOverdue(assign);
             }
         });
         gui.getViewManager().addOverlay(overlay);

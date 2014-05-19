@@ -34,9 +34,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 
 /**
  *
@@ -341,13 +338,13 @@ public class GraderView extends ContentView{
             comment="";
         }
         //if the divider somehow gets completely hidden lets make it small
-        if(graderDivider.getDividerLocation()>gui.getRootPane().getSize().width-50){
-            graderDivider.setDividerLocation(gui.getRootPane().getSize().width-50);
-            Config.dividerLocation=gui.getRootPane().getSize().width-50;
+        if(graderDivider.getDividerLocation()>gui.getRootPane().getSize().width-75){
+            graderDivider.setDividerLocation(gui.getRootPane().getSize().width-75);
+            Config.dividerLocation=gui.getRootPane().getSize().width-75;
         }
-        if(gradeWriteDivider.getDividerLocation()>gui.getRootPane().getSize().height-50){
-            gradeWriteDivider.setDividerLocation(gui.getRootPane().getSize().height-50);
-            Config.bottomDividerLocation=gui.getRootPane().getSize().height-50;
+        if(gradeWriteDivider.getDividerLocation()>gui.getRootPane().getSize().height-75){
+            gradeWriteDivider.setDividerLocation(gui.getRootPane().getSize().height-75);
+            Config.bottomDividerLocation=gui.getRootPane().getSize().height-75;
         }
         if(grade!=null)
             gradeNumber.setText(grade+"");

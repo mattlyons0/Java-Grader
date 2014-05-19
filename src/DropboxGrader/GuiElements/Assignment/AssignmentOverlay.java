@@ -136,6 +136,9 @@ public class AssignmentOverlay extends ContentOverlay implements SettableDate{
     }
     private boolean save(){
         gui.getViewManager().removeOverlay(dateOverlay.getViewName()); //save and remove the overlay
+        if(assignmentNameField.getText().equals("")&&assignmentNumField.getText().equals("")&&assignmentPointsField.getText().equals("")&&
+                !unitTestPanel.hasTests()&&!libraryPanel.hasLibraries()) //no data entered
+            return true;
         //validate data
         try{
             assignmentNum=Integer.parseInt(assignmentNumField.getText().replace(" ", ""));

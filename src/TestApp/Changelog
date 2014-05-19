@@ -1,0 +1,27 @@
+Implemented Emailing
+
+Replyto email is now set (if configured)
+If you reply to the email address it is sent from a autoreply will be sent saying you did so.
+Email will be sent if
+    An assignment has passed its due date and that person has not submitted the assignment yet
+    A grade is changed/written
+    Email Address is entered into the system (confirmation email)
+    An assignment is created
+    An assignment name, number, duedate or description is modified
+
+When refreshing filebrowser it will no longer say no files found and will no longer have colors or tooltips
+Date now defaults to current time when overlay is opened
+Fixed showing blank tooltip in filebrowser
+Right clicking on the top left in gradebook will now always allow you to add a name or assignment
+Fixed startup saying no files found when downloading files
+Added loading spinner to intial load of filebrowser
+Fixed rename/redownload
+Fixed date saving hour wrongly in certain situations
+Fixed allowing bulk actions while refreshing
+Fixed not changing date graded when overwriting grade unit testing
+Fixed not being able to remove email
+Fixed being way to relaxed when searching for names in gradebook, now it only ignores case
+Fixed not being able to close overlays when nothing was entered
+Fixed an issue showing points when viewing an assignment
+Fixed modifying date resetting to current time
+Fixed potential NPE grading (which has been around for quite a while interestingly enough)

@@ -25,6 +25,8 @@ public class TextAssignment {
     public Date dateDue;
     public String[] libraries;
     
+    public boolean overdue;
+    
     public TextAssignment(int number,String name,Date dueDate){
         this.number=number;
         this.name=name;
@@ -66,6 +68,7 @@ public class TextAssignment {
                     }
                 }
             }
+            overdue=Boolean.parseBoolean(text[8]);
         } catch(Exception e){ //catch numberformat and indexoutofbounds
             if(name==null){
                 name="";
@@ -114,6 +117,7 @@ public class TextAssignment {
         else
             text+="null";
         text+=TextSpreadsheet.INDIVIDUALDELIMITER;
+        text+=overdue+TextSpreadsheet.INDIVIDUALDELIMITER;
         return text;
     }
     @Override
