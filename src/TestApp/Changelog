@@ -1,5 +1,4 @@
-Now supports creating multiple gradebooks
-
-Now alerts when grading larger than max points
-Fixed Unit Testing Failing to grade when name didn't exist
-Fixed not being able to add names without assignments (it looked like you could, but they wouldn't be saved)
+Added GUI to change the gradebook
+    
+    Previously we just had a gui to make a new gradebook
+    Added overwrite check when creating a new gradebook

@@ -55,19 +55,19 @@ public class TextGrader {
         if(Config.dropboxSpreadsheetFolder==null){
             Config.reset(); //config corrupt
         }
-        String text="";
+        String selectedSheetText="";
         try {
             selectedPath=manager.getDownloadFolder()+"/.selected"+Config.dropboxPeriod;
             selectedRemotePath="/"+Config.dropboxSpreadsheetFolder+"/.selected"+Config.dropboxPeriod;
             FileOutputStream f = new FileOutputStream(selectedPath);
-            DbxEntry e=client.getFile(selectedRemotePath, null, f);
+            client.getFile(selectedRemotePath, null, f);
             f.close();
-            text=DbxSession.readFromFile(new File(selectedPath));
+            selectedSheetText=DbxSession.readFromFile(new File(selectedPath));
         } catch (IOException|DbxException ex) {
             System.err.println("Error determining selected gradebook. Using Default.");
             Logger.getLogger(TextGrader.class.getName()).log(Level.SEVERE, null, ex);
         }
-        filenameLocal="Grades-Period"+Config.dropboxPeriod+text+".txt";
+        filenameLocal="Grades-Period"+Config.dropboxPeriod+selectedSheetText+".txt";
         filenameRemote="/"+Config.dropboxSpreadsheetFolder+"/"+filenameLocal;
         filenameLocal=manager.getDownloadFolder()+"/"+filenameLocal;
         sheet=new File(filenameLocal);

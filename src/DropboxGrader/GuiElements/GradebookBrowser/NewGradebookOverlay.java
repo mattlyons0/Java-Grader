@@ -14,6 +14,7 @@ import DropboxGrader.GuiElements.MiscComponents.JGhostTextField;
 import DropboxGrader.GuiHelper;
 import DropboxGrader.TextGrader.TextSpreadsheet;
 import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxWriteMode;
 import java.awt.Dimension;
@@ -22,7 +23,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
@@ -33,8 +33,9 @@ import javax.swing.JTextField;
  *
  * @author matt
  */
-public class GradebookOverlay extends ContentOverlay{
+public class NewGradebookOverlay extends ContentOverlay{
     private GradebookView view;
+    private ChangeGradebookOverlay overlay;
     
     private JCheckBox keepNames;
     private JCheckBox keepAssignments;
@@ -42,9 +43,11 @@ public class GradebookOverlay extends ContentOverlay{
     private JTextField spreadsheetName;
     private JButton createSpreadsheet;
     
-    public GradebookOverlay(GradebookView view){
-        super("GradebookOverlay");
+    public NewGradebookOverlay(GradebookView view,ChangeGradebookOverlay overlay){
+        super("NewGradebookOverlay",true);
+        
         this.view=view;
+        this.overlay=overlay;
     }
     @Override
     public void setup() {
@@ -86,6 +89,7 @@ public class GradebookOverlay extends ContentOverlay{
         setSize((int)(parentSize.width*0.75),(int)(parentSize.height*0.25));
         Dimension size=getSize();
         setLocation((parentSize.width-size.width)/2,(parentSize.height-size.height)/2);
+        setTitle("Add New Gradebook");
         setVisible(true);
     }
 
@@ -115,6 +119,10 @@ public class GradebookOverlay extends ContentOverlay{
                 GuiHelper.alertDialog("Gradebook Must Have a Name");
                 return;
             }
+            if(spreadsheetName.getText().equals("Default")){
+                GuiHelper.alertDialog("'Default' is a reserved name, pick another name.");
+                return;
+            }
             spreadsheetName.setText(spreadsheetName.getText().replaceAll(Pattern.quote("/"), ""));
             spreadsheetName.setText(spreadsheetName.getText().replaceAll(Pattern.quote("\\"), ""));
             Gui gui=view.getGui();
@@ -124,6 +132,13 @@ public class GradebookOverlay extends ContentOverlay{
             DbxClient client=gui.getDbxSession().getClient();
             File downloadLoc=new File(gui.getGrader().getSelectedPath());
             try{
+                DbxEntry existing=client.getMetadata(remoteName);
+                if(existing!=null&&existing instanceof DbxEntry.File){
+                    boolean overwrite=GuiHelper.yesNoDialog(spreadsheetName.getText()+" for Period "+Config.dropboxPeriod+" already exists!\n"
+                            + "Are you sure you want to overwrite it?");
+                    if(!overwrite)
+                        return;
+                }
                 DbxSession.writeToFile(downloadLoc,spreadsheetName.getText());
                 FileInputStream in=new FileInputStream(downloadLoc);
                 client.uploadFile(selectedPath,DbxWriteMode.force(),downloadLoc.length(),in);
@@ -145,8 +160,11 @@ public class GradebookOverlay extends ContentOverlay{
                 client.uploadFile(remoteName,DbxWriteMode.force(),spreadsheetLoc.length(),in);
                 in.close();
                 
+                overlay.gradebooksChanged();
                 gui.getGrader().refresh();
                 gui.getGrader().unlock();
+                
+                dispose();
                 
                 gui.fileBrowserDataChanged();
                 view.dataChanged();

@@ -152,7 +152,8 @@ public class GradebookView extends ContentView{
             });
         }
         else if(e.getSource().equals(changeSpreadsheetButton)){
-            GradebookOverlay overlay=new GradebookOverlay(this);
+            gui.getViewManager().removeOverlay("ChangeGradebookOverlay");
+            ChangeGradebookOverlay overlay=new ChangeGradebookOverlay(this);
             gui.getViewManager().addOverlay(overlay);
         }
     }
