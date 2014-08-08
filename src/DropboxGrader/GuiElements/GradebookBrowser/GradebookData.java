@@ -16,7 +16,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class GradebookData extends AbstractTableModel{
     private TextSpreadsheet data;
-    
+    private boolean refreshing;
     
     public GradebookData(TextSpreadsheet data){
         super();
@@ -35,6 +35,8 @@ public class GradebookData extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if(refreshing)
+            return "Loading...";
         if(columnIndex==0){
             return data.getNameAt(rowIndex);
         }
@@ -46,5 +48,11 @@ public class GradebookData extends AbstractTableModel{
             return "Name";
         }
         return data.getAssignmentAt(column-1).toString();
+    }
+    public void setRefreshing(boolean ref){
+        if(ref)
+            refreshing=true;
+        else
+            refreshing=false;
     }
 }

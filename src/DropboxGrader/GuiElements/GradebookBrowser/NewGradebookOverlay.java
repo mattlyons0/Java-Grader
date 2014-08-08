@@ -123,56 +123,60 @@ public class NewGradebookOverlay extends ContentOverlay{
                 GuiHelper.alertDialog("'Default' is a reserved name, pick another name.");
                 return;
             }
-            spreadsheetName.setText(spreadsheetName.getText().replaceAll(Pattern.quote("/"), ""));
-            spreadsheetName.setText(spreadsheetName.getText().replaceAll(Pattern.quote("\\"), ""));
-            Gui gui=view.getGui();
-            String filename="/Grades-Period"+Config.dropboxPeriod+spreadsheetName.getText()+".txt";
-            String remoteName="/"+Config.dropboxSpreadsheetFolder+filename;
-            String selectedPath=gui.getGrader().getSelectedRemotePath();
-            DbxClient client=gui.getDbxSession().getClient();
-            File downloadLoc=new File(gui.getGrader().getSelectedPath());
-            try{
-                DbxEntry existing=client.getMetadata(remoteName);
-                if(existing!=null&&existing instanceof DbxEntry.File){
-                    boolean overwrite=GuiHelper.yesNoDialog(spreadsheetName.getText()+" for Period "+Config.dropboxPeriod+" already exists!\n"
-                            + "Are you sure you want to overwrite it?");
-                    if(!overwrite)
-                        return;
+            dispose();
+            view.getGui().getBackgroundThread().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    spreadsheetName.setText(spreadsheetName.getText().replaceAll(Pattern.quote("/"), ""));
+                    spreadsheetName.setText(spreadsheetName.getText().replaceAll(Pattern.quote("\\"), ""));
+                    Gui gui=view.getGui();
+                    String filename="/Grades-Period"+Config.dropboxPeriod+spreadsheetName.getText()+".txt";
+                    String remoteName="/"+Config.dropboxSpreadsheetFolder+filename;
+                    String selectedPath=gui.getGrader().getSelectedRemotePath();
+                    DbxClient client=gui.getDbxSession().getClient();
+                    File downloadLoc=new File(gui.getGrader().getSelectedPath());
+                    try{
+                        DbxEntry existing=client.getMetadata(remoteName);
+                        if(existing!=null&&existing instanceof DbxEntry.File){
+                            boolean overwrite=GuiHelper.yesNoDialog(spreadsheetName.getText()+" for Period "+Config.dropboxPeriod+" already exists!\n"
+                                    + "Are you sure you want to overwrite it?");
+                            if(!overwrite)
+                                return;
+                        }
+                        DbxSession.writeToFile(downloadLoc,spreadsheetName.getText());
+                        FileInputStream in=new FileInputStream(downloadLoc);
+                        client.uploadFile(selectedPath,DbxWriteMode.force(),downloadLoc.length(),in);
+                        in.close();
+                        gui.getGrader().lock(); //ensure nothing changes the remote data while we do this
+
+                        File spreadsheetLoc=new File(gui.getManager().getDownloadFolder()+filename);
+                        spreadsheetLoc.createNewFile();
+                        TextSpreadsheet sheet=gui.getGrader().getSpreadsheet();
+                        if(!keepGrades.isSelected())
+                            sheet.deleteAllGrades();
+                        if(!keepNames.isSelected())
+                            sheet.deleteAllNames();
+                        if(!keepAssignments.isSelected())
+                            sheet.deleteAllAssignments();
+                        sheet.writeToFile(spreadsheetLoc);
+
+                        in=new FileInputStream(spreadsheetLoc);
+                        client.uploadFile(remoteName,DbxWriteMode.force(),spreadsheetLoc.length(),in);
+                        in.close();
+
+                        overlay.gradebooksChanged();
+                        gui.getGrader().refresh();
+                        gui.getGrader().unlock();
+
+                        gui.fileBrowserDataChanged();
+                        view.dataChanged();
+
+                    } catch(DbxException|IOException ex){
+                        System.err.println("Error creating new gradebook.");
+                        ex.printStackTrace();
+                    }
                 }
-                DbxSession.writeToFile(downloadLoc,spreadsheetName.getText());
-                FileInputStream in=new FileInputStream(downloadLoc);
-                client.uploadFile(selectedPath,DbxWriteMode.force(),downloadLoc.length(),in);
-                in.close();
-                gui.getGrader().lock(); //ensure nothing changes the remote data while we do this
-                
-                File spreadsheetLoc=new File(gui.getManager().getDownloadFolder()+filename);
-                spreadsheetLoc.createNewFile();
-                TextSpreadsheet sheet=gui.getGrader().getSpreadsheet();
-                if(!keepGrades.isSelected())
-                    sheet.deleteAllGrades();
-                if(!keepNames.isSelected())
-                    sheet.deleteAllNames();
-                if(!keepAssignments.isSelected())
-                    sheet.deleteAllAssignments();
-                sheet.writeToFile(spreadsheetLoc);
-                
-                in=new FileInputStream(spreadsheetLoc);
-                client.uploadFile(remoteName,DbxWriteMode.force(),spreadsheetLoc.length(),in);
-                in.close();
-                
-                overlay.gradebooksChanged();
-                gui.getGrader().refresh();
-                gui.getGrader().unlock();
-                
-                dispose();
-                
-                gui.fileBrowserDataChanged();
-                view.dataChanged();
-                
-            } catch(DbxException|IOException ex){
-                System.err.println("Error creating new gradebook.");
-                ex.printStackTrace();
-            }
+            });
         }
     }
     

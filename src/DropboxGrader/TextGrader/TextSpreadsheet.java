@@ -564,4 +564,7 @@ public class TextSpreadsheet {
         
         return s;
     }
+    public Gui getGui(){
+        return gui;
+    }
 }

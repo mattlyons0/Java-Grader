@@ -48,7 +48,7 @@ public class FileBrowserTable extends JTable{
     public void dataChanged(){
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){                
-                model.fireTableStructureChanged();
+                model.fireTableStructureChanged(); //i dont think this call is neccisary but ill keep it
                 model.fireTableDataChanged();
                 initSort();
                 

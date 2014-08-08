@@ -299,7 +299,6 @@ public class TextGrader {
     
     public void refresh(){
         init();
-        
     }
     public TextSpreadsheet getSpreadsheet(){
         return data;
@@ -369,5 +368,8 @@ public class TextGrader {
     }
     public void unlock(){
         locked=false;
+    }
+    public boolean loaded(){
+        return doneLoading;
     }
 }

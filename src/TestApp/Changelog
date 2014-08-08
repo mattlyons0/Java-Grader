@@ -1,4 +1,7 @@
-Added GUI to change the gradebook
-    
-    Previously we just had a gui to make a new gradebook
-    Added overwrite check when creating a new gradebook
+Fixed Bugs with Changing Gradebook
+    Fixed not showing default gradebook as selected when it was
+    Fixed visual refreshing gradebook table when switching
+    Fixed freezing gui when changing gradebook
+    Added way to delete, rename and overwrite gradebooks
+    Fixed scrolling not working with gradebooks
+    Threaded a bit more to do with gradebooks

@@ -100,7 +100,7 @@ public class GradebookView extends ContentView{
 
     @Override
     public void switchedTo() {
-        gradebookTable.dataChanged();
+        dataChanged();
     }
 
     @Override

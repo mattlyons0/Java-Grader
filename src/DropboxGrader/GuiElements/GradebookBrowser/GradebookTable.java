@@ -178,6 +178,8 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
             getTableHeader().setReorderingAllowed(true);
             gui.getGradebook().revalidate();
             gui.getGradebook().repaint();
+            gui.getGradebook().getGradebookTable().getData().setRefreshing(false);
+            initWidths();
         }});
     }
     @Override
@@ -619,6 +621,10 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
         data=data.replace(key, "");
         return Integer.parseInt(data);
     }
+    public static String extractString(String key,String data){
+        data=data.replace(key, "");
+        return data;
+    }
 
     @Override
     public void columnMoved(final TableColumnModelEvent e){
@@ -665,5 +671,8 @@ public class GradebookTable extends JTable implements MouseListener,ActionListen
     public void tableChanged(TableModelEvent e) {
         super.tableChanged(e);
         initWidths();
+    }
+    public GradebookData getData(){
+        return sheetData;
     }
 }
