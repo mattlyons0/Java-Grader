@@ -42,6 +42,7 @@ Create spacer in gradebook
 Make errors in output easier to see, maybe highlight line error was in and make it clickable to go to that line.
 Bulk file handling for gradebook
 Mode to switch names/assignments axis (gradebook)
+Add keyboard shortcuts for common things
 
 Frontend app for submitting. Teacher distributes jar and file that has dropbox key (probably has to be web based)
     Put in name and assignment. Will autocomplete assignment name from those submitted

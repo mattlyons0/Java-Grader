@@ -32,7 +32,6 @@ import javax.swing.filechooser.FileFilter;
 public class ConfigView extends ContentView implements FocusListener{
     private Gui gui;
     
-    private JTextField gradesFolder;
     private JTextField dropboxFolder;
     private JTextField dropboxPeriod;
     private JTextField runTimes;
@@ -76,9 +75,6 @@ public class ConfigView extends ContentView implements FocusListener{
         errorLabel=new JLabel();
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setForeground(Color.red);
-        gradesFolder=new JTextField(25);
-        gradesFolder.setText(Config.dropboxSpreadsheetFolder);
-        gradesFolder.addFocusListener(this);
         dropboxFolder=new JTextField(25);
         dropboxFolder.setText(Config.dropboxFolder);
         dropboxFolder.addFocusListener(this);
@@ -129,10 +125,6 @@ public class ConfigView extends ContentView implements FocusListener{
         cons.fill=GridBagConstraints.NONE;
         cons.weighty=5;
         cons.gridwidth=1;
-        cons.gridy=3;
-        add(new JLabel("Grades Folder: "),cons);
-        cons.gridx=1;
-        add(gradesFolder,cons);
         cons.gridx=0;
         cons.gridy=4;
         add(new JLabel("Dropbox Folder: "),cons);
@@ -147,7 +139,8 @@ public class ConfigView extends ContentView implements FocusListener{
         add(new JLabel("Default Output Runs: "),cons);
         cons.gridx=1;
         add(runTimes,cons);
-        cons.gridx=3;
+        cons.gridx=2;
+        cons.gridwidth=2;
         add(autoRun,cons);
         cons.gridy=6;
         cons.gridx=0;
@@ -267,9 +260,6 @@ public class ConfigView extends ContentView implements FocusListener{
         else if(e.getComponent().equals(dropboxPeriod)){
             statusLabel.setText("Class period to show. (Must be a number)");
         }
-        else if(e.getComponent().equals(gradesFolder)){
-            statusLabel.setText("Folder in dropbox where grades will be stored. (Will be created if it doesn't already exist)");
-        }
         else if(e.getComponent().equals(runTimes)){
             statusLabel.setText("Default times to run code when run is clicked (or autorun is checked). (Must be a number)");
         }
@@ -307,23 +297,6 @@ public class ConfigView extends ContentView implements FocusListener{
                 errorLabel.setText("");
                 Config.dropboxPeriod=period;
             }
-        }
-        else if(e.getComponent().equals(gradesFolder)){
-            if(gradesFolder.getText().endsWith("/")){ //cannot end with a slash
-                gradesFolder.setText(gradesFolder.getText().substring(0,gradesFolder.getText().length()-1));
-            }
-            if(gradesFolder.getText().contains("\\")){ //should be slashes, not backslashes
-                gradesFolder.setText(gradesFolder.getText().replace("\\", "/"));
-            }
-            if(gradesFolder.getText().contains(dropboxFolder.getText())){
-                errorLabel.setText("Note: It is highly recommended that grades are not stored in the same folder as assignments.");
-                gradesFolder.setBackground(Color.orange);
-            }
-            else{
-                errorLabel.setText("");
-                gradesFolder.setBackground(Color.white);                
-            }
-            Config.dropboxSpreadsheetFolder=gradesFolder.getText();
         }
         else if(e.getComponent().equals(runTimes)){
             Integer times=null;
