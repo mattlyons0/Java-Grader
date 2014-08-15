@@ -5,7 +5,7 @@
 package TestApp;
 
 import DropboxGrader.Data.Data;
-import DropboxGrader.GuiHelper;
+import DropboxGrader.DbxSession;
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxAuthFinish;
 import com.dropbox.core.DbxClient;
@@ -27,7 +27,7 @@ import java.util.Locale;
  */
 public class Main {
     public final static String appName="Matt Lyons Assignment Grader";
-    public final static double appVersion=0.1;
+    public final static double appVersion=DbxSession.APPVERSION;
     public static void main(String[] args) throws IOException, DbxException {
         final String APP_KEY = Data.APP_KEY;
         final String APP_SECRET = Data.APP_SECRET;
