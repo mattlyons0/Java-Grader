@@ -6,6 +6,7 @@
 
 package DropboxGrader;
 
+import DropboxGrader.Email.Emailer;
 import DropboxGrader.GuiElements.MiscOverlays.ClosingOverlay;
 import DropboxGrader.RunCompileJava.JavaRunner;
 import java.awt.Dimension;
@@ -72,10 +73,15 @@ public class GuiListener implements WindowListener,ComponentListener,WindowState
                 Config.screenState=gui.getExtendedState();
                 gui.setVisible(false);
             }
-            if(gui!=null)
+            if(gui!=null){
                 gui.isClosing();
-
+                Emailer emailer=gui.getEmailer();
+                if(emailer!=null){
+                    emailer.sendErrorReport();
+                }
+            }
             Config.writeConfig();
+            
         } catch(Exception ex){
             System.err.println("Error doing closing tasks, the proccess probably terminated fast.");
             ex.printStackTrace();

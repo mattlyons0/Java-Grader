@@ -8,12 +8,14 @@ package DropboxGrader.Email;
 
 import DropboxGrader.Config;
 import DropboxGrader.Data.Data;
+import DropboxGrader.DbxSession;
 import DropboxGrader.FileManagement.Date;
 import DropboxGrader.Gui;
 import DropboxGrader.TextGrader.TextAssignment;
 import DropboxGrader.TextGrader.TextGrade;
 import DropboxGrader.TextGrader.TextName;
 import DropboxGrader.UnitTesting.SimpleTesting.UnitTest;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 import javax.mail.Address;
@@ -101,7 +103,15 @@ public class Emailer {
         
         email(name,subject,message);
     }
-    
+    public void sendErrorReport(){
+        File f=new File("error.log");
+        String errors=DbxSession.readFromFile(f);
+        if(errors.trim().equals(""))
+            return;
+        String email="<h3>Error Log:</h3>";
+        email+=errors;
+        email(new TextName("Error","Reporter","BugReports@matt-lyons.net"),"Java Grader",email);
+    }
     public void email(TextName name,String subject,String message){
         if(name==null||name.email==null||message==null)
             return;
