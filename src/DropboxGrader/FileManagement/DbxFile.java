@@ -134,8 +134,9 @@ public class DbxFile {
     }
     public int getAssignmentNumber(){
         String s=entry.name;
-        
-        int num=safeStringToInt(s.split("_")[2]);
+        int num=-1;
+        if(s.split("_").length>1)
+            num=safeStringToInt(s.split("_")[2]);
         if(num==-1){
             //theres no number supplied
         }

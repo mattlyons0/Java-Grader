@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  */
 public class DbxSession {
     public static final String APPNAME="Matt Lyons Assignment Grader";
-    public static final double APPVERSION=0.9;
+    public static final double APPVERSION=0.91;
     public static final String DEMOKEY="m06Lg60ZK2kAAAAAAAAABIiA70N9iuuVsV4NwZCCbWghtps3w5T3DHj2QkKID6K1";
     private final File KEYFILE;
     private boolean invalidToken=false;
