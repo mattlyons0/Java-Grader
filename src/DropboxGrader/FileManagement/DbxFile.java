@@ -199,7 +199,8 @@ public class DbxFile {
     }
     public String getFirstLastName(){
         String s=entry.name;
-        return s.split("_")[1];
+        String[] split=s.split("_");
+        return split.length>0?s.split("_")[1]:entry.name;
     }
     public String getStatus(int row,int col){
         int num=getAssignmentNumber();
