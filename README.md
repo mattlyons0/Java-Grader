@@ -2,17 +2,17 @@ Java-Grader
 ===========
 
 ### Disclaimer
-This project was developed for my High School APCS Class and has not been updated since. I will no longer maintain it as I no longer have a use for it.
+This project was developed for my High School AP Computer Science Class and has not been updated since. I will no longer maintain it as I no longer have a use for it.
 
 If you have any questions about the codebase I am more than willing to answer and help explain the code. Just open an issue and I'll reply back as soon as I can!
 
 ### Purpose
 
-- Automate as much grading as possible in a High School AP Computer Science Course.
-- Remove need to grade printed out code
-- Increase grade turnaround time
+- Automate as much grading as possible in a High School AP Computer Science Course
+- Remove need for students to print out code
+- Lower grade turnaround time
 - Support resubmissions for partial credit
-- Designed to store all data in Dropbox and be completely serverless
+- Store all data in Dropbox and be completely serverless
 
 
 ### Features
