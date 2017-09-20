@@ -2,7 +2,7 @@
 Java-Grader
 ===========
 
-Fully Fledged Computer Science Homework Grading System designed to store files in Dropbox in order to remain serverless. Supporting Gradebook Reports, Emailing Grade Change Events, Assignments with Libraries, JUnit Tests, Simple Unit Tests and more.
+A Fully Fledged Computer Science Homework Grading System designed to store files in Dropbox in order to remain serverless. Supporting Gradebook Reports, Emailing Grade Change Events, Assignments with Libraries, JUnit Tests, Simple Unit Tests and more.
 
 ### Contents
 * [Disclaimer](#disclaimer)
@@ -127,7 +127,7 @@ Assignment Configuration (With Simple Unit Test Configured):
     - Note: Java-Grader will create a small number of predefined and configurable directories. It will not access any data other than its own.
     - Once an App Key and Secret have been set, any Dropbox Account may use Java Grader and attach it to their Dropbox Account
   - Mail Server Data is optional, it must be set if you desire to use emailing capabilities
-    - To use emailing capabilites Java-Grader must be configured with a email server to send emails through. This is similar to information that must be provided to add an external email account to Gmail...
+    - To use emailing capabilites Java-Grader must be configured with a email server to send emails through. This is similar to information that must be provided to add an external email account to Gmail... (See error.log for email authentication errors)
 - Once `Data.java` has been configured Java-Grader may be compiled into a jar and or run
 
 
