@@ -2,6 +2,8 @@
 Java-Grader
 ===========
 
+Fully Fledged Computer Science Homework Grading System designed to store files in Dropbox in order to remain serverless. Supporting Gradebook Reports, Emailing Grade Change Events, Assignments with Libraries, JUnit Tests, Simple Unit Tests and more.
+
 ### Contents
 * [Disclaimer](#disclaimer)
 * [Purpose](#purpose)
