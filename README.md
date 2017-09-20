@@ -1,5 +1,15 @@
+![Logo](https://github.com/mattlyons0/Java-Grader/blob/DropboxGrader/src/Resources/iconBlue64.png?raw=true)
 Java-Grader
 ===========
+
+### Contents
+* [Disclaimer](#disclaimer)
+* [Purpose](#purpose)
+* [Screenshots](#screenshots)
+* [Features](#features)
+* [Intended Use](#intended-use)
+* [Usage / Building](#usage-building)
+* [To-Do](#to-do)
 
 ### Disclaimer
 This project was developed for my High School AP Computer Science Class and has not been updated since. I will no longer maintain it as I no longer have a use for it.
@@ -7,16 +17,16 @@ This project was developed for my High School AP Computer Science Class and has 
 If you have any questions about the codebase I am more than willing to answer and help explain the code. Just open an issue and I'll reply back as soon as I can!
 
 ### Purpose
-
 - Automate as much grading as possible in a High School AP Computer Science Course
 - Remove need for students to print out code
 - Lower grade turnaround time
 - Support resubmissions for partial credit
 - Store all data in Dropbox and be completely serverless
 
+### Screenshots
+- Coming Soon
 
 ### Features
-
 - Grading
   - Display Table of Submitted Assignments
     - Orderable by Assignment, Submission Date, Modification Date, Name or Grade Status
@@ -73,8 +83,7 @@ If you have any questions about the codebase I am more than willing to answer an
     - Support emailing student current grades
 
 
-### Intended use
-
+### Intended Use
 - Create Assignment in Gradebook (in application)
   - Specify Assignment Number, Name, Total Points, Due Date, Libraries required to run, JUnit Tests for Auto Grading and/or *Simple* Unit Tests
 - Give students a way to upload specifically named zipped files with homework assignments to a Dropbox Account (Recommended [DropItTo.me](https://dropitto.me/))
@@ -99,8 +108,24 @@ If you have any questions about the codebase I am more than willing to answer an
     - View/Edit Allow grades to be viewed, edited, unit tests to be rerun, student information to be edited/created and assignments to be edited/created
   - Grade reports can also be printed in either Table Mode, Individual Student Mode, or for All Students at once.
 
-### Screenshots
-- TODO
+### Usage / Building
+- Java-Grader requres configuration before it can be built and thus it is not possible to distribute a JAR file publicly without sharing said keys
+- All secrets are stored in [Data.java](https://github.com/mattlyons0/Java-Grader/blob/DropboxGrader/src/DropboxGrader/Data/Data.java)
+  - `APP_KEY` and `APP_SECRET` must be set
+    - Values may be obtained from [Dropbox Developers](https://www.dropbox.com/developers/apps/create) and an application must be created with the `Dropbox API` and `Full Dropbox Access`
+    - Note: Java-Grader will create a small number of predefined and configurable directories. It will not access any data other than its own.
+    - Once an App Key and Secret have been set, any Dropbox Account may use Java Grader and attach it to their Dropbox Account
+  - Mail Server Data is optional, it must be set if you desire to use emailing capabilities
+    - To use emailing capabilites Java-Grader must be configured with a email server to send emails through. This is similar to information that must be provided to add an external email account to Gmail...
+- Once `Data.java` has been configured Java-Grader may be compiled into a jar and or run
 
-### To-do
-To-do List: *(Features I would implement if I was still working on this project)*: [http://mattlyons.net/projects/java-grader/](http://mattlyons.net/projects/java-grader)
+
+- Upon first launch a user will be prompted to allow access to his/her Dropbox Account, copy authorization code and then click another prompt in the application to log in
+  - This is a one time authorization process and will remain valid unless the application access is revoked through the user's Dropbox Account
+- From there the user must configure the application in Settings
+  - If a incorrect folder or class period is specified files will not show
+  - If JUnit Jars are not configured JUnit tests will not correctly run
+  - Application settings will be saved for subsequent launches
+
+### To-Do
+To-Do List: *(Features I would implement if I was still working on this project)*: [http://mattlyons.net/projects/java-grader/](http://mattlyons.net/projects/java-grader)
