@@ -8,7 +8,7 @@ Java-Grader
 * [Screenshots](#screenshots)
 * [Features](#features)
 * [Intended Use](#intended-use)
-* [Usage / Building](#usage-building)
+* [Usage / Building](#usage--building)
 * [To-Do](#to-do)
 
 ### Disclaimer
@@ -128,4 +128,4 @@ If you have any questions about the codebase I am more than willing to answer an
   - Application settings will be saved for subsequent launches
 
 ### To-Do
-To-Do List: *(Features I would implement if I was still working on this project)*: [http://mattlyons.net/projects/java-grader/](http://mattlyons.net/projects/java-grader)
+*Features I would implement if I was still working on this project*: [http://mattlyons.net/projects/java-grader/](http://mattlyons.net/projects/java-grader)
