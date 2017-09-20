@@ -67,7 +67,7 @@ public class Gui extends JFrame implements ActionListener{
     private ConfigView configView;
     
     public Gui(){
-        super("Dropbox Grader");
+        super("Java Grader");
         setBackground(Color.lightGray);
         try {
             setIconImage(ImageIO.read(getClass().getResource("/Resources/iconBlue64.png")));

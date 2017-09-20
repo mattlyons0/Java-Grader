@@ -26,7 +26,7 @@ import java.util.Locale;
  * @author 141lyonsm
  */
 public class Main {
-    public final static String appName="Matt Lyons Assignment Grader";
+    public final static String appName="Java Grader";
     public final static double appVersion=DbxSession.APPVERSION;
     public static void main(String[] args) throws IOException, DbxException {
         final String APP_KEY = Data.APP_KEY;
