@@ -1,10 +1,8 @@
-/build/
-/dist/
-/downloads/
+build/
+dist/
 config.cfg
 dbx.key
 error.log
-goog.key
-/downloads/
-/src/DropboxGrader/Data/
+downloads/
+src/DropboxGrader/Data/Data.java
 /nbproject/private/

@@ -31,9 +31,8 @@ import java.util.logging.Logger;
  * @author 141lyonsm
  */
 public class DbxSession {
-    public static final String APPNAME="Matt Lyons Assignment Grader";
+    public static final String APPNAME="Java Grader";
     public static final double APPVERSION=0.91;
-    public static final String DEMOKEY="m06Lg60ZK2kAAAAAAAAABIiA70N9iuuVsV4NwZCCbWghtps3w5T3DHj2QkKID6K1";
     private final File KEYFILE;
     private boolean invalidToken=false;
     private DbxClient client;
@@ -137,17 +136,6 @@ public class DbxSession {
             }
             writeToFile(KEYFILE,val);
             createSession();
-    }
-    public void demo(){
-        client=new DbxClient(config,DEMOKEY);
-        try {
-            gui.goodKey(client.getAccountInfo().displayName,client);
-            Config.demoMode=true;
-        } catch (DbxException ex) {
-            GuiHelper.alertDialog("Error connecting to dropbox.");
-            System.err.println("Error connecting to dropbox in demo mode.");
-            ex.printStackTrace();
-        }
     }
     public static void writeToFile(File f,String s){
         try{

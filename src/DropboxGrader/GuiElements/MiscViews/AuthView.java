@@ -32,13 +32,11 @@ public class AuthView extends ContentView{
     
     private JLabel descriptionLabel;
     private JLabel statusLabel;
-    private JLabel demoLabel;
     private JLabel helpLabel;
     private JTextField keyField;
     private JButton authButton;
     private JButton keySubmitButton;
     private JButton submitKeyField;
-    private JButton demoButton;
     private JButton openBrowserButton;
     private JLabel urlFieldLabel;
     private JTextField urlField;
@@ -78,17 +76,9 @@ public class AuthView extends ContentView{
         statusLabel.setText("Click to open Dropbox authentication in your browser.");
         authButton=new JButton("Open Authentication Request Page");
         authButton.addActionListener(this);
-        demoLabel=new JLabel("Alernatively if you just want to try "+DbxSession.APPNAME+", you can try demo mode.");
-        demoButton=new JButton("Demo Mode");
-        demoButton.addActionListener(this);
-        demoButton.setToolTipText("Login to a dropbox account filled with assignments.");
         
         cons.gridy=2;
         add(authButton,cons);
-        cons.gridy=3;
-        add(demoLabel,cons);
-        cons.gridy=4;
-        add(demoButton,cons);
         revalidate();
         repaint();
     }
@@ -96,14 +86,6 @@ public class AuthView extends ContentView{
         if(authButton!=null){
             remove(authButton);
             authButton=null;
-        }
-        if(demoLabel!=null){
-            remove(demoLabel);
-            demoLabel=null;
-        }
-        if(demoButton!=null){
-            remove(demoButton);
-            demoButton=null;
         }
         descriptionLabel.setText("A webpage will now open to authenticate you, once you login it will give you a code.");
         statusLabel.setText("Copy the Code you are given.");
@@ -181,10 +163,6 @@ public class AuthView extends ContentView{
             remove(keySubmitButton);
             keySubmitButton=null;
         }
-        if(demoLabel!=null){
-            remove(demoLabel);
-            demoLabel=null;
-        }
         if(helpLabel!=null){
             remove(helpLabel);
             helpLabel=null;
@@ -243,9 +221,6 @@ public class AuthView extends ContentView{
         }
         else if(e.getSource().equals(openBrowserButton)){
             session.promptKey();
-        }
-        else if(e.getSource().equals(demoButton)){
-            session.demo();
         }
     }    
 
